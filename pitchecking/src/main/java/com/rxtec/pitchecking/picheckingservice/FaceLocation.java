@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.event;
+package com.rxtec.pitchecking.picheckingservice;
 
 public class FaceLocation {
 	private int id;
@@ -84,6 +84,21 @@ public class FaceLocation {
 	}
 	public void setSecondConfidence(float secondConfidence) {
 		this.secondConfidence = secondConfidence;
+	}
+	
+	@Override
+	public String toString(){
+		StringBuffer sb = new StringBuffer();
+		sb.append("Detected face ");
+		sb.append("X:");
+		sb.append(this.x);
+		sb.append(" Y:");
+		sb.append(this.y);
+		sb.append(" Width:");
+		sb.append(this.width);
+		sb.append(" Height:");
+		sb.append(this.height);
+		return sb.toString();
 	}
 	
 }
