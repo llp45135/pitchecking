@@ -11,7 +11,7 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 /**
- * 
+ * 人脸图像比对
  * @author ZhaoLin
  *
  */
