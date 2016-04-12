@@ -13,10 +13,13 @@ import org.openimaj.video.VideoDisplay;
 import org.openimaj.video.VideoDisplayListener;
 import org.openimaj.video.capture.VideoCapture;
 import org.openimaj.video.capture.VideoCaptureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
 public class FaceTrackingService {
+	private Logger log = LoggerFactory.getLogger("FaceTrackingService");
 
 	private JPanel videoPanel = null;
 
@@ -33,7 +36,7 @@ public class FaceTrackingService {
 	}
 
 	public MBFImage takeFrameImage(){
-//		System.out.println("!!!!!!!!!!!!!!!!!frameImageQueue size = " + frameImageQueue.size());
+		log.debug("takeFrameImage,frameImageQueue size=" + frameImageQueue.size());
 		return frameImageQueue.poll();
 	}
 	
@@ -41,7 +44,7 @@ public class FaceTrackingService {
 		detectedFaceQueue.offer(fd);
 	}
 	public FaceData takeDetectedFaceData(){
-//		System.out.println("@@@@@@@@@@@@@@@@@@@@detectedFaceQueue size = " + detectedFaceQueue.size());
+		log.debug("takeDetectedFaceData,detectedFaceQueue size=" + detectedFaceQueue.size());
 		return detectedFaceQueue.poll();
 	}
 	
@@ -85,10 +88,10 @@ public class FaceTrackingService {
 	private void beginFaceTrackThread(){
 		ExecutorService executor = Executors.newCachedThreadPool();
 		FaceTracker tracker1 = new FaceTracker();
-		FaceTracker tracker2 = new FaceTracker();
-		
 		executor.execute(tracker1);
-		executor.execute(tracker2);
+
+//		FaceTracker tracker2 = new FaceTracker();
+//		executor.execute(tracker2);
 		
 		
 	}
@@ -117,7 +120,6 @@ public class FaceTrackingService {
 				offerFrame(frame);
 				FaceData face = getFace();
 				if(face != null){
-//					System.out.println( "Frame: "+(frameCounter++)+",  1 face has been tracked!" );
 					frame.drawShape( face.getFaceBounds(), RGBColour.RED );
 					if(currentIDCard != null){
 						face.setIdCard(currentIDCard);
