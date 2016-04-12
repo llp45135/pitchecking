@@ -15,6 +15,7 @@ import java.io.IOException;
  *
  */
 public class CommUtil {
+	
 	/**
 	 * 获得指定文件的byte数组
 	 */
