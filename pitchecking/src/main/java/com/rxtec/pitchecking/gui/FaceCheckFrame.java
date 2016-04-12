@@ -52,7 +52,7 @@ public class FaceCheckFrame extends JFrame {
 		
 		
 		showBmp = new JButton();
-		showBmp.setBounds(400, 80, 100, 130);
+		showBmp.setBounds(427, 94, 100, 130);
 		contentPane.add(showBmp);
 	}
 	
