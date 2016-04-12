@@ -8,6 +8,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+
+/**
+ * 通用工具
+ * @author ZhaoLin
+ *
+ */
 public class CommUtil {
 	/**
 	 * 获得指定文件的byte数组
