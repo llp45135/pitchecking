@@ -19,7 +19,7 @@ import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
-import com.rxtec.pitchecking.picheckingservice.FaceLocationDetect;
+import com.rxtec.pitchecking.picheckingservice.FaceLocationDetection;
 
 /**
  * Syn_OpenPort Syn_SetMaxRFByte(m_Port, 80, 0); Syn_StartFindIDCard(m_Port,* *
