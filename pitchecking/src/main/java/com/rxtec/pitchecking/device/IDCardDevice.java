@@ -42,20 +42,25 @@ public class IDCardDevice {
 			// device.Syn_SetMaxRFByte(port, "80");
 			String findval = device.Syn_StartFindIDCard(port, bIfOpen);
 			if (findval.equals("0")) {
+				frame.setIdcardBmp(null);
 				frame.setVisible(false);
 				String selectval = device.Syn_SelectIDCard(port, bIfOpen);
 				if (selectval.equals("0")) {
 					String readVal = device.Syn_ReadBaseMsg(port, bIfOpen);
 					device.GetBmp(port, readVal);
-
-					Image image = null;
-					try {
-						image = ImageIO.read(new File("zp.bmp"));
-					} catch (IOException ex) {
-					}
-					if (image != null) {
-						ImageIcon icon = new ImageIcon(image);
-						frame.setIdcardBmp(icon);
+					if (readVal.equals("0")) {
+						Image image = null;
+						try {
+							image = ImageIO.read(new File("zp.bmp"));
+						} catch (IOException ex) {
+						}
+						if (image != null) {
+							ImageIcon icon = new ImageIcon(image);
+							frame.setIdcardBmp(icon);
+						}
+					} else {
+						frame.setIdcardBmp(null);
+						frame.getContentPane().repaint();
 					}
 					frame.setVisible(true);
 				}
@@ -73,7 +78,7 @@ public class IDCardDevice {
 
 	private IDCardDevice(int port) {
 		JNative.setLoggingEnabled(false);
-//		Syn_ClosePort(port);
+		// Syn_ClosePort(port);
 		Syn_OpenPort(port);
 	}
 
@@ -511,7 +516,7 @@ public class IDCardDevice {
 			if (readRet.equals("0"))
 				log.debug("相片解码成功！");
 			else
-				log.debug("相片解码不成功！");
+				log.debug("相片解码不成功！请重试!!");
 			// Image image = null;
 			// try {
 			// image = ImageIO.read(new File("zp.bmp"));
