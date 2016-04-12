@@ -73,7 +73,7 @@ public class IDCardDevice {
 
 	private IDCardDevice(int port) {
 		JNative.setLoggingEnabled(false);
-		Syn_ClosePort(port);
+//		Syn_ClosePort(port);
 		Syn_OpenPort(port);
 	}
 
