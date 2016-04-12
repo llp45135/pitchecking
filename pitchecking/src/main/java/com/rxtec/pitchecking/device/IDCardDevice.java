@@ -19,6 +19,7 @@ import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
+import com.rxtec.pitchecking.picheckingservice.FaceLocationDetect;
 
 /**
  * Syn_OpenPort Syn_SetMaxRFByte(m_Port, 80, 0); Syn_StartFindIDCard(m_Port,* *
@@ -29,39 +30,58 @@ import com.rxtec.pitchecking.gui.FaceCheckFrame;
  *
  */
 public class IDCardDevice {
-	private static Logger log = LoggerFactory.getLogger("DeviceEventListener");
+	private static Logger log = LoggerFactory.getLogger("IDCardDevice");
+	private static IDCardDevice instance = null;
 
 	public static void main(String[] args) {
-		IDCardDevice device = new IDCardDevice();
-		JNative.setLoggingEnabled(true);
-		// test();
 		int port = 1001;
-		String flag1 = device.Syn_OpenPort(port);
-		if (flag1.equals("144")) {
+		int bIfOpen = 0;
+		IDCardDevice device = IDCardDevice.getInstance(port);
+		FaceCheckFrame frame = new FaceCheckFrame();
+		while (true) {
 			// device.Syn_SetMaxRFByte(port, "80");
-			String findval = device.Syn_StartFindIDCard(port);
-			if (findval.equals("159")) {
-				String selectval = device.Syn_SelectIDCard(port);
-				if (selectval.equals("144")) {
-					device.Syn_ReadBaseMsg(port);
-					device.GetBmp(port);
-					FaceCheckFrame frame = new FaceCheckFrame();
+			String findval = device.Syn_StartFindIDCard(port, bIfOpen);
+			if (findval.equals("0")) {
+				frame.setVisible(false);
+				String selectval = device.Syn_SelectIDCard(port, bIfOpen);
+				if (selectval.equals("0")) {
+					String readVal = device.Syn_ReadBaseMsg(port, bIfOpen);
+					device.GetBmp(port, readVal);
+
 					Image image = null;
 					try {
 						image = ImageIO.read(new File("zp.bmp"));
 					} catch (IOException ex) {
 					}
-					ImageIcon icon = new ImageIcon(image);
-					frame.setIdcardBmp(icon);
+					if (image != null) {
+						ImageIcon icon = new ImageIcon(image);
+						frame.setIdcardBmp(icon);
+					}
 					frame.setVisible(true);
 				}
 			}
+			// device.Syn_ClosePort(port);
+
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		device.Syn_ClosePort(port);
 	}
 
-	public IDCardDevice() {
+	private IDCardDevice(int port) {
+		JNative.setLoggingEnabled(false);
+		Syn_ClosePort(port);
+		Syn_OpenPort(port);
+	}
 
+	public static synchronized IDCardDevice getInstance(int port) {
+		if (instance == null) {
+			instance = new IDCardDevice(port);
+		}
+		return instance;
 	}
 
 	public String Syn_OpenPort(int port) {
@@ -71,12 +91,12 @@ public class IDCardDevice {
 		try {
 			int i = 0;
 
-			jnative = new JNative("sdtapi.dll", "SDT_OpenPort");
+			jnative = new JNative("SynIDCardAPI.dll", "Syn_OpenPort");
 			jnative.setParameter(i, port);
 			jnative.setRetVal(Type.INT);
 			jnative.invoke();
 			retval = jnative.getRetVal();
-			log.debug("Syn_OpenPort:retval==" + retval);// 获取返回值
+			// log.debug("Syn_OpenPort:retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -94,12 +114,12 @@ public class IDCardDevice {
 		try {
 			int i = 0;
 
-			jnative = new JNative("sdtapi.dll", "SDT_ClosePort");
+			jnative = new JNative("SynIDCardAPI.dll", "Syn_ClosePort");
 			jnative.setParameter(i, port);
 			jnative.setRetVal(Type.INT);
 			jnative.invoke();
 			retval = jnative.getRetVal();
-			log.debug("Syn_ClosePort:retval==" + retval);// 获取返回值
+			// log.debug("Syn_ClosePort:retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -115,7 +135,7 @@ public class IDCardDevice {
 	 * unsigned char ucByte, int bIfOpen );
 	 * 
 	 */
-	public String Syn_SetMaxRFByte(int port, String ucByte) {
+	public String Syn_SetMaxRFByte(int port, String ucByte, int bIfOpen) {
 
 		JNative jnative = null;
 		String retval = "";
@@ -125,7 +145,7 @@ public class IDCardDevice {
 			jnative = new JNative("SynIDCardAPI.dll", "Syn_SetMaxRFByte");
 			jnative.setParameter(i++, port);
 			jnative.setParameter(i++, ucByte);
-			jnative.setParameter(i++, 0);
+			jnative.setParameter(i++, bIfOpen);
 			jnative.setRetVal(Type.INT);
 			jnative.invoke();
 			retval = jnative.getRetVal();
@@ -143,7 +163,7 @@ public class IDCardDevice {
 	/**
 	 * Syn_StartFindIDCard 开始找卡
 	 */
-	public String Syn_StartFindIDCard(int port) {
+	public String Syn_StartFindIDCard(int port, int bIfOpen) {
 
 		JNative jnative = null;
 		String retval = "";
@@ -153,17 +173,17 @@ public class IDCardDevice {
 			// Pointer pointer = new
 			// Pointer(MemoryBlockFactory.createMemoryBlock(4));
 			String pucIIN = "";
-			jnative = new JNative("sdtapi.dll", "SDT_StartFindIDCard");
+			jnative = new JNative("SynIDCardAPI.dll", "Syn_StartFindIDCard");
 			jnative.setParameter(i++, port);
 			jnative.setParameter(i++, pucIIN);
-			jnative.setParameter(i++, 0);
+			jnative.setParameter(i++, bIfOpen);
 			jnative.setRetVal(Type.INT);
 			jnative.invoke();
 
 			retval = jnative.getRetVal();
-			log.debug("Syn_StartFindIDCard: retval==" + retval);// 获取返回值
-			log.debug("Syn_StartFindIDCard: pucIIN==" + pucIIN);// 获取返回值
-			if (retval.equals("159")) {
+			// log.debug("Syn_StartFindIDCard: retval==" + retval);// 获取返回值
+			// log.debug("Syn_StartFindIDCard: pucIIN==" + pucIIN);// 获取返回值
+			if (retval.equals("0")) {
 				log.debug("已找到二代身份证");
 			}
 		} catch (NativeException e) {
@@ -179,7 +199,7 @@ public class IDCardDevice {
 	/**
 	 * Syn_SelectIDCard 选卡
 	 */
-	public String Syn_SelectIDCard(int port) {
+	public String Syn_SelectIDCard(int port, int bIfOpen) {
 
 		JNative jnative = null;
 		String retval = "";
@@ -189,17 +209,17 @@ public class IDCardDevice {
 			// Pointer pointer = new
 			// Pointer(MemoryBlockFactory.createMemoryBlock(4));
 			String pucSN = "";
-			jnative = new JNative("sdtapi.dll", "SDT_SelectIDCard");
+			jnative = new JNative("SynIDCardAPI.dll", "Syn_SelectIDCard");
 			jnative.setParameter(i++, port);
 			jnative.setParameter(i++, pucSN);
-			jnative.setParameter(i++, 0);
+			jnative.setParameter(i++, bIfOpen);
 			jnative.setRetVal(Type.INT);
 			jnative.invoke();
 
 			retval = jnative.getRetVal();
-			log.debug("Syn_SelectIDCard: retval==" + retval);// 获取返回值
-			log.debug("Syn_SelectIDCard: pucSN==" + pucSN);// 获取返回值
-			if (retval.equals("144")) {
+			// log.debug("Syn_SelectIDCard: retval==" + retval);// 获取返回值
+			// log.debug("Syn_SelectIDCard: pucSN==" + pucSN);// 获取返回值
+			if (retval.equals("0")) {
 				log.debug("已选择二代身份证");
 			}
 
@@ -218,35 +238,36 @@ public class IDCardDevice {
 	 * char * pucCHMsg， unsigned int * puiCHMsgLen， unsigned char * pucPHMsg，
 	 * unsigned int * puiPHMsgLen, int iIfOpen );
 	 */
-	public String Syn_ReadBaseMsg(int port) {
+	public String Syn_ReadBaseMsg(int port, int bIfOpen) {
 
 		JNative readJN = null;
 		String retval = "";
 		try {
 			int i = 0;
 
-			Pointer chmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1000));
+			Pointer chmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(512));
 			Pointer chlenPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(256));
 			Pointer phmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1024 * 3));
 			Pointer phlenPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1024));
 
-			readJN = new JNative("sdtapi.dll", "SDT_ReadBaseMsg");
+			readJN = new JNative("SynIDCardAPI.dll", "Syn_ReadBaseMsg");
 			readJN.setParameter(i++, port);
 			readJN.setParameter(i++, chmsgPointer);
 			readJN.setParameter(i++, chlenPointer);
 			readJN.setParameter(i++, phmsgPointer);
 			readJN.setParameter(i++, phlenPointer);
-			readJN.setParameter(i++, 0);
+			readJN.setParameter(i++, bIfOpen);
 			readJN.setRetVal(Type.INT);
 			readJN.invoke();
 			retval = readJN.getRetVal();
-			if (retval.equals("144")) {
+			if (retval.equals("0")) {
 				log.debug("读取二代身份证成功！");
 
 				int count = chlenPointer.getSize();
 				byte[] byteArray = new byte[count + 2];
-				for (int k = 0; k < count; k++)
+				for (int k = 0; k < count; k++) {
 					byteArray[k + 2] = chmsgPointer.getAsByte(k);
+				}
 				byteArray[0] = (byte) 0xff;
 				byteArray[1] = (byte) 0xfe;
 				String msg = new String(byteArray, "utf-16");
@@ -255,13 +276,13 @@ public class IDCardDevice {
 				String[] Info = new String[5];
 				while (st.hasMoreElements()) {
 					Info[hh++] = (String) st.nextElement();
-					System.out.println(Info[hh - 1]);
+					log.debug(Info[hh - 1]);
 				}
-				log.debug(Info[0]);
+				log.debug("姓名：" + Info[0]);
 				if (Info[1].charAt(0) == '1') {
-					log.debug("男");
+					log.debug("性别：" + "男");
 				} else if (Info[1].charAt(0) == '2')
-					log.debug("女");
+					log.debug("性别：" + "女");
 				char[] nationChar = new char[2];
 				Info[1].getChars(1, 3, nationChar, 0);
 				String nationStr = "";
@@ -394,22 +415,22 @@ public class IDCardDevice {
 				char[] BirthdateChar = new char[2];
 				Info[1].getChars(9, 11, BirthdateChar, 0);
 				BirthdateStr = String.valueOf(BirthdateChar);
-				log.debug(BirthyearStr + "年" + BirthmonthStr + "月" + BirthdateStr + "日");
+				log.debug("出生年月：" + BirthyearStr + "年" + BirthmonthStr + "月" + BirthdateStr + "日");
 				char[] addressChar = new char[Info[1].length() - 11];
 				String addressStr = "";
 				Info[1].getChars(11, Info[1].length(), addressChar, 0);
 				addressStr = String.valueOf(addressChar);
-				log.debug(addressStr);
+				log.debug("住址：" + addressStr);
 				char[] INNChar = new char[18];
 				Info[2].getChars(0, 18, INNChar, 0);
 				String INNStr = "";
 				INNStr = String.valueOf(INNChar);
-				log.debug(INNStr);
+				log.debug("身份证号：" + INNStr);
 				char[] issueChar = new char[Info[2].length() - 18];
 				Info[2].getChars(18, Info[2].length(), issueChar, 0);
 				String issueStr = "";
 				issueStr = String.valueOf(issueChar);
-				log.debug(issueStr);
+				log.debug("签发机关：" + issueStr);
 				char[] startyearChar = new char[4];
 				Info[3].getChars(0, 4, startyearChar, 0);
 				String startyearStr = "";
@@ -436,7 +457,7 @@ public class IDCardDevice {
 				String enddateStr = "";
 				enddateStr = String.valueOf(enddateChar);
 				log.debug(endyearStr + "年" + endmonthStr + "月" + enddateStr + "日");
-				
+
 				// 读相片数据
 				int count1 = phlenPointer.getSize();
 				byte[] byteArray1 = new byte[count1];
@@ -456,7 +477,7 @@ public class IDCardDevice {
 			phmsgPointer.dispose();
 			phlenPointer.dispose();
 
-			log.debug("Syn_ReadBaseMsg: retval==" + retval);// 获取返回值
+			// log.debug("Syn_ReadBaseMsg: retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -469,34 +490,34 @@ public class IDCardDevice {
 		}
 		return retval;
 	}
-	
+
 	/**
 	 * 
 	 */
-	public String GetBmp(int port) {
+	public String GetBmp(int port, String readRet) {
 		JNative BmpJN = null;
 		String retval = "";
 		try {
 			int i = 0;
 			BmpJN = new JNative("WltRS.dll", "GetBmp");
 			BmpJN.setParameter(i++, "zp.wlt");
-			BmpJN.setParameter(i++, 1);
+			BmpJN.setParameter(i++, 2);
 			BmpJN.invoke();
 			BmpJN.setRetVal(Type.INT);
 			BmpJN.invoke();
 			retval = BmpJN.getRetVal();
 
-			log.debug("GetBmp: retval==" + retval);// 获取返回值
-			if (BmpJN.getRetVal().equals("144"))
-				System.out.println("相片解码成功！");
+			// log.debug("GetBmp: retval==" + retval);// 获取返回值
+			if (readRet.equals("0"))
+				log.debug("相片解码成功！");
 			else
-				System.out.println("相片解码不成功！");
-//			Image image = null;
-//			try {
-//				image = ImageIO.read(new File("zp.bmp"));
-//			} catch (IOException ex) {
-//				ex.printStackTrace();
-//			}
+				log.debug("相片解码不成功！");
+			// Image image = null;
+			// try {
+			// image = ImageIO.read(new File("zp.bmp"));
+			// } catch (IOException ex) {
+			// ex.printStackTrace();
+			// }
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -508,14 +529,12 @@ public class IDCardDevice {
 		}
 		return retval;
 	}
-	
-	
 
 	/**
 	 * Syn_ReadMsg本函数用于读取身份证中的基本信息和照片信息，并按设置转化信息和照片 int Syn_ReadMsg( int iPort,
 	 * int iIfOpen, IDCardData *pIDCardData );
 	 */
-	public String Syn_ReadMsg(int port) {
+	public String Syn_ReadMsg(int port, int bIfOpen) {
 
 		JNative jnative = null;
 		String retval = "";
@@ -526,7 +545,7 @@ public class IDCardDevice {
 
 			jnative = new JNative("SynIDCardAPI.dll", "Syn_ReadMsg");
 			jnative.setParameter(i++, port);
-			jnative.setParameter(i++, 0);
+			jnative.setParameter(i++, bIfOpen);
 			jnative.setParameter(i++, pointer);
 
 			jnative.setRetVal(Type.INT);
@@ -560,7 +579,7 @@ public class IDCardDevice {
 	 * Syn_ReadFPMsg本函数用于读取身份证中的基本信息和照片信息，并按设置转化信息和照片 int Syn_ReadFPMsg( int
 	 * iPort, int iIfOpen, IDCardData *pIDCardData, char * cFPhotoName );
 	 */
-	public String Syn_ReadFPMsg(int port) {
+	public String Syn_ReadFPMsg(int port, int bIfOpen) {
 
 		JNative jnative = null;
 		String retval = "";
@@ -572,7 +591,7 @@ public class IDCardDevice {
 			String pucSN = "";
 			jnative = new JNative("SynIDCardAPI.dll", "Syn_ReadFPMsg");
 			jnative.setParameter(i++, port);
-			jnative.setParameter(i++, 0);
+			jnative.setParameter(i++, bIfOpen);
 			jnative.setParameter(i++, pointer);
 			jnative.setParameter(i++, finger);
 
