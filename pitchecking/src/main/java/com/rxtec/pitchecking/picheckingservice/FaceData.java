@@ -72,6 +72,15 @@ public class FaceData {
 		this.faceHeight = (int) fc.getBounds().height;
 		createTime = Calendar.getInstance().getTimeInMillis();
 	}
+	
+	public FaceData(MBFImage fm, FaceLocation fl) {
+		this.frame = fm;
+		this.faceX = fl.getX();
+		this.faceY =  fl.getY();
+		this.faceWidth = fl.getWidth();
+		this.faceHeight = fl.getHeight();
+		createTime = Calendar.getInstance().getTimeInMillis();
+	}
 
 	public Rectangle getFaceBounds() {
 		return new Rectangle(faceX, faceY, faceWidth, faceHeight);

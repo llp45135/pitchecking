@@ -84,14 +84,18 @@ public class FaceTrackingService {
 	
 	private void beginFaceTrackThread(){
 		ExecutorService executor = Executors.newCachedThreadPool();
-		FaceTrackerByKLHaar tracker = new FaceTrackerByKLHaar();
-		executor.execute(tracker);
+		FaceTracker tracker1 = new FaceTracker();
+		FaceTracker tracker2 = new FaceTracker();
+		
+		executor.execute(tracker1);
+		executor.execute(tracker2);
+		
 		
 	}
 
 	
 	
-	boolean isRotation = true;
+	boolean isRotation = false;
 	
 
 	int frameCounter = 0;
