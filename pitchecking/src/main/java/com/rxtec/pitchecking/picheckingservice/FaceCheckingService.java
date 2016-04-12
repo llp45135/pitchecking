@@ -30,15 +30,16 @@ public class FaceCheckingService {
 	}
 	
 	/*
-	 * ÈËÖ¤±È¶ÔµÄÊ±¼ä¼ä¸ô£¬È±Ê¡200ºÁÃë
+	 * è§†é¢‘æµæŠ½å¸§é¢‘æ¬¡
+	 * ç¼ºçœ200msé€1å¸§
 	 */
-	private int checckTimeInterval = 200;
+	private int checkTimeInterval = 200;
 	
-	public int getChecckTimeInterval() {
-		return checckTimeInterval;
+	public int getCheckTimeInterval() {
+		return checkTimeInterval;
 	}
-	public void setChecckTimeInterval(int checckTimeInterval) {
-		this.checckTimeInterval = checckTimeInterval;
+	public void setCheckTimeInterval(int checkTimeInterval) {
+		this.checkTimeInterval = checkTimeInterval;
 	}
 
 	FaceData preFaceData = null;
