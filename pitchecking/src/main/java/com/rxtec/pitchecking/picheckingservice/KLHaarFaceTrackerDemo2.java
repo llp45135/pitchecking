@@ -53,10 +53,6 @@ public class KLHaarFaceTrackerDemo2 {
 			FaceCheckingService.getInstance().beginFaceTrackThread();
 			
 			
-			while(true){
-				FaceData fd = FaceCheckingService.getInstance().getCheckedFaceData();
-				faceCheckFrame.setResultValue(fd.getFaceCheckResult());
-			}
 			
 		} catch (final Exception e) {
 			// an error occured
