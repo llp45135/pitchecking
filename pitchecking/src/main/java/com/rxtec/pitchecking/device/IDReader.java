@@ -3,23 +3,20 @@ package com.rxtec.pitchecking.device;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.rxtec.pitchecking.device.event.IDCard;
 import com.rxtec.pitchecking.device.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.device.event.IDeviceEvent;
+import com.rxtec.pitchecking.picheckingservice.IDCard;
 
 public class IDReader implements Runnable {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
+	IDCardDevice device = IDCardDevice.getInstance();
 
 	@Override
 	public void run() {
 
 		while (true) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+			log.debug("准备开始readCard");
 			IDeviceEvent e = readCard();
 
 			try {
@@ -31,34 +28,41 @@ public class IDReader implements Runnable {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-
+			try {
+				Thread.sleep(3000);
+			} catch (InterruptedException ex) {
+				// TODO Auto-generated catch block
+				ex.printStackTrace();
+			}
 		}
 
 	}
 
 	private IDeviceEvent readCard() {
 
-		int port = 1001;
-		int bIfOpen = 0;
 		IDeviceEvent event = new IDCardReaderEvent();
-		IDCardReaderEvent idcardEvent = (IDCardReaderEvent)event;
+		IDCardReaderEvent idcardEvent = (IDCardReaderEvent) event;
 		/*
 		 * 读二代证数据,填充event 读不到数据返回null
 		 */
-		IDCardDevice device = IDCardDevice.getInstance();
-		String findval = device.Syn_StartFindIDCard(port, bIfOpen);
+		TicketCheckScreen.getInstance().repainFaceFrame();
+		
+		log.debug("开始寻卡...");
+		device.Syn_OpenPort();
+		String findval = device.Syn_StartFindIDCard();
 		if (findval.equals("0")) {
-			String selectval = device.Syn_SelectIDCard(port, bIfOpen);
+			String selectval = device.Syn_SelectIDCard();
 			if (selectval.equals("0")) {
-				String readVal = device.Syn_ReadBaseMsg(port, bIfOpen);
-				device.GetBmp(port, readVal);
-				if (readVal.equals("0")) {
-					IDCard idCard = new IDCard();
+				IDCard idCard = device.Syn_ReadBaseMsg();
+				if (idCard != null) {
 					idcardEvent.setIdCard(idCard);
 				}
 			}
+		} else {
+			log.debug("没有找到身份证");
+			idcardEvent = null;
 		}
-		log.debug("IDCard");
+		device.Syn_ClosePort();
 		return idcardEvent;
 	}
 

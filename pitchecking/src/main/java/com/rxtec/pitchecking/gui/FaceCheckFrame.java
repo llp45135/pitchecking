@@ -77,7 +77,7 @@ public class FaceCheckFrame extends JFrame {
 		panel.setLayout(null);
 		contentPane.add(panel);
 		
-		JButton showBmp = new JButton("");
+		showBmp = new JButton("");
 		showBmp.setBounds(10, 10, 100, 130);
 		panel.add(showBmp);
 		

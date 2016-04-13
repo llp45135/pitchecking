@@ -1,6 +1,7 @@
 package com.rxtec.pitchecking.device;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.FaceLocationDetection;
+import com.rxtec.pitchecking.picheckingservice.IDCard;
 
 /**
  * Syn_OpenPort Syn_SetMaxRFByte(m_Port, 80, 0); Syn_StartFindIDCard(m_Port,* *
@@ -32,36 +34,28 @@ import com.rxtec.pitchecking.picheckingservice.FaceLocationDetection;
 public class IDCardDevice {
 	private static Logger log = LoggerFactory.getLogger("IDCardDevice");
 	private static IDCardDevice instance = null;
+	private int port = -1;
+	private static int bIfOpen = 0;
+	private IDCard idCard;
 
 	public static void main(String[] args) {
-		// int port = 1001;
-		int bIfOpen = 0;
 
 		IDCardDevice device = IDCardDevice.getInstance();
-		String findusbPort = device.Syn_FindUSBReader();
-		if (!findusbPort.equals("0")) {
-			int port = Integer.parseInt(findusbPort);
+		if (device.getPort() != 0) {
 			FaceCheckFrame frame = new FaceCheckFrame();
+
 			while (true) {
-				// device.Syn_SetMaxRFByte(port, "80");
-				String findval = device.Syn_StartFindIDCard(port, bIfOpen);
+				String findval = device.Syn_StartFindIDCard();
 				if (findval.equals("0")) {
 					frame.setIdcardBmp(null);
 					frame.setVisible(false);
-					String selectval = device.Syn_SelectIDCard(port, bIfOpen);
+					String selectval = device.Syn_SelectIDCard();
 					if (selectval.equals("0")) {
-						String readVal = device.Syn_ReadBaseMsg(port, bIfOpen);
-						device.GetBmp(port, readVal);
-						if (readVal.equals("0")) {
-							Image image = null;
-							try {
-								image = ImageIO.read(new File("zp.bmp"));
-							} catch (IOException ex) {
-							}
-							if (image != null) {
-								ImageIcon icon = new ImageIcon(image);
-								frame.setIdcardBmp(icon);
-							}
+						IDCard card = device.Syn_ReadBaseMsg();
+						if (card != null) {
+
+							ImageIcon icon = new ImageIcon(card.getCardImage());
+							frame.setIdcardBmp(icon);
 						} else {
 							frame.setIdcardBmp(null);
 							frame.getContentPane().repaint();
@@ -72,7 +66,7 @@ public class IDCardDevice {
 				// device.Syn_ClosePort(port);
 
 				try {
-					Thread.sleep(100);
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -83,8 +77,12 @@ public class IDCardDevice {
 
 	private IDCardDevice() {
 		JNative.setLoggingEnabled(false);
-		// Syn_ClosePort(port);
-		// Syn_OpenPort(port);
+		this.port = Integer.parseInt(Syn_FindUSBReader());
+		this.setPort(port);
+//		if (this.port != 0) {
+//			Syn_OpenPort();
+//		}
+
 	}
 
 	public static synchronized IDCardDevice getInstance() {
@@ -92,6 +90,18 @@ public class IDCardDevice {
 			instance = new IDCardDevice();
 		}
 		return instance;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public int getBIfOpen() {
+		return bIfOpen;
 	}
 
 	/**
@@ -122,7 +132,7 @@ public class IDCardDevice {
 		return retval;
 	}
 
-	public String Syn_OpenPort(int port) {
+	public String Syn_OpenPort() {
 
 		JNative jnative = null;
 		String retval = "";
@@ -134,7 +144,7 @@ public class IDCardDevice {
 			jnative.setRetVal(Type.INT);
 			jnative.invoke();
 			retval = jnative.getRetVal();
-			// log.debug("Syn_OpenPort:retval==" + retval);// 获取返回值
+			 log.debug("Syn_OpenPort:retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -145,7 +155,7 @@ public class IDCardDevice {
 		return retval;
 	}
 
-	public String Syn_ClosePort(int port) {
+	public String Syn_ClosePort() {
 
 		JNative jnative = null;
 		String retval = "";
@@ -157,7 +167,7 @@ public class IDCardDevice {
 			jnative.setRetVal(Type.INT);
 			jnative.invoke();
 			retval = jnative.getRetVal();
-			// log.debug("Syn_ClosePort:retval==" + retval);// 获取返回值
+			 log.debug("Syn_ClosePort:retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -201,13 +211,13 @@ public class IDCardDevice {
 	/**
 	 * Syn_StartFindIDCard 开始找卡
 	 */
-	public String Syn_StartFindIDCard(int port, int bIfOpen) {
+	public String Syn_StartFindIDCard() {
 
 		JNative jnative = null;
 		String retval = "";
 		try {
 			int i = 0;
-
+			log.debug("port=="+String.valueOf(port));
 			// Pointer pointer = new
 			// Pointer(MemoryBlockFactory.createMemoryBlock(4));
 			String pucIIN = "";
@@ -219,7 +229,7 @@ public class IDCardDevice {
 			jnative.invoke();
 
 			retval = jnative.getRetVal();
-			// log.debug("Syn_StartFindIDCard: retval==" + retval);// 获取返回值
+			log.debug("Syn_StartFindIDCard: retval==" + retval);// 获取返回值
 			// log.debug("Syn_StartFindIDCard: pucIIN==" + pucIIN);// 获取返回值
 			if (retval.equals("0")) {
 				log.debug("已找到二代身份证");
@@ -237,7 +247,7 @@ public class IDCardDevice {
 	/**
 	 * Syn_SelectIDCard 选卡
 	 */
-	public String Syn_SelectIDCard(int port, int bIfOpen) {
+	public String Syn_SelectIDCard() {
 
 		JNative jnative = null;
 		String retval = "";
@@ -276,10 +286,11 @@ public class IDCardDevice {
 	 * char * pucCHMsg， unsigned int * puiCHMsgLen， unsigned char * pucPHMsg，
 	 * unsigned int * puiPHMsgLen, int iIfOpen );
 	 */
-	public String Syn_ReadBaseMsg(int port, int bIfOpen) {
+	public IDCard Syn_ReadBaseMsg() {
 
 		JNative readJN = null;
 		String retval = "";
+		IDCard synIDCard = null;
 		try {
 			int i = 0;
 
@@ -300,6 +311,7 @@ public class IDCardDevice {
 			retval = readJN.getRetVal();
 			if (retval.equals("0")) {
 				log.debug("读取二代身份证成功！");
+				synIDCard = new IDCard();
 
 				int count = chlenPointer.getSize();
 				byte[] byteArray = new byte[count + 2];
@@ -461,9 +473,10 @@ public class IDCardDevice {
 				log.debug("住址：" + addressStr);
 				char[] INNChar = new char[18];
 				Info[2].getChars(0, 18, INNChar, 0);
-				String INNStr = "";
-				INNStr = String.valueOf(INNChar);
-				log.debug("身份证号：" + INNStr);
+				String IDCardNoStr = "";
+				IDCardNoStr = String.valueOf(INNChar);
+				log.debug("身份证号：" + IDCardNoStr);
+				synIDCard.setIdNo(IDCardNoStr); // setIdNo
 				char[] issueChar = new char[Info[2].length() - 18];
 				Info[2].getChars(18, Info[2].length(), issueChar, 0);
 				String issueStr = "";
@@ -508,6 +521,27 @@ public class IDCardDevice {
 				} catch (IOException t) {
 					t.printStackTrace();
 				}
+
+				JNative BmpJN = null;
+				String bmpretval = "";
+
+				i = 0;
+				BmpJN = new JNative("WltRS.dll", "GetBmp");
+				BmpJN.setParameter(i++, "zp.wlt");
+				BmpJN.setParameter(i++, 2);
+				BmpJN.invoke();
+				BmpJN.setRetVal(Type.INT);
+				BmpJN.invoke();
+				bmpretval = BmpJN.getRetVal();
+				log.debug("GetBmp: bmpretval==" + bmpretval);// 获取返回值
+
+				BufferedImage image = null;
+				image = ImageIO.read(new File("zp.bmp"));
+				synIDCard.setCardImage(image);
+
+				log.debug("相片解码成功！");
+			} else {
+				log.debug("相片解码不成功！请重试!!");
 			}
 
 			chmsgPointer.dispose();
@@ -515,7 +549,22 @@ public class IDCardDevice {
 			phmsgPointer.dispose();
 			phlenPointer.dispose();
 
-			// log.debug("Syn_ReadBaseMsg: retval==" + retval);// 获取返回值
+			// JNative BmpJN = null;
+			// String bmpretval = "";
+			//
+			// i = 0;
+			// BmpJN = new JNative("WltRS.dll", "GetBmp");
+			// BmpJN.setParameter(i++, "zp.wlt");
+			// BmpJN.setParameter(i++, 2);
+			// BmpJN.invoke();
+			// BmpJN.setRetVal(Type.INT);
+			// BmpJN.invoke();
+			// bmpretval = BmpJN.getRetVal();
+			// log.debug("GetBmp: bmpretval==" + bmpretval);// 获取返回值
+			// if (retval.equals("0"))
+			// log.debug("相片解码成功！");
+			// else
+			// log.debug("相片解码不成功！请重试!!");
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -525,12 +574,15 @@ public class IDCardDevice {
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return retval;
+		return synIDCard;
 	}
 
 	/**
-	 * 
+	 * Syn_GetBmp 本函数用于将wlt文件解码成bmp文件
 	 */
 	public String GetBmp(int port, String readRet) {
 		JNative BmpJN = null;

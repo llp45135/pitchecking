@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.swing.ImageIcon;
+
 import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,13 +20,12 @@ public class TicketCheckScreen {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private static TicketCheckScreen _instance = new TicketCheckScreen();
 	private ExecutorService executor = Executors.newCachedThreadPool();
-	
-	
+
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    GraphicsDevice[] gs = ge.getScreenDevices();
-    
-    TicketCheckFrame ticketFrame = new TicketCheckFrame();
-    FaceCheckFrame faceFrame = new FaceCheckFrame();
+	GraphicsDevice[] gs = ge.getScreenDevices();
+
+	TicketCheckFrame ticketFrame = new TicketCheckFrame();
+	FaceCheckFrame faceFrame = new FaceCheckFrame();
 
 	private TicketCheckScreen() {
 		startTicketScreenCustomer();
@@ -33,7 +34,7 @@ public class TicketCheckScreen {
 		//
 		faceFrame.setUndecorated(true);
 		faceFrame.setVisible(true);
-		
+
 	}
 
 	public static TicketCheckScreen getInstance() {
@@ -52,18 +53,24 @@ public class TicketCheckScreen {
 		 * 根据ScreenElementModifyEvent的screenType、elementType、
 		 * elementCmd来决定屏幕的显示内容
 		 */
-		if(e!=null){
-			if(e.getScreenType()==0){
+		if (e != null) {
+			if (e.getScreenType() == 0) {
 				log.debug("收到Ticket屏幕事件，重画屏幕");
-				
+
 				ticketFrame.getContentPane().repaint();
-//				gs[0].setFullScreenWindow(ticketFrame);
-			}else if(e.getScreenType()==1){
+				// gs[0].setFullScreenWindow(ticketFrame);
+			} else if (e.getScreenType() == 1) {
 				log.debug("收到Face屏幕事件，重画屏幕");
-				
+				ImageIcon icon = new ImageIcon(e.getIdCard().getCardImage());
+				faceFrame.setIdcardBmp(icon);
 				faceFrame.getContentPane().repaint();
 			}
 		}
+	}
+	
+	public void repainFaceFrame(){
+		faceFrame.setIdcardBmp(null);
+		faceFrame.getContentPane().repaint();
 	}
 
 	public ScreenElementModifyEvent getScreenEvent() {

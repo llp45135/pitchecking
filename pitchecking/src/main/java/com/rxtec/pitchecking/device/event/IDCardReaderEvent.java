@@ -1,5 +1,7 @@
 package com.rxtec.pitchecking.device.event;
 
+import com.rxtec.pitchecking.picheckingservice.IDCard;
+
 public class IDCardReaderEvent implements IDeviceEvent {
 	private IDCard idCard;
 

@@ -1,9 +1,20 @@
 package com.rxtec.pitchecking.device.event;
 
+import com.rxtec.pitchecking.picheckingservice.IDCard;
+
 public class ScreenElementModifyEvent {
 	private int screenType = 0;
 	private int elementType = 0;
 	private int elementCmd;
+	private IDCard idCard;
+
+	public IDCard getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(IDCard idCard) {
+		this.idCard = idCard;
+	}
 
 	public int getScreenType() {
 		return screenType;
