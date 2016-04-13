@@ -521,6 +521,7 @@ public class IDCardDevice {
 				} catch (IOException t) {
 					t.printStackTrace();
 				}
+				
 
 				JNative BmpJN = null;
 				String bmpretval = "";
