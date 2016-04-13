@@ -50,27 +50,28 @@ public class FaceCheckFrame extends JFrame {
 	}
 	
 	
-	private Panel videoPanel;
+	private JPanel videoPanel;
 	
-	private Panel idPicPanel;
-	
+
+	public JPanel getVideoPanel() {
+		return videoPanel;
+	}
+
+
 	private JLabel resultLabel;
 
 	
 	private void initGui(){
-		videoPanel = new Panel();
-		videoPanel.setSize(480, 320);
-		idPicPanel = new Panel();
-		idPicPanel.setSize(100, 200);
+		videoPanel = new JPanel();
+		videoPanel.setSize(320, 480);
 		Panel resultPanel = new Panel();
-		resultPanel.add(idPicPanel);
 		resultLabel = new JLabel("0");
 		resultLabel.setFont(new Font("Times New Roman",Font.ITALIC,24));
 		resultPanel.add(resultLabel);
 		Panel p = new Panel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(videoPanel);
-		p.add(resultPanel);
+		p.add(resultLabel);
 		this.add(p);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(640, 480);
@@ -81,12 +82,7 @@ public class FaceCheckFrame extends JFrame {
 		
 	}
 	
-	public void setIDPic(Image img){
-		Graphics g = idPicPanel.getGraphics();
-		g.drawImage(img, 0, 0, img.getWidth(null), img.getHeight(null), null);
-		this.getContentPane().repaint();
-		
-	}
+
 	
 	public void setResultValue(float value){
 		resultLabel.setText(String.valueOf(value));

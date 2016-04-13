@@ -25,7 +25,6 @@ public class AppForFaceCheccking {
 
 	public static void main(String[] args) {
 		FaceCheckFrame f = new FaceCheckFrame();
-		f.setIDPic(getImg("C:/DCZ/20160412/43040619900308255x.jpg"));
 	}
 	
 	private static BufferedImage getImg(String fnm) {

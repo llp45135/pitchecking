@@ -29,6 +29,11 @@ public class FaceCheckingService {
 		return _instance;
 	}
 	
+	public FaceData getCheckedFaceData() throws InterruptedException{
+		return checkedFaceDataQueue.take();
+	}
+	
+	
 	/*
 	 * 视频流抽帧频次
 	 * 缺省200ms送1帧

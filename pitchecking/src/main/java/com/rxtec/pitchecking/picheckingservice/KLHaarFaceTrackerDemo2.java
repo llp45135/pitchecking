@@ -27,26 +27,17 @@ import org.openimaj.video.VideoDisplay;
 import org.openimaj.video.VideoDisplayListener;
 import org.openimaj.video.capture.VideoCapture;
 
+import com.rxtec.pitchecking.gui.FaceCheckFrame;
+
 public class KLHaarFaceTrackerDemo2 {
 
 	private KLTHaarFaceTracker faceTracker = new KLTHaarFaceTracker( 40 );
-	final static JFrame videoFrame = new JFrame("TrackFace Example");
-	final static JFrame faceFrame = new JFrame("TrackedFace");
-	final static JPanel videoPanel = new JPanel();
-
+	private final static FaceCheckFrame faceCheckFrame = new FaceCheckFrame();
 	
 	private static void createUI() {
 		// create the window
 		
-		videoFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		videoFrame.add(videoPanel, BorderLayout.CENTER);
-
-		// prepare the window for display
-		videoFrame.pack();
-
-		// and display it
-		videoFrame.setVisible(true);
+		((JFrame)faceCheckFrame).setVisible(true);
 	}
 	
 
@@ -55,14 +46,18 @@ public class KLHaarFaceTrackerDemo2 {
 	public static void main(String[] args) {
 		try {
 			createUI();
-			FaceTrackingService.getInstance().setVideoPanel(videoPanel);
+			FaceTrackingService.getInstance().setVideoPanel(faceCheckFrame.getVideoPanel());
 			FaceTrackingService.getInstance().beginVideoCaptureAndTracking();
 			
 			FaceTrackingService.getInstance().beginCheckingFace(createIDCard());
 			FaceCheckingService.getInstance().beginFaceTrackThread();
-			// prepare the window for display
-			videoFrame.pack();
-
+			
+			
+			while(true){
+				FaceData fd = FaceCheckingService.getInstance().getCheckedFaceData();
+				faceCheckFrame.setResultValue(fd.getFaceCheckResult());
+			}
+			
 		} catch (final Exception e) {
 			// an error occured
 			JOptionPane.showMessageDialog(null, "Unable to open video.");
