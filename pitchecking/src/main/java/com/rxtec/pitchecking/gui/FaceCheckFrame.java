@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.BoxLayout;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -20,7 +21,7 @@ import java.awt.Panel;
 public class FaceCheckFrame extends JFrame {
 
 	private JPanel contentPane;
-	JButton showBmp;
+	private JButton showBmp;
 
 	/**
 	 * Launch the application.
