@@ -26,12 +26,12 @@ public class FaceDetectionTask implements Runnable {
 				e.printStackTrace();
 			}
 
-			MBFImage frame = FaceTrackingService.getInstance().takeFrameImage();
+			MBFImage frame = FaceDetectionService.getInstance().takeFrameImage();
 			if (frame != null) {
 
 				FaceDetectedData fl = faceTracker.detectLocation(convertImage(frame));
 				FaceData fd = new FaceData(frame, fl);
-				FaceTrackingService.getInstance().offerDetectedFaceData(fd);
+				FaceDetectionService.getInstance().offerDetectedFaceData(fd);
 			}
 		}
 	}

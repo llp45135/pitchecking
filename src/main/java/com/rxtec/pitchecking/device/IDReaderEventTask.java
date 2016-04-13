@@ -10,7 +10,7 @@ import com.rxtec.pitchecking.device.event.IDeviceEvent;
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceData;
-import com.rxtec.pitchecking.picheckingservice.FaceTrackingService;
+import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.IDCard;
 
 /**
@@ -37,7 +37,7 @@ public class IDReaderEventTask implements Callable<Integer> {
 		ScreenElementModifyEvent semEvent = new ScreenElementModifyEvent(1, 1, 1);
 		semEvent.setIdCard(idcard);
 		TicketCheckScreen.getInstance().offerEvent(semEvent);
-		FaceTrackingService.getInstance().beginCheckingFace(idcard);
+		FaceDetectionService.getInstance().beginCheckingFace(idcard);
 
 
 		return null;

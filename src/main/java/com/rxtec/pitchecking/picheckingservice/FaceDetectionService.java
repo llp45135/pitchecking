@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 
 
-public class FaceTrackingService {
+public class FaceDetectionService {
 	private Logger log = LoggerFactory.getLogger("FaceTrackingService");
 
 	private JPanel videoPanel = null;
@@ -48,10 +48,10 @@ public class FaceTrackingService {
 		return detectedFaceQueue.poll();
 	}
 	
-	private static FaceTrackingService _instance = new FaceTrackingService();
-	private FaceTrackingService(){}
+	private static FaceDetectionService _instance = new FaceDetectionService();
+	private FaceDetectionService(){}
 	
-	public static FaceTrackingService getInstance(){
+	public static FaceDetectionService getInstance(){
 		return _instance;
 	}
 	

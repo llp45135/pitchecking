@@ -18,7 +18,7 @@ import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
-import com.rxtec.pitchecking.picheckingservice.FaceTrackingService;
+import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 
 public class TicketCheckScreen {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
@@ -39,7 +39,7 @@ public class TicketCheckScreen {
 		faceFrame.setUndecorated(true);
 		faceFrame.setVisible(true);
 
-		FaceTrackingService.getInstance().setVideoPanel(faceFrame.getVideoPanel());
+		FaceDetectionService.getInstance().setVideoPanel(faceFrame.getVideoPanel());
 
 		
 		

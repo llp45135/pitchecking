@@ -47,10 +47,10 @@ public class KLHaarFaceTrackerDemo2 {
 	public static void main(String[] args) {
 		try {
 			createUI();
-			FaceTrackingService.getInstance().setVideoPanel(faceCheckFrame.getVideoPanel());
-			FaceTrackingService.getInstance().beginVideoCaptureAndTracking();
+			FaceDetectionService.getInstance().setVideoPanel(faceCheckFrame.getVideoPanel());
+			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
 			
-			FaceTrackingService.getInstance().beginCheckingFace(createIDCard());
+			FaceDetectionService.getInstance().beginCheckingFace(createIDCard());
 			FaceCheckingService.getInstance().beginFaceCheckerTask();
 			
 			

@@ -7,7 +7,7 @@ import com.rxtec.pitchecking.device.TicketCheckScreen;
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceData;
-import com.rxtec.pitchecking.picheckingservice.FaceTrackingService;
+import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 
 /**
  * 人证识别自动验票软件主入口
@@ -26,8 +26,8 @@ public class PitCheckingApp {
 		//启动事件监听
 		try {
 			
-			FaceTrackingService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
-			FaceTrackingService.getInstance().beginVideoCaptureAndTracking();
+			FaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
+			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
 			FaceCheckingService.getInstance().beginFaceCheckerTask();
 			
 			eventListener.startListenEvent();
@@ -49,7 +49,7 @@ public class PitCheckingApp {
 				ScreenElementModifyEvent e = new ScreenElementModifyEvent(1,2,1);
 				e.setFaceData(fd);
 				TicketCheckScreen.getInstance().offerEvent(e);
-				if(fd.getFaceCheckResult()>=0.7) FaceTrackingService.getInstance().stopCheckingFace();
+				if(fd.getFaceCheckResult()>=0.7) FaceDetectionService.getInstance().stopCheckingFace();
 			}
 			
 			Thread.sleep(50);
