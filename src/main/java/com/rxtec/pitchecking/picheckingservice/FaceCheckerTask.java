@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.Config;
+
 public class FaceCheckerTask implements Runnable {
 
 	FaceVerify faceVerify = new FaceVerify();
@@ -25,6 +27,15 @@ public class FaceCheckerTask implements Runnable {
 				try {
 					resultValue = faceVerify.verify(fd.getFaceImageByteArray(), fd.getIdCard().getImageBytes());
 					fd.setFaceCheckResult(resultValue);
+					if(resultValue>=Config.getInstance().getFaceCheckThreshold()){
+						FaceCheckingService.getInstance().putPassedFaceDataToBlockedQueue(fd);
+					}else{
+						if(fd.getFaceDetectedData().isWearsglasses()){
+							if(resultValue>=Config.getInstance().getGlassFaceCheckThreshold()){
+								FaceCheckingService.getInstance().putPassedFaceDataToBlockedQueue(fd);
+							}
+						}
+					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

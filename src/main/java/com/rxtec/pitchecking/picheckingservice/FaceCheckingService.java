@@ -16,6 +16,8 @@ public class FaceCheckingService {
 
 	private LinkedBlockingQueue<FaceData> checkedFaceDataQueue =new LinkedBlockingQueue<FaceData>(10);
 	
+	private LinkedBlockingQueue<FaceData> passedFaceDataQueue =new LinkedBlockingQueue<FaceData>(3);
+	
 	
 	public LinkedBlockingQueue<FaceData> getInFaceDataQueue() {
 		return inFaceDataQueue;
@@ -26,6 +28,7 @@ public class FaceCheckingService {
 	private FaceCheckingService(){
 	}
 	public static FaceCheckingService getInstance(){
+		if(_instance == null) _instance = new FaceCheckingService();
 		return _instance;
 	}
 	
@@ -92,5 +95,10 @@ public class FaceCheckingService {
 		
 	}
 
+	public void putPassedFaceDataToBlockedQueue(FaceData d){
+		passedFaceDataQueue.offer(d);
+	}
+	
+	
 
 }
