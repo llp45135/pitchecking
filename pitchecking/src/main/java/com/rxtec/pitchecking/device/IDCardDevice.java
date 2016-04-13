@@ -34,59 +34,92 @@ public class IDCardDevice {
 	private static IDCardDevice instance = null;
 
 	public static void main(String[] args) {
-		int port = 1001;
+		// int port = 1001;
 		int bIfOpen = 0;
-		IDCardDevice device = IDCardDevice.getInstance(port);
-		FaceCheckFrame frame = new FaceCheckFrame();
-		while (true) {
-			// device.Syn_SetMaxRFByte(port, "80");
-			String findval = device.Syn_StartFindIDCard(port, bIfOpen);
-			if (findval.equals("0")) {
-				frame.setIdcardBmp(null);
-				frame.setVisible(false);
-				String selectval = device.Syn_SelectIDCard(port, bIfOpen);
-				if (selectval.equals("0")) {
-					String readVal = device.Syn_ReadBaseMsg(port, bIfOpen);
-					device.GetBmp(port, readVal);
-					if (readVal.equals("0")) {
-						Image image = null;
-						try {
-							image = ImageIO.read(new File("zp.bmp"));
-						} catch (IOException ex) {
+
+		IDCardDevice device = IDCardDevice.getInstance();
+		String findusbPort = device.Syn_FindUSBReader();
+		if (!findusbPort.equals("0")) {
+			int port = Integer.parseInt(findusbPort);
+			FaceCheckFrame frame = new FaceCheckFrame();
+			while (true) {
+				// device.Syn_SetMaxRFByte(port, "80");
+				String findval = device.Syn_StartFindIDCard(port, bIfOpen);
+				if (findval.equals("0")) {
+					frame.setIdcardBmp(null);
+					frame.setVisible(false);
+					String selectval = device.Syn_SelectIDCard(port, bIfOpen);
+					if (selectval.equals("0")) {
+						String readVal = device.Syn_ReadBaseMsg(port, bIfOpen);
+						device.GetBmp(port, readVal);
+						if (readVal.equals("0")) {
+							Image image = null;
+							try {
+								image = ImageIO.read(new File("zp.bmp"));
+							} catch (IOException ex) {
+							}
+							if (image != null) {
+								ImageIcon icon = new ImageIcon(image);
+								frame.setIdcardBmp(icon);
+							}
+						} else {
+							frame.setIdcardBmp(null);
+							frame.getContentPane().repaint();
 						}
-						if (image != null) {
-							ImageIcon icon = new ImageIcon(image);
-							frame.setIdcardBmp(icon);
-						}
-					} else {
-						frame.setIdcardBmp(null);
-						frame.getContentPane().repaint();
+						frame.setVisible(true);
 					}
-					frame.setVisible(true);
+				}
+				// device.Syn_ClosePort(port);
+
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
-			// device.Syn_ClosePort(port);
-
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 	}
 
-	private IDCardDevice(int port) {
+	private IDCardDevice() {
 		JNative.setLoggingEnabled(false);
 		// Syn_ClosePort(port);
-		Syn_OpenPort(port);
+		// Syn_OpenPort(port);
 	}
 
-	public static synchronized IDCardDevice getInstance(int port) {
+	public static synchronized IDCardDevice getInstance() {
 		if (instance == null) {
-			instance = new IDCardDevice(port);
+			instance = new IDCardDevice();
 		}
 		return instance;
+	}
+
+	/**
+	 * Syn_FindUSBReader 自动寻找USB读卡器。 int Syn_FindUSBReader (); 返回值： 0 未找到 其他
+	 * 1001～1016USB
+	 * 
+	 * @param port
+	 * @return
+	 */
+	public String Syn_FindUSBReader() {
+		JNative jnative = null;
+		String retval = "";
+		try {
+			int i = 0;
+
+			jnative = new JNative("SynIDCardAPI.dll", "Syn_FindUSBReader");
+			jnative.setRetVal(Type.INT);
+			jnative.invoke();
+			retval = jnative.getRetVal();
+			log.info("Syn_FindUSBReader:retval==" + retval);// 获取返回值
+		} catch (NativeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return retval;
 	}
 
 	public String Syn_OpenPort(int port) {

@@ -89,7 +89,7 @@ public class DeviceEventListener {
 		int port=1001;
 		int bIfOpen = 0;
 		
-		IDCardDevice.getInstance(port);
+		IDCardDevice.getInstance();
 		
 		executor.execute(new IDReader());
 		executor.execute(new QRReader());

@@ -3,6 +3,7 @@ package com.rxtec.pitchecking.device;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.device.event.IDCard;
 import com.rxtec.pitchecking.device.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.device.event.IDeviceEvent;
 
@@ -40,10 +41,11 @@ public class IDReader implements Runnable {
 		int port = 1001;
 		int bIfOpen = 0;
 		IDeviceEvent event = new IDCardReaderEvent();
+		IDCardReaderEvent idcardEvent = (IDCardReaderEvent)event;
 		/*
 		 * 读二代证数据,填充event 读不到数据返回null
 		 */
-		IDCardDevice device = IDCardDevice.getInstance(port);
+		IDCardDevice device = IDCardDevice.getInstance();
 		String findval = device.Syn_StartFindIDCard(port, bIfOpen);
 		if (findval.equals("0")) {
 			String selectval = device.Syn_SelectIDCard(port, bIfOpen);
@@ -51,12 +53,13 @@ public class IDReader implements Runnable {
 				String readVal = device.Syn_ReadBaseMsg(port, bIfOpen);
 				device.GetBmp(port, readVal);
 				if (readVal.equals("0")) {
-					
+					IDCard idCard = new IDCard();
+					idcardEvent.setIdCard(idCard);
 				}
 			}
 		}
 		log.debug("IDCard");
-		return event;
+		return idcardEvent;
 	}
 
 }
