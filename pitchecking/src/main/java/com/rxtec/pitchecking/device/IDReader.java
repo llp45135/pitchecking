@@ -29,7 +29,7 @@ public class IDReader implements Runnable {
 				e1.printStackTrace();
 			}
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(1000*10);
 			} catch (InterruptedException ex) {
 				// TODO Auto-generated catch block
 				ex.printStackTrace();
@@ -45,7 +45,7 @@ public class IDReader implements Runnable {
 		/*
 		 * 读二代证数据,填充event 读不到数据返回null
 		 */
-		TicketCheckScreen.getInstance().repainFaceFrame();
+//		TicketCheckScreen.getInstance().repainFaceFrame();
 		
 		log.debug("开始寻卡...");
 		device.Syn_OpenPort();
