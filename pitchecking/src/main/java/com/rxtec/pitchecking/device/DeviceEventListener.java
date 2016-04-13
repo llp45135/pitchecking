@@ -86,7 +86,7 @@ public class DeviceEventListener {
 	// 启动设备
 	private void startDevice() throws DeviceException {
 		log.debug("启动设备");
-		executor.execute(new IDReader());
+		executor.execute(new IDReaderTask());
 		executor.execute(new QRReader());
 //		executor.execute(new Customer());
 	}

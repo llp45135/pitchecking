@@ -80,7 +80,7 @@ public class FaceTrackingService {
 	 * get detected face
 	 * @return
 	 */
-	private FaceData getFace(){
+	private FaceData getFaceFromDetectedFaceQueue(){
 		return detectedFaceQueue.poll();
 	}
 
@@ -98,7 +98,7 @@ public class FaceTrackingService {
 
 	
 	
-	boolean isRotation = true;
+	boolean isRotation = false;
 	
 
 	int frameCounter = 0;
@@ -107,7 +107,7 @@ public class FaceTrackingService {
 		beginFaceTrackThread();
 		
 		final Video<MBFImage> video;
-		if(isRotation) video = new RotationVideoCapture(240,320);
+		if(isRotation) video = new RotationVideoCapture(320,480);
 		else video = new VideoCapture(320, 240);
 		
 		video.setCurrentFrameIndex( 1 );
@@ -118,7 +118,7 @@ public class FaceTrackingService {
 			public void beforeUpdate( MBFImage frame )
 			{
 				offerFrame(frame);
-				FaceData face = getFace();
+				FaceData face = getFaceFromDetectedFaceQueue();
 				if(face != null){
 					frame.drawShape( face.getFaceBounds(), RGBColour.RED );
 					
@@ -126,8 +126,6 @@ public class FaceTrackingService {
 						face.setIdCard(currentIDCard);
 						FaceCheckingService.getInstance().sendFaceDataForChecking(face);
 					}
-				}else{
-					FaceCheckingService.getInstance().resetFaceDataForCheckingQueue();
 				}
 			}
 			
@@ -142,13 +140,20 @@ public class FaceTrackingService {
 	
 	private IDCard currentIDCard = null;
 	
+	/**
+	 * 开始人证对比
+	 * @param idCard
+	 */
 	public void beginCheckingFace(IDCard idCard){
 		currentIDCard = idCard;
 		
 	}
-	
+	/**
+	 * 结束人证对比
+	 */
 	public void stopCheckingFace(){
 		currentIDCard = null;
+		FaceCheckingService.getInstance().resetFaceDataForCheckingQueue();
 	}
 	
 	

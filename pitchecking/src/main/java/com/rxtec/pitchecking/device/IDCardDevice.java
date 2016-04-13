@@ -70,6 +70,10 @@ public class IDCardDevice {
 			}
 		}
 	}
+	
+	
+	
+
 
 	private IDCardDevice(int port) {
 		JNative.setLoggingEnabled(false);
@@ -716,5 +720,7 @@ public class IDCardDevice {
 		l |= ((long) b[offset + 7] << 56);
 		return Double.longBitsToDouble(l);
 	}
+
+
 
 }

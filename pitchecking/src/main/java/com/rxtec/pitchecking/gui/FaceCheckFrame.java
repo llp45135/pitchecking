@@ -1,22 +1,32 @@
 package com.rxtec.pitchecking.gui;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
 import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.swing.SwingConstants;
+
+import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
+import com.rxtec.pitchecking.picheckingservice.FaceData;
+import com.rxtec.pitchecking.picheckingservice.FaceTrackingService;
+import com.rxtec.pitchecking.picheckingservice.IDCard;
 
 public class FaceCheckFrame extends JFrame {
 
@@ -65,17 +75,15 @@ public class FaceCheckFrame extends JFrame {
 	private void initGui(){
 		videoPanel = new JPanel();
 		videoPanel.setSize(320, 480);
-		Panel resultPanel = new Panel();
 		resultLabel = new JLabel("0");
+		resultLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		resultLabel.setFont(new Font("Times New Roman",Font.ITALIC,24));
-		resultPanel.add(resultLabel);
 		Panel p = new Panel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(videoPanel);
 		p.add(resultLabel);
-		this.add(p);
+		getContentPane().add(p);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(640, 480);
 
 		this.setBounds(10,10,500,500);
 		//this.pack();
@@ -85,11 +93,59 @@ public class FaceCheckFrame extends JFrame {
 	
 
 	
-	public void setResultValue(float value){
-		resultLabel.setText(String.valueOf(value));
+	public void setResultValue(String v){
+		resultLabel.setText(v);
 	}
 	
 	
 	
+	public void simulateIDCardReader(){
+		JRootPane rp= this.getRootPane();
 
+		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_F5,0);
+
+		InputMap inputMap = rp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW); inputMap.put(stroke, KeyEvent.VK_F5); rp.getActionMap().put(KeyEvent.VK_F5, new AbstractAction() {
+
+		    public void actionPerformed(ActionEvent e) {
+
+		    	try {
+					simulateCheckFace();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		    }
+
+		});
+	}
+	
+	
+	private void simulateCheckFace() throws InterruptedException{
+		FaceTrackingService.getInstance().beginCheckingFace(createIDCard());
+		while(true){
+			FaceData fd = FaceCheckingService.getInstance().getCheckedFaceData();
+			float result = fd.getFaceCheckResult();
+			if(result>=0.7){
+				setResultValue("验证通过" + String.format("%<2.2f", result));
+				break;
+			}else {
+				setResultValue("验证不通过" + String.format("%<2.2f", result));
+			}
+		}
+
+	}
+	
+	
+	private  IDCard createIDCard(){
+		IDCard card = new IDCard();
+		BufferedImage bi = null;
+		try {
+			bi = ImageIO.read(new File("C:/DCZ/20160412/llp.jpg"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		card.setCardImage(bi);
+		return card;
+	}
 }

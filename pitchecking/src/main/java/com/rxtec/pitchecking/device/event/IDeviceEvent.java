@@ -2,6 +2,7 @@ package com.rxtec.pitchecking.device.event;
 
 public interface IDeviceEvent {
 	int getEventType();
-	Object getData();		
+	void setEventType(int arg);
+	Object getData();	
 	
 }
