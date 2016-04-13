@@ -110,8 +110,8 @@ public class FaceData {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		ImageIO.write(result, "JPEG", ImageIO.createImageOutputStream(os));
 		
-		String fn = "C:/DCZ/20160412/out/"+this.faceX+".jpg";
-		ImageIO.write(result, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
+//		String fn = "C:/DCZ/20160412/out/"+this.faceX+".jpg";
+//		ImageIO.write(result, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
 		
 		
 		return os.toByteArray();
