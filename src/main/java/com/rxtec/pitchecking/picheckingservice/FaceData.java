@@ -16,7 +16,7 @@ import org.openimaj.image.MBFImage;
 import org.openimaj.image.processing.face.detection.DetectedFace;
 import org.openimaj.math.geometry.shape.Rectangle;
 
-import com.rxtec.pitchecking.utils.ImageToollit;
+import com.rxtec.pitchecking.utils.ImageToolkit;
 
 
 
@@ -120,7 +120,7 @@ public class FaceData {
 
 	public BufferedImage getFaceImageBufferedImage() throws IOException {
 		BufferedImage sourceImage = ImageUtilities.createBufferedImage(frame);
-		BufferedImage result = ImageToollit.cut(sourceImage, faceX, faceY, faceWidth, faceHeight);
+		BufferedImage result = ImageToolkit.cut(sourceImage, faceX, faceY, faceWidth, faceHeight);
 		return result;
 
 	}
