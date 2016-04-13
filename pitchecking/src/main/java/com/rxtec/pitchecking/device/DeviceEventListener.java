@@ -86,6 +86,11 @@ public class DeviceEventListener {
 	// 启动设备
 	private void startDevice() throws DeviceException {
 		log.debug("启动设备");
+		int port=1001;
+		int bIfOpen = 0;
+		
+		IDCardDevice.getInstance(port);
+		
 		executor.execute(new IDReader());
 		executor.execute(new QRReader());
 //		executor.execute(new Customer());

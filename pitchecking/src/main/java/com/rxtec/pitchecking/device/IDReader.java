@@ -1,6 +1,5 @@
 package com.rxtec.pitchecking.device;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,10 +36,25 @@ public class IDReader implements Runnable {
 	}
 
 	private IDeviceEvent readCard() {
+
+		int port = 1001;
+		int bIfOpen = 0;
 		IDeviceEvent event = new IDCardReaderEvent();
 		/*
 		 * 读二代证数据,填充event 读不到数据返回null
 		 */
+		IDCardDevice device = IDCardDevice.getInstance(port);
+		String findval = device.Syn_StartFindIDCard(port, bIfOpen);
+		if (findval.equals("0")) {
+			String selectval = device.Syn_SelectIDCard(port, bIfOpen);
+			if (selectval.equals("0")) {
+				String readVal = device.Syn_ReadBaseMsg(port, bIfOpen);
+				device.GetBmp(port, readVal);
+				if (readVal.equals("0")) {
+					
+				}
+			}
+		}
 		log.debug("IDCard");
 		return event;
 	}
