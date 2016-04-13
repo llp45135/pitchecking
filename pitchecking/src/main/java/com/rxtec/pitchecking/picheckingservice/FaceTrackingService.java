@@ -36,7 +36,7 @@ public class FaceTrackingService {
 	}
 
 	public MBFImage takeFrameImage(){
-		log.debug("takeFrameImage,frameImageQueue size=" + frameImageQueue.size());
+		//log.debug("takeFrameImage,frameImageQueue size=" + frameImageQueue.size());
 		return frameImageQueue.poll();
 	}
 	
@@ -98,7 +98,7 @@ public class FaceTrackingService {
 
 	
 	
-	boolean isRotation = false;
+	boolean isRotation = true;
 	
 
 	int frameCounter = 0;
@@ -107,7 +107,7 @@ public class FaceTrackingService {
 		beginFaceTrackThread();
 		
 		final Video<MBFImage> video;
-		if(isRotation) video = new RotationVideoCapture(320, 240);
+		if(isRotation) video = new RotationVideoCapture(240,320);
 		else video = new VideoCapture(320, 240);
 		
 		video.setCurrentFrameIndex( 1 );
@@ -121,6 +121,7 @@ public class FaceTrackingService {
 				FaceData face = getFace();
 				if(face != null){
 					frame.drawShape( face.getFaceBounds(), RGBColour.RED );
+					
 					if(currentIDCard != null){
 						face.setIdCard(currentIDCard);
 						FaceCheckingService.getInstance().sendFaceDataForChecking(face);
@@ -143,6 +144,7 @@ public class FaceTrackingService {
 	
 	public void beginCheckingFace(IDCard idCard){
 		currentIDCard = idCard;
+		
 	}
 	
 	public void stopCheckingFace(){

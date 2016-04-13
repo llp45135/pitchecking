@@ -3,6 +3,7 @@ package com.rxtec.pitchecking.gui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -11,6 +12,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Panel;
 
 public class FaceCheckFrame extends JFrame {
 
@@ -37,27 +42,57 @@ public class FaceCheckFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public FaceCheckFrame() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 640, 480);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		JLabel lblNewLabel = new JLabel("\u8BF7\u5E73\u89C6\u6444\u50CF\u5934");
-		lblNewLabel.setFont(new Font("宋体", Font.PLAIN, 18));
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setBounds(204, 30, 222, 62);
-		contentPane.add(lblNewLabel);
-		
-		
-		showBmp = new JButton();
-		showBmp.setBounds(400, 80, 100, 130);
-		contentPane.add(showBmp);
+		initGui();
 	}
 	
 	public void setIdcardBmp(ImageIcon icon){
 		this.showBmp.setIcon(icon);
 	}
+	
+	
+	private Panel videoPanel;
+	
+	private Panel idPicPanel;
+	
+	private JLabel resultLabel;
+
+	
+	private void initGui(){
+		videoPanel = new Panel();
+		videoPanel.setSize(480, 320);
+		idPicPanel = new Panel();
+		idPicPanel.setSize(100, 200);
+		Panel resultPanel = new Panel();
+		resultPanel.add(idPicPanel);
+		resultLabel = new JLabel("0");
+		resultLabel.setFont(new Font("Times New Roman",Font.ITALIC,24));
+		resultPanel.add(resultLabel);
+		Panel p = new Panel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(videoPanel);
+		p.add(resultPanel);
+		this.add(p);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(640, 480);
+
+		this.setBounds(10,10,500,500);
+		//this.pack();
+		this.setVisible(true);
+		
+	}
+	
+	public void setIDPic(Image img){
+		Graphics g = idPicPanel.getGraphics();
+		g.drawImage(img, 0, 0, img.getWidth(null), img.getHeight(null), null);
+		this.getContentPane().repaint();
+		
+	}
+	
+	public void setResultValue(float value){
+		resultLabel.setText(String.valueOf(value));
+	}
+	
+	
+	
 
 }

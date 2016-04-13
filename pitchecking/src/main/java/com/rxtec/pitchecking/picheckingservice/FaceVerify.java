@@ -1,5 +1,10 @@
 package com.rxtec.pitchecking.picheckingservice;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Calendar;
+
+import javax.imageio.ImageIO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xvolks.jnative.JNative;
@@ -24,8 +29,8 @@ public class FaceVerify {
 			jnative1 = new JNative("FaceVRISDK.dll","PS_InitFaceIDSDK");
 			jnative1.setRetVal(Type.INT); 
 			jnative1.invoke(); 
+			log.debug("PS_InitFaceIDSDK ret: " + jnative1.getRetVal());//获取返回值
 			jnative2 = new JNative("FaceVRISDK.dll","PS_VerifyImage");
-			System.out.println(jnative1.getRetVal());//获取返回值
 		}catch (NativeException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -51,7 +56,7 @@ public class FaceVerify {
 		}
 	}
 	
-	public float Authenticat(byte[] frameBytes, byte[] idCardBytes) {
+	public float verify(byte[] frameBytes, byte[] idCardBytes) {
 		float result = 0;
 		
 		long nowMils = Calendar.getInstance().getTimeInMillis();
@@ -61,7 +66,7 @@ public class FaceVerify {
 			Pointer aArrIntInputf = new Pointer(MemoryBlockFactory.createMemoryBlock(8));
 			aArrIntInputf.setFloatAt(0, -1);
 			int i = 0; 
-			System.out.println(aArrIntInputf.getAsFloat(0));//获取初参数
+			log.debug("aArrIntInputf: " + aArrIntInputf.getAsFloat(0));//获取返回值
 
 			jnative2.setRetVal(Type.INT); 
 			jnative2.setParameter(i++, Type.STRING,frameBytes); 
@@ -71,13 +76,13 @@ public class FaceVerify {
 			jnative2.setParameter(i++, aArrIntInputf);
 			jnative2.invoke();
 			//打印函数返回值 
-			log.debug("PS_VerifyImage retCode=" + jnative3.getRetValAsInt());//获取返回值
+			//log.debug("PS_VerifyImage retCode=" + jnative3.getRetValAsInt());//获取返回值
 
 			//获取输出参数值（验证分数值）
 			result = aArrIntInputf.getAsFloat(0);
 			aArrIntInputf.dispose();
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.debug("FaceAuthentication succ, using " + usingTime + " ms, value=" + result);
+			log.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FaceChecking succ, using " + usingTime + " ms, value=" + result);
 			
 			
 		} catch (NativeException e) {
@@ -88,5 +93,34 @@ public class FaceVerify {
 		}
 		return result;
 	}
+	
+	
+	public static void main(String[] args) {
 
+		FaceVerify v = new FaceVerify();
+		IDCard c1 = createIDCard("C:/DCZ/20160412/43040619900308255x.jpg");
+		IDCard c2 = createIDCard("C:/DCZ/20160412/out.jpg");
+				
+		v.verify(c1.getImageBytes(), c2.getImageBytes());
+		v.verify(c1.getImageBytes(), c2.getImageBytes());
+		v.verify(c1.getImageBytes(), c2.getImageBytes());
+		v.verify(c1.getImageBytes(), c2.getImageBytes());
+		v.verify(c1.getImageBytes(), c2.getImageBytes());
+		v.verify(c1.getImageBytes(), c2.getImageBytes());
+
+	}
+
+	
+	private static IDCard createIDCard(String fn){
+		IDCard card = new IDCard();
+		BufferedImage bi = null;
+		try {
+			bi = ImageIO.read(new File(fn));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		card.setCardImage(bi);
+		return card;
+	}
 }

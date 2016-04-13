@@ -60,14 +60,14 @@ public class FaceCheckingService {
 		System.out.println(inteval);
 		if(inteval>200) {
 			inFaceDataQueue.offer(newFD);
-			System.out.println("^^^^^^^^^^^^^^ inFaceDataQueue size = " + inFaceDataQueue.size());
+			//System.out.println("^^^^^^^^^^^^^^ inFaceDataQueue size = " + inFaceDataQueue.size());
 			preFaceData = newFD;
 		}
 
 	}
 	
 	public FaceData takeFaceDataForChecking(){
-		System.out.println("%%%%%%%%%%%%%%%%%%% inFaceDataQueue size = " + inFaceDataQueue.size());
+		//System.out.println("%%%%%%%%%%%%%%%%%%% inFaceDataQueue size = " + inFaceDataQueue.size());
 		return inFaceDataQueue.poll();
 	}
 	
@@ -84,6 +84,7 @@ public class FaceCheckingService {
 		ExecutorService executor = Executors.newCachedThreadPool();
 		FaceChecker checker = new FaceChecker();
 		executor.execute(checker);
+		executor.shutdown();
 		
 	}
 

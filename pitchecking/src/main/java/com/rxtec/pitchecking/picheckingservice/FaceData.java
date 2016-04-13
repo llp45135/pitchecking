@@ -2,6 +2,8 @@ package com.rxtec.pitchecking.picheckingservice;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -61,7 +63,15 @@ public class FaceData {
 		return createTime;
 	}
 
-	public float imageQuality;
+	public float faceCheckResult;
+
+	public float getFaceCheckResult() {
+		return faceCheckResult;
+	}
+
+	public void setFaceCheckResult(float faceCheckResult) {
+		this.faceCheckResult = faceCheckResult;
+	}
 
 	public FaceData(MBFImage fm, DetectedFace fc) {
 		this.frame = fm;
@@ -79,6 +89,8 @@ public class FaceData {
 		this.faceY =  fl.getY();
 		this.faceWidth = fl.getWidth();
 		this.faceHeight = fl.getHeight();
+		if(fl.getWidth() == 0) this.isDetectedFace = false;
+		else this.isDetectedFace = true;
 		createTime = Calendar.getInstance().getTimeInMillis();
 	}
 
@@ -90,12 +102,18 @@ public class FaceData {
 	private int faceY;
 	private int faceWidth;
 	private int faceHeight;
-
+	
+	
 	public byte[] getFaceImageByteArray() throws IOException {
-		BufferedImage sourceImage = ImageUtilities.createBufferedImage(frame);
-		BufferedImage result = ImageToollit.cut(sourceImage, faceX, faceY, faceWidth, faceHeight);
+		MBFImage extractFrame = frame.extractROI(faceX, faceY, faceWidth, faceHeight);
+		BufferedImage result = ImageUtilities.createBufferedImageForDisplay(extractFrame);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		ImageIO.write(result, "bmp", ImageIO.createImageOutputStream(os));
+		ImageIO.write(result, "JPEG", ImageIO.createImageOutputStream(os));
+		
+		String fn = "C:/DCZ/20160412/out/"+this.faceX+".jpg";
+		ImageIO.write(result, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
+		
+		
 		return os.toByteArray();
 
 	}
@@ -105,6 +123,16 @@ public class FaceData {
 		BufferedImage result = ImageToollit.cut(sourceImage, faceX, faceY, faceWidth, faceHeight);
 		return result;
 
+	}
+	
+	private  boolean isDetectedFace = false;
+
+	public boolean isDetectedFace() {
+		return isDetectedFace;
+	}
+
+	public void setDetectedFace(boolean isDetectedFace) {
+		this.isDetectedFace = isDetectedFace;
 	}
 
 }

@@ -57,7 +57,8 @@ public class KLHaarFaceTrackerDemo2 {
 			createUI();
 			FaceTrackingService.getInstance().setVideoPanel(videoPanel);
 			FaceTrackingService.getInstance().beginVideoCaptureAndTracking();
-			FaceTrackingService.getInstance().beginCheckingFace(new IDCard());
+			
+			FaceTrackingService.getInstance().beginCheckingFace(createIDCard());
 			FaceCheckingService.getInstance().beginFaceTrackThread();
 			// prepare the window for display
 			videoFrame.pack();
@@ -66,5 +67,18 @@ public class KLHaarFaceTrackerDemo2 {
 			// an error occured
 			JOptionPane.showMessageDialog(null, "Unable to open video.");
 		}
+	}
+	
+	private static IDCard createIDCard(){
+		IDCard card = new IDCard();
+		BufferedImage bi = null;
+		try {
+			bi = ImageIO.read(new File("C:/DCZ/20160412/llp.jpg"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		card.setCardImage(bi);
+		return card;
 	}
 }

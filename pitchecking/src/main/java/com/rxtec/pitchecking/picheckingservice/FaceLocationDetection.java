@@ -94,7 +94,7 @@ public class FaceLocationDetection {
 			//
 			int i = 0;
 
-			log.info("Begin to FGDetectImageFaceLocation.......................");
+			//log.info("Begin to FGDetectImageFaceLocation.......................");
 			Pointer pOrgResult = new Pointer(MemoryBlockFactory.createMemoryBlock(100));
 			jnative3.setRetVal(Type.INT);
 			jnative3.setParameter(i++, JNIFunctionHandle);
@@ -145,7 +145,7 @@ public class FaceLocationDetection {
 			pOrgResult.dispose();
 
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.debug("Face Detected succ using " + usingTime + " ms......" + faceLocation.toString());
+			//log.debug("Face Detected succ using " + usingTime + " ms......" + faceLocation.toString());
 
 			// jnative1.dispose();
 			// jnative2.dispose();
