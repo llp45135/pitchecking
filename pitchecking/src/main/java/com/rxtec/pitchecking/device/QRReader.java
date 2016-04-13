@@ -1,6 +1,5 @@
 package com.rxtec.pitchecking.device;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +14,7 @@ public class QRReader implements Runnable {
 
 		while (true) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(1000 * 60 * 30);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -36,7 +35,7 @@ public class QRReader implements Runnable {
 
 	private IDeviceEvent readQRData() {
 		IDeviceEvent event = new QRCodeReaderEvent();
-		
+
 		/*
 		 * 读二维码数据,填充event 读不到数据返回null
 		 */
