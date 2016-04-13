@@ -49,6 +49,15 @@ public class FaceCheckFrame extends JFrame {
 		});
 	}
 
+	private JPanel videoPanel = new JPanel();
+
+	
+	
+	
+	public JPanel getVideoPanel() {
+		return videoPanel;
+	}
+
 	/**
 	 * Create the frame.
 	 */
@@ -81,10 +90,14 @@ public class FaceCheckFrame extends JFrame {
 		showBmp.setBounds(10, 10, 100, 130);
 		panel.add(showBmp);
 		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
-		panel_1.setBounds(20, 71, 453, 324);
-		contentPane.add(panel_1);
+		videoPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
+		videoPanel.setBounds(20, 71, 453, 324);
+		contentPane.add(videoPanel);
+		
+		
+		resultLabel.setFont(new Font("宋体", Font.PLAIN, 20));
+		resultLabel.setBounds(496, 290, 118, 56);
+		contentPane.add(resultLabel);
 
 		
 	}
@@ -108,5 +121,12 @@ public class FaceCheckFrame extends JFrame {
 				popup.show(e.getComponent(), e.getX(), e.getY());
 			}
 		});
+	}
+	JLabel resultLabel = new JLabel("New label");
+	
+	public void updateFaceCheckResult(String s){
+		
+		resultLabel.setText(s);
+		
 	}
 }

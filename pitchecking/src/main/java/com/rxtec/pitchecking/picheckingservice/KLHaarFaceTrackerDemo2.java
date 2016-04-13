@@ -27,12 +27,13 @@ import org.openimaj.video.VideoDisplay;
 import org.openimaj.video.VideoDisplayListener;
 import org.openimaj.video.capture.VideoCapture;
 
-import com.rxtec.pitchecking.gui.FaceCheckFrame1;
+import com.rxtec.pitchecking.gui.FaceCheckFrame;
+
 
 public class KLHaarFaceTrackerDemo2 {
 
 	private KLTHaarFaceTracker faceTracker = new KLTHaarFaceTracker( 40 );
-	private final static FaceCheckFrame1 faceCheckFrame = new FaceCheckFrame1();
+	private final static FaceCheckFrame faceCheckFrame = new FaceCheckFrame();
 	
 	private static void createUI() {
 		// create the window

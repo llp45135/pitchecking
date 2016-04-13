@@ -43,7 +43,7 @@ public class IDCardDevice {
 		IDCardDevice device = IDCardDevice.getInstance();
 		if (device.getPort() != 0) {
 			FaceCheckFrame frame = new FaceCheckFrame();
-
+			device.Syn_OpenPort();
 			while (true) {
 				String findval = device.Syn_StartFindIDCard();
 				if (findval.equals("0")) {
@@ -294,7 +294,7 @@ public class IDCardDevice {
 		try {
 			int i = 0;
 
-			Pointer chmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(512));
+			Pointer chmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(500));
 			Pointer chlenPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(256));
 			Pointer phmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1024 * 3));
 			Pointer phlenPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1024));

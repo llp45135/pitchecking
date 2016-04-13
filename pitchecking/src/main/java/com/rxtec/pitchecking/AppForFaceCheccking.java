@@ -13,7 +13,6 @@ import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.rxtec.pitchecking.gui.FaceCheckFrame1;
 
 /**
  * AppForFaceCheccking
@@ -24,16 +23,7 @@ public class AppForFaceCheccking {
 	private Logger log = LoggerFactory.getLogger("FaceTrackingService");
 
 	public static void main(String[] args) {
-		FaceCheckFrame1 f = new FaceCheckFrame1();
 	}
 	
-	private static BufferedImage getImg(String fnm) {
-		BufferedImage bi = null;
-		try {
-			bi = ImageIO.read(new File(fnm));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return bi;
-	}
+
 }

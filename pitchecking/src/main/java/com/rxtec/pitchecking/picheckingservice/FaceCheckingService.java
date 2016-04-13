@@ -29,8 +29,8 @@ public class FaceCheckingService {
 		return _instance;
 	}
 	
-	public FaceData getCheckedFaceData() throws InterruptedException{
-		return checkedFaceDataQueue.take();
+	public FaceData getCheckedFaceData() {
+		return checkedFaceDataQueue.poll();
 	}
 	
 	

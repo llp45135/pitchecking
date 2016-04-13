@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking.device.event;
 
+import com.rxtec.pitchecking.picheckingservice.FaceData;
 import com.rxtec.pitchecking.picheckingservice.IDCard;
 
 public class ScreenElementModifyEvent {
@@ -7,6 +8,16 @@ public class ScreenElementModifyEvent {
 	private int elementType = 0;
 	private int elementCmd;
 	private IDCard idCard;
+	
+	private FaceData faceData;
+
+	public FaceData getFaceData() {
+		return faceData;
+	}
+
+	public void setFaceData(FaceData faceData) {
+		this.faceData = faceData;
+	}
 
 	public IDCard getIdCard() {
 		return idCard;
