@@ -7,14 +7,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.ImageIcon;
+import javax.swing.JPanel;
 
 import org.jfree.util.Log;
+import org.openimaj.video.capture.VideoCaptureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
+import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
+import com.rxtec.pitchecking.picheckingservice.FaceTrackingService;
 
 public class TicketCheckScreen {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
@@ -35,8 +39,17 @@ public class TicketCheckScreen {
 		faceFrame.setUndecorated(true);
 		faceFrame.setVisible(true);
 
+		FaceTrackingService.getInstance().setVideoPanel(faceFrame.getVideoPanel());
+
+		
+		
 	}
 
+	public JPanel getVideoPanel(){
+		return faceFrame.getVideoPanel();
+	}
+	
+	
 	public static TicketCheckScreen getInstance() {
 		return _instance;
 	}
@@ -48,7 +61,7 @@ public class TicketCheckScreen {
 	}
 
 	public void startShow() throws InterruptedException {
-		ScreenElementModifyEvent e = screenEventQueue.take();
+		ScreenElementModifyEvent e = screenEventQueue.poll();
 		/*
 		 * 根据ScreenElementModifyEvent的screenType、elementType、
 		 * elementCmd来决定屏幕的显示内容
@@ -60,11 +73,30 @@ public class TicketCheckScreen {
 				ticketFrame.getContentPane().repaint();
 				// gs[0].setFullScreenWindow(ticketFrame);
 			} else if (e.getScreenType() == 1) {
-				log.debug("收到Face屏幕事件，重画屏幕");
-				ImageIcon icon = new ImageIcon(e.getIdCard().getCardImage());
-				faceFrame.setIdcardBmp(icon);
-				faceFrame.getContentPane().repaint();
+				processEventByType(e);
 			}
+		}
+	}
+	
+	
+	private void processEventByType(ScreenElementModifyEvent e){
+		if(e.getElementType() == 1){
+			log.debug("收到Face屏幕事件，重画屏幕");
+			ImageIcon icon = new ImageIcon(e.getIdCard().getCardImage());
+			faceFrame.setIdcardBmp(icon);
+			faceFrame.getContentPane().repaint();
+
+		}else if(e.getElementType() == 2){
+			float r = e.getFaceData().getFaceCheckResult();
+			if(r>=0.7){
+				faceFrame.updateFaceCheckResult(String.format("验证通过 %<2.2f", r));
+				
+			}else{
+				faceFrame.updateFaceCheckResult(String.format("验证不通过 %<2.2f", r));
+
+			}
+			faceFrame.getContentPane().repaint();
+
 		}
 	}
 	

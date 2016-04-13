@@ -14,7 +14,6 @@ public class FaceTracker implements Runnable {
 
 	private FaceLocationDetection faceTracker = new FaceLocationDetection();
 
-
 	@Override
 	public void run() {
 		System.out.println("FaceTrack thread is running......");
@@ -26,21 +25,19 @@ public class FaceTracker implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 			MBFImage frame = FaceTrackingService.getInstance().takeFrameImage();
-			if(frame != null){
-				
+			if (frame != null) {
+
 				FaceLocation fl = faceTracker.detect(convertImage(frame));
 				FaceData fd = new FaceData(frame, fl);
 				FaceTrackingService.getInstance().offerDetectedFaceData(fd);
-				
 			}
 		}
 	}
-	
-	
-	private byte[] convertImage(MBFImage frame ){
-		ByteArrayOutputStream output = new ByteArrayOutputStream ();
+
+	private byte[] convertImage(MBFImage frame) {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
 			ImageUtilities.write(frame, "JPG", output);
 		} catch (IOException e) {

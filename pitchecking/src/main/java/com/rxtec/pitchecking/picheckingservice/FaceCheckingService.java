@@ -29,16 +29,22 @@ public class FaceCheckingService {
 		return _instance;
 	}
 	
-	/*
-	 * ÈËÖ¤±È¶ÔµÄÊ±¼ä¼ä¸ô£¬È±Ê¡200ºÁÃë
-	 */
-	private int checckTimeInterval = 200;
-	
-	public int getChecckTimeInterval() {
-		return checckTimeInterval;
+	public FaceData getCheckedFaceData() {
+		return checkedFaceDataQueue.poll();
 	}
-	public void setChecckTimeInterval(int checckTimeInterval) {
-		this.checckTimeInterval = checckTimeInterval;
+	
+	
+	/*
+	 * è§†é¢‘æµæŠ½å¸§é¢‘æ¬¡
+	 * ç¼ºçœ200msé€1å¸§
+	 */
+	private int checkTimeInterval = 200;
+	
+	public int getCheckTimeInterval() {
+		return checkTimeInterval;
+	}
+	public void setCheckTimeInterval(int checkTimeInterval) {
+		this.checkTimeInterval = checkTimeInterval;
 	}
 
 	FaceData preFaceData = null;
@@ -59,14 +65,14 @@ public class FaceCheckingService {
 		System.out.println(inteval);
 		if(inteval>200) {
 			inFaceDataQueue.offer(newFD);
-			System.out.println("^^^^^^^^^^^^^^ inFaceDataQueue size = " + inFaceDataQueue.size());
+			//System.out.println("^^^^^^^^^^^^^^ inFaceDataQueue size = " + inFaceDataQueue.size());
 			preFaceData = newFD;
 		}
 
 	}
 	
 	public FaceData takeFaceDataForChecking(){
-		System.out.println("%%%%%%%%%%%%%%%%%%% inFaceDataQueue size = " + inFaceDataQueue.size());
+		//System.out.println("%%%%%%%%%%%%%%%%%%% inFaceDataQueue size = " + inFaceDataQueue.size());
 		return inFaceDataQueue.poll();
 	}
 	
@@ -79,7 +85,7 @@ public class FaceCheckingService {
 		checkedFaceDataQueue.offer(f);
 	}
 	
-	public void beginFaceTrackThread(){
+	public void beginFaceCheckerThread(){
 		ExecutorService executor = Executors.newCachedThreadPool();
 		FaceChecker checker = new FaceChecker();
 		executor.execute(checker);

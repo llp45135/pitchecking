@@ -14,4 +14,5 @@ public class QRCodeReaderEvent implements IDeviceEvent{
 		return null;
 	}
 
+
 }
