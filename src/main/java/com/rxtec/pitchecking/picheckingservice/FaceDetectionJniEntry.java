@@ -11,7 +11,7 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.utils.CommUtil;
 
-public class FaceDetection {
+public class FaceDetectionJniEntry {
 
 	private Logger log = LoggerFactory.getLogger("FaceLocationDetection");
 	private int sdkInitRet = -1;
@@ -20,7 +20,7 @@ public class FaceDetection {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		FaceDetection detecter = new FaceDetection();
+		FaceDetectionJniEntry detecter = new FaceDetectionJniEntry();
 		byte[] imgBytes = CommUtil.getBytes("C:/DCZ/20160412/43040619900308255x.jpg");
 		detecter.initJNIContext();
 		detecter.detectLocation(imgBytes);
@@ -28,7 +28,7 @@ public class FaceDetection {
 		detecter.detectLocation(imgBytes);
 	}
 
-	public FaceDetection() {
+	public FaceDetectionJniEntry() {
 		JNative.setLoggingEnabled(true);
 		/**
 		 * 初始化SDK
@@ -88,10 +88,10 @@ public class FaceDetection {
 	}
 
 	// @SuppressWarnings("deprecation")
-	public FaceDetectedData detectLocation(byte[] imgBytes) {
+	public FaceDetectedResult detectLocation(byte[] imgBytes) {
 		String ret = "failue";
 
-		FaceDetectedData faceLocation = null;
+		FaceDetectedResult faceLocation = null;
 		try {
 
 			long nowMils = Calendar.getInstance().getTimeInMillis();
@@ -108,7 +108,7 @@ public class FaceDetection {
 			jnativeDetectLocationFun.invoke();
 
 			byte[] bytesResult = pOrgResult.getMemory();
-			faceLocation = new FaceDetectedData();
+			faceLocation = new FaceDetectedResult();
 			i = 0;
 			faceLocation.setId(CommUtil.bytesToInt(bytesResult, i));
 

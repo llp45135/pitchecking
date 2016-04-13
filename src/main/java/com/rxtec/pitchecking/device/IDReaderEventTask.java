@@ -18,7 +18,7 @@ import com.rxtec.pitchecking.picheckingservice.IDCard;
  * @author ZhaoLin
  *
  */
-public class IDReaderEventTask implements Callable<Integer> {
+public class IDReaderEventTask implements Callable<FaceData> {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 
 	IDCardReaderEvent event;
@@ -28,7 +28,7 @@ public class IDReaderEventTask implements Callable<Integer> {
 	}
 
 	@Override
-	public Integer call() throws Exception {
+	public FaceData call() throws Exception {
 		// TODO 当接收到二代证读卡器事件时，后续处理
 		log.debug("正在调用回调函数处理IDReaderEventTask==" + this.event);
 		IDCard idcard = (IDCard)this.event.getData();
@@ -40,7 +40,11 @@ public class IDReaderEventTask implements Callable<Integer> {
 		FaceDetectionService.getInstance().beginCheckingFace(idcard);
 
 
-		return null;
+		FaceData fd =  FaceCheckingService.getInstance().pollPassedFaceData();
+		if(fd == null) {
+			// TODO 5秒内没有返回人脸验证成功，后续处理
+		}
+		return fd;
 	}
 
 }

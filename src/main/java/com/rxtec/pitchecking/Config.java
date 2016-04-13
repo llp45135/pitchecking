@@ -10,6 +10,9 @@ import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 public class Config {
 
 	private float faceCheckThreshold = (float) 0.7;
+	private float glassFaceCheckThreshold = (float) 0.68;
+	private long getFaceCheckDelayTime = 5000;
+
 	public float getFaceCheckThreshold() {
 		return faceCheckThreshold;
 	}
@@ -38,10 +41,22 @@ public class Config {
 
 
 
-	private float glassFaceCheckThreshold = (float) 0.68;
 	
 	
-	
+	public long getGetFaceCheckDelayTime() {
+		return getFaceCheckDelayTime;
+	}
+
+
+
+
+	public void setGetFaceCheckDelayTime(long getFaceCheckDelayTime) {
+		this.getFaceCheckDelayTime = getFaceCheckDelayTime;
+	}
+
+
+
+
 	private static Config _instance = new Config();
 	
 	private Config(){
@@ -66,7 +81,7 @@ public class Config {
 
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		Config.getInstance();
 
 	}
 

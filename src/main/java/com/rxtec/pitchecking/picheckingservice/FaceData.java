@@ -83,13 +83,13 @@ public class FaceData {
 		createTime = Calendar.getInstance().getTimeInMillis();
 	}
 	
-	private FaceDetectedData faceDetectedData = null;
+	private FaceDetectedResult faceDetectedData = null;
 	
-	public FaceDetectedData getFaceDetectedData() {
+	public FaceDetectedResult getFaceDetectedData() {
 		return faceDetectedData;
 	}
 
-	public FaceData(MBFImage fm, FaceDetectedData fdd) {
+	public FaceData(MBFImage fm, FaceDetectedResult fdd) {
 		this.frame = fm;
 		this.faceX = fdd.getX();
 		this.faceY =  fdd.getY();

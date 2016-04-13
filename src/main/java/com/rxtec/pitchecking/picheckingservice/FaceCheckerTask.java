@@ -9,7 +9,7 @@ import com.rxtec.pitchecking.Config;
 
 public class FaceCheckerTask implements Runnable {
 
-	FaceVerify faceVerify = new FaceVerify();
+	FaceVerifyJniEntry faceVerify = new FaceVerifyJniEntry();
 	private Logger log = LoggerFactory.getLogger("FaceChecker");
 	
 	@Override

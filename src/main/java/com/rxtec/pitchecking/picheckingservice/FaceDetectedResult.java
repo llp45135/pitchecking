@@ -1,6 +1,6 @@
 package com.rxtec.pitchecking.picheckingservice;
 
-public class FaceDetectedData {
+public class FaceDetectedResult {
 	private int id;
 	private int x;
 	private int y;

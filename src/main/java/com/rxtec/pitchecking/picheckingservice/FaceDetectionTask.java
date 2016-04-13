@@ -12,7 +12,7 @@ import org.openimaj.image.processing.face.tracking.KLTHaarFaceTracker;
 
 public class FaceDetectionTask implements Runnable {
 
-	private FaceDetection faceTracker = new FaceDetection();
+	private FaceDetectionJniEntry faceTracker = new FaceDetectionJniEntry();
 
 	@Override
 	public void run() {
@@ -29,7 +29,7 @@ public class FaceDetectionTask implements Runnable {
 			MBFImage frame = FaceDetectionService.getInstance().takeFrameImage();
 			if (frame != null) {
 
-				FaceDetectedData fl = faceTracker.detectLocation(convertImage(frame));
+				FaceDetectedResult fl = faceTracker.detectLocation(convertImage(frame));
 				FaceData fd = new FaceData(frame, fl);
 				FaceDetectionService.getInstance().offerDetectedFaceData(fd);
 			}

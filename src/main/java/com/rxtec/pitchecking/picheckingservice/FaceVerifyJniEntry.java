@@ -13,9 +13,9 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
-public class FaceVerify {
+public class FaceVerifyJniEntry {
 	
-	public FaceVerify(){
+	public FaceVerifyJniEntry(){
 		initJNIContext();
 	}
 	JNative jnativeInitFun = null;
@@ -97,7 +97,7 @@ public class FaceVerify {
 	
 	public static void main(String[] args) {
 
-		FaceVerify v = new FaceVerify();
+		FaceVerifyJniEntry v = new FaceVerifyJniEntry();
 		IDCard c1 = createIDCard("C:/DCZ/20160412/43040619900308255x.jpg");
 		IDCard c2 = createIDCard("C:/DCZ/20160412/out.jpg");
 				

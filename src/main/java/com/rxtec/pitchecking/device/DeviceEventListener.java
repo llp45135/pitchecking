@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.device.event.IDeviceEvent;
+import com.rxtec.pitchecking.picheckingservice.FaceData;
 
 public class DeviceEventListener {
 
@@ -78,7 +79,7 @@ public class DeviceEventListener {
 			 */
 			IDReaderEventTask idtask = new IDReaderEventTask(e);
 
-			Future<Integer> result = executor.submit(idtask);
+			Future<FaceData> result = executor.submit(idtask);
 
 		}
 	}

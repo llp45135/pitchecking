@@ -20,7 +20,7 @@ import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
-import com.rxtec.pitchecking.picheckingservice.FaceDetection;
+import com.rxtec.pitchecking.picheckingservice.FaceDetectionJniEntry;
 import com.rxtec.pitchecking.picheckingservice.IDCard;
 
 /**
