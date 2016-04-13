@@ -85,11 +85,10 @@ public class FaceCheckingService {
 		checkedFaceDataQueue.offer(f);
 	}
 	
-	public void beginFaceTrackThread(){
+	public void beginFaceCheckerThread(){
 		ExecutorService executor = Executors.newCachedThreadPool();
 		FaceChecker checker = new FaceChecker();
 		executor.execute(checker);
-		executor.shutdown();
 		
 	}
 

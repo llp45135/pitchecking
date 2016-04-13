@@ -28,7 +28,7 @@ import com.rxtec.pitchecking.picheckingservice.FaceData;
 import com.rxtec.pitchecking.picheckingservice.FaceTrackingService;
 import com.rxtec.pitchecking.picheckingservice.IDCard;
 
-public class FaceCheckFrame extends JFrame {
+public class FaceCheckFrame1 extends JFrame {
 
 	private JPanel contentPane;
 	private JButton showBmp;
@@ -40,7 +40,7 @@ public class FaceCheckFrame extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					FaceCheckFrame frame = new FaceCheckFrame();
+					FaceCheckFrame1 frame = new FaceCheckFrame1();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -52,7 +52,7 @@ public class FaceCheckFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public FaceCheckFrame() {
+	public FaceCheckFrame1() {
 		initGui();
 	}
 	

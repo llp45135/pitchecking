@@ -98,7 +98,7 @@ public class FaceTrackingService {
 
 	
 	
-	boolean isRotation = false;
+	boolean isRotation = true;
 	
 
 	int frameCounter = 0;

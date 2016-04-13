@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
-import com.rxtec.pitchecking.gui.FaceCheckFrame;
+import com.rxtec.pitchecking.gui.FaceCheckFrame1;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
 
 public class TicketCheckScreen {
@@ -24,7 +24,7 @@ public class TicketCheckScreen {
     GraphicsDevice[] gs = ge.getScreenDevices();
     
     TicketCheckFrame ticketFrame = new TicketCheckFrame();
-    FaceCheckFrame faceFrame = new FaceCheckFrame();
+    FaceCheckFrame1 faceFrame = new FaceCheckFrame1();
 
 	private TicketCheckScreen() {
 		startTicketScreenCustomer();

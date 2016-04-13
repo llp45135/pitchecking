@@ -18,7 +18,7 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
-import com.rxtec.pitchecking.gui.FaceCheckFrame;
+import com.rxtec.pitchecking.gui.FaceCheckFrame1;
 import com.rxtec.pitchecking.picheckingservice.FaceLocationDetection;
 
 /**
@@ -37,7 +37,7 @@ public class IDCardDevice {
 		int port = 1001;
 		int bIfOpen = 0;
 		IDCardDevice device = IDCardDevice.getInstance(port);
-		FaceCheckFrame frame = new FaceCheckFrame();
+		FaceCheckFrame1 frame = new FaceCheckFrame1();
 		while (true) {
 			// device.Syn_SetMaxRFByte(port, "80");
 			String findval = device.Syn_StartFindIDCard(port, bIfOpen);

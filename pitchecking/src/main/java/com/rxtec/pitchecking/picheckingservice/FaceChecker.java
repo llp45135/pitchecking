@@ -17,7 +17,7 @@ public class FaceChecker implements Runnable {
 			
 			FaceData fd = FaceCheckingService.getInstance().takeFaceDataForChecking();
 			if(fd == null) continue;
-			//log.debug("!!!!!!!!!!!!!!!!!!!!!!!FaceCheckingService.getInstance().takeFaceDataForChecking");
+			log.debug("!!!!!!!!!!!!!!!!!!!!!!!FaceCheckingService.getInstance().takeFaceDataForChecking");
 			if(!fd.isDetectedFace()) continue;
 			float resultValue = 0;
 			
