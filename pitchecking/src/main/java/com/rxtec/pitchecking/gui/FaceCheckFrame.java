@@ -1,4 +1,3 @@
-
 package com.rxtec.pitchecking.gui;
 
 import java.awt.BorderLayout;
