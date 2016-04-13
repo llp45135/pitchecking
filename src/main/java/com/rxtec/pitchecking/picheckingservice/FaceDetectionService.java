@@ -120,11 +120,14 @@ public class FaceDetectionService {
 				offerFrame(frame);
 				FaceData face = getFaceFromDetectedFaceQueue();
 				if(face != null){
+					
 					frame.drawShape( face.getFaceBounds(), RGBColour.RED );
 					
 					if(currentIDCard != null){
-						face.setIdCard(currentIDCard);
-						FaceCheckingService.getInstance().sendFaceDataForChecking(face);
+						if(face.getFaceDetectedData().isPass()){
+							face.setIdCard(currentIDCard);
+							FaceCheckingService.getInstance().sendFaceDataForChecking(face);
+						}
 					}
 				}
 			}
