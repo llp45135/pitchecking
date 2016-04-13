@@ -14,10 +14,5 @@ public class QRCodeReaderEvent implements IDeviceEvent{
 		return null;
 	}
 
-	@Override
-	public void setEventType(int arg) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

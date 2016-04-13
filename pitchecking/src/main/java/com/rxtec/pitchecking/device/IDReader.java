@@ -29,7 +29,7 @@ public class IDReader implements Runnable {
 				e1.printStackTrace();
 			}
 			try {
-				Thread.sleep(3000);
+				Thread.sleep(2000);
 			} catch (InterruptedException ex) {
 				// TODO Auto-generated catch block
 				ex.printStackTrace();

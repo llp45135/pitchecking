@@ -25,10 +25,4 @@ public class IDCardReaderEvent implements IDeviceEvent {
 		return idCard;
 	}
 
-	@Override
-	public void setEventType(int arg) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
