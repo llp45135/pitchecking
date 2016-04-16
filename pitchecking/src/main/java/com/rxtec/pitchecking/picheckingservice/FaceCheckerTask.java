@@ -17,21 +17,21 @@ public class FaceCheckerTask implements Runnable {
 		// TODO Auto-generated method stub
 		while (true) {
 			
-			FaceData fd = FaceCheckingService.getInstance().pollFaceDataForChecking();
+			FaceData fd = FaceCheckingService.getInstance().pollCheckedFaceData();
 			if(fd == null) continue;
-			//log.debug("FaceCheckingService.getInstance().takeFaceDataForChecking");
+			log.debug("faceVerify : " + fd.getFaceDetectedData());
 			if(!fd.isDetectedFace()) continue;
 			float resultValue = 0;
 			
 			if(fd != null) {
 				try {
-					resultValue = faceVerify.verify(fd.getFaceImageByteArray(), fd.getIdCard().getImageBytes());
+					resultValue = faceVerify.verify(fd.getExtractFaceImageBytes(), fd.getIdCard().getImageBytes());
 					fd.setFaceCheckResult(resultValue);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				FaceCheckingService.getInstance().offerCheckedFaceData(fd);
+				FaceCheckingService.getInstance().offerPassFaceData(fd);
 			}
 		}
 	}

@@ -46,7 +46,7 @@ public class IDReaderEventTask implements Callable<FaceData> {
 
 		FaceData fd =  null;
 		try {
-			fd = FaceCheckingService.getInstance().pollCheckedFaceData();
+			fd = FaceCheckingService.getInstance().pollPassFaceData();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			log.error("IDReaderEventTask call",e);

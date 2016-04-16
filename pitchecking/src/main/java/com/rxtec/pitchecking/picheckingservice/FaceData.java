@@ -5,18 +5,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 
-import org.apache.tools.ant.types.resources.selectors.Date;
+import org.jfree.util.Log;
 import org.openimaj.image.ImageUtilities;
 import org.openimaj.image.MBFImage;
 import org.openimaj.image.processing.face.detection.DetectedFace;
 import org.openimaj.math.geometry.shape.Rectangle;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
 /**
@@ -124,18 +127,79 @@ public class FaceData {
 	private int faceWidth;
 	private int faceHeight;
 
-	public byte[] getFaceImageByteArray() throws IOException {
-		MBFImage extractFrame = frame.extractROI(faceX, faceY, faceWidth, faceHeight);
+	public byte[] getExtractFaceImageBytes() throws IOException {
+		
+		int x = (int) (faceX*0.8);
+		int y = (int) (faceY*0.8);
+		int width = (int) (faceWidth*1.2);
+		int height = (int) (faceHeight*1.3);
+		
+		MBFImage extractFrame = frame.extractROI(x,y,width,height);
 		BufferedImage result = ImageUtilities.createBufferedImageForDisplay(extractFrame);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		ImageIO.write(result, "JPEG", ImageIO.createImageOutputStream(os));
-
-		 String fn = "C:/DCZ/20160412/out/"+this.hashCode()+".jpg";
-		 ImageIO.write(result, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
-
+		saveExtractFaceImageToLogFile(result);
 		return os.toByteArray();
-
 	}
+	
+	public void saveIDCardImageToLogDir(){
+		if(idCard == null || idCard.getCardImage() == null || idCard.getIdNo() == null) return;
+		BufferedImage bi = idCard.getCardImage();
+		String dirName = Config.getInstance().getImagesLogDir();
+		int ret = CommUtil.createDir(dirName);
+		if(ret == 0 || ret == 1){
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+			String toDayDir = formatter.format(new Date());
+			ret = CommUtil.createDir(dirName + toDayDir);
+			if(ret == 0 || ret == 1){
+				StringBuffer sb = new StringBuffer();
+				sb.append(dirName);
+				sb.append(toDayDir);
+				sb.append("/");
+				sb.append(idCard.getIdNo().hashCode());
+				sb.append(".jpg");
+				String fn = sb.toString();
+				try {
+					ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					Log.error("saveToImagesLogFile failed",e);
+				}
+			}
+		}
+	}
+	
+	
+	private void saveExtractFaceImageToLogFile(BufferedImage bi){
+		String dirName = Config.getInstance().getImagesLogDir();
+		int ret = CommUtil.createDir(dirName);
+		if(ret == 0 || ret == 1){
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+			String toDayDir = formatter.format(new Date());
+			ret = CommUtil.createDir(dirName + toDayDir);
+			if(ret == 0 || ret == 1){
+				formatter = new SimpleDateFormat("hh-mm-ss-SSS");
+				StringBuffer sb = new StringBuffer();
+				sb.append(dirName);
+				sb.append(toDayDir);
+				sb.append("/");
+				sb.append(idCard.getIdNo().hashCode());
+				sb.append("@");
+				sb.append(formatter.format(new Date()));
+				sb.append(".jpg");
+				String fn = sb.toString();
+				try {
+					ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					Log.error("saveToImagesLogFile failed",e);
+				}
+			}
+		}
+	}
+	
+  
+	
 
 	public BufferedImage getFaceImageBufferedImage() throws IOException {
 		BufferedImage sourceImage = ImageUtilities.createBufferedImage(frame);

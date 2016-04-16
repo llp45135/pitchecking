@@ -272,4 +272,25 @@ public class CommUtil {
 		else
 			return true;
 	}
+	
+	
+	
+    public static int createDir(String destDirName) {
+        File dir = new File(destDirName);
+        if (dir.exists()) {
+            //System.out.println("创建目录" + destDirName + "失败，目标目录已经存在");
+            return 0;
+        }
+        if (!destDirName.endsWith(File.separator)) {
+            destDirName = destDirName + File.separator;
+        }
+        //创建目录
+        if (dir.mkdirs()) {
+            //System.out.println("创建目录" + destDirName + "成功！");
+            return 1;
+        } else {
+            //System.out.println("创建目录" + destDirName + "失败！");
+            return -1;
+        }
+    }
 }

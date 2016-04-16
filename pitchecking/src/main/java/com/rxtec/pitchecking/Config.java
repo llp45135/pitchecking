@@ -15,6 +15,21 @@ public class Config {
 	private int fastFaceDetect = 1;
 	private int faceCheckingInteval = 100;
 	private int defaultFaceCheckScreenDeley=1000;
+	private String imagesLogDir;
+
+	public String getImagesLogDir() {
+		return imagesLogDir;
+	}
+
+
+
+
+	public void setImagesLogDir(String imagesLogDir) {
+		this.imagesLogDir = imagesLogDir;
+	}
+
+
+
 
 	public long getFaceCheckDelayTime() {
 		return faceCheckDelayTime;
@@ -123,6 +138,7 @@ public class Config {
         	this.fastFaceDetect = Integer.valueOf(p.getProperty("FastFaceDetect", "1"));
         	this.faceCheckingInteval = Integer.valueOf(p.getProperty("faceCheckingInteval", "100"));
         	this.defaultFaceCheckScreenDeley = Integer.valueOf(p.getProperty("DefaultFaceCheckScreenDeley", "1000"));
+        	this.imagesLogDir = p.getProperty("ImagesLogDir", "C:/pitchecking/images");
             is.close(); //关闭流
         }
         catch (IOException e)

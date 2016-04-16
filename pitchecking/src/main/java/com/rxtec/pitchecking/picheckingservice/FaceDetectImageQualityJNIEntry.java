@@ -24,46 +24,53 @@ public class FaceDetectImageQualityJNIEntry {
 	int JNIHandle;
 	private Logger log = LoggerFactory.getLogger("FaceLocationDetection");
 
-	
 	public static void main(String[] args) {
-		FaceDetectImageQualityJNIEntry detecter = new FaceDetectImageQualityJNIEntry();
-		byte[] imgBytes = CommUtil.getBytes("C:/DCZ/20160412/llp.jpg");
+		FaceDetectImageQualityJNIEntry detecter = FaceDetectImageQualityJNIEntry.getInstance();
+		byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/images/20160416/1544565937@02-45-26-482.jpg");
 		FaceDetectedResult r = new FaceDetectedResult();
 		r.setImageBytes(imgBytes);
-		detecter.detectFaceImage(r);
+		detecter.detectFaceLocation(r);
+		for (int i = 0; i < 20; i++) {
+			detecter.detectFaceQuality(r);
+		}
 		System.out.println(r);
-	}	
-	
-	public FaceDetectImageQualityJNIEntry() {
+	}
+
+	private static FaceDetectImageQualityJNIEntry instance = null;
+
+	public static synchronized FaceDetectImageQualityJNIEntry getInstance() {
+		if (instance == null) {
+			instance = new FaceDetectImageQualityJNIEntry();
+		}
+
+		return instance;
+	}
+
+	private FaceDetectImageQualityJNIEntry() {
 		JNative.setLoggingEnabled(false);
 		/**
 		 * 初始化SDK
 		 */
 		initJNIContext();
 
-
 	}
-	
-	
-	
+
 	private int initJNIContext() {
 		int result = 0;
 		try {
-			FGDetectInitSDK = new JNative("DetectSDK.dll", "FGDetectInitSDK");
+			FGDetectInitSDK = new JNative("DetectSDKClone.dll", "FGDetectInitSDK");
 			FGDetectInitSDK.setRetVal(Type.INT);
 			FGDetectInitSDK.invoke();
 			log.debug("FGDetectInitSDK:" + FGDetectInitSDK.getRetValAsInt());
 
 			if (FGDetectInitSDK.getRetValAsInt() == 0) {
-				
-				
+
 				Pointer handle = new Pointer(MemoryBlockFactory.createMemoryBlock(4));
 				handle.setIntAt(0, 0);
 				int i = 0;
-				FGDetectImageFaceLocation = new JNative("DetectSDK.dll", "FGDetectImageFaceLocation"); 
-				
-				
-				FGDetectCreateHandleFromFile = new JNative("DetectSDK.dll","FGDetectCreateHandleFromFile");
+				FGDetectImageFaceLocation = new JNative("DetectSDKClone.dll", "FGDetectImageFaceLocation");
+
+				FGDetectCreateHandleFromFile = new JNative("DetectSDKClone.dll", "FGDetectCreateHandleFromFile");
 				FGDetectCreateHandleFromFile.setRetVal(Type.INT);
 				FGDetectCreateHandleFromFile.setParameter(i++, handle);
 				FGDetectCreateHandleFromFile.setParameter(i++, Type.STRING, "c:/pitchecking/FaceDetection.flt");
@@ -72,12 +79,13 @@ public class FaceDetectImageQualityJNIEntry {
 				JNIHandle = handle.getAsInt(0);
 				handle.dispose();
 				if (FGDetectCreateHandleFromFile.getRetValAsInt() == 0) {
-					FGDetectSImageQuality = new JNative("DetectSDK.dll", "FGDetectSImageQuality");
-					FGDetectSGetFacePoint = new JNative("DetectSDK.dll", "FGDetectSGetFacePoint");
-					FGDetectSGetResult = new JNative("DetectSDK.dll", "FGDetectSGetResult");
-					FGDetectSGetAssess = new JNative("DetectSDK.dll", "FGDetectSGetAssess");
+					FGDetectSImageQuality = new JNative("DetectSDKClone.dll", "FGDetectSImageQuality");
+					FGDetectSGetFacePoint = new JNative("DetectSDKClone.dll", "FGDetectSGetFacePoint");
+					FGDetectSGetResult = new JNative("DetectSDKClone.dll", "FGDetectSGetResult");
+					FGDetectSGetAssess = new JNative("DetectSDKClone.dll", "FGDetectSGetAssess");
 					result = 1;
-				}else result = -1;
+				} else
+					result = -1;
 			}
 
 		} catch (NativeException e) {
@@ -90,70 +98,80 @@ public class FaceDetectImageQualityJNIEntry {
 		return result;
 	}
 
-	public void detectFaceImage( FaceDetectedResult result) {
+	public void detectFaceLocation(FaceDetectedResult result) {
 		byte[] imgBytes = result.getImageBytes();
 		int i = 0;
 
 		try {
-			
+			Pointer FaceLocationPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(100));
+			FGDetectImageFaceLocation.setRetVal(Type.INT);
+			FGDetectImageFaceLocation.setParameter(i++, JNIHandle);
+			FGDetectImageFaceLocation.setParameter(i++, Type.STRING, imgBytes);
+			FGDetectImageFaceLocation.setParameter(i++, Type.INT, "" + imgBytes.length);
+			FGDetectImageFaceLocation.setParameter(i++, FaceLocationPointer);
+			FGDetectImageFaceLocation.setParameter(i++, 0);
+			FGDetectImageFaceLocation.invoke();
 
-//			Pointer FaceLocationPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(100));
-//			FGDetectImageFaceLocation.setRetVal(Type.INT);
-//			FGDetectImageFaceLocation.setParameter(i++, JNIHandle);
-//			FGDetectImageFaceLocation.setParameter(i++, Type.STRING, imgBytes);
-//			FGDetectImageFaceLocation.setParameter(i++, Type.INT, "" + imgBytes.length);
-//			FGDetectImageFaceLocation.setParameter(i++, FaceLocationPointer);
-//			FGDetectImageFaceLocation.setParameter(i++, 0);
-//			FGDetectImageFaceLocation.invoke();
-//
-//			byte[] FaceLocationResultBytes = FaceLocationPointer.getMemory();
-//			i = 0;
-//			result.setId(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setX(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setY(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setWidth(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setHeight(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setxFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setyFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setFirstConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setxSecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setySecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-//
-//			i += 4;
-//			result.setSecondConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
-//
-//			FaceLocationPointer.dispose();
-			
-			
-			
-			
+			byte[] FaceLocationResultBytes = FaceLocationPointer.getMemory();
+			i = 0;
+			result.setId(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setX(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setY(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setWidth(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setHeight(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setxFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setyFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setFirstConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setxSecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setySecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+
+			i += 4;
+			result.setSecondConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
+
+			FaceLocationPointer.dispose();
+		} catch (NativeException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} finally {
+		}
+
+	}
+
+	public void detectFaceQuality(FaceDetectedResult result) {
+
+		byte[] imgBytes = result.getImageBytes();
+		int i = 0;
+
+		try {
 			FGDetectSImageQuality.setRetVal(Type.INT);
 			FGDetectSImageQuality.setParameter(i++, JNIHandle);
 			FGDetectSImageQuality.setParameter(i++, Type.STRING, imgBytes);
 			FGDetectSImageQuality.setParameter(i++, Type.INT, "" + imgBytes.length);
 			FGDetectSImageQuality.invoke();
-			//log.debug("FGDetectSImageQuality:"+FGDetectSImageQuality.getRetVal());
+
+			// log.debug("FGDetectSImageQuality:"+FGDetectSImageQuality.getRetVal());
 			if (FGDetectSImageQuality.getRetValAsInt() == 0) {
 
 				// /*
@@ -180,7 +198,7 @@ public class FaceDetectImageQualityJNIEntry {
 				FGDetectSGetFacePoint.setParameter(i++, FacePointPointer);
 				FGDetectSGetFacePoint.invoke();
 
-				//log.debug("FGDetectSImageQuality:"+FGDetectSGetFacePoint.getRetVal());
+				// log.debug("FGDetectSImageQuality:"+FGDetectSGetFacePoint.getRetVal());
 
 				byte[] FacePointOutBytes = FacePointPointer.getMemory();
 				i = 0;
@@ -208,7 +226,7 @@ public class FaceDetectImageQualityJNIEntry {
 				result.setChinPos(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
 				result.setSkewAngle(CommUtil.bytesToInt(FacePointOutBytes, i));
-
+				FacePointOutBytes = null;
 				FacePointPointer.dispose();
 
 				//
@@ -233,7 +251,7 @@ public class FaceDetectImageQualityJNIEntry {
 				FGDetectSGetResult.setParameter(i++, JNIHandle);
 				FGDetectSGetResult.setParameter(i++, FaceResultPointer);
 				FGDetectSGetResult.invoke();
-				//log.debug("FGDetectSGetResult:"+FGDetectSGetResult.getRetVal());
+				// log.debug("FGDetectSGetResult:"+FGDetectSGetResult.getRetVal());
 
 				byte[] FaceResultBytes = FaceResultPointer.getMemory();
 				i = 0;
@@ -268,10 +286,9 @@ public class FaceDetectImageQualityJNIEntry {
 				i += 4;
 
 				result.setEyesGlasses(CommUtil.bytesToFloat(FaceResultBytes, i));
-				
-				log.debug(String.valueOf(CommUtil.bytesToFloat(FaceResultBytes, i)));
-				i += 4;
 
+				i += 4;
+				FaceResultBytes = null;
 				FaceResultPointer.dispose();
 
 				Pointer FaceAssessPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(100));
@@ -281,7 +298,7 @@ public class FaceDetectImageQualityJNIEntry {
 				FGDetectSGetAssess.setParameter(i++, JNIHandle);
 				FGDetectSGetAssess.setParameter(i++, FaceAssessPointer);
 				FGDetectSGetAssess.invoke();
-				//log.debug("FGDetectSGetAssess:"+FGDetectSGetAssess.getRetVal());
+				// log.debug("FGDetectSGetAssess:"+FGDetectSGetAssess.getRetVal());
 
 				byte[] FaceAssessBytes = FaceAssessPointer.getMemory();
 
@@ -302,7 +319,7 @@ public class FaceDetectImageQualityJNIEntry {
 				result.setLargehead(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
 				result.setSmallhead(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
 				result.setWearsglasses(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-
+				FaceAssessBytes = null;
 				FaceAssessPointer.dispose();
 			}
 
@@ -312,6 +329,6 @@ public class FaceDetectImageQualityJNIEntry {
 			e.printStackTrace();
 		} finally {
 		}
-		
+
 	}
 }

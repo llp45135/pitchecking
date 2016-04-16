@@ -51,8 +51,11 @@ public class KLHaarFaceTrackerDemo2 {
 			FaceDetectionService.getInstance().setVideoPanel(faceCheckFrame.getVideoPanel());
 			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
 			
-			FaceDetectionService.getInstance().beginCheckingFace(createIDCard());
 			FaceCheckingService.getInstance().beginFaceCheckerTask();
+			//FaceCheckingService.getInstance().beginFaceQualityDetecterTask();
+			
+			FaceDetectionService.getInstance().beginCheckingFace(createIDCard());
+
 			
 			
 			
@@ -64,6 +67,7 @@ public class KLHaarFaceTrackerDemo2 {
 	
 	private static IDCard createIDCard(){
 		IDCard card = new IDCard();
+		card.setIdNo("440111197209283012");
 		BufferedImage bi = null;
 		try {
 			bi = ImageIO.read(new File("C:/DCZ/20160412/llp.jpg"));

@@ -98,7 +98,7 @@ public class FaceDetectionService {
 
 	
 	
-	boolean isRotation = true;
+	boolean isRotation = false;
 	
 
 	int frameCounter = 0;
@@ -124,9 +124,10 @@ public class FaceDetectionService {
 
 
 					if(currentIDCard != null){
-						if(face.isDetectedFace()){
+						if(detectQuality(face)){
 							face.setIdCard(currentIDCard);
-							FaceCheckingService.getInstance().sendFaceDataForChecking(face);
+							FaceCheckingService.getInstance().offerCheckedFaceData(face);
+						
 						}
 					}
 					frame.drawShape( face.getFaceBounds(), RGBColour.RED );
@@ -140,7 +141,13 @@ public class FaceDetectionService {
 		});
 	}
 	
-	
+	private boolean detectQuality(FaceData fd){
+		FaceDetectedResult r = fd.getFaceDetectedData();
+		if(r.isEyesfrontal() && r.isFacefrontal() && r.isEyesopen() && r.isHasface() && r.isExpression()) return true;
+		else return false;
+		
+	}
+
 	
 	private IDCard currentIDCard = null;
 	

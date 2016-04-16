@@ -20,8 +20,8 @@ import com.rxtec.pitchecking.utils.ImageToolkit;
 public class FaceDetectionTask implements Runnable {
 
 
-	private FaceDetectLocaltionJniEntry faceDetecter = new FaceDetectLocaltionJniEntry();
-//	private FaceDetectImageQualityJNIEntry faceDetecter = new FaceDetectImageQualityJNIEntry();
+//	private FaceDetectLocaltionJniEntry faceDetecter = new FaceDetectLocaltionJniEntry();
+	private FaceDetectImageQualityJNIEntry faceDetecter = FaceDetectImageQualityJNIEntry.getInstance();
 	private Logger log = LoggerFactory.getLogger("FaceDetectionTask");
 
 
@@ -49,14 +49,17 @@ public class FaceDetectionTask implements Runnable {
 				//faceTracker.detectFaceImage(fl);
 				
 				long nowMils = Calendar.getInstance().getTimeInMillis();
-				faceDetecter.detectFaceImage(fl);
+				faceDetecter.detectFaceLocation(fl);
+				
+				
+				faceDetecter.detectFaceQuality(fl);
+				
 				long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 
 				//log.debug("Detect using" + usingTime + fl.toString());
 
 				FaceData fd = new FaceData(frame, fl);
 				if(fd.isDetectedFace()) FaceDetectionService.getInstance().offerDetectedFaceData(fd);
-
 			
 			}
 		}
@@ -68,5 +71,6 @@ public class FaceDetectionTask implements Runnable {
 		byte[] buff = ImageToolkit.getImageBytes(bi,"jpg");
 		return buff;
 	}
+	
 
 }

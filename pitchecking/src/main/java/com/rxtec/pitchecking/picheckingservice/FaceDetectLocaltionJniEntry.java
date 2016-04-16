@@ -22,12 +22,11 @@ public class FaceDetectLocaltionJniEntry {
 	public static void main(String[] args) {
 		FaceDetectLocaltionJniEntry detecter = new FaceDetectLocaltionJniEntry();
 		byte[] imgBytes = CommUtil.getBytes("C:/DCZ/20160412/43040619900308255x.jpg");
-		detecter.initJNIContext();
 		FaceDetectedResult faceLocation = new FaceDetectedResult();
 		faceLocation.setImageBytes(imgBytes);
-		detecter.detectFaceImage(faceLocation);
-		detecter.detectFaceImage(faceLocation);
-		detecter.detectFaceImage(faceLocation);
+		detecter.detectFaceLocation(faceLocation);
+		detecter.detectFaceLocation(faceLocation);
+		detecter.detectFaceLocation(faceLocation);
 	}
 
 	public FaceDetectLocaltionJniEntry() {
@@ -88,7 +87,7 @@ public class FaceDetectLocaltionJniEntry {
 	}
 
 	// @SuppressWarnings("deprecation")
-	public void detectFaceImage( FaceDetectedResult faceLocation) {
+	public void detectFaceLocation( FaceDetectedResult faceLocation) {
 		byte[] imgBytes = faceLocation.getImageBytes();
 		try {
 

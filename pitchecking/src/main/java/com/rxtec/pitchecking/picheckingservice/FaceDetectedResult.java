@@ -45,25 +45,25 @@ public class FaceDetectedResult {
 	private float eyesGlasses;				// 是否戴眼镜
 
 	
-	private boolean pass;						// 综合品质是否合格
-	private boolean hasface;					// 脸数（非单人正脸照）
-	private boolean eyesopen;					// 眼睛睁开
-	private boolean faceblur;					// 脸部模糊（图像模糊）
-	private boolean hotspots;					// 脸部高光
-	private boolean lightuniform;				// 脸部曝光均匀性（光照不均匀）
+	private boolean pass = false;						// 综合品质是否合格
+	private boolean hasface = false;					// 脸数（非单人正脸照）
+	private boolean eyesopen = false;					// 眼睛睁开
+	private boolean faceblur = false;					// 脸部模糊（图像模糊）
+	private boolean hotspots = false;					// 脸部高光
+	private boolean lightuniform = false;				// 脸部曝光均匀性（光照不均匀）
 
-	private boolean expression;					// 表情不自然
+	private boolean expression = false;					// 表情不自然
 
-	private boolean facefrontal;				// 正脸（姿态不正）
-	private boolean eyesfrontal;				// 正眼：眼睛朝前看（目光未视镜头）
+	private boolean facefrontal = false;				// 正脸（姿态不正）
+	private boolean eyesfrontal = false;				// 正眼：眼睛朝前看（目光未视镜头）
     
-	private boolean headhigh;					// 头整体偏上
-	private boolean headlow;					// 头整体偏下
-	private boolean headleft;					// 头整体偏左
-	private boolean headright;					// 头整体偏右
-	private boolean largehead;					// 头（/脸）偏大
-	private boolean smallhead;					// 头（/脸）偏小
-	private boolean wearsglasses;				// 是否戴眼镜	
+	private boolean headhigh = false;					// 头整体偏上
+	private boolean headlow = false;					// 头整体偏下
+	private boolean headleft = false;					// 头整体偏左
+	private boolean headright = false;					// 头整体偏右
+	private boolean largehead = false;					// 头（/脸）偏大
+	private boolean smallhead = false;					// 头（/脸）偏小
+	private boolean wearsglasses = false;				// 是否戴眼镜	
 	
 	
 	public FaceBounds getFaceBounds(){
@@ -238,25 +238,25 @@ public class FaceDetectedResult {
 		return x;
 	}
 	public void setX(int x) {
-		this.x = (int) (x*0.8);
+		this.x = x;
 	}
 	public int getY() {
 		return y;
 	}
 	public void setY(int y) {
-		this.y = (int)(y*0.8);
+		this.y = y;
 	}
 	public int getWidth() {
 		return width;
 	}
 	public void setWidth(int width) {
-		this.width = (int)(width*1.2);
+		this.width = width;
 	}
 	public int getHeight() {
 		return height;
 	}
 	public void setHeight(int height) {
-		this.height = (int)(height*1.3);
+		this.height = height;
 	}
 	public float getConfidence() {
 		return confidence;
@@ -433,29 +433,15 @@ public class FaceDetectedResult {
 	public String toString(){
 		StringBuffer sb = new StringBuffer();
 		sb.append("Detected face ");
-		sb.append("headLeft:");
-		sb.append(this.getHeadLeft());
-		sb.append(" headTop：");
-		sb.append(this.headTop);
-		sb.append(" 是否佩戴眼镜:");
-		sb.append(Float.toString(this.getEyesGlasses()));
-		sb.append(" faceRoll:");
-		sb.append(this.getFaceRoll());
-		sb.append(" faceYaw:");
-		sb.append(this.getFaceYaw());
-		sb.append(" headPitch:");
-		sb.append(this.getHeadPitch());
-		sb.append(" faceUniform:");
-		sb.append(this.getFaceUniform());
-		sb.append(" faceHotspots:");
-		sb.append(this.getFaceHotspots());
-		sb.append(" eyesOpen:");
-		sb.append(this.getEyesOpen());
-		sb.append(" eyesFrontal:");
-		sb.append(this.getEyesFrontal());
-		sb.append(" faceExpression:");
-		sb.append(this.getFaceExpression());
-		
+		sb.append(this.hashCode());
+		sb.append("  是否检测到人脸：");
+		sb.append(this.isHasface());
+		sb.append("  是否眼睛正视前方：");
+		sb.append(this.isEyesfrontal());
+		sb.append("  是否正脸：");
+		sb.append(this.isFacefrontal());
+		sb.append("  是否表情自然：");
+		sb.append(this.isExpression());
 		return sb.toString();
 	}
 	
