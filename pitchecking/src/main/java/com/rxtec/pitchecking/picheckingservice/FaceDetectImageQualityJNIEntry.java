@@ -26,14 +26,23 @@ public class FaceDetectImageQualityJNIEntry {
 
 	public static void main(String[] args) {
 		FaceDetectImageQualityJNIEntry detecter = FaceDetectImageQualityJNIEntry.getInstance();
-		byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/images/20160416/1544565937@02-45-26-482.jpg");
+		byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/images/20160416/1544565937@02-44-33-040.jpg");
+		byte[] imgBytes2 = CommUtil.getBytes("C:/pitchecking/images/20160416/1544565937@02-45-26-482.jpg");
+		
 		FaceDetectedResult r = new FaceDetectedResult();
+		FaceDetectedResult r2 = new FaceDetectedResult();
+
 		r.setImageBytes(imgBytes);
+		r2.setImageBytes(imgBytes2);
 		detecter.detectFaceLocation(r);
 		for (int i = 0; i < 20; i++) {
 			detecter.detectFaceQuality(r);
+			detecter.detectFaceQuality(r2);
+			
+			System.out.println(r);
+			System.out.println(r2);
+
 		}
-		System.out.println(r);
 	}
 
 	private static FaceDetectImageQualityJNIEntry instance = null;
