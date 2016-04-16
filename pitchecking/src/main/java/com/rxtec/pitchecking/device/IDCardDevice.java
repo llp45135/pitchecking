@@ -526,11 +526,9 @@ public class IDCardDevice {
 					t.printStackTrace();
 				}
 
-				JNative BmpJN = null;
 				String bmpretval = "";
 
 				i = 0;
-				BmpJN = new JNative("WltRS.dll", "GetBmp");
 				BmpJN.setParameter(i++, "zp.wlt");
 				BmpJN.setParameter(i++, 2);
 				BmpJN.invoke();
