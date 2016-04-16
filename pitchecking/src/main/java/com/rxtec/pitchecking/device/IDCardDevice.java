@@ -39,12 +39,20 @@ public class IDCardDevice {
 	private static int bIfOpen = 0;
 	private IDCard idCard;
 
+	private JNative findUSBReaderJNative = null;
+	private JNative openPortJNative = null;
+	private JNative closePortJNative = null;
+	private JNative findIDCardJNative = null;
+	private JNative selectIDCardJNative = null;
+	private JNative readBaseMsgJNative = null;
+	private JNative BmpJN = null;
+
 	public static void main(String[] args) {
 
 		IDCardDevice device = IDCardDevice.getInstance();
 		if (device.getPort() != 0) {
 			FaceCheckFrame frame = new FaceCheckFrame();
-			device.Syn_OpenPort();
+			// device.Syn_OpenPort();
 			while (true) {
 				String findval = device.Syn_StartFindIDCard();
 				if (findval.equals("0")) {
@@ -78,11 +86,24 @@ public class IDCardDevice {
 
 	private IDCardDevice() {
 		JNative.setLoggingEnabled(false);
+		try {
+			findUSBReaderJNative = new JNative("SynIDCardAPI.dll", "Syn_FindUSBReader");
+			openPortJNative = new JNative("SynIDCardAPI.dll", "Syn_OpenPort");
+			closePortJNative = new JNative("SynIDCardAPI.dll", "Syn_ClosePort");
+			findIDCardJNative = new JNative("SynIDCardAPI.dll", "Syn_StartFindIDCard");
+			selectIDCardJNative = new JNative("SynIDCardAPI.dll", "Syn_SelectIDCard");
+			readBaseMsgJNative = new JNative("SynIDCardAPI.dll", "Syn_ReadBaseMsg");
+			BmpJN = new JNative("WltRS.dll", "GetBmp");
+		} catch (NativeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		this.port = Integer.parseInt(Syn_FindUSBReader());
 		this.setPort(port);
-		// if (this.port != 0) {
-		// Syn_OpenPort();
-		// }
+//		if (this.port != 0) {
+//			String openResult = Syn_OpenPort();
+//		}
 
 	}
 
@@ -113,16 +134,12 @@ public class IDCardDevice {
 	 * @return
 	 */
 	public String Syn_FindUSBReader() {
-		JNative jnative = null;
 		String retval = "";
 		try {
-			int i = 0;
-
-			jnative = new JNative("SynIDCardAPI.dll", "Syn_FindUSBReader");
-			jnative.setRetVal(Type.INT);
-			jnative.invoke();
-			retval = jnative.getRetVal();
-			// log.info("Syn_FindUSBReader:retval==" + retval);// 获取返回值
+			findUSBReaderJNative.setRetVal(Type.INT);
+			findUSBReaderJNative.invoke();
+			retval = findUSBReaderJNative.getRetVal();
+			log.info("Syn_FindUSBReader:retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -134,40 +151,34 @@ public class IDCardDevice {
 	}
 
 	public String Syn_OpenPort() {
-
-		JNative jnative = null;
 		String retval = "";
-		try {
-			int i = 0;
-
-			jnative = new JNative("SynIDCardAPI.dll", "Syn_OpenPort");
-			jnative.setParameter(i, port);
-			jnative.setRetVal(Type.INT);
-			jnative.invoke();
-			retval = jnative.getRetVal();
-			// log.debug("Syn_OpenPort:retval==" + retval);// 获取返回值
-		} catch (NativeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (this.port != 0) {
+			try {
+				int i = 0;
+				openPortJNative.setParameter(i, port);
+				openPortJNative.setRetVal(Type.INT);
+				openPortJNative.invoke();
+				retval = openPortJNative.getRetVal();
+				// log.debug("Syn_OpenPort:retval==" + retval);// 获取返回值
+			} catch (NativeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return retval;
 	}
 
 	public String Syn_ClosePort() {
-
-		JNative jnative = null;
 		String retval = "";
 		try {
 			int i = 0;
-
-			jnative = new JNative("SynIDCardAPI.dll", "Syn_ClosePort");
-			jnative.setParameter(i, port);
-			jnative.setRetVal(Type.INT);
-			jnative.invoke();
-			retval = jnative.getRetVal();
+			closePortJNative.setParameter(i, port);
+			closePortJNative.setRetVal(Type.INT);
+			closePortJNative.invoke();
+			retval = closePortJNative.getRetVal();
 			// log.debug("Syn_ClosePort:retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
@@ -184,37 +195,35 @@ public class IDCardDevice {
 	 * unsigned char ucByte, int bIfOpen );
 	 * 
 	 */
-	public String Syn_SetMaxRFByte(int port, String ucByte, int bIfOpen) {
-
-		JNative jnative = null;
-		String retval = "";
-		try {
-			int i = 0;
-
-			jnative = new JNative("SynIDCardAPI.dll", "Syn_SetMaxRFByte");
-			jnative.setParameter(i++, port);
-			jnative.setParameter(i++, ucByte);
-			jnative.setParameter(i++, bIfOpen);
-			jnative.setRetVal(Type.INT);
-			jnative.invoke();
-			retval = jnative.getRetVal();
-			log.debug("Syn_SetMaxRFByte: retval==" + retval);// 获取返回值
-		} catch (NativeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return retval;
-	}
+	// public String Syn_SetMaxRFByte(int port, String ucByte, int bIfOpen) {
+	//
+	// JNative jnative = null;
+	// String retval = "";
+	// try {
+	// int i = 0;
+	//
+	// jnative = new JNative("SynIDCardAPI.dll", "Syn_SetMaxRFByte");
+	// jnative.setParameter(i++, port);
+	// jnative.setParameter(i++, ucByte);
+	// jnative.setParameter(i++, bIfOpen);
+	// jnative.setRetVal(Type.INT);
+	// jnative.invoke();
+	// retval = jnative.getRetVal();
+	// log.debug("Syn_SetMaxRFByte: retval==" + retval);// 获取返回值
+	// } catch (NativeException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// } catch (IllegalAccessException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// return retval;
+	// }
 
 	/**
 	 * Syn_StartFindIDCard 开始找卡
 	 */
 	public String Syn_StartFindIDCard() {
-
-		JNative jnative = null;
 		String retval = "";
 		try {
 			int i = 0;
@@ -222,15 +231,14 @@ public class IDCardDevice {
 			// Pointer pointer = new
 			// Pointer(MemoryBlockFactory.createMemoryBlock(4));
 			String pucIIN = "";
-			jnative = new JNative("SynIDCardAPI.dll", "Syn_StartFindIDCard");
-			jnative.setParameter(i++, port);
-			jnative.setParameter(i++, pucIIN);
-			jnative.setParameter(i++, bIfOpen);
-			jnative.setRetVal(Type.INT);
-			jnative.invoke();
+			findIDCardJNative.setParameter(i++, port);
+			findIDCardJNative.setParameter(i++, pucIIN);
+			findIDCardJNative.setParameter(i++, bIfOpen);
+			findIDCardJNative.setRetVal(Type.INT);
+			findIDCardJNative.invoke();
 
-			retval = jnative.getRetVal();
-			// log.debug("Syn_StartFindIDCard: retval==" + retval);// 获取返回值
+			retval = findIDCardJNative.getRetVal();
+			log.debug("Syn_StartFindIDCard: retval==" + retval);// 获取返回值
 			// log.debug("Syn_StartFindIDCard: pucIIN==" + pucIIN);// 获取返回值
 			if (retval.equals("0")) {
 				log.debug("已找到二代身份证");
@@ -249,8 +257,6 @@ public class IDCardDevice {
 	 * Syn_SelectIDCard 选卡
 	 */
 	public String Syn_SelectIDCard() {
-
-		JNative jnative = null;
 		String retval = "";
 		try {
 			int i = 0;
@@ -258,14 +264,13 @@ public class IDCardDevice {
 			// Pointer pointer = new
 			// Pointer(MemoryBlockFactory.createMemoryBlock(4));
 			String pucSN = "";
-			jnative = new JNative("SynIDCardAPI.dll", "Syn_SelectIDCard");
-			jnative.setParameter(i++, port);
-			jnative.setParameter(i++, pucSN);
-			jnative.setParameter(i++, bIfOpen);
-			jnative.setRetVal(Type.INT);
-			jnative.invoke();
+			selectIDCardJNative.setParameter(i++, port);
+			selectIDCardJNative.setParameter(i++, pucSN);
+			selectIDCardJNative.setParameter(i++, bIfOpen);
+			selectIDCardJNative.setRetVal(Type.INT);
+			selectIDCardJNative.invoke();
 
-			retval = jnative.getRetVal();
+			retval = selectIDCardJNative.getRetVal();
 			// log.debug("Syn_SelectIDCard: retval==" + retval);// 获取返回值
 			// log.debug("Syn_SelectIDCard: pucSN==" + pucSN);// 获取返回值
 			if (retval.equals("0")) {
@@ -288,8 +293,6 @@ public class IDCardDevice {
 	 * unsigned int * puiPHMsgLen, int iIfOpen );
 	 */
 	public IDCard Syn_ReadBaseMsg() {
-
-		JNative readJN = null;
 		String retval = "";
 		IDCard synIDCard = null;
 		try {
@@ -300,16 +303,15 @@ public class IDCardDevice {
 			Pointer phmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1024 * 3));
 			Pointer phlenPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1024));
 
-			readJN = new JNative("SynIDCardAPI.dll", "Syn_ReadBaseMsg");
-			readJN.setParameter(i++, port);
-			readJN.setParameter(i++, chmsgPointer);
-			readJN.setParameter(i++, chlenPointer);
-			readJN.setParameter(i++, phmsgPointer);
-			readJN.setParameter(i++, phlenPointer);
-			readJN.setParameter(i++, bIfOpen);
-			readJN.setRetVal(Type.INT);
-			readJN.invoke();
-			retval = readJN.getRetVal();
+			readBaseMsgJNative.setParameter(i++, port);
+			readBaseMsgJNative.setParameter(i++, chmsgPointer);
+			readBaseMsgJNative.setParameter(i++, chlenPointer);
+			readBaseMsgJNative.setParameter(i++, phmsgPointer);
+			readBaseMsgJNative.setParameter(i++, phlenPointer);
+			readBaseMsgJNative.setParameter(i++, bIfOpen);
+			readBaseMsgJNative.setRetVal(Type.INT);
+			readBaseMsgJNative.invoke();
+			retval = readBaseMsgJNative.getRetVal();
 			if (retval.equals("0")) {
 				log.debug("读取二代身份证成功！");
 				synIDCard = new IDCard();
@@ -589,11 +591,11 @@ public class IDCardDevice {
 	 * Syn_GetBmp 本函数用于将wlt文件解码成bmp文件
 	 */
 	public String GetBmp(int port, String readRet) {
-		JNative BmpJN = null;
+
 		String retval = "";
 		try {
 			int i = 0;
-			BmpJN = new JNative("WltRS.dll", "GetBmp");
+
 			BmpJN.setParameter(i++, "zp.wlt");
 			BmpJN.setParameter(i++, 2);
 			BmpJN.invoke();
@@ -624,93 +626,95 @@ public class IDCardDevice {
 		return retval;
 	}
 
-	/**
-	 * Syn_ReadMsg本函数用于读取身份证中的基本信息和照片信息，并按设置转化信息和照片 int Syn_ReadMsg( int iPort,
-	 * int iIfOpen, IDCardData *pIDCardData );
-	 */
-	public String Syn_ReadMsg(int port, int bIfOpen) {
-
-		JNative jnative = null;
-		String retval = "";
-		try {
-			int i = 0;
-
-			Pointer pointer = new Pointer(MemoryBlockFactory.createMemoryBlock(100));
-
-			jnative = new JNative("SynIDCardAPI.dll", "Syn_ReadMsg");
-			jnative.setParameter(i++, port);
-			jnative.setParameter(i++, bIfOpen);
-			jnative.setParameter(i++, pointer);
-
-			jnative.setRetVal(Type.INT);
-			jnative.invoke();
-			retval = jnative.getRetVal();
-			byte[] bytesResult = pointer.getMemory();
-			// String bytesResult = pointer.getAsString();
-			// for (int k = 0; k < bytesResult.length; k = k + 2) {
-			// System.out.println(bytesToInt(bytesResult, k));
-			// }
-
-			log.debug("Syn_ReadMsg: retval==" + retval);// 获取返回值
-			log.debug("Syn_ReadMsg: Msg==" + bytesToHexString(bytesResult));// 获取返回值
-
-			pointer.dispose();
-		} catch (NativeException e) {
-			// TODO Auto-generated catch block
-			System.out.println(e);
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.out.println(e);
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return retval;
-	}
-
-	/**
-	 * Syn_ReadFPMsg本函数用于读取身份证中的基本信息和照片信息，并按设置转化信息和照片 int Syn_ReadFPMsg( int
-	 * iPort, int iIfOpen, IDCardData *pIDCardData, char * cFPhotoName );
-	 */
-	public String Syn_ReadFPMsg(int port, int bIfOpen) {
-
-		JNative jnative = null;
-		String retval = "";
-		try {
-			int i = 0;
-
-			Pointer pointer = new Pointer(MemoryBlockFactory.createMemoryBlock(200));
-			Pointer finger = new Pointer(MemoryBlockFactory.createMemoryBlock(500));
-			String pucSN = "";
-			jnative = new JNative("SynIDCardAPI.dll", "Syn_ReadFPMsg");
-			jnative.setParameter(i++, port);
-			jnative.setParameter(i++, bIfOpen);
-			jnative.setParameter(i++, pointer);
-			jnative.setParameter(i++, finger);
-
-			jnative.setRetVal(Type.INT);
-			jnative.invoke();
-
-			byte[] bytesResult = pointer.getMemory();
-			// String bytesResult = pointer.getAsString();
-			byte[] fingerResult = finger.getMemory();
-			retval = jnative.getRetVal();
-			pointer.dispose();
-			finger.dispose();
-
-			log.debug("Syn_ReadFPMsg: retval==" + retval);// 获取返回值
-			log.debug("Syn_ReadFPMsg: bytesResult==" + bytesToHexString(bytesResult));// 获取返回值
-			log.debug("fingerResult==" + bytesToHexString(fingerResult));// 获取返回值
-		} catch (NativeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return retval;
-	}
+	// /**
+	// * Syn_ReadMsg本函数用于读取身份证中的基本信息和照片信息，并按设置转化信息和照片 int Syn_ReadMsg( int
+	// iPort,
+	// * int iIfOpen, IDCardData *pIDCardData );
+	// */
+	// public String Syn_ReadMsg(int port, int bIfOpen) {
+	//
+	// JNative jnative = null;
+	// String retval = "";
+	// try {
+	// int i = 0;
+	//
+	// Pointer pointer = new Pointer(MemoryBlockFactory.createMemoryBlock(100));
+	//
+	// jnative = new JNative("SynIDCardAPI.dll", "Syn_ReadMsg");
+	// jnative.setParameter(i++, port);
+	// jnative.setParameter(i++, bIfOpen);
+	// jnative.setParameter(i++, pointer);
+	//
+	// jnative.setRetVal(Type.INT);
+	// jnative.invoke();
+	// retval = jnative.getRetVal();
+	// byte[] bytesResult = pointer.getMemory();
+	// // String bytesResult = pointer.getAsString();
+	// // for (int k = 0; k < bytesResult.length; k = k + 2) {
+	// // System.out.println(bytesToInt(bytesResult, k));
+	// // }
+	//
+	// log.debug("Syn_ReadMsg: retval==" + retval);// 获取返回值
+	// log.debug("Syn_ReadMsg: Msg==" + bytesToHexString(bytesResult));// 获取返回值
+	//
+	// pointer.dispose();
+	// } catch (NativeException e) {
+	// // TODO Auto-generated catch block
+	// System.out.println(e);
+	// e.printStackTrace();
+	// } catch (IllegalAccessException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// System.out.println(e);
+	// } catch (Exception e) {
+	// System.out.println(e);
+	// }
+	// return retval;
+	// }
+	//
+	// /**
+	// * Syn_ReadFPMsg本函数用于读取身份证中的基本信息和照片信息，并按设置转化信息和照片 int Syn_ReadFPMsg( int
+	// * iPort, int iIfOpen, IDCardData *pIDCardData, char * cFPhotoName );
+	// */
+	// public String Syn_ReadFPMsg(int port, int bIfOpen) {
+	//
+	// JNative jnative = null;
+	// String retval = "";
+	// try {
+	// int i = 0;
+	//
+	// Pointer pointer = new Pointer(MemoryBlockFactory.createMemoryBlock(200));
+	// Pointer finger = new Pointer(MemoryBlockFactory.createMemoryBlock(500));
+	// String pucSN = "";
+	// jnative = new JNative("SynIDCardAPI.dll", "Syn_ReadFPMsg");
+	// jnative.setParameter(i++, port);
+	// jnative.setParameter(i++, bIfOpen);
+	// jnative.setParameter(i++, pointer);
+	// jnative.setParameter(i++, finger);
+	//
+	// jnative.setRetVal(Type.INT);
+	// jnative.invoke();
+	//
+	// byte[] bytesResult = pointer.getMemory();
+	// // String bytesResult = pointer.getAsString();
+	// byte[] fingerResult = finger.getMemory();
+	// retval = jnative.getRetVal();
+	// pointer.dispose();
+	// finger.dispose();
+	//
+	// log.debug("Syn_ReadFPMsg: retval==" + retval);// 获取返回值
+	// log.debug("Syn_ReadFPMsg: bytesResult==" +
+	// bytesToHexString(bytesResult));// 获取返回值
+	// log.debug("fingerResult==" + bytesToHexString(fingerResult));// 获取返回值
+	// } catch (NativeException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// } catch (IllegalAccessException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// return retval;
+	// }
 
 	public static String bytesToHexString(byte[] src) {
 		StringBuilder stringBuilder = new StringBuilder("");

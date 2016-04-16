@@ -5,6 +5,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,7 @@ import com.rxtec.pitchecking.device.event.IDeviceEvent;
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.FaceData;
 
-public class DeviceEventListener {
+public class DeviceEventListener implements Runnable{
 
 	private static DeviceEventListener _instance = new DeviceEventListener();
 	private ExecutorService executor = Executors.newCachedThreadPool();
@@ -56,17 +58,17 @@ public class DeviceEventListener {
 		this.processEvent(e);
 	}
 
-	public void startListenEvent() throws InterruptedException {
-		while (true) {
-			// 如果没有新事件将一直阻塞等待到新设备事件
-			
-			log.debug("消费者准备消费event");
-			IDeviceEvent e = deviceEventQueue.take();
-			log.debug("消费者取到新的event==" + e + ",e.getEventType==" + e.getEventType());
-
-			this.processEvent(e);
-		}
-	}
+//	public void startListenEvent() throws InterruptedException {
+//		while (true) {
+//			// 如果没有新事件将一直阻塞等待到新设备事件
+//			
+//			log.debug("消费者准备消费event");
+//			IDeviceEvent e = deviceEventQueue.take();
+//			log.debug("消费者取到新的event==" + e + ",e.getEventType==" + e.getEventType());
+//
+//			this.processEvent(e);
+//		}
+//	}
 
 	private void processEvent(IDeviceEvent e) {
 		if (e.getEventType() == 0) {
@@ -92,10 +94,13 @@ public class DeviceEventListener {
 		log.debug("启动设备");
 		
 		IDCardDevice.getInstance();
+
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.scheduleWithFixedDelay(new IDReader(), 0, 100, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(new QRReader(), 0, 100, TimeUnit.MILLISECONDS);
 		
-		executor.execute(new IDReader());
-		executor.execute(new QRReader());
-//		executor.execute(new Customer());
+
+
 	}
 
 	
@@ -107,6 +112,22 @@ public class DeviceEventListener {
 
 	public void setPitStatus(int pitStatus) {
 		this.pitStatus = pitStatus;
+	}
+
+	@Override
+	public void run() {
+		log.debug("消费者准备消费event");
+		IDeviceEvent e;
+		try {
+			e = deviceEventQueue.take();
+			log.debug("消费者取到新的event==" + e + ",e.getEventType==" + e.getEventType());
+
+			this.processEvent(e);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 	}
 	
 }

@@ -499,6 +499,7 @@ public class ImageToolkit {
 			ImageIO.write(img, type, ImageIO.createImageOutputStream(output));
 			buff = output.toByteArray();
 		} catch (IOException e) {
+			buff = null;
 			e.printStackTrace();
 		}
 		return buff;

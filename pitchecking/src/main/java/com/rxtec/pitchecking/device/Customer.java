@@ -14,8 +14,8 @@ public class Customer implements Runnable {
 		while (true) {
 			// 如果没有新事件将一直阻塞等待到新设备事件
 			try {
-				DeviceEventListener.getInstance().takeDeviceEvent();
-//				Thread.sleep(5000);
+				Thread.sleep(100);
+				DeviceEventListener.getInstance().takeDeviceEvent();				
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -138,11 +138,17 @@ public class FaceData {
 		BufferedImage result = ImageUtilities.createBufferedImageForDisplay(extractFrame);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		ImageIO.write(result, "JPEG", ImageIO.createImageOutputStream(os));
+		
+		saveIDCardImageToLogDir();
 		saveExtractFaceImageToLogFile(result);
 		return os.toByteArray();
 	}
 	
-	public void saveIDCardImageToLogDir(){
+	
+	
+	
+	
+	private void saveIDCardImageToLogDir(){
 		if(idCard == null || idCard.getCardImage() == null || idCard.getIdNo() == null) return;
 		BufferedImage bi = idCard.getCardImage();
 		String dirName = Config.getInstance().getImagesLogDir();

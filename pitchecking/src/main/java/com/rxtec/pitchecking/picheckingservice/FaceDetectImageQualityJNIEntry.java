@@ -1,5 +1,7 @@
 package com.rxtec.pitchecking.picheckingservice;
 
+import java.util.Calendar;
+
 import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +36,10 @@ public class FaceDetectImageQualityJNIEntry {
 
 		r.setImageBytes(imgBytes);
 		r2.setImageBytes(imgBytes2);
-		detecter.detectFaceLocation(r);
+		detecter.detectFaceLocation(imgBytes);
 		for (int i = 0; i < 20; i++) {
-			detecter.detectFaceQuality(r);
-			detecter.detectFaceQuality(r2);
+			detecter.detectFaceQuality(imgBytes);
+			detecter.detectFaceQuality(imgBytes2);
 			
 			System.out.println(r);
 			System.out.println(r2);
@@ -107,8 +109,9 @@ public class FaceDetectImageQualityJNIEntry {
 		return result;
 	}
 
-	public void detectFaceLocation(FaceDetectedResult result) {
-		byte[] imgBytes = result.getImageBytes();
+	public FaceDetectedResult detectFaceLocation(byte[] imgBytes) {
+
+		FaceDetectedResult result = new FaceDetectedResult();
 		int i = 0;
 
 		try {
@@ -166,11 +169,14 @@ public class FaceDetectImageQualityJNIEntry {
 		} finally {
 		}
 
+		return result;
 	}
 
-	public void detectFaceQuality(FaceDetectedResult result) {
+	public FaceDetectedResult detectFaceQuality(byte[] imgBytes) {
+		
+		long nowMils = Calendar.getInstance().getTimeInMillis();
 
-		byte[] imgBytes = result.getImageBytes();
+		FaceDetectedResult result = new FaceDetectedResult();
 		int i = 0;
 
 		try {
@@ -319,7 +325,10 @@ public class FaceDetectImageQualityJNIEntry {
 				result.setHotspots(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
 				result.setLightuniform(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
 				result.setExpression(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setFacefrontal(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				boolean b = CommUtil.bytesToBoolean(FaceAssessBytes[i++]);
+				log.debug("setFacefrontal:"+b);
+				result.setFacefrontal(b);
+				
 				result.setEyesfrontal(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
 				result.setHeadhigh(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
 				result.setHeadlow(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
@@ -338,6 +347,10 @@ public class FaceDetectImageQualityJNIEntry {
 			e.printStackTrace();
 		} finally {
 		}
+		long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+		log.debug("detectFaceQuality using:"+usingTime+" ret="+result);
+		return result;
 
 	}
+
 }

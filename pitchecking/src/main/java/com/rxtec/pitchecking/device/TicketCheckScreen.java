@@ -97,6 +97,10 @@ public class TicketCheckScreen {
 			faceFrame.getContentPane().repaint();
 
 		}else if(e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckResult.getValue()){
+			faceFrame.showFaceCheckResult(e.getFaceData());
+			faceFrame.getContentPane().repaint();
+
+		}else if(e.getElementCmd() == ScreenCmdEnum.showDefaultContent.getValue()){
 			faceFrame.showDefaultContent();
 			faceFrame.getContentPane().repaint();
 

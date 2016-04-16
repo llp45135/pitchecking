@@ -1,5 +1,10 @@
 package com.rxtec.pitchecking.gui;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.openimaj.video.capture.VideoCaptureException;
 
 import com.rxtec.pitchecking.device.DeviceEventListener;
@@ -34,16 +39,24 @@ public class PitCheckingApp {
 			FaceCheckingService.getInstance().beginFaceCheckerTask();
 			
 			eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
-			eventListener.startListenEvent();
+//			eventListener.startListenEvent();
 
-
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+			scheduler.scheduleWithFixedDelay(eventListener, 0, 100, TimeUnit.MILLISECONDS);
+		
 		} catch (VideoCaptureException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
+//		eventListener.startListenEvent();
+
+		
+//		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//		scheduler.scheduleWithFixedDelay(eventListener, 0, 100, TimeUnit.MILLISECONDS);
+
 	}
 
 }
