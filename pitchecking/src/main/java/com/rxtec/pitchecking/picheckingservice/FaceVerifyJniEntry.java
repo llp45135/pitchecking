@@ -98,8 +98,8 @@ public class FaceVerifyJniEntry {
 	public static void main(String[] args) {
 
 		FaceVerifyJniEntry v = new FaceVerifyJniEntry();
-		IDCard c1 = createIDCard("C:/DCZ/20160412/out/6913103.jpg");
-		IDCard c2 = createIDCard("C:/DCZ/20160412/out/zl.jpg");
+		IDCard c1 = createIDCard("C:/pitchecking/images/20160416/1544565937@04-09-37-688.jpg");
+		IDCard c2 = createIDCard("C:/pitchecking/idcardtest.jpg");
 				
 		v.verify(c1.getImageBytes(), c2.getImageBytes());
 

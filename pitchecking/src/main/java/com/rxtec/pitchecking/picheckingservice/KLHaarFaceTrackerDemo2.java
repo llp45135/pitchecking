@@ -70,7 +70,7 @@ public class KLHaarFaceTrackerDemo2 {
 		card.setIdNo("440111197209283012");
 		BufferedImage bi = null;
 		try {
-			bi = ImageIO.read(new File("C:/DCZ/20160412/llp.jpg"));
+			bi = ImageIO.read(new File("C:/pitchecking/idcardtest.jpg"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

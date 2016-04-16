@@ -26,8 +26,8 @@ public class FaceDetectImageQualityJNIEntry {
 
 	public static void main(String[] args) {
 		FaceDetectImageQualityJNIEntry detecter = FaceDetectImageQualityJNIEntry.getInstance();
-		byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/images/20160416/1544565937@02-44-33-040.jpg");
-		byte[] imgBytes2 = CommUtil.getBytes("C:/pitchecking/images/20160416/1544565937@02-45-26-482.jpg");
+		byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/images/20160416/1544565937@03-10-00-009.jpg");
+		byte[] imgBytes2 = CommUtil.getBytes("C:/pitchecking/images/20160416/1544565937@03-10-09-206.jpg");
 		
 		FaceDetectedResult r = new FaceDetectedResult();
 		FaceDetectedResult r2 = new FaceDetectedResult();
