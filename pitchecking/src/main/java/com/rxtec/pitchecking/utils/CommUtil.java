@@ -267,6 +267,7 @@ public class CommUtil {
 	}
 
 	public static boolean bytesToBoolean(byte src) {
+		
 		if (src == 0)
 			return false;
 		else

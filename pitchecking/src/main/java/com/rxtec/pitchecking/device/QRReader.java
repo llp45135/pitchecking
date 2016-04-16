@@ -12,25 +12,16 @@ public class QRReader implements Runnable {
 	@Override
 	public void run() {
 
-		while (true) {
-			try {
-				Thread.sleep(1000 * 60 * 30);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			IDeviceEvent e = readQRData();
-			try {
-				if (e != null) {
-					log.debug("QRReader e==" + e);
-					DeviceEventListener.getInstance().offerDeviceEvent(e);
-				}
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
-
+//		IDeviceEvent e = readQRData();
+//		try {
+//			if (e != null) {
+//				log.debug("QRReader e==" + e);
+//				DeviceEventListener.getInstance().offerDeviceEvent(e);
+//			}
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 	}
 
 	private IDeviceEvent readQRData() {

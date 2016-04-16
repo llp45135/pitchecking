@@ -60,11 +60,12 @@ public class IDReaderEventTask implements Callable<FaceData> {
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
+			FaceDetectionService.getInstance().stopCheckingFace();
 		}else{
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
-
+			FaceDetectionService.getInstance().stopCheckingFace();
 		}
 
 		return fd;

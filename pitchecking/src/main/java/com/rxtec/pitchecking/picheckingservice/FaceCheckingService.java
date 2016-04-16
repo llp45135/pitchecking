@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.tools.ant.types.resources.selectors.Date;
@@ -21,7 +22,7 @@ public class FaceCheckingService {
 	private static FaceCheckingService _instance = new FaceCheckingService();
 
 	//已经裁脸，待检测的队列
-	private LinkedBlockingQueue<FaceData> inFaceDataQueue = new LinkedBlockingQueue<FaceData>(10);
+	private LinkedBlockingQueue<FaceData> inFaceDataQueue = new LinkedBlockingQueue<FaceData>(5);
 	
 	//已经检测人脸质量，待验证的队列
 	private LinkedBlockingQueue<FaceData> checkedFaceDataQueue = new LinkedBlockingQueue<FaceData>(5);
@@ -96,33 +97,26 @@ public class FaceCheckingService {
 	
 	public void resetFaceDataForCheckingQueue(){
 		inFaceDataQueue.clear();
+		checkedFaceDataQueue.clear();
+		passFaceDataQueue.clear();
 		preFaceData = null;
 	}
 	
 	public void offerPassFaceData(FaceData fd){
-		float resultValue = fd.getFaceCheckResult();
-		
-		if(resultValue>=Config.getInstance().getFaceCheckThreshold()){
-			passFaceDataQueue.offer(fd);
-		}else{
-			if(fd.getFaceDetectedData().isWearsglasses()){
-				if(resultValue>=Config.getInstance().getGlassFaceCheckThreshold()){
-					passFaceDataQueue.offer(fd);
-				}
-			}
-		}
+		passFaceDataQueue.offer(fd);
 	}
 	ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public void beginFaceCheckerTask(){
 		FaceCheckerTask checker = new FaceCheckerTask();
-		executor.execute(checker);
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.scheduleWithFixedDelay(checker, 0, 50, TimeUnit.MILLISECONDS);
 		
 	}
 
 	public void beginFaceQualityDetecterTask(){
-		FaceQualityDetecter detecter = new FaceQualityDetecter();
-		executor.execute(detecter);
+//		FaceQualityDetecter detecter = new FaceQualityDetecter();
+//		executor.execute(detecter);
 		
 	}
 

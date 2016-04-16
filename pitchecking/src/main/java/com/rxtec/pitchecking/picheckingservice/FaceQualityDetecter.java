@@ -23,13 +23,12 @@ public class FaceQualityDetecter implements Runnable {
 			
 			if(fd != null) {
 				long nowMils = Calendar.getInstance().getTimeInMillis();
-				faceDetecter.detectFaceQuality(fd.getFaceDetectedData());
+				faceDetecter.detectFaceQuality(fd.getFaceDetectedData().getImageBytes());
 				long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 
 				//log.debug("Detect using" + usingTime + fl.toString());
 				if(detectQuality(fd)){
 					log.debug(fd.getFaceDetectedData().toString());
-					fd.saveIDCardImageToLogDir();
 					FaceCheckingService.getInstance().offerCheckedFaceData(fd);
 				}
 			}
