@@ -21,34 +21,41 @@ public class FaceDetectionTask implements Runnable {
 
 	// private FaceDetectLocaltionJniEntry faceDetecter = new
 	// FaceDetectLocaltionJniEntry();
-	private FaceDetectImageQualityJNIEntry faceDetecter = FaceDetectImageQualityJNIEntry.getInstance();
+	private IFaceDetect faceDetecter = FaceDetectByPixelJNIEntry.getInstance();
 	private Logger log = LoggerFactory.getLogger("FaceDetectionTask");
 	Calendar cal = Calendar.getInstance();
 
 	@Override
 	public void run() {
-		System.out.println("FaceTrack thread is running......");
 
-		MBFImage frame = FaceDetectionService.getInstance().takeFrameImage();
-		if (frame != null) {
+		while (true) {
+			
 
-			byte[] bytes = convertImage(frame);
-			if (bytes == null)
-				return;
+			MBFImage frame = null;
+			try {
+				Thread.sleep(50);
+				frame = FaceDetectionService.getInstance().takeFrameImage();
+				
+				if (frame != null) {
 
-			FaceDetectedResult result = faceDetecter.detectFaceLocation(bytes);
-			FaceDetectedResult result2 = faceDetecter.detectFaceQuality(bytes);
-			result.setImageBytes(bytes);
+					byte[] bytes = convertImage(frame);
+					if (bytes == null)
+						return;
 
-			result.setFacefrontal(result2.isFacefrontal());
-			result.setEyesfrontal(result2.isEyesfrontal());
-			result.setHasface(result2.isHasface());
-			result.setEyesopen(result2.isEyesopen());
-			result.setExpression(result2.isExpression());
+					FaceDetectedResult result = new FaceDetectedResult();
+					result.setImageBytes(bytes);
+					faceDetecter.detectFaceImage(result);
+					log.debug("FaceDetectedResult : " + result);
 
-			FaceData fd = new FaceData(frame, result);
-			if (detectQuality(fd))
-				FaceDetectionService.getInstance().offerDetectedFaceData(fd);
+					FaceData fd = new FaceData(frame, result);
+					if (detectQuality(fd))
+						FaceDetectionService.getInstance().offerDetectedFaceData(fd);
+
+				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 	}

@@ -2,7 +2,7 @@ package com.rxtec.pitchecking.device;
 
 public enum ScreenCmdEnum {
 	
-	ShowFaceCheckResult(1),showDefaultContent(2),ShowBeginCheckFaceContent(3){
+	showDefaultContent(1),ShowBeginCheckFaceContent(2),ShowFaceCheckPass(3),ShowFaceCheckFailed(4){
         @Override
         public boolean isRest() {
             return true;

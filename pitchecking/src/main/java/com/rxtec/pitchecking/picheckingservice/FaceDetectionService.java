@@ -18,6 +18,8 @@ import org.openimaj.video.capture.VideoCaptureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.Config;
+
 public class FaceDetectionService {
 	private Logger log = LoggerFactory.getLogger("FaceTrackingService");
 
@@ -35,12 +37,13 @@ public class FaceDetectionService {
 		return detectedFaceQueue;
 	}
 
-	public MBFImage takeFrameImage() {
-		return frameImageQueue.poll();
+	public MBFImage takeFrameImage() throws InterruptedException {
+		return frameImageQueue.take();
 	}
 
 	public void offerDetectedFaceData(FaceData fd) {
 		detectedFaceQueue.offer(fd);
+		
 	}
 
 	public FaceData takeDetectedFaceData() {
@@ -92,11 +95,9 @@ public class FaceDetectionService {
 
 	private void beginFaceTrackThread() {
 		FaceDetectionTask task = new FaceDetectionTask();
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleWithFixedDelay(task, 0, 50, TimeUnit.MILLISECONDS);
+		ExecutorService executer = Executors.newCachedThreadPool();
+		executer.execute(task);
 	}
-
-	boolean isRotation = true;
 
 	int frameCounter = 0;
 
@@ -104,7 +105,7 @@ public class FaceDetectionService {
 		beginFaceTrackThread();
 
 		final Video<MBFImage> video;
-		if (isRotation)
+		if (Config.getInstance().getRoateCapture()==1)
 			video = new RotationVideoCapture(640, 480);
 		else
 			video = new VideoCapture(320, 480);
@@ -151,6 +152,8 @@ public class FaceDetectionService {
 	public void stopCheckingFace() {
 		currentIDCard = null;
 		FaceCheckingService.getInstance().resetFaceDataForCheckingQueue();
+		this.frameImageQueue.clear();
+		detectedFaceQueue.clear();
 	}
 
 }

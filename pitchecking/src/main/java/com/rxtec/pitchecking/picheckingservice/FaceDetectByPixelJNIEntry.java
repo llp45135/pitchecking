@@ -13,7 +13,7 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.utils.CommUtil;
 
-public class FaceDetectImageQualityJNIEntry {
+public class FaceDetectByPixelJNIEntry implements IFaceDetect{
 
 	JNative FGDetectInitSDK = null;
 	JNative FGDetectCreateHandleFromFile = null;
@@ -27,19 +27,20 @@ public class FaceDetectImageQualityJNIEntry {
 	private Logger log = LoggerFactory.getLogger("FaceLocationDetection");
 
 	public static void main(String[] args) {
-		FaceDetectImageQualityJNIEntry detecter = FaceDetectImageQualityJNIEntry.getInstance();
-		byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/images/20160416/1544565937@03-10-00-009.jpg");
-		byte[] imgBytes2 = CommUtil.getBytes("C:/pitchecking/images/20160416/1544565937@03-10-09-206.jpg");
+		IFaceDetect detecter = FaceDetectByPixelJNIEntry.getInstance();
+		byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/images/20160416/-707230729@07-05-13-916.jpg");
+		byte[] imgBytes2 = CommUtil.getBytes("C:/pitchecking/images/20160416/-707230729@06-41-43-341.jpg");
 		
 		FaceDetectedResult r = new FaceDetectedResult();
 		FaceDetectedResult r2 = new FaceDetectedResult();
+		
+		
 
 		r.setImageBytes(imgBytes);
 		r2.setImageBytes(imgBytes2);
-		detecter.detectFaceLocation(imgBytes);
-		for (int i = 0; i < 20; i++) {
-			detecter.detectFaceQuality(imgBytes);
-			detecter.detectFaceQuality(imgBytes2);
+		for (int i = 0; i < 200; i++) {
+			detecter.detectFaceImage(r);
+			detecter.detectFaceImage(r2);
 			
 			System.out.println(r);
 			System.out.println(r2);
@@ -47,17 +48,17 @@ public class FaceDetectImageQualityJNIEntry {
 		}
 	}
 
-	private static FaceDetectImageQualityJNIEntry instance = null;
+	private static FaceDetectByPixelJNIEntry instance = null;
 
-	public static synchronized FaceDetectImageQualityJNIEntry getInstance() {
+	public static synchronized FaceDetectByPixelJNIEntry getInstance() {
 		if (instance == null) {
-			instance = new FaceDetectImageQualityJNIEntry();
+			instance = new FaceDetectByPixelJNIEntry();
 		}
 
 		return instance;
 	}
 
-	private FaceDetectImageQualityJNIEntry() {
+	private FaceDetectByPixelJNIEntry() {
 		JNative.setLoggingEnabled(false);
 		/**
 		 * 初始化SDK
@@ -109,9 +110,9 @@ public class FaceDetectImageQualityJNIEntry {
 		return result;
 	}
 
-	public FaceDetectedResult detectFaceLocation(byte[] imgBytes) {
+	public void detectFaceLocation(FaceDetectedResult fd) {
 
-		FaceDetectedResult result = new FaceDetectedResult();
+		byte[] imgBytes = fd.getImageBytes();
 		int i = 0;
 
 		try {
@@ -126,40 +127,40 @@ public class FaceDetectImageQualityJNIEntry {
 
 			byte[] FaceLocationResultBytes = FaceLocationPointer.getMemory();
 			i = 0;
-			result.setId(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			fd.setId(CommUtil.bytesToInt(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setX(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			fd.setX(CommUtil.bytesToInt(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setY(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			fd.setY(CommUtil.bytesToInt(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setWidth(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			fd.setWidth(CommUtil.bytesToInt(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setHeight(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			fd.setHeight(CommUtil.bytesToInt(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
+			fd.setConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setxFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			fd.setxFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setyFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			fd.setyFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setFirstConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
+			fd.setFirstConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setxSecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			fd.setxSecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setySecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			fd.setySecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
 
 			i += 4;
-			result.setSecondConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
+			fd.setSecondConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
 
 			FaceLocationPointer.dispose();
 		} catch (NativeException e) {
@@ -169,14 +170,13 @@ public class FaceDetectImageQualityJNIEntry {
 		} finally {
 		}
 
-		return result;
 	}
 
-	public FaceDetectedResult detectFaceQuality(byte[] imgBytes) {
+	public void detectFaceImageQuality(FaceDetectedResult fd) {
+		byte[] imgBytes = fd.getImageBytes();
 		
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
-		FaceDetectedResult result = new FaceDetectedResult();
 		int i = 0;
 
 		try {
@@ -218,29 +218,29 @@ public class FaceDetectImageQualityJNIEntry {
 				byte[] FacePointOutBytes = FacePointPointer.getMemory();
 				i = 0;
 
-				result.setFaceType(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setFaceType(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setXleft(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setXleft(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setYleft(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setYleft(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setXright(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setXright(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setYright(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setYright(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setFaceLeft(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setFaceLeft(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setFaceRight(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setFaceRight(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setHeadLeft(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setHeadLeft(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setHeadRight(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setHeadRight(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setHeadTop(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setHeadTop(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setChinPos(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setChinPos(CommUtil.bytesToInt(FacePointOutBytes, i));
 				i += 4;
-				result.setSkewAngle(CommUtil.bytesToInt(FacePointOutBytes, i));
+				fd.setSkewAngle(CommUtil.bytesToInt(FacePointOutBytes, i));
 				FacePointOutBytes = null;
 				FacePointPointer.dispose();
 
@@ -270,37 +270,37 @@ public class FaceDetectImageQualityJNIEntry {
 
 				byte[] FaceResultBytes = FaceResultPointer.getMemory();
 				i = 0;
-				result.setFaceCount(CommUtil.bytesToInt(FaceResultBytes, i));
+				fd.setFaceCount(CommUtil.bytesToInt(FaceResultBytes, i));
 				i += 4;
 
-				result.setFaceRoll(CommUtil.bytesToFloat(FaceResultBytes, i));
+				fd.setFaceRoll(CommUtil.bytesToFloat(FaceResultBytes, i));
 				i += 4;
 
-				result.setFaceYaw(CommUtil.bytesToFloat(FaceResultBytes, i));
+				fd.setFaceYaw(CommUtil.bytesToFloat(FaceResultBytes, i));
 				i += 4;
 
-				result.setHeadPitch(CommUtil.bytesToFloat(FaceResultBytes, i));
+				fd.setHeadPitch(CommUtil.bytesToFloat(FaceResultBytes, i));
 				i += 4;
 
-				result.setFaceUniform(CommUtil.bytesToFloat(FaceResultBytes, i));
+				fd.setFaceUniform(CommUtil.bytesToFloat(FaceResultBytes, i));
 				i += 4;
 
-				result.setFaceHotspots(CommUtil.bytesToFloat(FaceResultBytes, i));
+				fd.setFaceHotspots(CommUtil.bytesToFloat(FaceResultBytes, i));
 				i += 4;
 
-				result.setFaceBlur(CommUtil.bytesToFloat(FaceResultBytes, i));
+				fd.setFaceBlur(CommUtil.bytesToFloat(FaceResultBytes, i));
 				i += 4;
 
-				result.setEyesOpen(CommUtil.bytesToFloat(FaceResultBytes, i));
+				fd.setEyesOpen(CommUtil.bytesToFloat(FaceResultBytes, i));
 				i += 4;
 
-				result.setEyesFrontal(CommUtil.bytesToFloat(FaceResultBytes, i));
+				fd.setEyesFrontal(CommUtil.bytesToFloat(FaceResultBytes, i));
 				i += 4;
 
-				result.setFaceExpression(CommUtil.bytesToFloat(FaceResultBytes, i));
+				fd.setFaceExpression(CommUtil.bytesToFloat(FaceResultBytes, i));
 				i += 4;
 
-				result.setEyesGlasses(CommUtil.bytesToFloat(FaceResultBytes, i));
+				fd.setEyesGlasses(CommUtil.bytesToFloat(FaceResultBytes, i));
 
 				i += 4;
 				FaceResultBytes = null;
@@ -318,25 +318,22 @@ public class FaceDetectImageQualityJNIEntry {
 				byte[] FaceAssessBytes = FaceAssessPointer.getMemory();
 
 				i = 0;
-				result.setPass(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setHasface(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setEyesopen(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setFaceblur(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setHotspots(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setLightuniform(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setExpression(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				boolean b = CommUtil.bytesToBoolean(FaceAssessBytes[i++]);
-				log.debug("setFacefrontal:"+b);
-				result.setFacefrontal(b);
-				
-				result.setEyesfrontal(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setHeadhigh(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setHeadlow(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setHeadleft(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setHeadright(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setLargehead(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setSmallhead(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
-				result.setWearsglasses(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setPass(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setHasface(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setEyesopen(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setFaceblur(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setHotspots(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setLightuniform(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setExpression(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setFacefrontal(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setEyesfrontal(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setHeadhigh(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setHeadlow(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setHeadleft(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setHeadright(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setLargehead(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setSmallhead(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
+				fd.setWearsglasses(CommUtil.bytesToBoolean(FaceAssessBytes[i++]));
 				FaceAssessBytes = null;
 				FaceAssessPointer.dispose();
 			}
@@ -348,9 +345,13 @@ public class FaceDetectImageQualityJNIEntry {
 		} finally {
 		}
 		long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-		log.debug("detectFaceQuality using:"+usingTime+" ret="+result);
-		return result;
+		log.debug("detectFaceQuality using:"+usingTime+" ret="+fd);
 
 	}
+	public void detectFaceImage(FaceDetectedResult result) {
+		this.detectFaceLocation(result);
+		this.detectFaceImageQuality(result);
+	}
+
 
 }

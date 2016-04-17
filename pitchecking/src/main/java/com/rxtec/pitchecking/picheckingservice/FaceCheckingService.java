@@ -25,7 +25,7 @@ public class FaceCheckingService {
 	private LinkedBlockingQueue<FaceData> inFaceDataQueue = new LinkedBlockingQueue<FaceData>(5);
 	
 	//已经检测人脸质量，待验证的队列
-	private LinkedBlockingQueue<FaceData> checkedFaceDataQueue = new LinkedBlockingQueue<FaceData>(5);
+	private LinkedBlockingQueue<FaceData> checkedFaceDataQueue ;
 
 	//比对验证通过的队列
 	private LinkedBlockingQueue<FaceData> passFaceDataQueue =new LinkedBlockingQueue<FaceData>(5);
@@ -44,6 +44,8 @@ public class FaceCheckingService {
 		return passFaceDataQueue;
 	}
 	private FaceCheckingService(){
+		checkedFaceDataQueue = new LinkedBlockingQueue<FaceData>(Config.getInstance().getDetectededFaceQueueLen());
+		
 	}
 	public static FaceCheckingService getInstance(){
 		if(_instance == null) _instance = new FaceCheckingService();
@@ -79,13 +81,22 @@ public class FaceCheckingService {
 	}
 	
 	
-	public FaceData pollCheckedFaceData(){
+	public FaceData takeCheckedFaceData() throws InterruptedException{
 		//log.debug("takeFaceDataForChecking inFaceDataQueue size:"+inFaceDataQueue.size());	
-		return checkedFaceDataQueue.poll();
+		return checkedFaceDataQueue.take();
 	}
 	
 	
 	public void offerCheckedFaceData(FaceData faceData){
+		int len = checkedFaceDataQueue.size() /2;
+		if(len>Config.getInstance().getDetectededFaceQueueThreshold()){
+			checkedFaceDataQueue.poll();
+			checkedFaceDataQueue.offer(faceData);
+		}else{
+			checkedFaceDataQueue.offer(faceData);
+		}
+		
+		
 		checkedFaceDataQueue.offer(faceData);
 	}
 	
@@ -109,8 +120,8 @@ public class FaceCheckingService {
 	
 	public void beginFaceCheckerTask(){
 		FaceCheckerTask checker = new FaceCheckerTask();
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleWithFixedDelay(checker, 0, 50, TimeUnit.MILLISECONDS);
+		ExecutorService executer = Executors.newCachedThreadPool();
+		executer.execute(checker);
 		
 	}
 

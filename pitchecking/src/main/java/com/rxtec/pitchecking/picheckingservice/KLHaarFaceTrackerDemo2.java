@@ -27,35 +27,56 @@ import org.openimaj.video.VideoDisplay;
 import org.openimaj.video.VideoDisplayListener;
 import org.openimaj.video.capture.VideoCapture;
 
+import com.rxtec.pitchecking.device.DeviceEventListener;
+import com.rxtec.pitchecking.device.PITStatusEnum;
+import com.rxtec.pitchecking.device.ScreenCmdEnum;
+import com.rxtec.pitchecking.device.TicketCheckScreen;
+import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 
 
 public class KLHaarFaceTrackerDemo2 {
 
 	private KLTHaarFaceTracker faceTracker = new KLTHaarFaceTracker( 40 );
-	private final static FaceCheckFrame faceCheckFrame = new FaceCheckFrame();
-	
-	private static void createUI() {
-		// create the window
-		
-		((JFrame)faceCheckFrame).setVisible(true);
-		faceCheckFrame.setVisible(true);
-	}
 	
 
 	
 
 	public static void main(String[] args) {
 		try {
-			createUI();
-			FaceDetectionService.getInstance().setVideoPanel(faceCheckFrame.getVideoPanel());
-			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
+			
+			TicketCheckScreen screen = TicketCheckScreen.getInstance();
+			screen.initUI();
+			screen.startShow();
 			
 			FaceCheckingService.getInstance().beginFaceCheckerTask();
+			FaceDetectionService.getInstance().setVideoPanel(screen.getVideoPanel());
+			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
+			
 			//FaceCheckingService.getInstance().beginFaceQualityDetecterTask();
 			
-			FaceDetectionService.getInstance().beginCheckingFace(createIDCard());
+		
+			while(true){
+				Thread.sleep(100);
+				screen.offerEvent(
+						new ScreenElementModifyEvent(1,ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(),null));
+				FaceDetectionService.getInstance().beginCheckingFace(createIDCard());
+				FaceData fd = FaceCheckingService.getInstance().pollPassFaceData();
+				if(fd == null){
+					TicketCheckScreen.getInstance().offerEvent(
+							new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), fd));
+					FaceDetectionService.getInstance().stopCheckingFace();
+				}else{
+					TicketCheckScreen.getInstance().offerEvent(
+							new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), fd));
+					FaceDetectionService.getInstance().stopCheckingFace();
 
+				}
+				
+			}
+
+			
+			
 			
 			
 			

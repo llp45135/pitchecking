@@ -52,18 +52,15 @@ public class VerifyFaceTask implements Callable<FaceData> {
 			log.error("IDReaderEventTask call",e);
 		}
 		
-		TicketCheckScreen.getInstance().offerEvent(
-				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckResult.getValue(), fd));
-		
 
 		if(fd == null){
 			TicketCheckScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
 			FaceDetectionService.getInstance().stopCheckingFace();
 		}else{
 			TicketCheckScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
 			FaceDetectionService.getInstance().stopCheckingFace();
 		}

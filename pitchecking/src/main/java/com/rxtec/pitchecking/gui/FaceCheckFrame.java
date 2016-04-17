@@ -138,24 +138,33 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 
 	
 	
-	public void showFaceCheckResult(FaceData fd){
+	public void showFaceCheckPassContent(){
 		
-		if(fd == null) {
-			timer.stop();
-			timeIntevel = 0;
-			panel_bottom.setVisible(true);
-			label_title.setText("验证失败");
-			label_result.setText("请从边门离开或按求助按钮");
-			panel_bottom.setBackground(Color.ORANGE);
-		}else{
-			panel_title.setBackground(Color.green);
-			label_title.setText("验证通过");
-			panel_bottom.setVisible(false);
-			timeIntevel = 0;
-			timer.stop();
-
-		}
+		panel_title.setBackground(Color.GREEN);
+		label_title.setText("验证通过");
+		panel_bottom.setBackground(Color.GREEN);;
+		label_result.setText("");
+		timeIntevel = 5;
+		timer.stop();
+		panel_title.repaint();
+		panel_bottom.repaint();
 	}
+	
+	public void showCheckFailedContent(){
+		timer.stop();
+		timeIntevel = 5;
+		panel_bottom.setVisible(true);
+		label_title.setText("验证失败");
+		label_result.setText("请从边门离开或按求助按钮");
+		panel_bottom.setBackground(Color.RED);
+		panel_title.setBackground(Color.RED);
+		panel_title.repaint();
+		panel_bottom.repaint();
+		
+	}
+	
+	
+	
 	
 	
 	public void showDefaultContent(){
@@ -168,14 +177,22 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		}
 		panel_title.setBackground(Color.orange);
 		label_title.setText("请刷二代证");
-		panel_bottom.setVisible(false);
+		label_result.setText("");
+		panel_bottom.setBackground(Color.ORANGE);
 		this.setIdcardBmp(null);
-		timeIntevel = 0;
+		timeIntevel = 5;
+		panel_title.repaint();
+		panel_bottom.repaint();
+
 	}
 	
 	
-	int timeIntevel = 0;
+	int timeIntevel = 5;
 	public void showBeginCheckFaceContent(){
+		panel_title.setBackground(Color.ORANGE);
+		panel_bottom.setBackground(Color.ORANGE);
+		label_title.setText("请平视摄像头    ");
+		label_result.setText("");
 		timer.start();
 	}
 	
@@ -184,7 +201,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		label_title.setText("请平视摄像头     " + timeIntevel++);
+		if(timeIntevel--<0) timeIntevel = 0;
+		label_title.setText("请平视摄像头     " + timeIntevel);
 	}
 	
 	

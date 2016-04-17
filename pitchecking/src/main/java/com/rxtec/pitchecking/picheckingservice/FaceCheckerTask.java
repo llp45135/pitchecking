@@ -15,39 +15,42 @@ public class FaceCheckerTask implements Runnable {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		FaceData fd = FaceCheckingService.getInstance().pollCheckedFaceData();
-		if (fd == null)
-			return;
-		long nowMils = Calendar.getInstance().getTimeInMillis();
 
-		if (!fd.isDetectedFace())
-			return;
-		float resultValue = 0;
-
-		if (fd != null) {
+		while (true) {
 			try {
-				resultValue = faceVerify.verify(fd.getExtractFaceImageBytes(), fd.getIdCard().getImageBytes());
-				fd.setFaceCheckResult(resultValue);
-			} catch (IOException e) {
+				Thread.sleep(50);
+				FaceData fd = FaceCheckingService.getInstance().takeCheckedFaceData();
+				if (fd == null)
+					return;
+				long nowMils = Calendar.getInstance().getTimeInMillis();
+				float resultValue = 0;
+
+				if (fd != null) {
+
+					resultValue = faceVerify.verify(fd.getExtractFaceImageBytes(), fd.getIdCard().getImageBytes());
+					fd.setFaceCheckResult(resultValue);
+					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+
+					resultValue = fd.getFaceCheckResult();
+
+					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
+						FaceCheckingService.getInstance().offerPassFaceData(fd);
+					} else {
+						if (fd.getFaceDetectedData().isWearsglasses()) {
+							if (resultValue >= Config.getInstance().getGlassFaceCheckThreshold()) {
+								FaceCheckingService.getInstance().offerPassFaceData(fd);
+							}
+						}
+					}
+
+					log.debug("FaceVerifyJniEntry using:" + usingTime + " ret=" + resultValue);
+				}
+
+			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 
-			resultValue = fd.getFaceCheckResult();
-
-			if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
-				FaceCheckingService.getInstance().offerPassFaceData(fd);
-			} else {
-				if (fd.getFaceDetectedData().isWearsglasses()) {
-					if (resultValue >= Config.getInstance().getGlassFaceCheckThreshold()) {
-						FaceCheckingService.getInstance().offerPassFaceData(fd);
-					}
-				}
-			}
-
-			log.debug("FaceVerifyJniEntry using:" + usingTime + " ret=" + resultValue);
 		}
 	}
 

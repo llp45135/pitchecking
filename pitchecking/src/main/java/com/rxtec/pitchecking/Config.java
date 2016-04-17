@@ -16,6 +16,51 @@ public class Config {
 	private int faceCheckingInteval = 100;
 	private int defaultFaceCheckScreenDeley=1000;
 	private String imagesLogDir;
+	private int roateCapture=0;
+	private int detectededFaceQueueLen = 5;
+	private int detectededFaceQueueThreshold = 2;
+
+	public int getDetectededFaceQueueThreshold() {
+		return detectededFaceQueueThreshold;
+	}
+
+
+
+
+	public void setDetectededFaceQueueThreshold(int detectededFaceQueueThreshold) {
+		this.detectededFaceQueueThreshold = detectededFaceQueueThreshold;
+	}
+
+
+
+
+	public int getDetectededFaceQueueLen() {
+		return detectededFaceQueueLen;
+	}
+
+
+
+
+	public void setDetectededFaceQueueLen(int detectededFaceQueueLen) {
+		this.detectededFaceQueueLen = detectededFaceQueueLen;
+	}
+
+
+
+
+	public int getRoateCapture() {
+		return roateCapture;
+	}
+
+
+
+
+	public void setRoateCapture(int roateCapture) {
+		this.roateCapture = roateCapture;
+	}
+
+
+
 
 	public String getImagesLogDir() {
 		return imagesLogDir;
@@ -139,6 +184,9 @@ public class Config {
         	this.faceCheckingInteval = Integer.valueOf(p.getProperty("faceCheckingInteval", "100"));
         	this.defaultFaceCheckScreenDeley = Integer.valueOf(p.getProperty("DefaultFaceCheckScreenDeley", "1000"));
         	this.imagesLogDir = p.getProperty("ImagesLogDir", "C:/pitchecking/images");
+        	this.roateCapture = Integer.valueOf(p.getProperty("RoateCapture", "0"));
+        	this.detectededFaceQueueLen = Integer.valueOf(p.getProperty("DetectededFaceQueueLen", "5"));
+        	this.detectededFaceQueueThreshold = Integer.valueOf(p.getProperty("DetectededFaceQueueThreshold", "2"));
             is.close(); //关闭流
         }
         catch (IOException e)

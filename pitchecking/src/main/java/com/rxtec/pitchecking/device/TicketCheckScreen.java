@@ -96,12 +96,16 @@ public class TicketCheckScreen {
 			faceFrame.showBeginCheckFaceContent();
 			faceFrame.getContentPane().repaint();
 
-		}else if(e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckResult.getValue()){
-			faceFrame.showFaceCheckResult(e.getFaceData());
+		}else if(e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckPass.getValue()){
+			faceFrame.showFaceCheckPassContent();;
 			faceFrame.getContentPane().repaint();
 
 		}else if(e.getElementCmd() == ScreenCmdEnum.showDefaultContent.getValue()){
 			faceFrame.showDefaultContent();
+			faceFrame.getContentPane().repaint();
+
+		}else if(e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckFailed.getValue()){
+			faceFrame.showCheckFailedContent();
 			faceFrame.getContentPane().repaint();
 
 		}

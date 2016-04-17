@@ -83,7 +83,7 @@ public class DeviceEventListener implements Runnable{
 			/**
 			 * 二代证读卡器读到了新数据
 			 */
-			IDReaderEventTask idtask = new IDReaderEventTask(e);
+			VerifyFaceTask idtask = new VerifyFaceTask(e);
 			executor.submit(idtask);
 
 		}
