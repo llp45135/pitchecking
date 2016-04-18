@@ -385,7 +385,7 @@ public class FaceDetectByPixelJNIEntry implements IFaceDetect {
 		} finally {
 		}
 		long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-		log.debug("detectFaceQuality using:" + usingTime + " ret=" + fd);
+//		log.debug("detectFaceQuality using:" + usingTime + " ret=" + fd);
 
 	}
 

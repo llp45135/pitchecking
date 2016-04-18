@@ -25,7 +25,7 @@ public class FaceCheckingService {
 	private LinkedBlockingQueue<FaceData> detectedFaceDataQueue ;
 
 	//比对验证通过的队列
-	private LinkedBlockingQueue<FaceData> passFaceDataQueue =new LinkedBlockingQueue<FaceData>(5);
+	private LinkedBlockingQueue<FaceData> passFaceDataQueue;
 
 
 	public LinkedBlockingQueue<FaceData> getPassFaceDataQueue() {
@@ -33,7 +33,7 @@ public class FaceCheckingService {
 	}
 	private FaceCheckingService(){
 		detectedFaceDataQueue = new LinkedBlockingQueue<FaceData>(Config.getInstance().getDetectededFaceQueueLen());
-		
+		passFaceDataQueue =new LinkedBlockingQueue<FaceData>(Config.getInstance().getDetectededFaceQueueLen());
 	}
 	public static synchronized FaceCheckingService getInstance(){
 		if(_instance == null) _instance = new FaceCheckingService();
@@ -47,22 +47,26 @@ public class FaceCheckingService {
 	
 	
 	public FaceData takeDetectedFaceData() throws InterruptedException{
-		//log.debug("takeFaceDataForChecking inFaceDataQueue size:"+inFaceDataQueue.size());	
+		log.debug("takeFaceDataForChecking takeDetectedFaceData size:"+detectedFaceDataQueue.size());	
 		return detectedFaceDataQueue.take();
 	}
 	
 	
 	public void offerDetectedFaceData(FaceData faceData){
-		int len = detectedFaceDataQueue.size() /2;
-		if(len>Config.getInstance().getDetectededFaceQueueThreshold()){
+//		int len = detectedFaceDataQueue.size() /2;
+//		if(len>Config.getInstance().getDetectededFaceQueueThreshold()){
+//			detectedFaceDataQueue.poll();
+//			detectedFaceDataQueue.offer(faceData);
+//		}else{
+//			detectedFaceDataQueue.offer(faceData);
+//		}
+//		log.debug("takeFaceDataForChecking offerDetectedFaceData size:"+detectedFaceDataQueue.size());	
+
+		
+		if(!detectedFaceDataQueue.offer(faceData)){
 			detectedFaceDataQueue.poll();
 			detectedFaceDataQueue.offer(faceData);
-		}else{
-			detectedFaceDataQueue.offer(faceData);
 		}
-		
-		
-		detectedFaceDataQueue.offer(faceData);
 	}
 	
 

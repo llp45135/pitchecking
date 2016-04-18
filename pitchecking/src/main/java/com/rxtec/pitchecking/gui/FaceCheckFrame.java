@@ -36,6 +36,7 @@ import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.picheckingservice.FaceData;
 
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.Frame;
 import java.awt.Dimension;
 import javax.swing.BoxLayout;
@@ -81,10 +82,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public FaceCheckFrame() {
-		setMinimumSize(new Dimension(600, 800));
-		setMaximumSize(new Dimension(600, 800));
+		setMinimumSize(new Dimension(1024, 768));
+		setMaximumSize(new Dimension(1024, 768));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 600, 800);
 		contentPane = new JPanel();
 		setContentPane(contentPane);
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 
@@ -107,19 +107,23 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		
 		JPanel panel_center = new JPanel();
 		panel_center.setLayout(new BoxLayout(panel_center, BoxLayout.X_AXIS));
+		panel_center.setMinimumSize(new Dimension(1024, 568));
+		panel_center.setMaximumSize(new Dimension(1024, 568));
 		
 		
-		videoPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		videoPanel.setMinimumSize(new Dimension(450, 600));
-		videoPanel.setMaximumSize(new Dimension(450, 600));
+		videoPanel.setBorder(new LineBorder(Color.GREEN));
+		videoPanel.setMinimumSize(new Dimension(768, 568));
+		videoPanel.setMaximumSize(new Dimension(768, 568));
 
-		panel_center.add(videoPanel);
+		panel_center.add(Box.createHorizontalStrut(100));  
 		panel_center.add(panel_idCardImage);
+		panel_center.add(Box.createHorizontalStrut(100));  
+		panel_center.add(videoPanel);
 		
 		JPanel panel_title = new JPanel();
 		panel_title.setBackground(Color.ORANGE);
-		panel_title.setMinimumSize(new Dimension(600, 100));
-		panel_title.setMaximumSize(new Dimension(600, 100));
+		panel_title.setMinimumSize(new Dimension(1024, 100));
+		panel_title.setMaximumSize(new Dimension(1024, 100));
 		//contentPane.add(panel_title);
 		
 //		contentPane.add(showBmp);
@@ -131,8 +135,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_title.setFont(new Font("微软雅黑", Font.PLAIN, 48));
 		
 		label_result.setFont(new Font("微软雅黑", Font.PLAIN, 42));
-		panel_bottom.setMinimumSize(new Dimension(600, 100));
-		panel_bottom.setMaximumSize(new Dimension(600, 100));
+		panel_bottom.setMinimumSize(new Dimension(1024, 100));
+		panel_bottom.setMaximumSize(new Dimension(1024, 100));
 		//contentPane.add(panel_bottom);
 		panel_bottom.add(label_result);
 		
@@ -147,14 +151,20 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		
 		showDefaultContent();
 
-		this.setLocationRelativeTo(null);
+		//this.setLocationRelativeTo(null);
+		setUndecorated(true);
+		// 取得屏幕大小
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Rectangle bounds = new Rectangle( screenSize );
+
+		setBounds( bounds );
 		
 	}
 
 	public void showIDCardImage(ImageIcon icon) {
 		idCardImage.setIcon(icon);
-		idCardImage.repaint();
-		panel_idCardImage.repaint();
+		//idCardImage.repaint();
+		//panel_idCardImage.repaint();
 	}
 	
 
@@ -162,14 +172,14 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	
 	public void showFaceCheckPassContent(){
 		
-		panel_title.setBackground(Color.GREEN);
 		label_title.setText("验证通过");
-		panel_bottom.setBackground(Color.GREEN);;
 		label_result.setText("");
 		timeIntevel = 5;
 		timer.stop();
-		panel_title.repaint();
-		panel_bottom.repaint();
+		panel_title.setBackground(Color.GREEN);
+		panel_bottom.setBackground(Color.GREEN);;
+		//panel_title.repaint();
+		//panel_bottom.repaint();
 	}
 	
 	public void showCheckFailedContent(){
@@ -180,8 +190,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_result.setText("请从边门离开或按求助按钮");
 		panel_bottom.setBackground(Color.RED);
 		panel_title.setBackground(Color.RED);
-		panel_title.repaint();
-		panel_bottom.repaint();
+		//panel_title.repaint();
+		//panel_bottom.repaint();
 		
 	}
 	
@@ -203,8 +213,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		panel_bottom.setBackground(Color.ORANGE);
 		this.showIDCardImage(null);
 		timeIntevel = 5;
-		panel_title.repaint();
-		panel_bottom.repaint();
+//		panel_title.repaint();
+//		panel_bottom.repaint();
 
 	}
 	

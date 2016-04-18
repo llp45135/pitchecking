@@ -29,11 +29,11 @@ public class FaceDetectionService {
 		this.videoPanel = videoPanel;
 	}
 
-	private LinkedBlockingQueue<MBFImage> frameImageQueue = new LinkedBlockingQueue<MBFImage>(5);
+	private LinkedBlockingQueue<MBFImage> frameImageQueue = new LinkedBlockingQueue<MBFImage>(3);
 
-	private LinkedBlockingQueue<FaceData> trackededFaceQueue = new LinkedBlockingQueue<FaceData>(5);
+	private LinkedBlockingQueue<FaceData> trackededFaceQueue = new LinkedBlockingQueue<FaceData>(3);
 
-	private LinkedBlockingQueue<FaceData> waitForDetectedFaceQueue = new LinkedBlockingQueue<FaceData>(5);
+	private LinkedBlockingQueue<FaceData> waitForDetectedFaceQueue = new LinkedBlockingQueue<FaceData>(3);
 
 	
 	public LinkedBlockingQueue<FaceData> getDetectedFaceQueue() {
@@ -45,18 +45,24 @@ public class FaceDetectionService {
 	}
 
 	public void offerWaitForDetectedFaceData(FaceData fd) {
-		waitForDetectedFaceQueue.offer(fd);
+		if(!waitForDetectedFaceQueue.offer(fd)){
+			waitForDetectedFaceQueue.poll();
+			waitForDetectedFaceQueue.offer(fd);
+		}
 		
 	}
 
 	public FaceData takeWaitForDetectedFaceData() throws InterruptedException {
-		log.debug("takeWaitForDetectedFaceData,detectedFaceQueue size=" + waitForDetectedFaceQueue.size());
+//		log.debug("takeWaitForDetectedFaceData,waitForDetectedFaceQueue size=" + waitForDetectedFaceQueue.size());
 		return waitForDetectedFaceQueue.take();
 	}
 	
 	
 	public void offerTrackedFaceData(FaceData fd) {
-		trackededFaceQueue.offer(fd);
+		if(!trackededFaceQueue.offer(fd)){
+			trackededFaceQueue.poll();
+			trackededFaceQueue.offer(fd);
+		}
 		
 	}
 
@@ -96,8 +102,10 @@ public class FaceDetectionService {
 	 * @param frame
 	 */
 	private void offerFrame(MBFImage frame) {
-		frameImageQueue.offer(frame);
-
+		if(!frameImageQueue.offer(frame)){
+			frameImageQueue.poll();
+			frameImageQueue.offer(frame);
+		}
 	}
 
 	/**
@@ -111,6 +119,11 @@ public class FaceDetectionService {
 
 	private void beginFaceTrackThread() {
 		FaceTrackTask trackTask = new FaceTrackTask();
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		FaceDetectTask detectTask = new FaceDetectTask();
 		ExecutorService executer = Executors.newCachedThreadPool();
 		executer.execute(trackTask);
@@ -124,7 +137,7 @@ public class FaceDetectionService {
 
 		final Video<MBFImage> video;
 		if (Config.getInstance().getRoateCapture()==1)
-			video = new RotationVideoCapture(640, 480);
+			video = new RotationVideoCapture(768, 768);
 		else
 			video = new VideoCapture(320, 480);
 
