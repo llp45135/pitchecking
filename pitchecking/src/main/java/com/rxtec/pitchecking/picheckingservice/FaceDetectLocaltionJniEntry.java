@@ -29,7 +29,7 @@ public class FaceDetectLocaltionJniEntry {
 		detecter.detectFaceLocation(faceLocation);
 	}
 
-	public FaceDetectLocaltionJniEntry() {
+	private FaceDetectLocaltionJniEntry() {
 		JNative.setLoggingEnabled(false);
 		/**
 		 * 初始化SDK
@@ -37,6 +37,13 @@ public class FaceDetectLocaltionJniEntry {
 		initJNIContext();
 
 
+	}
+	
+	private static FaceDetectLocaltionJniEntry instance;
+	
+	public static FaceDetectLocaltionJniEntry getInstance(){
+		if(instance == null) instance = new FaceDetectLocaltionJniEntry();
+		return instance;
 	}
 
 	JNative jnativeInitFun = null;

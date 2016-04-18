@@ -195,7 +195,7 @@ public class Config {
         }
 	}
 	
-	public static Config getInstance(){
+	public static synchronized Config getInstance(){
 		if(_instance == null) _instance = new Config();
 		return _instance;
 	}

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.device.event.IDeviceEvent;
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.FaceData;
+import com.rxtec.pitchecking.task.VerifyFaceTask;
 
 public class DeviceEventListener implements Runnable{
 

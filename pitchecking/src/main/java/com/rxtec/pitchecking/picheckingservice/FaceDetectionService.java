@@ -31,32 +31,48 @@ public class FaceDetectionService {
 
 	private LinkedBlockingQueue<MBFImage> frameImageQueue = new LinkedBlockingQueue<MBFImage>(5);
 
-	private LinkedBlockingQueue<FaceData> detectedFaceQueue = new LinkedBlockingQueue<FaceData>(5);
+	private LinkedBlockingQueue<FaceData> trackededFaceQueue = new LinkedBlockingQueue<FaceData>(5);
 
+	private LinkedBlockingQueue<FaceData> waitForDetectedFaceQueue = new LinkedBlockingQueue<FaceData>(5);
+
+	
 	public LinkedBlockingQueue<FaceData> getDetectedFaceQueue() {
-		return detectedFaceQueue;
+		return trackededFaceQueue;
 	}
 
 	public MBFImage takeFrameImage() throws InterruptedException {
 		return frameImageQueue.take();
 	}
 
-	public void offerDetectedFaceData(FaceData fd) {
-		detectedFaceQueue.offer(fd);
+	public void offerWaitForDetectedFaceData(FaceData fd) {
+		waitForDetectedFaceQueue.offer(fd);
 		
 	}
 
-	public FaceData takeDetectedFaceData() {
-		log.debug("takeDetectedFaceData,detectedFaceQueue size=" + detectedFaceQueue.size());
-		return detectedFaceQueue.poll();
+	public FaceData takeWaitForDetectedFaceData() throws InterruptedException {
+		log.debug("takeWaitForDetectedFaceData,detectedFaceQueue size=" + waitForDetectedFaceQueue.size());
+		return waitForDetectedFaceQueue.take();
+	}
+	
+	
+	public void offerTrackedFaceData(FaceData fd) {
+		trackededFaceQueue.offer(fd);
+		
 	}
 
-	private static FaceDetectionService _instance = new FaceDetectionService();
+
+	public FaceData takeTrackedFaceData() throws InterruptedException {
+		log.debug("takeDetectedFaceData,detectedFaceQueue size=" + trackededFaceQueue.size());
+		return trackededFaceQueue.take();
+	}
+
+	private static FaceDetectionService _instance = null;
 
 	private FaceDetectionService() {
 	}
 
-	public static FaceDetectionService getInstance() {
+	public static synchronized FaceDetectionService getInstance() {
+		if(_instance == null) _instance = new FaceDetectionService();
 		return _instance;
 	}
 
@@ -89,14 +105,16 @@ public class FaceDetectionService {
 	 * 
 	 * @return
 	 */
-	private FaceData getFaceFromDetectedFaceQueue() {
-		return detectedFaceQueue.poll();
+	private FaceData pollTrackedFaceData() {
+		return trackededFaceQueue.poll();
 	}
 
 	private void beginFaceTrackThread() {
-		FaceDetectionTask task = new FaceDetectionTask();
+		FaceTrackTask trackTask = new FaceTrackTask();
+		FaceDetectTask detectTask = new FaceDetectTask();
 		ExecutorService executer = Executors.newCachedThreadPool();
-		executer.execute(task);
+		executer.execute(trackTask);
+		executer.execute(detectTask);
 	}
 
 	int frameCounter = 0;
@@ -117,13 +135,10 @@ public class FaceDetectionService {
 			public void beforeUpdate(MBFImage frame) {
 
 				offerFrame(frame.clone());
-				FaceData face = getFaceFromDetectedFaceQueue();
+				FaceData face = pollTrackedFaceData();
+				
 				if (face != null) {
-					if (currentIDCard != null) {
-						face.setIdCard(currentIDCard);
-						FaceCheckingService.getInstance().offerCheckedFaceData(face);
-
-					}
+					offerWaitForDetectedFaceData(face);
 					frame.drawShape(face.getFaceBounds(), RGBColour.RED);
 				}
 			}
@@ -135,6 +150,14 @@ public class FaceDetectionService {
 	}
 
 	private IDCard currentIDCard = null;
+
+	public IDCard getCurrentIDCard() {
+		return currentIDCard;
+	}
+
+	public void setCurrentIDCard(IDCard currentIDCard) {
+		this.currentIDCard = currentIDCard;
+	}
 
 	/**
 	 * 开始人证对比
@@ -151,9 +174,10 @@ public class FaceDetectionService {
 	 */
 	public void stopCheckingFace() {
 		currentIDCard = null;
-		FaceCheckingService.getInstance().resetFaceDataForCheckingQueue();
+		FaceCheckingService.getInstance().resetFaceDataQueue();
 		this.frameImageQueue.clear();
-		detectedFaceQueue.clear();
+		trackededFaceQueue.clear();
+		waitForDetectedFaceQueue.clear();
 	}
 
 }

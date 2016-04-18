@@ -34,6 +34,14 @@ public class FaceData {
 
 	private FaceDetectedResult faceDetectedResult;
 	
+	public FaceDetectedResult getFaceDetectedResult() {
+		return faceDetectedResult;
+	}
+
+	public void setFaceDetectedResult(FaceDetectedResult faceDetectedResult) {
+		this.faceDetectedResult = faceDetectedResult;
+	}
+
 	public MBFImage getFrame() {
 		return frame;
 	}

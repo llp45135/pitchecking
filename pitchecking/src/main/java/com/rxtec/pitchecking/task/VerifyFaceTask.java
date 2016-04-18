@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.device;
+package com.rxtec.pitchecking.task;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -6,6 +6,10 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.device.DeviceEventListener;
+import com.rxtec.pitchecking.device.PITStatusEnum;
+import com.rxtec.pitchecking.device.ScreenCmdEnum;
+import com.rxtec.pitchecking.device.TicketCheckScreen;
 import com.rxtec.pitchecking.device.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.device.event.IDeviceEvent;
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
@@ -41,6 +45,8 @@ public class VerifyFaceTask implements Callable<FaceData> {
 		ScreenElementModifyEvent semEvent = new ScreenElementModifyEvent(1, 1, 1);
 		semEvent.setIdCard(idcard);
 		TicketCheckScreen.getInstance().offerEvent(semEvent);
+		
+		RunningStatus.getInstance().getIdReaderLock();
 		FaceDetectionService.getInstance().beginCheckingFace(idcard);
 
 
@@ -56,11 +62,17 @@ public class VerifyFaceTask implements Callable<FaceData> {
 		if(fd == null){
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), fd));
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
+
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
+			
 			FaceDetectionService.getInstance().stopCheckingFace();
 		}else{
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), fd));
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
 			FaceDetectionService.getInstance().stopCheckingFace();
 		}

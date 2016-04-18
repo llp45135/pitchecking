@@ -34,9 +34,9 @@ public class PitCheckingApp {
 		//启动事件监听
 		try {
 			
+			FaceCheckingService.getInstance().beginFaceCheckerTask();
 			FaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
 			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
-			FaceCheckingService.getInstance().beginFaceCheckerTask();
 			
 			eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
 //			eventListener.startListenEvent();

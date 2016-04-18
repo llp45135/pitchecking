@@ -56,7 +56,7 @@ public class IDCardDevice {
 			while (true) {
 				String findval = device.Syn_StartFindIDCard();
 				if (findval.equals("0")) {
-					frame.setIdcardBmp(null);
+					frame.showIDCardImage(null);
 					frame.setVisible(false);
 					String selectval = device.Syn_SelectIDCard();
 					if (selectval.equals("0")) {
@@ -64,9 +64,9 @@ public class IDCardDevice {
 						if (card != null) {
 
 							ImageIcon icon = new ImageIcon(card.getCardImage());
-							frame.setIdcardBmp(icon);
+							frame.showIDCardImage(icon);
 						} else {
-							frame.setIdcardBmp(null);
+							frame.showIDCardImage(null);
 							frame.getContentPane().repaint();
 						}
 						frame.setVisible(true);
@@ -238,7 +238,7 @@ public class IDCardDevice {
 			findIDCardJNative.invoke();
 
 			retval = findIDCardJNative.getRetVal();
-			log.debug("Syn_StartFindIDCard: retval==" + retval);// 获取返回值
+			//log.debug("Syn_StartFindIDCard: retval==" + retval);// 获取返回值
 			// log.debug("Syn_StartFindIDCard: pucIIN==" + pucIIN);// 获取返回值
 			if (retval.equals("0")) {
 				log.debug("已找到二代身份证");

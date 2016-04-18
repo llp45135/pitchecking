@@ -89,30 +89,24 @@ public class TicketCheckScreen {
 		if(e.getElementType() == 1){
 			log.debug("收到Face屏幕事件，重画屏幕");
 			ImageIcon icon = new ImageIcon(e.getIdCard().getCardImage());
-			faceFrame.setIdcardBmp(icon);
-			faceFrame.getContentPane().repaint();
+			faceFrame.showIDCardImage(icon);
 
 		}else if(e.getElementCmd() == ScreenCmdEnum.ShowBeginCheckFaceContent.getValue()){
 			faceFrame.showBeginCheckFaceContent();
-			faceFrame.getContentPane().repaint();
 
 		}else if(e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckPass.getValue()){
 			faceFrame.showFaceCheckPassContent();;
-			faceFrame.getContentPane().repaint();
 
 		}else if(e.getElementCmd() == ScreenCmdEnum.showDefaultContent.getValue()){
 			faceFrame.showDefaultContent();
-			faceFrame.getContentPane().repaint();
 
 		}else if(e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckFailed.getValue()){
 			faceFrame.showCheckFailedContent();
-			faceFrame.getContentPane().repaint();
-
 		}
 	}
 	
 	public void repainFaceFrame(){
-		faceFrame.setIdcardBmp(null);
+		faceFrame.showIDCardImage(null);
 		faceFrame.getContentPane().repaint();
 	}
 

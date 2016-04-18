@@ -1,6 +1,8 @@
 package com.rxtec.pitchecking.picheckingservice;
 
 import java.util.Calendar;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.jfree.util.Log;
 import org.slf4j.Logger;
@@ -13,7 +15,7 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.utils.CommUtil;
 
-public class FaceDetectByPixelJNIEntry implements IFaceDetect{
+public class FaceDetectByPixelJNIEntry implements IFaceDetect {
 
 	JNative FGDetectInitSDK = null;
 	JNative FGDetectCreateHandleFromFile = null;
@@ -27,25 +29,63 @@ public class FaceDetectByPixelJNIEntry implements IFaceDetect{
 	private Logger log = LoggerFactory.getLogger("FaceLocationDetection");
 
 	public static void main(String[] args) {
-		IFaceDetect detecter = FaceDetectByPixelJNIEntry.getInstance();
-		byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/images/20160416/-707230729@07-05-13-916.jpg");
-		byte[] imgBytes2 = CommUtil.getBytes("C:/pitchecking/images/20160416/-707230729@06-41-43-341.jpg");
-		
-		FaceDetectedResult r = new FaceDetectedResult();
-		FaceDetectedResult r2 = new FaceDetectedResult();
-		
+//		IFaceDetect detecter = FaceDetectByPixelJNIEntry.getInstance();
+//		byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/idcardtest.jpg");
+//		byte[] imgBytes2 = CommUtil.getBytes("C:/pitchecking/2009-01-25 09-36-41.jpg");
+//
+//		FaceDetectedResult r = new FaceDetectedResult();
+//		FaceDetectedResult r2 = new FaceDetectedResult();
+//
+//		r.setImageBytes(imgBytes);
+//		r2.setImageBytes(imgBytes2);
+//		for (int i = 0; i < 200; i++) {
+//			detecter.detectFaceImage(r);
+//			detecter.detectFaceImage(r2);
+//
+//			System.out.println(r);
+//			System.out.println(r2);
+//
+//		}
+
+		Runnable run1 = new Runnable() {
+
+			@Override
+			public void run() {
+
+				while (true) {
+					// TODO Auto-generated method stub
+					byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/idcardtest.jpg");
+					FaceDetectedResult r = new FaceDetectedResult();
+					r.setImageBytes(imgBytes);
+					IFaceDetect detecter = FaceDetectByPixelJNIEntry.getInstance();
+					detecter.detectFaceImage(r);
+					System.out.println(r);
+				}
+			}
+		};
+		Runnable run2 = new Runnable() {
+
+			@Override
+			public void run() {
+
+				while (true) {
+					// TODO Auto-generated method stub
+					byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/idcardtest.jpg");
+					FaceDetectedResult r = new FaceDetectedResult();
+					r.setImageBytes(imgBytes);
+					FaceDetectLocaltionJniEntry detecter = FaceDetectLocaltionJniEntry.getInstance();
+					detecter.detectFaceLocation(r);
+					System.out.println(r);
+				}
+			}
+		};
+		ExecutorService executer = Executors.newCachedThreadPool();
+		executer.execute(run1);
+		executer.execute(run2);
 		
 
-		r.setImageBytes(imgBytes);
-		r2.setImageBytes(imgBytes2);
-		for (int i = 0; i < 200; i++) {
-			detecter.detectFaceImage(r);
-			detecter.detectFaceImage(r2);
-			
-			System.out.println(r);
-			System.out.println(r2);
-
-		}
+		
+		
 	}
 
 	private static FaceDetectByPixelJNIEntry instance = null;
@@ -174,7 +214,7 @@ public class FaceDetectByPixelJNIEntry implements IFaceDetect{
 
 	public void detectFaceImageQuality(FaceDetectedResult fd) {
 		byte[] imgBytes = fd.getImageBytes();
-		
+
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
 		int i = 0;
@@ -345,13 +385,13 @@ public class FaceDetectByPixelJNIEntry implements IFaceDetect{
 		} finally {
 		}
 		long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-		log.debug("detectFaceQuality using:"+usingTime+" ret="+fd);
+		log.debug("detectFaceQuality using:" + usingTime + " ret=" + fd);
 
 	}
+
 	public void detectFaceImage(FaceDetectedResult result) {
 		this.detectFaceLocation(result);
 		this.detectFaceImageQuality(result);
 	}
-
 
 }

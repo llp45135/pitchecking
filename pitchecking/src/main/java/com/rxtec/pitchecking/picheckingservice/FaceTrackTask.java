@@ -17,11 +17,13 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
-public class FaceDetectionTask implements Runnable {
+public class FaceTrackTask implements Runnable {
 
 	// private FaceDetectLocaltionJniEntry faceDetecter = new
 	// FaceDetectLocaltionJniEntry();
-	private IFaceDetect faceDetecter = FaceDetectByPixelJNIEntry.getInstance();
+//	private FaceDetectByPixelJNIEntry faceDetecter = FaceDetectByPixelJNIEntry.getInstance();
+	private FaceDetectLocaltionJniEntry faceDetecter = FaceDetectLocaltionJniEntry.getInstance();
+	
 	private Logger log = LoggerFactory.getLogger("FaceDetectionTask");
 	Calendar cal = Calendar.getInstance();
 
@@ -39,22 +41,24 @@ public class FaceDetectionTask implements Runnable {
 				if (frame != null) {
 
 					byte[] bytes = convertImage(frame);
-					if (bytes == null)
-						return;
+					if (bytes == null) continue;
 
 					FaceDetectedResult result = new FaceDetectedResult();
 					result.setImageBytes(bytes);
-					faceDetecter.detectFaceImage(result);
-					log.debug("FaceDetectedResult : " + result);
+					faceDetecter.detectFaceLocation(result);
 
+					
+//					faceDetecter.detectFaceImage(result);
+					
 					FaceData fd = new FaceData(frame, result);
-					if (detectQuality(fd))
-						FaceDetectionService.getInstance().offerDetectedFaceData(fd);
-
+//					if (detectQuality(fd))
+//						FaceDetectionService.getInstance().offerTrackedFaceData(fd);
+					
+					if(fd.isDetectedFace())						
+						FaceDetectionService.getInstance().offerTrackedFaceData(fd);
 				}
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("FaceTrackTask ",e);
 			}
 
 		}

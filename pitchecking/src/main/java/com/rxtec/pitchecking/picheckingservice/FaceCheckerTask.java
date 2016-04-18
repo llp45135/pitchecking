@@ -19,9 +19,10 @@ public class FaceCheckerTask implements Runnable {
 		while (true) {
 			try {
 				Thread.sleep(50);
-				FaceData fd = FaceCheckingService.getInstance().takeCheckedFaceData();
-				if (fd == null)
-					return;
+				FaceData fd = FaceCheckingService.getInstance().takeDetectedFaceData();
+				IDCard idCard = FaceDetectionService.getInstance().getCurrentIDCard();
+				if (fd == null || idCard == null) continue;
+				fd.setIdCard(idCard);
 				long nowMils = Calendar.getInstance().getTimeInMillis();
 				float resultValue = 0;
 
