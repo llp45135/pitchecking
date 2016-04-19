@@ -161,6 +161,7 @@ public class FaceData {
 	public byte[] getExtractFaceImageBytes(boolean isSaveToDisk) {
 
 		BufferedImage bi = ImageUtilities.createBufferedImageForDisplay(extractFrame);
+		bi = ImageToolkit.scale(bi,140,120,true);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		try {
 			ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(os));

@@ -105,6 +105,7 @@ public class ImageToolkit {
 			g.drawImage(image, 0, 0, null); // 绘制缩小后的图
 			g.dispose();
 			ImageIO.write(tag, "JPEG", new File(result));// 输出到文件流
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -159,6 +160,43 @@ public class ImageToolkit {
 			e.printStackTrace();
 		}
 	}
+	
+	public final  BufferedImage scale(BufferedImage bi, int width,int height,boolean bb) {
+		Image result = bi.getScaledInstance(width, height, bi.SCALE_SMOOTH);
+		try {
+			double ratio = 0.0; // 缩放比例
+			
+			// 计算比例
+			if ((bi.getHeight() > height) || (bi.getWidth() > width)) {
+				if (bi.getHeight() > bi.getWidth()) {
+					ratio = (new Integer(height)).doubleValue() / bi.getHeight();
+				} else {
+					ratio = (new Integer(width)).doubleValue() / bi.getWidth();
+				}
+				AffineTransformOp op = new AffineTransformOp(AffineTransform.getScaleInstance(ratio, ratio), null);
+				result = op.filter(bi, null);
+			}
+			if (bb) {// 补白
+				BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+				Graphics2D g = image.createGraphics();
+				g.setColor(Color.white);
+				g.fillRect(0, 0, width, height);
+				if (width == itemp.getWidth(null))
+					g.drawImage(itemp, 0, (height - itemp.getHeight(null)) / 2, itemp.getWidth(null),
+							itemp.getHeight(null), Color.white, null);
+				else
+					g.drawImage(itemp, (width - itemp.getWidth(null)) / 2, 0, itemp.getWidth(null),
+							itemp.getHeight(null), Color.white, null);
+				g.dispose();
+				result = image;
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return (BufferedImage) result;
+	}
+
 
 	/**
 	 * 图像切割(按指定起点坐标和宽高切割)
