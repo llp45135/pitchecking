@@ -43,8 +43,6 @@ public class FaceCheckerTask implements Runnable {
 							}
 						}
 					}
-
-					log.debug("FaceVerifyJniEntry using:" + usingTime + " ret=" + resultValue);
 				}
 
 			} catch (InterruptedException e) {
