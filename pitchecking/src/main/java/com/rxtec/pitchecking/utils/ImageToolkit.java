@@ -1,6 +1,6 @@
 package com.rxtec.pitchecking.utils;
 
-import Java.awt.AlphaComposite;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -15,6 +15,7 @@ import java.awt.image.ColorConvertOp;
 import java.awt.image.CropImageFilter;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageFilter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
@@ -46,33 +47,34 @@ public class ImageToolkit {
 	public static void main(String[] args) {
 		// 1-缩放图像：
 		// 方法一：按比例缩放
-		ImageUtils.scale("e:/abc.jpg", "e:/abc_scale.jpg", 2, true);// 测试OK
+		ImageToolkit.scale("e:/abc.jpg", "e:/abc_scale.jpg", 2, true);// 测试OK
 		// 方法二：按高度和宽度缩放
-		ImageUtils.scale2("e:/abc.jpg", "e:/abc_scale2.jpg", 500, 300, true);// 测试OK
+		ImageToolkit.scale2("e:/abc.jpg", "e:/abc_scale2.jpg", 500, 300, true);// 测试OK
 
 		// 2-切割图像：
 		// 方法一：按指定起点坐标和宽高切割
-		ImageUtils.cut("e:/abc.jpg", "e:/abc_cut.jpg", 0, 0, 400, 400);// 测试OK
+		ImageToolkit.cut("e:/abc.jpg", "e:/abc_cut.jpg", 0, 0, 400, 400);// 测试OK
 		// 方法二：指定切片的行数和列数
-		ImageUtils.cut2("e:/abc.jpg", "e:/", 2, 2);// 测试OK
+		ImageToolkit.cut2("e:/abc.jpg", "e:/", 2, 2);// 测试OK
 		// 方法三：指定切片的宽度和高度
-		ImageUtils.cut3("e:/abc.jpg", "e:/", 300, 300);// 测试OK
+		ImageToolkit.cut3("e:/abc.jpg", "e:/", 300, 300);// 测试OK
 
 		// 3-图像类型转换：
-		ImageUtils.convert("e:/abc.jpg", "GIF", "e:/abc_convert.gif");// 测试OK
+		ImageToolkit.convert("e:/abc.jpg", "GIF", "e:/abc_convert.gif");// 测试OK
 
 		// 4-彩色转黑白：
-		ImageUtils.gray("e:/abc.jpg", "e:/abc_gray.jpg");// 测试OK
+		ImageToolkit.gray("e:/abc.jpg", "e:/abc_gray.jpg");// 测试OK
 
 		// 5-给图片添加文字水印：
 		// 方法一：
-		ImageUtils.pressText("我是水印文字", "e:/abc.jpg", "e:/abc_pressText.jpg", "宋体", Font.BOLD, Color.white, 80, 0, 0,
+		ImageToolkit.pressText("我是水印文字", "e:/abc.jpg", "e:/abc_pressText.jpg", "宋体", Font.BOLD, Color.white, 80, 0, 0,
 				0.5f);// 测试OK
 		// 方法二：
-		ImageUtils.pressText2("我也是水印文字", "e:/abc.jpg", "e:/abc_pressText2.jpg", "黑体", 36, Color.white, 80, 0, 0, 0.5f);// 测试OK
+		ImageToolkit.pressText2("我也是水印文字", "e:/abc.jpg", "e:/abc_pressText2.jpg", "黑体", 36, Color.white, 80, 0, 0,
+				0.5f);// 测试OK
 
 		// 6-给图片添加图片水印：
-		ImageUtils.pressImage("e:/abc2.jpg", "e:/abc.jpg", "e:/abc_pressImage.jpg", 0, 0, 0.5f);// 测试OK
+		ImageToolkit.pressImage("e:/abc2.jpg", "e:/abc.jpg", "e:/abc_pressImage.jpg", 0, 0, 0.5f);// 测试OK
 	}
 
 	/**
@@ -160,45 +162,38 @@ public class ImageToolkit {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
-	public final  BufferedImage scale(BufferedImage bi, int width,int height,boolean bb) {
+
+	public final static BufferedImage scale(BufferedImage bi, int width, int height, boolean bb) {
 		Image result = bi.getScaledInstance(width, height, bi.SCALE_SMOOTH);
-		try {
-			double ratio = 0.0; // 缩放比例
-			
-			// 计算比例
-			if ((bi.getHeight() > height) || (bi.getWidth() > width)) {
-				if (bi.getHeight() > bi.getWidth()) {
-					ratio = (new Integer(height)).doubleValue() / bi.getHeight();
-				} else {
-					ratio = (new Integer(width)).doubleValue() / bi.getWidth();
-				}
-				AffineTransformOp op = new AffineTransformOp(AffineTransform.getScaleInstance(ratio, ratio), null);
-				result = op.filter(bi, null);
+		double ratio = 0.0; // 缩放比例
+
+		// 计算比例
+		if ((bi.getHeight() > height) || (bi.getWidth() > width)) {
+			if (bi.getHeight() > bi.getWidth()) {
+				ratio = (new Integer(height)).doubleValue() / bi.getHeight();
+			} else {
+				ratio = (new Integer(width)).doubleValue() / bi.getWidth();
 			}
-			if (bb) {// 补白
-				BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-				Graphics2D g = image.createGraphics();
-				g.setColor(Color.white);
-				g.fillRect(0, 0, width, height);
-				if (width == itemp.getWidth(null))
-					g.drawImage(itemp, 0, (height - itemp.getHeight(null)) / 2, itemp.getWidth(null),
-							itemp.getHeight(null), Color.white, null);
-				else
-					g.drawImage(itemp, (width - itemp.getWidth(null)) / 2, 0, itemp.getWidth(null),
-							itemp.getHeight(null), Color.white, null);
-				g.dispose();
-				result = image;
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
+			AffineTransformOp op = new AffineTransformOp(AffineTransform.getScaleInstance(ratio, ratio), null);
+			result = op.filter(bi, null);
 		}
+		if (bb) {// 补白
+			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+			Graphics2D g = image.createGraphics();
+			g.setColor(Color.white);
+			g.fillRect(0, 0, width, height);
+			if (width == result.getWidth(null))
+				g.drawImage(result, 0, (height - result.getHeight(null)) / 2, result.getWidth(null),
+						result.getHeight(null), Color.white, null);
+			else
+				g.drawImage(result, (width - result.getWidth(null)) / 2, 0, result.getWidth(null),
+						result.getHeight(null), Color.white, null);
+			g.dispose();
+			result = image;
+		}
+
 		return (BufferedImage) result;
 	}
-
 
 	/**
 	 * 图像切割(按指定起点坐标和宽高切割)

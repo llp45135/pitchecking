@@ -139,7 +139,7 @@ public class FaceDetectionService {
 		if (Config.getInstance().getRoateCapture()==1)
 			video = new RotationVideoCapture(768, 768);
 		else
-			video = new VideoCapture(320, 480);
+			video = new VideoCapture(768, 768);
 
 		video.setCurrentFrameIndex(1);
 		VideoDisplay<MBFImage> vd = VideoDisplay.createVideoDisplay(video, videoPanel);

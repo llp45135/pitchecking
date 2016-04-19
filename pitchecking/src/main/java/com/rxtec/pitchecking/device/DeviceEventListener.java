@@ -46,7 +46,7 @@ public class DeviceEventListener implements Runnable{
 
 	public void offerDeviceEvent(IDeviceEvent e) {
 		// 队列满了需要处理Exception,注意！
-		log.debug("生产者准备生产event");
+//		log.debug("生产者准备生产event");
 		deviceEventQueue.offer(e);
 	}
 
@@ -121,7 +121,7 @@ public class DeviceEventListener implements Runnable{
 		IDeviceEvent e;
 		try {
 			e = deviceEventQueue.take();
-			log.debug("消费者取到新的event==" + e + ",e.getEventType==" + e.getEventType());
+//			log.debug("消费者取到新的event==" + e + ",e.getEventType==" + e.getEventType());
 
 			this.processEvent(e);
 		} catch (InterruptedException e1) {
