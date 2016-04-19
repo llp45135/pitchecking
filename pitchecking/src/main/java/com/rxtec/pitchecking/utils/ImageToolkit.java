@@ -161,6 +161,8 @@ public class ImageToolkit {
 		}
 	}
 	
+	
+	
 	public final  BufferedImage scale(BufferedImage bi, int width,int height,boolean bb) {
 		Image result = bi.getScaledInstance(width, height, bi.SCALE_SMOOTH);
 		try {
