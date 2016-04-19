@@ -31,9 +31,18 @@ import com.rxtec.pitchecking.utils.ImageToolkit;
 
 public class FaceData {
 	private MBFImage frame = null;
+	private MBFImage extractFrame = null;
+
+	public MBFImage getExtractFrame() {
+		return extractFrame;
+	}
+
+	public void setExtractFrame(MBFImage extractFrame) {
+		this.extractFrame = extractFrame;
+	}
 
 	private FaceDetectedResult faceDetectedResult;
-	
+
 	public FaceDetectedResult getFaceDetectedResult() {
 		return faceDetectedResult;
 	}
@@ -93,13 +102,26 @@ public class FaceData {
 		this.faceY = (int) fc.getBounds().y;
 		this.faceWidth = (int) fc.getBounds().width;
 		this.faceHeight = (int) fc.getBounds().height;
+		extractFrame(fm);
 		createTime = Calendar.getInstance().getTimeInMillis();
 	}
 
-	private FaceDetectedResult faceDetectedData = null;
+	private void extractFrame(MBFImage fm) {
+		int x = (int) (faceX * 0.8);
+		int y = (int) (faceY * 0.8);
+		int width = (int) (faceWidth * 1.2);
+		int height = (int) (faceHeight * 1.3);
 
-	public FaceDetectedResult getFaceDetectedData() {
-		return faceDetectedData;
+		extractFrame = frame.extractROI(x, y, width, height);
+
+	}
+
+	
+	
+	public FaceData(MBFImage fm,MBFImage extractFrame,FaceDetectedResult fdr){
+		this.frame = fm;
+		this.extractFrame = extractFrame;
+		this.faceDetectedResult = fdr;
 	}
 
 	public FaceData(MBFImage fm, FaceDetectedResult fdr) {
@@ -110,19 +132,20 @@ public class FaceData {
 		this.faceWidth = fdr.getWidth();
 		this.faceHeight = fdr.getHeight();
 		
-		
-//		this.faceX = fdr.getHeadLeft();
-//		this.faceY = fdr.getHeadTop();
-//		this.faceWidth = fdr.getHeadRight() - fdr.getHeadLeft();
-//		this.faceHeight = fdr.getChinPos() - fdr.getHeadTop();
 
-		
+		// this.faceX = fdr.getHeadLeft();
+		// this.faceY = fdr.getHeadTop();
+		// this.faceWidth = fdr.getHeadRight() - fdr.getHeadLeft();
+		// this.faceHeight = fdr.getChinPos() - fdr.getHeadTop();
 
-		if (this.faceWidth <50)
+		if (this.faceWidth < 50)
 			this.isDetectedFace = false;
-		else
+		else{
 			this.isDetectedFace = true;
-		this.faceDetectedData = fdr;
+			extractFrame(fm);
+			fdr.setExtractImageBytes(getExtractFaceImageBytes(false));
+		}
+		this.faceDetectedResult = fdr;
 		createTime = Calendar.getInstance().getTimeInMillis();
 	}
 
@@ -135,37 +158,35 @@ public class FaceData {
 	private int faceWidth;
 	private int faceHeight;
 
-	public byte[] getExtractFaceImageBytes() throws IOException {
-		
-		int x = (int) (faceX*0.8);
-		int y = (int) (faceY*0.8);
-		int width = (int) (faceWidth*1.2);
-		int height = (int) (faceHeight*1.3);
-		
-		MBFImage extractFrame = frame.extractROI(x,y,width,height);
-		BufferedImage result = ImageUtilities.createBufferedImageForDisplay(extractFrame);
+	public byte[] getExtractFaceImageBytes(boolean isSaveToDisk) {
+
+		BufferedImage bi = ImageUtilities.createBufferedImageForDisplay(extractFrame);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		ImageIO.write(result, "JPEG", ImageIO.createImageOutputStream(os));
-		
-		saveIDCardImageToLogDir();
-		saveExtractFaceImageToLogFile(result);
+		try {
+			ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(os));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		if (isSaveToDisk) {
+			saveIDCardImageToDisk();
+			saveExtractFaceImageToDisk(bi);
+		}
 		return os.toByteArray();
 	}
-	
-	
-	
-	
-	
-	private void saveIDCardImageToLogDir(){
-		if(idCard == null || idCard.getCardImage() == null || idCard.getIdNo() == null) return;
+
+	private void saveIDCardImageToDisk() {
+		if (idCard == null || idCard.getCardImage() == null || idCard.getIdNo() == null)
+			return;
 		BufferedImage bi = idCard.getCardImage();
 		String dirName = Config.getInstance().getImagesLogDir();
 		int ret = CommUtil.createDir(dirName);
-		if(ret == 0 || ret == 1){
+		if (ret == 0 || ret == 1) {
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 			String toDayDir = formatter.format(new Date());
 			ret = CommUtil.createDir(dirName + toDayDir);
-			if(ret == 0 || ret == 1){
+			if (ret == 0 || ret == 1) {
 				StringBuffer sb = new StringBuffer();
 				sb.append(dirName);
 				sb.append(toDayDir);
@@ -177,21 +198,20 @@ public class FaceData {
 					ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					Log.error("saveToImagesLogFile failed",e);
+					Log.error("saveToImagesLogFile failed", e);
 				}
 			}
 		}
 	}
-	
-	
-	private void saveExtractFaceImageToLogFile(BufferedImage bi){
+
+	private void saveExtractFaceImageToDisk(BufferedImage bi) {
 		String dirName = Config.getInstance().getImagesLogDir();
 		int ret = CommUtil.createDir(dirName);
-		if(ret == 0 || ret == 1){
+		if (ret == 0 || ret == 1) {
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 			String toDayDir = formatter.format(new Date());
 			ret = CommUtil.createDir(dirName + toDayDir);
-			if(ret == 0 || ret == 1){
+			if (ret == 0 || ret == 1) {
 				formatter = new SimpleDateFormat("hh-mm-ss-SSS");
 				StringBuffer sb = new StringBuffer();
 				sb.append(dirName);
@@ -206,14 +226,11 @@ public class FaceData {
 					ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					Log.error("saveToImagesLogFile failed",e);
+					Log.error("saveToImagesLogFile failed", e);
 				}
 			}
 		}
 	}
-	
-  
-	
 
 	public BufferedImage getFaceImageBufferedImage() throws IOException {
 		BufferedImage sourceImage = ImageUtilities.createBufferedImage(frame);

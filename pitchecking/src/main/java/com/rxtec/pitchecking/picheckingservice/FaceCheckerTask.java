@@ -28,7 +28,7 @@ public class FaceCheckerTask implements Runnable {
 
 				if (fd != null) {
 
-					resultValue = faceVerify.verify(fd.getExtractFaceImageBytes(), fd.getIdCard().getImageBytes());
+					resultValue = faceVerify.verify(fd.getExtractFaceImageBytes(true), fd.getIdCard().getImageBytes());
 					fd.setFaceCheckResult(resultValue);
 					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 
@@ -37,7 +37,7 @@ public class FaceCheckerTask implements Runnable {
 					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
 						FaceCheckingService.getInstance().offerPassFaceData(fd);
 					} else {
-						if (fd.getFaceDetectedData().isWearsglasses()) {
+						if (fd.getFaceDetectedResult().isWearsglasses()) {
 							if (resultValue >= Config.getInstance().getGlassFaceCheckThreshold()) {
 								FaceCheckingService.getInstance().offerPassFaceData(fd);
 							}
@@ -47,7 +47,7 @@ public class FaceCheckerTask implements Runnable {
 					log.debug("FaceVerifyJniEntry using:" + usingTime + " ret=" + resultValue);
 				}
 
-			} catch (IOException | InterruptedException e) {
+			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

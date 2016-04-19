@@ -11,7 +11,7 @@ public class FaceDetectTask implements Runnable {
 
 	// private FaceDetectLocaltionJniEntry faceDetecter = new
 	// FaceDetectLocaltionJniEntry();
-	private IFaceDetect faceDetecter = FaceDetectByPixelJNIEntry.getInstance();
+	private FaceDetectByPixelJNIEntry faceDetecter = FaceDetectByPixelJNIEntry.getInstance();
 	private Logger log = LoggerFactory.getLogger("FaceDetectionTask");
 	Calendar cal = Calendar.getInstance();
 
@@ -23,7 +23,7 @@ public class FaceDetectTask implements Runnable {
 				Thread.sleep(50);
 				FaceData fd = FaceDetectionService.getInstance().takeWaitForDetectedFaceData();
 				if (fd != null) {
-					faceDetecter.detectFaceImageQuality(fd.getFaceDetectedData());
+					faceDetecter.detectFaceImageQuality(fd);
 //					log.debug("FaceDetectedResult : " + fd.getFaceDetectedData());
 					if (detectQuality(fd))
 						FaceCheckingService.getInstance().offerDetectedFaceData(fd);
@@ -37,7 +37,7 @@ public class FaceDetectTask implements Runnable {
 
 
 	private boolean detectQuality(FaceData fd) {
-		FaceDetectedResult r = fd.getFaceDetectedData();
+		FaceDetectedResult r = fd.getFaceDetectedResult();
 		if (r.isEyesfrontal() && r.isFacefrontal() && r.isEyesopen() && r.isHasface() && r.isExpression())
 			return true;
 		else

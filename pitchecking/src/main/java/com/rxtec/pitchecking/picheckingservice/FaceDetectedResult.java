@@ -402,10 +402,19 @@ public class FaceDetectedResult {
 	}
 	
 	private byte[] imageBytes;
+	private byte[] extractImageBytes;
 
 
 	
 	
+	public byte[] getExtractImageBytes() {
+		return extractImageBytes;
+	}
+
+	public void setExtractImageBytes(byte[] extractImageBytes) {
+		this.extractImageBytes = extractImageBytes;
+	}
+
 	public byte[] getImageBytes() {
 		return imageBytes;
 	}

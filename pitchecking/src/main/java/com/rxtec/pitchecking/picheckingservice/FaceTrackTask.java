@@ -72,7 +72,7 @@ public class FaceTrackTask implements Runnable {
 	}
 
 	private boolean detectQuality(FaceData fd) {
-		FaceDetectedResult r = fd.getFaceDetectedData();
+		FaceDetectedResult r = fd.getFaceDetectedResult();
 		if (r.isEyesfrontal() && r.isFacefrontal() && r.isEyesopen() && r.isHasface() && r.isExpression())
 			return true;
 		else
