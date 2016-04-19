@@ -27,8 +27,9 @@ public class FaceCheckerTask implements Runnable {
 				float resultValue = 0;
 
 				if (fd != null) {
-
-					resultValue = faceVerify.verify(fd.getExtractFaceImageBytes(true), fd.getIdCard().getImageBytes());
+					byte[] extractFaceImageBytes = fd.getExtractFaceImageBytes(true);
+					if(extractFaceImageBytes == null) continue;
+					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCard().getImageBytes());
 					fd.setFaceCheckResult(resultValue);
 					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 

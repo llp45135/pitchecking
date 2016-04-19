@@ -35,12 +35,12 @@ public class VerifyFaceTask implements Callable<FaceData> {
 	@Override
 	public FaceData call() {
 		// TODO 当接收到二代证读卡器事件时，后续处理
-		log.debug("正在调用回调函数处理IDReaderEventTask==" + this.event);
+//		log.debug("正在调用回调函数处理IDReaderEventTask==" + this.event);
 		TicketCheckScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1,ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(),null));
 
 		IDCard idcard = (IDCard)this.event.getData();
-		log.debug("idcard number =="+idcard.getIdNo());
+//		log.debug("idcard number =="+idcard.getIdNo());
 		
 		ScreenElementModifyEvent semEvent = new ScreenElementModifyEvent(1, 1, 1);
 		semEvent.setIdCard(idcard);
@@ -68,6 +68,8 @@ public class VerifyFaceTask implements Callable<FaceData> {
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
 			
 			FaceDetectionService.getInstance().stopCheckingFace();
+			RunningStatus.getInstance().getIdReaderCondition().signal();
+			
 		}else{
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), fd));
@@ -75,6 +77,8 @@ public class VerifyFaceTask implements Callable<FaceData> {
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
 			FaceDetectionService.getInstance().stopCheckingFace();
+			RunningStatus.getInstance().getIdReaderCondition().signal();
+
 		}
 
 		return fd;

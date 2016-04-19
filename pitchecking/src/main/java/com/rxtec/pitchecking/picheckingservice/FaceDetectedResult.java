@@ -401,7 +401,7 @@ public class FaceDetectedResult {
 		this.expression = expression;
 	}
 	
-	private byte[] imageBytes;
+	private byte[] frameImageBytes;
 	private byte[] extractImageBytes;
 
 
@@ -415,12 +415,12 @@ public class FaceDetectedResult {
 		this.extractImageBytes = extractImageBytes;
 	}
 
-	public byte[] getImageBytes() {
-		return imageBytes;
+	public byte[] getFrameImageBytes() {
+		return frameImageBytes;
 	}
 
-	public void setImageBytes(byte[] imageBytes) {
-		this.imageBytes = imageBytes;
+	public void setFrameImageBytes(byte[] imageBytes) {
+		this.frameImageBytes = imageBytes;
 	}
 
 //	private float faceRoll;					// 脸旋转角度
@@ -445,10 +445,14 @@ public class FaceDetectedResult {
 		sb.append(this.hashCode());
 		sb.append("  是否检测到人脸：");
 		sb.append(this.isHasface());
-		sb.append("  是否眼睛正视前方：");
-		sb.append(this.isEyesfrontal());
+		sb.append("  是否面部模糊：");
+		sb.append(this.isFaceblur());
 		sb.append("  是否正脸：");
 		sb.append(this.isFacefrontal());
+		sb.append("  是否眼睛正视前方：");
+		sb.append(this.isEyesfrontal());
+		sb.append("  是否闭眼：");
+		sb.append(!this.isEyesopen());
 		sb.append("  是否表情自然：");
 		sb.append(this.isExpression());
 		return sb.toString();

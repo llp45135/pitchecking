@@ -20,7 +20,7 @@ import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
-import com.rxtec.pitchecking.picheckingservice.FaceDetectLocaltionJniEntry;
+import com.rxtec.pitchecking.picheckingservice.FaceDetectByPixelJNIEntryClone;
 import com.rxtec.pitchecking.picheckingservice.IDCard;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -313,7 +313,7 @@ public class IDCardDevice {
 			readBaseMsgJNative.invoke();
 			retval = readBaseMsgJNative.getRetVal();
 			if (retval.equals("0")) {
-				log.debug("读取二代身份证成功！");
+//				log.debug("读取二代身份证成功！");
 				synIDCard = new IDCard();
 
 				int count = chlenPointer.getSize();
@@ -341,122 +341,122 @@ public class IDCardDevice {
 				Info[1].getChars(1, 3, nationChar, 0);
 				String nationStr = "";
 				nationStr = String.valueOf(nationChar);
-				if (nationStr.equals("01"))
-					log.debug("汉");
-				else if (nationStr.equals("02"))
-					log.debug("蒙古族");
-				else if (nationStr.equals("03"))
-					log.debug("回族");
-				else if (nationStr.equals("04"))
-					log.debug("藏族");
-				else if (nationStr.equals("05"))
-					log.debug("维吾尔族");
-				else if (nationStr.equals("06"))
-					log.debug("苗族");
-				else if (nationStr.equals("07"))
-					log.debug("彝族");
-				else if (nationStr.equals("08"))
-					log.debug("壮族");
-				else if (nationStr.equals("09"))
-					log.debug("布依族");
-				else if (nationStr.equals("10"))
-					log.debug("朝鲜族");
-				else if (nationStr.equals("11"))
-					log.debug("满族");
-				else if (nationStr.equals("12"))
-					log.debug("侗族");
-				else if (nationStr.equals("13"))
-					log.debug("瑶族");
-				else if (nationStr.equals("14"))
-					log.debug("白族");
-				else if (nationStr.equals("15"))
-					log.debug("土家族");
-				else if (nationStr.equals("16"))
-					log.debug("哈尼族");
-				else if (nationStr.equals("17"))
-					log.debug("哈萨克族");
-				else if (nationStr.equals("18"))
-					log.debug("傣族");
-				else if (nationStr.equals("19"))
-					log.debug("黎族");
-				else if (nationStr.equals("20"))
-					log.debug("傈僳族");
-				else if (nationStr.equals("21"))
-					log.debug("佤族");
-				else if (nationStr.equals("22"))
-					log.debug("畲族");
-				else if (nationStr.equals("23"))
-					log.debug("高山族");
-				else if (nationStr.equals("24"))
-					log.debug("拉祜族");
-				else if (nationStr.equals("25"))
-					log.debug("水族");
-				else if (nationStr.equals("26"))
-					log.debug("东乡族");
-				else if (nationStr.equals("27"))
-					log.debug("纳西族");
-				else if (nationStr.equals("28"))
-					log.debug("景颇族");
-				else if (nationStr.equals("29"))
-					log.debug("柯尔克孜族");
-				else if (nationStr.equals("30"))
-					log.debug("土族");
-				else if (nationStr.equals("31"))
-					log.debug("达翰尔族");
-				else if (nationStr.equals("32"))
-					log.debug("仫佬族");
-				else if (nationStr.equals("33"))
-					log.debug("羌族");
-				else if (nationStr.equals("34"))
-					log.debug("布朗族");
-				else if (nationStr.equals("35"))
-					log.debug("撒拉族");
-				else if (nationStr.equals("36"))
-					log.debug("毛南族");
-				else if (nationStr.equals("37"))
-					log.debug("仡佬族");
-				else if (nationStr.equals("38"))
-					log.debug("锡伯族");
-				else if (nationStr.equals("39"))
-					log.debug("阿昌族");
-				else if (nationStr.equals("40"))
-					log.debug("普米族");
-				else if (nationStr.equals("41"))
-					log.debug("哈萨克族");
-				else if (nationStr.equals("42"))
-					log.debug("怒族");
-				else if (nationStr.equals("43"))
-					log.debug("乌孜别克族");
-				else if (nationStr.equals("44"))
-					log.debug("俄罗斯族");
-				else if (nationStr.equals("45"))
-					log.debug("鄂温克族");
-				else if (nationStr.equals("46"))
-					log.debug("德昂族");
-				else if (nationStr.equals("47"))
-					log.debug("保安族");
-				else if (nationStr.equals("48"))
-					log.debug("裕固族");
-				else if (nationStr.equals("49"))
-					log.debug("京族");
-				else if (nationStr.equals("50"))
-					log.debug("塔塔尔族");
-				else if (nationStr.equals("51"))
-					log.debug("独龙族");
-				else if (nationStr.equals("52"))
-					log.debug("鄂伦春族");
-				else if (nationStr.equals("53"))
-					log.debug("赫哲族");
-				else if (nationStr.equals("54"))
-					log.debug("门巴族");
-				else if (nationStr.equals("55"))
-					log.debug("珞巴族");
-				else if (nationStr.equals("56"))
-					log.debug("基诺族");
-				else if (nationStr.equals("57"))
-					log.debug("其它");
-				else if (nationStr.equals("98"))
-					log.debug("外国人入籍");
+//				if (nationStr.equals("01"))
+////					log.debug("汉");
+//				else if (nationStr.equals("02"))
+//					log.debug("蒙古族");
+//				else if (nationStr.equals("03"))
+//					log.debug("回族");
+//				else if (nationStr.equals("04"))
+//					log.debug("藏族");
+//				else if (nationStr.equals("05"))
+//					log.debug("维吾尔族");
+//				else if (nationStr.equals("06"))
+//					log.debug("苗族");
+//				else if (nationStr.equals("07"))
+//					log.debug("彝族");
+//				else if (nationStr.equals("08"))
+//					log.debug("壮族");
+//				else if (nationStr.equals("09"))
+//					log.debug("布依族");
+//				else if (nationStr.equals("10"))
+//					log.debug("朝鲜族");
+//				else if (nationStr.equals("11"))
+//					log.debug("满族");
+//				else if (nationStr.equals("12"))
+//					log.debug("侗族");
+//				else if (nationStr.equals("13"))
+//					log.debug("瑶族");
+//				else if (nationStr.equals("14"))
+//					log.debug("白族");
+//				else if (nationStr.equals("15"))
+//					log.debug("土家族");
+//				else if (nationStr.equals("16"))
+//					log.debug("哈尼族");
+//				else if (nationStr.equals("17"))
+//					log.debug("哈萨克族");
+//				else if (nationStr.equals("18"))
+//					log.debug("傣族");
+//				else if (nationStr.equals("19"))
+//					log.debug("黎族");
+//				else if (nationStr.equals("20"))
+//					log.debug("傈僳族");
+//				else if (nationStr.equals("21"))
+//					log.debug("佤族");
+//				else if (nationStr.equals("22"))
+//					log.debug("畲族");
+//				else if (nationStr.equals("23"))
+//					log.debug("高山族");
+//				else if (nationStr.equals("24"))
+//					log.debug("拉祜族");
+//				else if (nationStr.equals("25"))
+//					log.debug("水族");
+//				else if (nationStr.equals("26"))
+//					log.debug("东乡族");
+//				else if (nationStr.equals("27"))
+//					log.debug("纳西族");
+//				else if (nationStr.equals("28"))
+//					log.debug("景颇族");
+//				else if (nationStr.equals("29"))
+//					log.debug("柯尔克孜族");
+//				else if (nationStr.equals("30"))
+//					log.debug("土族");
+//				else if (nationStr.equals("31"))
+//					log.debug("达翰尔族");
+//				else if (nationStr.equals("32"))
+//					log.debug("仫佬族");
+//				else if (nationStr.equals("33"))
+//					log.debug("羌族");
+//				else if (nationStr.equals("34"))
+//					log.debug("布朗族");
+//				else if (nationStr.equals("35"))
+//					log.debug("撒拉族");
+//				else if (nationStr.equals("36"))
+//					log.debug("毛南族");
+//				else if (nationStr.equals("37"))
+//					log.debug("仡佬族");
+//				else if (nationStr.equals("38"))
+//					log.debug("锡伯族");
+//				else if (nationStr.equals("39"))
+//					log.debug("阿昌族");
+//				else if (nationStr.equals("40"))
+//					log.debug("普米族");
+//				else if (nationStr.equals("41"))
+//					log.debug("哈萨克族");
+//				else if (nationStr.equals("42"))
+//					log.debug("怒族");
+//				else if (nationStr.equals("43"))
+//					log.debug("乌孜别克族");
+//				else if (nationStr.equals("44"))
+//					log.debug("俄罗斯族");
+//				else if (nationStr.equals("45"))
+//					log.debug("鄂温克族");
+//				else if (nationStr.equals("46"))
+//					log.debug("德昂族");
+//				else if (nationStr.equals("47"))
+//					log.debug("保安族");
+//				else if (nationStr.equals("48"))
+//					log.debug("裕固族");
+//				else if (nationStr.equals("49"))
+//					log.debug("京族");
+//				else if (nationStr.equals("50"))
+//					log.debug("塔塔尔族");
+//				else if (nationStr.equals("51"))
+//					log.debug("独龙族");
+//				else if (nationStr.equals("52"))
+//					log.debug("鄂伦春族");
+//				else if (nationStr.equals("53"))
+//					log.debug("赫哲族");
+//				else if (nationStr.equals("54"))
+//					log.debug("门巴族");
+//				else if (nationStr.equals("55"))
+//					log.debug("珞巴族");
+//				else if (nationStr.equals("56"))
+//					log.debug("基诺族");
+//				else if (nationStr.equals("57"))
+//					log.debug("其它");
+//				else if (nationStr.equals("98"))
+//					log.debug("外国人入籍");
 				String BirthyearStr = "";
 				char[] BirthyearChar = new char[4];
 				Info[1].getChars(3, 7, BirthyearChar, 0);
@@ -469,23 +469,23 @@ public class IDCardDevice {
 				char[] BirthdateChar = new char[2];
 				Info[1].getChars(9, 11, BirthdateChar, 0);
 				BirthdateStr = String.valueOf(BirthdateChar);
-				log.debug("出生年月：" + BirthyearStr + "年" + BirthmonthStr + "月" + BirthdateStr + "日");
+//				log.debug("出生年月：" + BirthyearStr + "年" + BirthmonthStr + "月" + BirthdateStr + "日");
 				char[] addressChar = new char[Info[1].length() - 11];
 				String addressStr = "";
 				Info[1].getChars(11, Info[1].length(), addressChar, 0);
 				addressStr = String.valueOf(addressChar);
-				log.debug("住址：" + addressStr);
+//				log.debug("住址：" + addressStr);
 				char[] INNChar = new char[18];
 				Info[2].getChars(0, 18, INNChar, 0);
 				String IDCardNoStr = "";
 				IDCardNoStr = String.valueOf(INNChar);
-				log.debug("身份证号：" + IDCardNoStr);
+//				log.debug("身份证号：" + IDCardNoStr);
 				synIDCard.setIdNo(IDCardNoStr); // setIdNo
 				char[] issueChar = new char[Info[2].length() - 18];
 				Info[2].getChars(18, Info[2].length(), issueChar, 0);
 				String issueStr = "";
 				issueStr = String.valueOf(issueChar);
-				log.debug("签发机关：" + issueStr);
+//				log.debug("签发机关：" + issueStr);
 				char[] startyearChar = new char[4];
 				Info[3].getChars(0, 4, startyearChar, 0);
 				String startyearStr = "";
@@ -498,7 +498,7 @@ public class IDCardDevice {
 				Info[3].getChars(6, 8, startdateChar, 0);
 				String startdateStr = "";
 				startdateStr = String.valueOf(startdateChar);
-				log.debug(startyearStr + "年" + startmonthStr + "月" + startdateStr + "日");
+//				log.debug(startyearStr + "年" + startmonthStr + "月" + startdateStr + "日");
 				char[] endyearChar = new char[4];
 				Info[3].getChars(8, 12, endyearChar, 0);
 				String endyearStr = "";
@@ -511,7 +511,7 @@ public class IDCardDevice {
 				Info[3].getChars(14, 16, enddateChar, 0);
 				String enddateStr = "";
 				enddateStr = String.valueOf(enddateChar);
-				log.debug(endyearStr + "年" + endmonthStr + "月" + enddateStr + "日");
+//				log.debug(endyearStr + "年" + endmonthStr + "月" + enddateStr + "日");
 
 				// 读相片数据
 				int count1 = phlenPointer.getSize();
@@ -535,7 +535,7 @@ public class IDCardDevice {
 				BmpJN.setRetVal(Type.INT);
 				BmpJN.invoke();
 				bmpretval = BmpJN.getRetVal();
-				log.debug("GetBmp: bmpretval==" + bmpretval);// 获取返回值
+//				log.debug("GetBmp: bmpretval==" + bmpretval);// 获取返回值
 
 				CommUtil.bmpTojpg("zp.bmp", "zp.jpg");
 
@@ -543,7 +543,7 @@ public class IDCardDevice {
 				image = ImageIO.read(new File("zp.jpg"));
 				synIDCard.setCardImage(image);
 
-				log.debug("相片解码成功！");
+//				log.debug("相片解码成功！");
 			} else {
 				log.debug("相片解码不成功！请重试!!");
 			}

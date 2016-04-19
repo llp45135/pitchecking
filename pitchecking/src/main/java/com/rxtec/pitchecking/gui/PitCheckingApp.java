@@ -1,6 +1,6 @@
 package com.rxtec.pitchecking.gui;
 
-import java.util.concurrent.ExecutorService;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -14,6 +14,7 @@ import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceData;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
+import com.rxtec.pitchecking.task.RunningStatus;
 
 /**
  * 人证识别自动验票软件主入口
@@ -39,11 +40,7 @@ public class PitCheckingApp {
 			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
 			
 			eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
-//			eventListener.startListenEvent();
-
 			
-			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-			scheduler.scheduleWithFixedDelay(eventListener, 0, 100, TimeUnit.MILLISECONDS);
 		
 		} catch (VideoCaptureException e) {
 			// TODO Auto-generated catch block
@@ -51,11 +48,14 @@ public class PitCheckingApp {
 		}
 		
 		eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
+		
+		
 //		eventListener.startListenEvent();
 
 		
-//		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-//		scheduler.scheduleWithFixedDelay(eventListener, 0, 100, TimeUnit.MILLISECONDS);
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.scheduleWithFixedDelay(eventListener, 0, 100, TimeUnit.MILLISECONDS);
+
 
 	}
 

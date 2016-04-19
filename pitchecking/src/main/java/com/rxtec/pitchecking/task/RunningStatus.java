@@ -57,5 +57,14 @@ public class RunningStatus {
 	
 	
 
+	public void signalIDReader(){
+		if (idReaderLock.tryLock()) {
+			try {
+				idReaderCondition.signal();
+			} finally {
+				idReaderLock.unlock();
+			}
+		}
+	}
 	
 }

@@ -102,6 +102,8 @@ public class FaceDetectionService {
 	 * @param frame
 	 */
 	private void offerFrame(MBFImage frame) {
+		
+		
 		if(!frameImageQueue.offer(frame)){
 			frameImageQueue.poll();
 			frameImageQueue.offer(frame);
@@ -127,7 +129,7 @@ public class FaceDetectionService {
 		FaceDetectTask detectTask = new FaceDetectTask();
 		ExecutorService executer = Executors.newCachedThreadPool();
 		executer.execute(trackTask);
-		executer.execute(detectTask);
+//		executer.execute(detectTask);
 	}
 
 	int frameCounter = 0;
@@ -137,11 +139,11 @@ public class FaceDetectionService {
 
 		final Video<MBFImage> video;
 		if (Config.getInstance().getRoateCapture()==1)
-			video = new RotationVideoCapture(768, 768);
+			video = new RotationVideoCapture(640, 480);
 		else
-			video = new VideoCapture(768, 768);
+			video = new VideoCapture(640,480);
 
-		video.setCurrentFrameIndex(1);
+		video.setCurrentFrameIndex(30);
 		VideoDisplay<MBFImage> vd = VideoDisplay.createVideoDisplay(video, videoPanel);
 		vd.addVideoListener(new VideoDisplayListener<MBFImage>() {
 			@Override

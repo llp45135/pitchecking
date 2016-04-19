@@ -112,8 +112,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		
 		
 		videoPanel.setBorder(new LineBorder(Color.GREEN));
-		videoPanel.setMinimumSize(new Dimension(768, 568));
-		videoPanel.setMaximumSize(new Dimension(768, 568));
+		videoPanel.setMinimumSize(new Dimension(640, 480));
+		videoPanel.setMaximumSize(new Dimension(640, 480));
 
 		panel_center.add(Box.createHorizontalStrut(100));  
 		panel_center.add(panel_idCardImage);

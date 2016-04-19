@@ -9,7 +9,6 @@ import java.util.concurrent.Executors;
 
 import javax.imageio.ImageIO;
 
-import org.jfree.util.Log;
 import org.openimaj.image.ImageUtilities;
 import org.openimaj.image.MBFImage;
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.utils.CommUtil;
 
-public class FaceDetectByPixelJNIEntry {
+public class FaceDetectByPixelJNIEntryClone  {
 
 	JNative FGDetectInitSDK = null;
 	JNative FGDetectCreateHandleFromFile = null;
@@ -80,26 +79,52 @@ public class FaceDetectByPixelJNIEntry {
 				}
 			}
 		};
+		Runnable run2 = new Runnable() {
 
+			@Override
+			public void run() {
+
+				while (true) {
+					// TODO Auto-generated method stub
+					byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/2008-08-16 11-16-49.jpg");
+					FaceDetectedResult fdr = new FaceDetectedResult();
+					fdr.setFrameImageBytes(imgBytes);
+
+					MBFImage mbf = null;
+					try {
+						BufferedImage bi = ImageIO.read(new File("C:/pitchecking/2008-08-16 11-16-49.jpg"));
+						mbf = ImageUtilities.createMBFImage(bi, false);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					FaceData fd = new FaceData(mbf,mbf, fdr);
+					FaceDetectByPixelJNIEntry detecter = FaceDetectByPixelJNIEntry.getInstance();
+					detecter.detectFaceImage(fd);
+//					System.out.println(fd.getFaceDetectedResult());
+				}
+			}
+		};
 		ExecutorService executer = Executors.newCachedThreadPool();
 		executer.execute(run1);
+//		executer.execute(run2);
 		
 
 		
 		
 	}
 
-	private static FaceDetectByPixelJNIEntry instance = null;
+	private static FaceDetectByPixelJNIEntryClone instance = null;
 
-	public static synchronized FaceDetectByPixelJNIEntry getInstance() {
+	public static synchronized FaceDetectByPixelJNIEntryClone getInstance() {
 		if (instance == null) {
-			instance = new FaceDetectByPixelJNIEntry();
+			instance = new FaceDetectByPixelJNIEntryClone();
 		}
 
 		return instance;
 	}
 
-	private FaceDetectByPixelJNIEntry() {
+	private FaceDetectByPixelJNIEntryClone() {
 		JNative.setLoggingEnabled(false);
 		/**
 		 * 初始化SDK
@@ -111,7 +136,7 @@ public class FaceDetectByPixelJNIEntry {
 	private int initJNIContext() {
 		int result = 0;
 		try {
-			FGDetectInitSDK = new JNative("DetectSDK.dll", "FGDetectInitSDK");
+			FGDetectInitSDK = new JNative("DetectSDKClone.dll", "FGDetectInitSDK");
 			FGDetectInitSDK.setRetVal(Type.INT);
 			FGDetectInitSDK.invoke();
 			log.debug("FGDetectInitSDK:" + FGDetectInitSDK.getRetValAsInt());
@@ -121,9 +146,9 @@ public class FaceDetectByPixelJNIEntry {
 				Pointer handle = new Pointer(MemoryBlockFactory.createMemoryBlock(4));
 				handle.setIntAt(0, 0);
 				int i = 0;
-				FGDetectImageFaceLocation = new JNative("DetectSDK.dll", "FGDetectImageFaceLocation");
+				FGDetectImageFaceLocation = new JNative("DetectSDKClone.dll", "FGDetectImageFaceLocation");
 
-				FGDetectCreateHandleFromFile = new JNative("DetectSDK.dll", "FGDetectCreateHandleFromFile");
+				FGDetectCreateHandleFromFile = new JNative("DetectSDKClone.dll", "FGDetectCreateHandleFromFile");
 				FGDetectCreateHandleFromFile.setRetVal(Type.INT);
 				FGDetectCreateHandleFromFile.setParameter(i++, handle);
 				FGDetectCreateHandleFromFile.setParameter(i++, Type.STRING, "c:/pitchecking/FaceDetection.flt");
@@ -132,10 +157,10 @@ public class FaceDetectByPixelJNIEntry {
 				JNIHandle = handle.getAsInt(0);
 				handle.dispose();
 				if (FGDetectCreateHandleFromFile.getRetValAsInt() == 0) {
-					FGDetectSImageQuality = new JNative("DetectSDK.dll", "FGDetectSImageQuality");
-					FGDetectSGetFacePoint = new JNative("DetectSDK.dll", "FGDetectSGetFacePoint");
-					FGDetectSGetResult = new JNative("DetectSDK.dll", "FGDetectSGetResult");
-					FGDetectSGetAssess = new JNative("DetectSDK.dll", "FGDetectSGetAssess");
+					FGDetectSImageQuality = new JNative("DetectSDKClone.dll", "FGDetectSImageQuality");
+					FGDetectSGetFacePoint = new JNative("DetectSDKClone.dll", "FGDetectSGetFacePoint");
+					FGDetectSGetResult = new JNative("DetectSDKClone.dll", "FGDetectSGetResult");
+					FGDetectSGetAssess = new JNative("DetectSDKClone.dll", "FGDetectSGetAssess");
 					result = 1;
 				} else
 					result = -1;
@@ -217,7 +242,7 @@ public class FaceDetectByPixelJNIEntry {
 
 	public void detectFaceImageQuality(FaceData fd) {
 		FaceDetectedResult fdr = fd.getFaceDetectedResult();
-		byte[] imgBytes = fdr.getFrameImageBytes();
+			byte[] imgBytes = fdr.getFrameImageBytes();
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 

@@ -117,7 +117,7 @@ public class DeviceEventListener implements Runnable{
 
 	@Override
 	public void run() {
-		log.debug("消费者准备消费event");
+//		log.debug("消费者准备消费event");
 		IDeviceEvent e;
 		try {
 			e = deviceEventQueue.take();

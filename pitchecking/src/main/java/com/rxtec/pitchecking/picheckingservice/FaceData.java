@@ -47,8 +47,22 @@ public class FaceData {
 		return faceDetectedResult;
 	}
 
-	public void setFaceDetectedResult(FaceDetectedResult faceDetectedResult) {
-		this.faceDetectedResult = faceDetectedResult;
+	public void setFaceDetectedResult(FaceDetectedResult fdr) {
+		this.faceDetectedResult = fdr;
+		this.faceX = fdr.getX();
+		this.faceY = fdr.getY();
+		this.faceWidth = fdr.getWidth();
+		this.faceHeight = fdr.getHeight();
+		
+	}
+	
+	public void updateFaceLocation(){
+		this.faceX = faceDetectedResult.getX();
+		this.faceY = faceDetectedResult.getY();
+		this.faceWidth = faceDetectedResult.getWidth();
+		this.faceHeight = faceDetectedResult.getHeight();
+		if(faceWidth>50 && faceHeight>50) this.isDetectedFace = true;
+		
 	}
 
 	public MBFImage getFrame() {
@@ -93,6 +107,7 @@ public class FaceData {
 
 	public void setFaceCheckResult(float faceCheckResult) {
 		this.faceCheckResult = faceCheckResult;
+		
 	}
 
 	public FaceData(MBFImage fm, DetectedFace fc) {
@@ -159,7 +174,9 @@ public class FaceData {
 	private int faceHeight;
 
 	public byte[] getExtractFaceImageBytes(boolean isSaveToDisk) {
-
+		if(this.faceWidth ==0 || this.faceHeight ==0) return null;
+		
+		if(extractFrame == null) this.extractFrame(this.frame);
 		BufferedImage bi = ImageUtilities.createBufferedImageForDisplay(extractFrame);
 		bi = ImageToolkit.scale(bi,120,140,true);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();

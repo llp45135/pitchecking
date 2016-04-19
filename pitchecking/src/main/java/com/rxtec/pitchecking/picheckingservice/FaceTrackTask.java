@@ -22,7 +22,7 @@ public class FaceTrackTask implements Runnable {
 	// private FaceDetectLocaltionJniEntry faceDetecter = new
 	// FaceDetectLocaltionJniEntry();
 //	private FaceDetectByPixelJNIEntry faceDetecter = FaceDetectByPixelJNIEntry.getInstance();
-	private FaceDetectLocaltionJniEntry faceDetecter = FaceDetectLocaltionJniEntry.getInstance();
+	private FaceDetectByPixelJNIEntryClone faceDetecter = FaceDetectByPixelJNIEntryClone.getInstance();
 	
 	private Logger log = LoggerFactory.getLogger("FaceDetectionTask");
 	Calendar cal = Calendar.getInstance();
@@ -33,35 +33,62 @@ public class FaceTrackTask implements Runnable {
 		while (true) {
 			
 
-			MBFImage frame = null;
 			try {
 				Thread.sleep(50);
-				frame = FaceDetectionService.getInstance().takeFrameImage();
-				
-				if (frame != null) {
-
-					byte[] bytes = convertImage(frame);
-					if (bytes == null) continue;
-
-					FaceDetectedResult result = new FaceDetectedResult();
-					result.setImageBytes(bytes);
-					faceDetecter.detectFaceLocation(result);
-
-					
-//					faceDetecter.detectFaceImage(result);
-					
-					FaceData fd = new FaceData(frame, result);
-//					if (detectQuality(fd))
-//						FaceDetectionService.getInstance().offerTrackedFaceData(fd);
-					
-					if(fd.isDetectedFace())						
-						FaceDetectionService.getInstance().offerTrackedFaceData(fd);
-				}
+				detectFaceImage();
+//				detectFaceLocation();
 			} catch (InterruptedException e) {
 				log.error("FaceTrackTask ",e);
 			}
 
 		}
+	}
+	
+	
+	private void detectFaceLocation(){
+		MBFImage frame = null;
+		try {
+			frame = FaceDetectionService.getInstance().takeFrameImage();
+			if (frame != null) {
+				byte[] bytes = convertImage(frame);
+				if (bytes == null) return;
+
+				FaceDetectedResult result = new FaceDetectedResult();
+				result.setFrameImageBytes(bytes);
+				FaceData fd = new FaceData(frame, result);
+				faceDetecter.detectFaceLocation(fd);
+
+				if(fd.isDetectedFace())
+					FaceDetectionService.getInstance().offerTrackedFaceData(fd);
+			}
+		} catch (InterruptedException e) {
+			log.error("FaceTrackTask ",e);
+		}
+
+	}
+
+	
+	private void detectFaceImage(){
+		MBFImage frame = null;
+		try {
+			frame = FaceDetectionService.getInstance().takeFrameImage();
+			if (frame != null) {
+				byte[] bytes = convertImage(frame);
+				if (bytes == null) return;
+
+				FaceDetectedResult result = new FaceDetectedResult();
+				result.setFrameImageBytes(bytes);
+				FaceData fd = new FaceData(frame, result);
+				faceDetecter.detectFaceImage(fd);
+
+				if(detectQuality(fd)&&fd.isDetectedFace())
+					FaceDetectionService.getInstance().offerTrackedFaceData(fd);
+					FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+			}
+		} catch (InterruptedException e) {
+			log.error("FaceTrackTask ",e);
+		}
+
 	}
 
 	private byte[] convertImage(MBFImage frame) {
