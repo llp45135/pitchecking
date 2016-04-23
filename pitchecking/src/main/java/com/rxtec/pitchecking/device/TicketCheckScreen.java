@@ -87,7 +87,7 @@ public class TicketCheckScreen {
 	
 	private void processEventByType(ScreenElementModifyEvent e){
 		if(e.getElementType() == 1){
-			log.debug("收到Face屏幕事件，重画屏幕");
+//			log.debug("收到Face屏幕事件，重画屏幕");
 			ImageIcon icon = new ImageIcon(e.getIdCard().getCardImage());
 			faceFrame.showIDCardImage(icon);
 

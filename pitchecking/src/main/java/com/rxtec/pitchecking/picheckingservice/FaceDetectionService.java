@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking.picheckingservice;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -8,8 +9,16 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JPanel;
 
+import org.openimaj.image.FImage;
 import org.openimaj.image.MBFImage;
 import org.openimaj.image.colour.RGBColour;
+import org.openimaj.image.colour.Transforms;
+import org.openimaj.image.processing.face.detection.FaceDetector;
+import org.openimaj.image.processing.face.detection.keypoints.FKEFaceDetector;
+import org.openimaj.image.processing.face.detection.keypoints.FacialKeypoint;
+import org.openimaj.image.processing.face.detection.keypoints.KEDetectedFace;
+import org.openimaj.image.processing.face.tracking.clm.CLMFaceTracker;
+import org.openimaj.math.geometry.shape.Rectangle;
 import org.openimaj.video.Video;
 import org.openimaj.video.VideoDisplay;
 import org.openimaj.video.VideoDisplayListener;
@@ -144,18 +153,38 @@ public class FaceDetectionService {
 			video = new VideoCapture(640,480);
 
 		video.setCurrentFrameIndex(30);
+//		final CLMFaceTracker tracker = new CLMFaceTracker();
+		
+		final FaceDetector<KEDetectedFace,FImage> fd = new FKEFaceDetector(100);
+
 		VideoDisplay<MBFImage> vd = VideoDisplay.createVideoDisplay(video, videoPanel);
 		vd.addVideoListener(new VideoDisplayListener<MBFImage>() {
 			@Override
 			public void beforeUpdate(MBFImage frame) {
-
 				offerFrame(frame.clone());
+
+//				List<KEDetectedFace> faces = fd.detectFaces( Transforms.calculateIntensity( frame ) );
+//				for(KEDetectedFace keFace : faces){
+//					Rectangle r = keFace.getBounds();
+//					frame.drawShape(r , RGBColour.RED );
+//					for(FacialKeypoint p : keFace.getKeypoints()){
+//						p.position.translate((float)r.minX(), (float)r.minY()); 
+//						frame.drawPoint(p.position, RGBColour.GREEN, 3);
+//					}
+//				}
+				
+				
+				
 				FaceData face = pollTrackedFaceData();
 				
 				if (face != null) {
 					offerWaitForDetectedFaceData(face);
 					frame.drawShape(face.getFaceBounds(), RGBColour.RED);
 				}
+				
+//				tracker.track(frame);
+//
+//				tracker.drawModel(frame, true, true, true, true, true);
 			}
 
 			@Override

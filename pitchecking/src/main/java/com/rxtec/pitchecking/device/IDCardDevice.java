@@ -241,7 +241,7 @@ public class IDCardDevice {
 			//log.debug("Syn_StartFindIDCard: retval==" + retval);// 获取返回值
 			// log.debug("Syn_StartFindIDCard: pucIIN==" + pucIIN);// 获取返回值
 			if (retval.equals("0")) {
-				log.debug("已找到二代身份证");
+//				log.debug("已找到二代身份证");
 			}
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block

@@ -423,7 +423,7 @@ public class FaceDetectByPixelJNIEntryClone  {
 		this.detectFaceLocation(fd);
 		this.detectFaceImageQuality(fd);
 		long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-		log.debug("detectFaceImage using:" + usingTime + " ret=" + fd.getFaceDetectedResult());
+//		log.debug("detectFaceImage using:" + usingTime + " ret=" + fd.getFaceDetectedResult());
 
 	}
 

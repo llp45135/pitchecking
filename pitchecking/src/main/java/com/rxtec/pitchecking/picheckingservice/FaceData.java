@@ -53,16 +53,17 @@ public class FaceData {
 		this.faceY = fdr.getY();
 		this.faceWidth = fdr.getWidth();
 		this.faceHeight = fdr.getHeight();
-		
+
 	}
-	
-	public void updateFaceLocation(){
+
+	public void updateFaceLocation() {
 		this.faceX = faceDetectedResult.getX();
 		this.faceY = faceDetectedResult.getY();
 		this.faceWidth = faceDetectedResult.getWidth();
 		this.faceHeight = faceDetectedResult.getHeight();
-		if(faceWidth>50 && faceHeight>50) this.isDetectedFace = true;
-		
+		if (faceWidth > 50 && faceHeight > 50)
+			this.isDetectedFace = true;
+
 	}
 
 	public MBFImage getFrame() {
@@ -107,7 +108,7 @@ public class FaceData {
 
 	public void setFaceCheckResult(float faceCheckResult) {
 		this.faceCheckResult = faceCheckResult;
-		
+
 	}
 
 	public FaceData(MBFImage fm, DetectedFace fc) {
@@ -131,9 +132,7 @@ public class FaceData {
 
 	}
 
-	
-	
-	public FaceData(MBFImage fm,MBFImage extractFrame,FaceDetectedResult fdr){
+	public FaceData(MBFImage fm, MBFImage extractFrame, FaceDetectedResult fdr) {
 		this.frame = fm;
 		this.extractFrame = extractFrame;
 		this.faceDetectedResult = fdr;
@@ -146,7 +145,6 @@ public class FaceData {
 		this.faceY = fdr.getY();
 		this.faceWidth = fdr.getWidth();
 		this.faceHeight = fdr.getHeight();
-		
 
 		// this.faceX = fdr.getHeadLeft();
 		// this.faceY = fdr.getHeadTop();
@@ -155,7 +153,7 @@ public class FaceData {
 
 		if (this.faceWidth < 50)
 			this.isDetectedFace = false;
-		else{
+		else {
 			this.isDetectedFace = true;
 			extractFrame(fm);
 			fdr.setExtractImageBytes(getExtractFaceImageBytes(false));
@@ -174,11 +172,13 @@ public class FaceData {
 	private int faceHeight;
 
 	public byte[] getExtractFaceImageBytes(boolean isSaveToDisk) {
-		if(this.faceWidth ==0 || this.faceHeight ==0) return null;
-		
-		if(extractFrame == null) this.extractFrame(this.frame);
+		if (this.faceWidth == 0 || this.faceHeight == 0)
+			return null;
+
+		if (extractFrame == null)
+			this.extractFrame(this.frame);
 		BufferedImage bi = ImageUtilities.createBufferedImageForDisplay(extractFrame);
-		bi = ImageToolkit.scale(bi,120,140,true);
+		bi = ImageToolkit.scale(bi, 120, 140, true);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		try {
 			ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(os));
@@ -188,38 +188,30 @@ public class FaceData {
 			return null;
 		}
 		if (isSaveToDisk) {
-			saveIDCardImageToDisk();
 			saveExtractFaceImageToDisk(bi);
 		}
 		return os.toByteArray();
 	}
 
-	private void saveIDCardImageToDisk() {
+	private void saveIDCardImageToDisk(String dirName) {
 		if (idCard == null || idCard.getCardImage() == null || idCard.getIdNo() == null)
 			return;
-		BufferedImage bi = idCard.getCardImage();
-		String dirName = Config.getInstance().getImagesLogDir();
-		int ret = CommUtil.createDir(dirName);
-		if (ret == 0 || ret == 1) {
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-			String toDayDir = formatter.format(new Date());
-			ret = CommUtil.createDir(dirName + toDayDir);
-			if (ret == 0 || ret == 1) {
-				StringBuffer sb = new StringBuffer();
-				sb.append(dirName);
-				sb.append(toDayDir);
-				sb.append("/");
-				sb.append(idCard.getIdNo().hashCode());
-				sb.append(".jpg");
-				String fn = sb.toString();
-				try {
-					ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					Log.error("saveToImagesLogFile failed", e);
-				}
-			}
+		String fn = dirName + idCard.getIdNo().hashCode() + ".jpg";
+		
+		Log.debug(fn);
+		if(dirName == null){
+			Log.error("saveIDCardImageToDisk failed,logDir is not exist");
+			return;
 		}
+		BufferedImage bi = idCard.getCardImage();
+		try {
+			ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			Log.error("saveToImagesLogFile failed", e);
+		}
+
+
 	}
 
 	private void saveExtractFaceImageToDisk(BufferedImage bi) {
@@ -229,6 +221,7 @@ public class FaceData {
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 			String toDayDir = formatter.format(new Date());
 			ret = CommUtil.createDir(dirName + toDayDir);
+
 			if (ret == 0 || ret == 1) {
 				formatter = new SimpleDateFormat("hh-mm-ss-SSS");
 				StringBuffer sb = new StringBuffer();
@@ -248,6 +241,63 @@ public class FaceData {
 				}
 			}
 		}
+	}
+
+	
+	
+	public void saveVerifyFaceImageToDisk(String type) {
+		String dirName = getFaceDataLogDir(type);
+		if(dirName == null){
+			Log.error("saveVerifyFaceImageToDisk failed,logDir is not exist");
+			return;
+		}
+		saveIDCardImageToDisk(dirName);
+		if (extractFrame == null)
+			this.extractFrame(this.frame);
+		BufferedImage bi = ImageUtilities.createBufferedImageForDisplay(extractFrame);
+		SimpleDateFormat formatter = new SimpleDateFormat("hh-mm-ss-SSS");
+
+		StringBuffer sb = new StringBuffer();
+		sb.append(dirName);
+		sb.append(idCard.getIdNo().hashCode());
+		sb.append("@");
+		sb.append(formatter.format(new Date()));
+		sb.append("@");
+		sb.append(String.format("%.2f", this.faceCheckResult));
+		sb.append(".jpg");
+		String fn = sb.toString();
+		Log.debug(fn);
+
+		try {
+			ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(new File(fn)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			Log.error("saveToImagesLogFile failed", e);
+		}
+	}
+	
+	
+	private String getFaceDataLogDir(String type){
+		String dirName = Config.getInstance().getImagesLogDir();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+		String toDayDir = formatter.format(new Date());
+		String passedDir = "/Passed/";
+		String failedDir = "/Failed/";
+		String dnPassed = dirName + toDayDir + passedDir;
+		String dnFailed = dirName + toDayDir + failedDir;
+		
+		int ret = CommUtil.createDir(dnPassed);
+		if (ret != 0 && ret != 1) {
+			dnPassed = null;
+		}
+
+		ret = CommUtil.createDir(dnFailed);
+		if (ret != 0 && ret != 1) {
+			dnFailed = null;
+		}
+		if(type.equals("Passed")) return dnPassed;
+		else return dnFailed;
+
 	}
 
 	public BufferedImage getFaceImageBufferedImage() throws IOException {
