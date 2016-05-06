@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
+import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 
@@ -43,12 +44,9 @@ public class TicketCheckScreen {
 		//
 		faceFrame.setUndecorated(true);
 		faceFrame.setVisible(true);
-		startTicketScreenCustomer();
-
-
 	}
 
-	public JPanel getVideoPanel(){
+	public VideoPanel getVideoPanel(){
 		return faceFrame.getVideoPanel();
 	}
 	
@@ -60,15 +58,6 @@ public class TicketCheckScreen {
 	private LinkedBlockingQueue<ScreenElementModifyEvent> screenEventQueue = new LinkedBlockingQueue<ScreenElementModifyEvent>();
 
 	public void offerEvent(ScreenElementModifyEvent e) {
-		screenEventQueue.add(e);
-	}
-
-	public void startShow() throws InterruptedException {
-		ScreenElementModifyEvent e = screenEventQueue.poll();
-		/*
-		 * 根据ScreenElementModifyEvent的screenType、elementType、
-		 * elementCmd来决定屏幕的显示内容
-		 */
 		if (e != null) {
 			if (e.getScreenType() == 0) {
 				log.debug("收到Ticket屏幕事件，重画屏幕");
@@ -80,6 +69,28 @@ public class TicketCheckScreen {
 			}
 		}
 	}
+
+	public void startShow() throws InterruptedException {
+		
+//		while(true){
+//			ScreenElementModifyEvent e = screenEventQueue.take();
+//			/*
+//			 * 根据ScreenElementModifyEvent的screenType、elementType、
+//			 * elementCmd来决定屏幕的显示内容
+//			 */
+//			if (e != null) {
+//				if (e.getScreenType() == 0) {
+//					log.debug("收到Ticket屏幕事件，重画屏幕");
+//
+//					ticketFrame.getContentPane().repaint();
+//					// gs[0].setFullScreenWindow(ticketFrame);
+//				} else if (e.getScreenType() == 1) {
+//					processEventByType(e);
+//				}
+//			}
+//		}
+
+	}
 	
 	
 
@@ -87,7 +98,7 @@ public class TicketCheckScreen {
 	
 	private void processEventByType(ScreenElementModifyEvent e){
 		if(e.getElementType() == 1){
-//			log.debug("收到Face屏幕事件，重画屏幕");
+			log.debug("收到Face屏幕事件，重画屏幕");
 			ImageIcon icon = new ImageIcon(e.getIdCard().getCardImage());
 			faceFrame.showIDCardImage(icon);
 
@@ -114,7 +125,5 @@ public class TicketCheckScreen {
 		return null;
 	}
 
-	private void startTicketScreenCustomer() {
-		executor.execute(new ScreenCustomer());
-	}
+
 }

@@ -82,7 +82,8 @@ public class FaceVerifyJniEntry {
 			result = aArrIntInputf.getAsFloat(0);
 			aArrIntInputf.dispose();
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.debug("FaceChecking succ, using " + usingTime + " ms, value=" + result);
+			log.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FaceChecking succ, using " + usingTime + " ms, value=" + result);
+			
 			
 		} catch (NativeException e) {
 			e.printStackTrace();

@@ -33,6 +33,7 @@ import com.rxtec.pitchecking.device.ScreenCmdEnum;
 import com.rxtec.pitchecking.device.TicketCheckScreen;
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
+import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 
 
 public class KLHaarFaceTrackerDemo2 {
@@ -47,13 +48,16 @@ public class KLHaarFaceTrackerDemo2 {
 			
 			TicketCheckScreen screen = TicketCheckScreen.getInstance();
 			screen.initUI();
-			screen.startShow();
 			
 			FaceCheckingService.getInstance().beginFaceCheckerTask();
 			FaceDetectionService.getInstance().setVideoPanel(screen.getVideoPanel());
 			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
 			
 			//FaceCheckingService.getInstance().beginFaceQualityDetecterTask();
+//			RSFaceDetectionService.getInstance().setVideoPanel(screen.getVideoPanel());
+//			RSFaceDetectionService.getInstance().beginVideoCaptureAndTracking();
+			screen.startShow();
+
 			
 		
 			while(true){

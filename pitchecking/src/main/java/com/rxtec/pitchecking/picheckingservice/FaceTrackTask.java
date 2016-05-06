@@ -21,9 +21,10 @@ public class FaceTrackTask implements Runnable {
 
 	// private FaceDetectLocaltionJniEntry faceDetecter = new
 	// FaceDetectLocaltionJniEntry();
-//	private FaceDetectByPixelJNIEntry faceDetecter = FaceDetectByPixelJNIEntry.getInstance();
-	private FaceDetectByPixelJNIEntryClone faceDetecter = FaceDetectByPixelJNIEntryClone.getInstance();
-	
+	// private FaceDetectByPixelJNIEntry faceDetecter =
+	// FaceDetectByPixelJNIEntry.getInstance();
+	private FaceDetectByPixelJNIEntry faceDetecter = FaceDetectByPixelJNIEntry.getInstance();
+
 	private Logger log = LoggerFactory.getLogger("FaceDetectionTask");
 	Calendar cal = Calendar.getInstance();
 
@@ -31,62 +32,48 @@ public class FaceTrackTask implements Runnable {
 	public void run() {
 
 		while (true) {
-			
 
 			try {
 				Thread.sleep(50);
 				detectFaceImage();
-//				detectFaceLocation();
 			} catch (InterruptedException e) {
-				log.error("FaceTrackTask ",e);
+				log.error("FaceTrackTask ", e);
 			}
 
 		}
 	}
-	
-	
-	private void detectFaceLocation(){
-		MBFImage frame = null;
-		try {
-			frame = FaceDetectionService.getInstance().takeFrameImage();
-			if (frame != null) {
-				byte[] bytes = convertImage(frame);
-				if (bytes == null) return;
 
-				FaceDetectedResult result = new FaceDetectedResult();
-				result.setFrameImageBytes(bytes);
-				FaceData fd = new FaceData(frame, result);
+	private void detectFaceLocation() {
+		try {
+			BufferedImage frame = FaceDetectionService.getInstance().takeFrameImage();
+			if (frame != null) {
+				FaceData fd = new FaceData(frame);
 				faceDetecter.detectFaceLocation(fd);
 
-				if(fd.isDetectedFace())
+				if (fd.isDetectedFace())
 					FaceDetectionService.getInstance().offerTrackedFaceData(fd);
 			}
 		} catch (InterruptedException e) {
-			log.error("FaceTrackTask ",e);
+			log.error("FaceTrackTask ", e);
 		}
 
 	}
 
-	
-	private void detectFaceImage(){
-		MBFImage frame = null;
+	private void detectFaceImage() {
 		try {
-			frame = FaceDetectionService.getInstance().takeFrameImage();
+			BufferedImage frame = FaceDetectionService.getInstance().takeFrameImage();
 			if (frame != null) {
-				byte[] bytes = convertImage(frame);
-				if (bytes == null) return;
-
-				FaceDetectedResult result = new FaceDetectedResult();
-				result.setFrameImageBytes(bytes);
-				FaceData fd = new FaceData(frame, result);
+				FaceData fd = new FaceData(frame);
 				faceDetecter.detectFaceImage(fd);
 
-				if(detectQuality(fd)&&fd.isDetectedFace())
+				if (detectQuality(fd) && fd.isDetectedFace())
 					FaceDetectionService.getInstance().offerTrackedFaceData(fd);
-					FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+				FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+				if(fd.isDetectedFace()) fd.saveFaceDataToDsk();
 			}
+
 		} catch (InterruptedException e) {
-			log.error("FaceTrackTask ",e);
+			log.error("FaceTrackTask ", e);
 		}
 
 	}

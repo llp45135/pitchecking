@@ -49,7 +49,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	private JLabel label_title = new JLabel("\u8BF7\u5E73\u89C6\u6444\u50CF\u5934");
 	private JPanel panel_title = new JPanel();
 	private JPanel panel_bottom = new JPanel();
-	private JPanel videoPanel = new JPanel();
+	private VideoPanel videoPanel = new VideoPanel(640,480);
 	private JPanel panel_idCardImage = new JPanel();
 	JLabel label_result = new JLabel("");
 
@@ -74,7 +74,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	
 	
 	
-	public JPanel getVideoPanel() {
+	public VideoPanel getVideoPanel() {
 		return videoPanel;
 	}
 

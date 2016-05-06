@@ -20,6 +20,7 @@ import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.utils.ImageToolkit;
 
 public class FaceDetectByPixelJNIEntryClone  {
 
@@ -35,24 +36,6 @@ public class FaceDetectByPixelJNIEntryClone  {
 	private Logger log = LoggerFactory.getLogger("FaceLocationDetection");
 
 	public static void main(String[] args) {
-//		IFaceDetect detecter = FaceDetectByPixelJNIEntry.getInstance();
-//		byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/idcardtest.jpg");
-//		byte[] imgBytes2 = CommUtil.getBytes("C:/pitchecking/2009-01-25 09-36-41.jpg");
-//
-//		FaceDetectedResult r = new FaceDetectedResult();
-//		FaceDetectedResult r2 = new FaceDetectedResult();
-//
-//		r.setImageBytes(imgBytes);
-//		r2.setImageBytes(imgBytes2);
-//		for (int i = 0; i < 200; i++) {
-//			detecter.detectFaceImage(r);
-//			detecter.detectFaceImage(r2);
-//
-//			System.out.println(r);
-//			System.out.println(r2);
-//
-//		}
-
 		Runnable run1 = new Runnable() {
 
 			@Override
@@ -60,58 +43,23 @@ public class FaceDetectByPixelJNIEntryClone  {
 
 				while (true) {
 					// TODO Auto-generated method stub
-					byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/2008-08-16 11-16-49.jpg");
-					FaceDetectedResult fdr = new FaceDetectedResult();
-					fdr.setFrameImageBytes(imgBytes);
 
-					MBFImage mbf = null;
 					try {
-						BufferedImage bi = ImageIO.read(new File("C:/pitchecking/2008-08-16 11-16-49.jpg"));
-						mbf = ImageUtilities.createMBFImage(bi, false);
+						BufferedImage bi = ImageIO.read(new File("C:/pitchecking/llp.jpg"));
+						FaceData fd = new FaceData(bi);
+						FaceDetectByPixelJNIEntry detecter = FaceDetectByPixelJNIEntry.getInstance();
+						detecter.detectFaceImage(fd);
+						System.out.println(fd.getFaceDetectedResult());
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					FaceData fd = new FaceData(mbf,mbf, fdr);
-					FaceDetectByPixelJNIEntry detecter = FaceDetectByPixelJNIEntry.getInstance();
-					detecter.detectFaceImage(fd);
-//					System.out.println(fd.getFaceDetectedResult());
 				}
 			}
 		};
-		Runnable run2 = new Runnable() {
 
-			@Override
-			public void run() {
-
-				while (true) {
-					// TODO Auto-generated method stub
-					byte[] imgBytes = CommUtil.getBytes("C:/pitchecking/2008-08-16 11-16-49.jpg");
-					FaceDetectedResult fdr = new FaceDetectedResult();
-					fdr.setFrameImageBytes(imgBytes);
-
-					MBFImage mbf = null;
-					try {
-						BufferedImage bi = ImageIO.read(new File("C:/pitchecking/2008-08-16 11-16-49.jpg"));
-						mbf = ImageUtilities.createMBFImage(bi, false);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					FaceData fd = new FaceData(mbf,mbf, fdr);
-					FaceDetectByPixelJNIEntry detecter = FaceDetectByPixelJNIEntry.getInstance();
-					detecter.detectFaceImage(fd);
-//					System.out.println(fd.getFaceDetectedResult());
-				}
-			}
-		};
 		ExecutorService executer = Executors.newCachedThreadPool();
 		executer.execute(run1);
-//		executer.execute(run2);
-		
-
-		
-		
 	}
 
 	private static FaceDetectByPixelJNIEntryClone instance = null;
@@ -177,9 +125,71 @@ public class FaceDetectByPixelJNIEntryClone  {
 	}
 
 	public void detectFaceLocation(FaceData fd) {
-		FaceDetectedResult fdr = fd.getFaceDetectedResult();
-
-		byte[] imgBytes = fdr.getFrameImageBytes();
+//		FaceDetectedResult fdr = fd.getFaceDetectedResult();
+//
+//		byte[] imgBytes = fdr.getFrameImageBytes();
+//		int i = 0;
+//
+//		try {
+//			Pointer FaceLocationPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(100));
+//			FGDetectImageFaceLocation.setRetVal(Type.INT);
+//			FGDetectImageFaceLocation.setParameter(i++, JNIHandle);
+//			FGDetectImageFaceLocation.setParameter(i++, Type.STRING, imgBytes);
+//			FGDetectImageFaceLocation.setParameter(i++, Type.INT, "" + imgBytes.length);
+//			FGDetectImageFaceLocation.setParameter(i++, FaceLocationPointer);
+//			FGDetectImageFaceLocation.setParameter(i++, 0);
+//			FGDetectImageFaceLocation.invoke();
+//
+//			byte[] FaceLocationResultBytes = FaceLocationPointer.getMemory();
+//			i = 0;
+//			fdr.setId(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setX(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setY(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setWidth(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setHeight(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setxFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setyFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setFirstConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setxSecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setySecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+//
+//			i += 4;
+//			fdr.setSecondConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
+//
+//			FaceLocationPointer.dispose();
+//		} catch (NativeException e) {
+//			e.printStackTrace();
+//		} catch (IllegalAccessException e) {
+//			e.printStackTrace();
+//		} finally {
+//		}
+//		fd.updateFaceLocation();
+		
+		
+		
+		int id,x = 0,y = 0,width = 0,height = 0;
+		byte[] imgBytes = ImageToolkit.getImageBytes(fd.getFrame(), "jpeg");
 		int i = 0;
 
 		try {
@@ -194,40 +204,20 @@ public class FaceDetectByPixelJNIEntryClone  {
 
 			byte[] FaceLocationResultBytes = FaceLocationPointer.getMemory();
 			i = 0;
-			fdr.setId(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			id = CommUtil.bytesToInt(FaceLocationResultBytes, i);
 
 			i += 4;
-			fdr.setX(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			x = CommUtil.bytesToInt(FaceLocationResultBytes, i);
 
 			i += 4;
-			fdr.setY(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			y = CommUtil.bytesToInt(FaceLocationResultBytes, i);
 
 			i += 4;
-			fdr.setWidth(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			width = CommUtil.bytesToInt(FaceLocationResultBytes, i);
 
 			i += 4;
-			fdr.setHeight(CommUtil.bytesToInt(FaceLocationResultBytes, i));
+			height = CommUtil.bytesToInt(FaceLocationResultBytes, i);
 
-			i += 4;
-			fdr.setConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
-
-			i += 4;
-			fdr.setxFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-
-			i += 4;
-			fdr.setyFirstEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-
-			i += 4;
-			fdr.setFirstConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
-
-			i += 4;
-			fdr.setxSecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-
-			i += 4;
-			fdr.setySecondEye(CommUtil.bytesToInt(FaceLocationResultBytes, i));
-
-			i += 4;
-			fdr.setSecondConfidence(CommUtil.bytesToFloat(FaceLocationResultBytes, i));
 
 			FaceLocationPointer.dispose();
 		} catch (NativeException e) {
@@ -236,13 +226,13 @@ public class FaceDetectByPixelJNIEntryClone  {
 			e.printStackTrace();
 		} finally {
 		}
-		fd.updateFaceLocation();
+		fd.updateFaceLocation(x,y,width,height);
 
 	}
 
 	public void detectFaceImageQuality(FaceData fd) {
-		FaceDetectedResult fdr = fd.getFaceDetectedResult();
-			byte[] imgBytes = fdr.getFrameImageBytes();
+		FaceDetectedResult fdr = new FaceDetectedResult();
+		byte[] imgBytes = ImageToolkit.getImageBytes(fd.getFrame(), "jpeg");
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
@@ -413,6 +403,7 @@ public class FaceDetectByPixelJNIEntryClone  {
 			e.printStackTrace();
 		} finally {
 		}
+		fd.setFaceDetectedResult(fdr);
 		long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 //		log.debug("detectFaceQuality using:" + usingTime + " ret=" + fdr);
 
@@ -423,7 +414,7 @@ public class FaceDetectByPixelJNIEntryClone  {
 		this.detectFaceLocation(fd);
 		this.detectFaceImageQuality(fd);
 		long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-//		log.debug("detectFaceImage using:" + usingTime + " ret=" + fd.getFaceDetectedResult());
+		log.debug("detectFaceImage using:" + usingTime + " ret=" + fd.getFaceDetectedResult());
 
 	}
 

@@ -445,8 +445,6 @@ public class FaceDetectedResult {
 		sb.append(this.hashCode());
 		sb.append("  是否检测到人脸：");
 		sb.append(this.isHasface());
-		sb.append("  是否面部模糊：");
-		sb.append(this.isFaceblur());
 		sb.append("  是否正脸：");
 		sb.append(this.isFacefrontal());
 		sb.append("  是否眼睛正视前方：");
