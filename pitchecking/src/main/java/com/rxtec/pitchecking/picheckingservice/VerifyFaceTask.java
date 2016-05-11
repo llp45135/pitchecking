@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.task;
+package com.rxtec.pitchecking.picheckingservice;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceEventListener;
 import com.rxtec.pitchecking.device.PITStatusEnum;
 import com.rxtec.pitchecking.device.ScreenCmdEnum;
@@ -13,27 +14,30 @@ import com.rxtec.pitchecking.device.TicketCheckScreen;
 import com.rxtec.pitchecking.device.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.device.event.IDeviceEvent;
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
-import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
-import com.rxtec.pitchecking.picheckingservice.FaceData;
-import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
-import com.rxtec.pitchecking.picheckingservice.IDCard;
+import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
+import com.rxtec.pitchecking.task.RunningStatus;
 
 /**
  * 事件处理任务
  * @author ZhaoLin
  *
  */
-public class VerifyFaceTask implements Callable<FaceData> {
+public class VerifyFaceTask implements Callable<PICData> {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 
 	IDCardReaderEvent event;
+	IFaceTrackService faceTrackService = null; 
 
 	public VerifyFaceTask(IDeviceEvent e) {
 		event = (IDCardReaderEvent) e;
+		if(Config.getInstance().getVideoType() == 2) 
+			faceTrackService = RSFaceDetectionService.getInstance();
+		else 
+			faceTrackService = FaceDetectionService.getInstance();
 	}
 
 	@Override
-	public FaceData call() {
+	public PICData call() {
 		// TODO 当接收到二代证读卡器事件时，后续处理
 //		log.debug("正在调用回调函数处理IDReaderEventTask==" + this.event);
 		TicketCheckScreen.getInstance().offerEvent(
@@ -47,10 +51,10 @@ public class VerifyFaceTask implements Callable<FaceData> {
 		TicketCheckScreen.getInstance().offerEvent(semEvent);
 		
 		RunningStatus.getInstance().getIdReaderLock();
-		FaceDetectionService.getInstance().beginCheckingFace(idcard);
+		faceTrackService.beginCheckingFace(idcard);
 
 
-		FaceData fd =  null;
+		PICData fd =  null;
 		try {
 			fd = FaceCheckingService.getInstance().pollPassFaceData();
 		} catch (InterruptedException e) {
@@ -67,7 +71,7 @@ public class VerifyFaceTask implements Callable<FaceData> {
 
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
 			
-			FaceDetectionService.getInstance().stopCheckingFace();
+			faceTrackService.stopCheckingFace();
 			RunningStatus.getInstance().getIdReaderCondition().signal();
 			
 		}else{
@@ -76,7 +80,7 @@ public class VerifyFaceTask implements Callable<FaceData> {
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
-			FaceDetectionService.getInstance().stopCheckingFace();
+			faceTrackService.stopCheckingFace();
 			RunningStatus.getInstance().getIdReaderCondition().signal();
 
 		}

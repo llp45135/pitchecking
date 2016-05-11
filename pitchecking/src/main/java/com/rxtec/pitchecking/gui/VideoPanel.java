@@ -13,6 +13,8 @@ import javax.swing.JPanel;
 public class VideoPanel extends JPanel{
 	private static final long serialVersionUID = 2362485545008256443L;
 	public BufferedImage image;
+	
+	private int videoType = 0;
 
 	public VideoPanel(int width,int height){
 		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -22,5 +24,10 @@ public class VideoPanel extends JPanel{
 //		((Graphics2D) g).drawImage(image, 0, 0, null);
 //	}
 //	
+	
+	public void paintImg(){
+		((Graphics2D) this.getGraphics()).drawImage(image, 0, 0, null);
+
+	}
 
 }

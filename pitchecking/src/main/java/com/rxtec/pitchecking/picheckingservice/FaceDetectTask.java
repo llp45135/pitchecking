@@ -21,7 +21,7 @@ public class FaceDetectTask implements Runnable {
 		while (true) {
 			try {
 				Thread.sleep(50);
-				FaceData fd = FaceDetectionService.getInstance().takeWaitForDetectedFaceData();
+				PICData fd = FaceDetectionService.getInstance().takeWaitForDetectedFaceData();
 				if (fd != null) {
 					faceDetecter.detectFaceImageQuality(fd);
 //					log.debug("FaceDetectedResult : " + fd.getFaceDetectedData());
@@ -36,7 +36,7 @@ public class FaceDetectTask implements Runnable {
 	}
 
 
-	private boolean detectQuality(FaceData fd) {
+	private boolean detectQuality(PICData fd) {
 		FaceDetectedResult r = fd.getFaceDetectedResult();
 		if (r.isEyesfrontal() && r.isFacefrontal() && r.isEyesopen() && r.isHasface() && r.isExpression())
 			return true;

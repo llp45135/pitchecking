@@ -9,7 +9,7 @@ import com.rxtec.pitchecking.device.PITStatusEnum;
 import com.rxtec.pitchecking.device.ScreenCmdEnum;
 import com.rxtec.pitchecking.device.TicketCheckScreen;
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
-import com.rxtec.pitchecking.picheckingservice.FaceData;
+import com.rxtec.pitchecking.picheckingservice.PICData;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 
 public class RunningStatus {

@@ -19,6 +19,7 @@ public class Config {
 	private int roateCapture=0;
 	private int detectededFaceQueueLen = 5;
 	private int detectededFaceQueueThreshold = 2;
+	private int videoType=1;
 
 	public int getDetectededFaceQueueThreshold() {
 		return detectededFaceQueueThreshold;
@@ -161,7 +162,16 @@ public class Config {
 
 
 
-	
+	public int getVideoType() {
+		return videoType;
+	}
+
+
+
+
+	public void setVideoType(int videoType) {
+		this.videoType = videoType;
+	}
 	
 
 
@@ -187,6 +197,8 @@ public class Config {
         	this.roateCapture = Integer.valueOf(p.getProperty("RoateCapture", "0"));
         	this.detectededFaceQueueLen = Integer.valueOf(p.getProperty("DetectededFaceQueueLen", "5"));
         	this.detectededFaceQueueThreshold = Integer.valueOf(p.getProperty("DetectededFaceQueueThreshold", "2"));
+        	this.videoType = Integer.valueOf(p.getProperty("VideoType", "2"));
+
             is.close(); //关闭流
         }
         catch (IOException e)
@@ -195,6 +207,11 @@ public class Config {
         }
 	}
 	
+
+
+
+
+
 	public static synchronized Config getInstance(){
 		if(_instance == null) _instance = new Config();
 		return _instance;

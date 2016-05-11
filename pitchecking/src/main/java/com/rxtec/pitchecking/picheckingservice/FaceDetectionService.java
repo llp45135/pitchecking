@@ -21,8 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.gui.VideoPanel;
 
-public class FaceDetectionService {
+public class FaceDetectionService implements IFaceTrackService {
 	private Logger log = LoggerFactory.getLogger("FaceTrackingService");
 
 	private JPanel videoPanel = null;
@@ -30,15 +31,15 @@ public class FaceDetectionService {
 	public void setVideoPanel(JPanel videoPanel) {
 		this.videoPanel = videoPanel;
 	}
+	
 
 	private LinkedBlockingQueue<BufferedImage> frameImageQueue = new LinkedBlockingQueue<BufferedImage>(3);
 
-	private LinkedBlockingQueue<FaceData> trackededFaceQueue = new LinkedBlockingQueue<FaceData>(3);
+	private LinkedBlockingQueue<PICData> trackededFaceQueue = new LinkedBlockingQueue<PICData>(3);
 
-	private LinkedBlockingQueue<FaceData> waitForDetectedFaceQueue = new LinkedBlockingQueue<FaceData>(3);
+	private LinkedBlockingQueue<PICData> waitForDetectedFaceQueue = new LinkedBlockingQueue<PICData>(3);
 
-	
-	public LinkedBlockingQueue<FaceData> getDetectedFaceQueue() {
+	public LinkedBlockingQueue<PICData> getDetectedFaceQueue() {
 		return trackededFaceQueue;
 	}
 
@@ -46,30 +47,29 @@ public class FaceDetectionService {
 		return frameImageQueue.take();
 	}
 
-	public void offerWaitForDetectedFaceData(FaceData fd) {
-		if(!waitForDetectedFaceQueue.offer(fd)){
+	public void offerWaitForDetectedFaceData(PICData fd) {
+		if (!waitForDetectedFaceQueue.offer(fd)) {
 			waitForDetectedFaceQueue.poll();
 			waitForDetectedFaceQueue.offer(fd);
 		}
-		
+
 	}
 
-	public FaceData takeWaitForDetectedFaceData() throws InterruptedException {
-//		log.debug("takeWaitForDetectedFaceData,waitForDetectedFaceQueue size=" + waitForDetectedFaceQueue.size());
+	public PICData takeWaitForDetectedFaceData() throws InterruptedException {
+		// log.debug("takeWaitForDetectedFaceData,waitForDetectedFaceQueue
+		// size=" + waitForDetectedFaceQueue.size());
 		return waitForDetectedFaceQueue.take();
 	}
-	
-	
-	public void offerTrackedFaceData(FaceData fd) {
-		if(!trackededFaceQueue.offer(fd)){
+
+	public void offerTrackedFaceData(PICData fd) {
+		if (!trackededFaceQueue.offer(fd)) {
 			trackededFaceQueue.poll();
 			trackededFaceQueue.offer(fd);
 		}
-		
+
 	}
 
-
-	public FaceData takeTrackedFaceData() throws InterruptedException {
+	public PICData takeTrackedFaceData() throws InterruptedException {
 		log.debug("takeDetectedFaceData,detectedFaceQueue size=" + trackededFaceQueue.size());
 		return trackededFaceQueue.take();
 	}
@@ -80,7 +80,8 @@ public class FaceDetectionService {
 	}
 
 	public static synchronized FaceDetectionService getInstance() {
-		if(_instance == null) _instance = new FaceDetectionService();
+		if (_instance == null)
+			_instance = new FaceDetectionService();
 		return _instance;
 	}
 
@@ -104,9 +105,8 @@ public class FaceDetectionService {
 	 * @param frame
 	 */
 	private void offerFrame(BufferedImage frame) {
-		
-		
-		if(!frameImageQueue.offer(frame)){
+
+		if (!frameImageQueue.offer(frame)) {
 			frameImageQueue.poll();
 			frameImageQueue.offer(frame);
 		}
@@ -117,7 +117,7 @@ public class FaceDetectionService {
 	 * 
 	 * @return
 	 */
-	private FaceData pollTrackedFaceData() {
+	private PICData pollTrackedFaceData() {
 		return trackededFaceQueue.poll();
 	}
 
@@ -128,22 +128,26 @@ public class FaceDetectionService {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		FaceDetectTask detectTask = new FaceDetectTask();
 		ExecutorService executer = Executors.newCachedThreadPool();
 		executer.execute(trackTask);
-//		executer.execute(detectTask);
+		// executer.execute(detectTask);
 	}
 
 	int frameCounter = 0;
 
-	public void beginVideoCaptureAndTracking() throws VideoCaptureException {
+	public void beginVideoCaptureAndTracking() {
 		beginFaceTrackThread();
 
-		final Video<MBFImage> video;
-		if (Config.getInstance().getRoateCapture()==1)
-			video = new RotationVideoCapture(640, 480);
-		else
-			video = new VideoCapture(640,480);
+		Video<MBFImage> video = null;
+		try {
+			if (Config.getInstance().getRoateCapture() == 1)
+				video = new RotationVideoCapture(640, 480);
+			else
+				video = new VideoCapture(640, 480);
+		} catch (VideoCaptureException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		video.setCurrentFrameIndex(10);
 		VideoDisplay<MBFImage> vd = VideoDisplay.createVideoDisplay(video, videoPanel);
@@ -153,10 +157,11 @@ public class FaceDetectionService {
 
 				BufferedImage bi = ImageUtilities.createBufferedImageForDisplay(frame.clone());
 				offerFrame(bi);
-				
-				FaceData face = pollTrackedFaceData();
-				
+
+				PICData face = pollTrackedFaceData();
+
 				if (face != null) {
+					face.setIdCard(currentIDCard);
 					offerWaitForDetectedFaceData(face);
 					frame.drawShape(face.getFaceLocation().getFaceBounds(), RGBColour.RED);
 				}
@@ -198,5 +203,7 @@ public class FaceDetectionService {
 		trackededFaceQueue.clear();
 		waitForDetectedFaceQueue.clear();
 	}
+
+
 
 }

@@ -22,37 +22,37 @@ public class FaceCheckingService {
 	private static FaceCheckingService _instance = new FaceCheckingService();
 
 	//已经检测人脸质量，待验证的队列
-	private LinkedBlockingQueue<FaceData> detectedFaceDataQueue ;
+	private LinkedBlockingQueue<PICData> detectedFaceDataQueue ;
 
 	//比对验证通过的队列
-	private LinkedBlockingQueue<FaceData> passFaceDataQueue;
+	private LinkedBlockingQueue<PICData> passFaceDataQueue;
 
 
-	public LinkedBlockingQueue<FaceData> getPassFaceDataQueue() {
+	public LinkedBlockingQueue<PICData> getPassFaceDataQueue() {
 		return passFaceDataQueue;
 	}
 	private FaceCheckingService(){
-		detectedFaceDataQueue = new LinkedBlockingQueue<FaceData>(Config.getInstance().getDetectededFaceQueueLen());
-		passFaceDataQueue =new LinkedBlockingQueue<FaceData>(Config.getInstance().getDetectededFaceQueueLen());
+		detectedFaceDataQueue = new LinkedBlockingQueue<PICData>(Config.getInstance().getDetectededFaceQueueLen());
+		passFaceDataQueue =new LinkedBlockingQueue<PICData>(Config.getInstance().getDetectededFaceQueueLen());
 	}
 	public static synchronized FaceCheckingService getInstance(){
 		if(_instance == null) _instance = new FaceCheckingService();
 		return _instance;
 	}
 	
-	public FaceData pollPassFaceData() throws InterruptedException{
-		FaceData fd = passFaceDataQueue.poll(Config.getInstance().getFaceCheckDelayTime(),TimeUnit.MILLISECONDS );
+	public PICData pollPassFaceData() throws InterruptedException{
+		PICData fd = passFaceDataQueue.poll(Config.getInstance().getFaceCheckDelayTime(),TimeUnit.MILLISECONDS );
 		return fd;
 	}
 	
 	
-	public FaceData takeDetectedFaceData() throws InterruptedException{
+	public PICData takeDetectedFaceData() throws InterruptedException{
 //		log.debug("takeFaceDataForChecking takeDetectedFaceData size:"+detectedFaceDataQueue.size());	
 		return detectedFaceDataQueue.take();
 	}
 	
 	
-	public void offerDetectedFaceData(FaceData faceData){
+	public void offerDetectedFaceData(PICData faceData){
 //		int len = detectedFaceDataQueue.size() /2;
 //		if(len>Config.getInstance().getDetectededFaceQueueThreshold()){
 //			detectedFaceDataQueue.poll();
@@ -60,13 +60,14 @@ public class FaceCheckingService {
 //		}else{
 //			detectedFaceDataQueue.offer(faceData);
 //		}
-//		log.debug("takeFaceDataForChecking offerDetectedFaceData size:"+detectedFaceDataQueue.size());	
 
 		
 		if(!detectedFaceDataQueue.offer(faceData)){
 			detectedFaceDataQueue.poll();
 			detectedFaceDataQueue.offer(faceData);
 		}
+//		log.debug("takeFaceDataForChecking offerDetectedFaceData size:"+detectedFaceDataQueue.size());	
+
 	}
 	
 
@@ -76,7 +77,7 @@ public class FaceCheckingService {
 		passFaceDataQueue.clear();
 	}
 	
-	public void offerPassFaceData(FaceData fd){
+	public void offerPassFaceData(PICData fd){
 		passFaceDataQueue.offer(fd);
 	}
 	ExecutorService executor = Executors.newCachedThreadPool();

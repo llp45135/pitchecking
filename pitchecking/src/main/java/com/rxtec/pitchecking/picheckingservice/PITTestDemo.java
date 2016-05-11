@@ -27,6 +27,7 @@ import org.openimaj.video.VideoDisplay;
 import org.openimaj.video.VideoDisplayListener;
 import org.openimaj.video.capture.VideoCapture;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceEventListener;
 import com.rxtec.pitchecking.device.PITStatusEnum;
 import com.rxtec.pitchecking.device.ScreenCmdEnum;
@@ -36,10 +37,10 @@ import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 
 
-public class KLHaarFaceTrackerDemo2 {
+public class PITTestDemo {
 
 	private KLTHaarFaceTracker faceTracker = new KLTHaarFaceTracker( 40 );
-	
+	static IFaceTrackService faceTrackService = null; 
 
 	
 
@@ -49,14 +50,17 @@ public class KLHaarFaceTrackerDemo2 {
 			TicketCheckScreen screen = TicketCheckScreen.getInstance();
 			screen.initUI();
 			
-			FaceCheckingService.getInstance().beginFaceCheckerTask();
-			FaceDetectionService.getInstance().setVideoPanel(screen.getVideoPanel());
-			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
+			if(Config.getInstance().getVideoType() == 2) 
+				faceTrackService = RSFaceDetectionService.getInstance();
+			else 
+				faceTrackService = FaceDetectionService.getInstance();
+
 			
-			//FaceCheckingService.getInstance().beginFaceQualityDetecterTask();
-//			RSFaceDetectionService.getInstance().setVideoPanel(screen.getVideoPanel());
-//			RSFaceDetectionService.getInstance().beginVideoCaptureAndTracking();
-			screen.startShow();
+			
+			FaceCheckingService.getInstance().beginFaceCheckerTask();
+			faceTrackService.setVideoPanel(screen.getVideoPanel());
+			faceTrackService.beginVideoCaptureAndTracking();
+//			screen.startShow();
 
 			
 		
@@ -64,8 +68,8 @@ public class KLHaarFaceTrackerDemo2 {
 				Thread.sleep(100);
 				screen.offerEvent(
 						new ScreenElementModifyEvent(1,ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(),null));
-				FaceDetectionService.getInstance().beginCheckingFace(createIDCard());
-				FaceData fd = FaceCheckingService.getInstance().pollPassFaceData();
+				RSFaceDetectionService.getInstance().beginCheckingFace(createIDCard());
+				PICData fd = FaceCheckingService.getInstance().pollPassFaceData();
 				if(fd == null){
 					TicketCheckScreen.getInstance().offerEvent(
 							new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), fd));
@@ -73,7 +77,7 @@ public class KLHaarFaceTrackerDemo2 {
 				}else{
 					TicketCheckScreen.getInstance().offerEvent(
 							new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), fd));
-					FaceDetectionService.getInstance().stopCheckingFace();
+					RSFaceDetectionService.getInstance().stopCheckingFace();
 
 				}
 				
