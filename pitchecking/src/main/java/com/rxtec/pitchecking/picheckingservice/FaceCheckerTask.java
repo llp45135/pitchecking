@@ -15,27 +15,22 @@ public class FaceCheckerTask implements Runnable {
 
 	@Override
 	public void run() {
-
 		while (true) {
 			try {
 				Thread.sleep(50);
 				PICData fd = FaceCheckingService.getInstance().takeDetectedFaceData();
-				IDCard idCard = fd.getIdCard();
-				if (fd == null || idCard == null)
-					continue;
-				long nowMils = Calendar.getInstance().getTimeInMillis();
-				float resultValue = 0;
-
 				if (fd != null) {
+					IDCard idCard = fd.getIdCard();
+					if (idCard == null)
+						continue;
+					long nowMils = Calendar.getInstance().getTimeInMillis();
+					float resultValue = 0;
 					byte[] extractFaceImageBytes = fd.getExtractFaceImageBytes();
 					if (extractFaceImageBytes == null)
 						continue;
 					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCard().getImageBytes());
 					fd.setFaceCheckResult(resultValue);
 					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-
-					resultValue = fd.getFaceCheckResult();
-
 					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
 						FaceCheckingService.getInstance().offerPassFaceData(fd);
 					} else {

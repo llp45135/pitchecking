@@ -1,6 +1,8 @@
 package com.rxtec.pitchecking.picheckingservice;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 
 import javax.imageio.ImageIO;
@@ -56,7 +58,7 @@ public class FaceVerifyJniEntry {
 		}
 	}
 	
-	public float verify(byte[] frameBytes, byte[] idCardBytes) {
+	public float verify(byte[] faceImgBytes, byte[] idCardBytes) {
 		float result = 0;
 		
 		long nowMils = Calendar.getInstance().getTimeInMillis();
@@ -69,8 +71,8 @@ public class FaceVerifyJniEntry {
 //			log.debug("aArrIntInputf: " + aArrIntInputf.getAsFloat(0));//获取返回值
 
 			jnativeVerifyFun.setRetVal(Type.INT); 
-			jnativeVerifyFun.setParameter(i++, Type.STRING,frameBytes); 
-			jnativeVerifyFun.setParameter(i++, Type.INT,""+frameBytes.length); 
+			jnativeVerifyFun.setParameter(i++, Type.STRING,faceImgBytes); 
+			jnativeVerifyFun.setParameter(i++, Type.INT,""+faceImgBytes.length); 
 			jnativeVerifyFun.setParameter(i++, Type.STRING,idCardBytes); 
 			jnativeVerifyFun.setParameter(i++, Type.INT,""+idCardBytes.length); 
 			jnativeVerifyFun.setParameter(i++, aArrIntInputf);
@@ -82,7 +84,17 @@ public class FaceVerifyJniEntry {
 			result = aArrIntInputf.getAsFloat(0);
 			aArrIntInputf.dispose();
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FaceChecking succ, using " + usingTime + " ms, value=" + result);
+			
+			
+			
+			log.debug("FaceChecking succ, using " + usingTime + " ms, value=" + result);
+			
+			try {
+				saleImgToDsk(faceImgBytes,idCardBytes,result);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			
 		} catch (NativeException e) {
@@ -95,11 +107,23 @@ public class FaceVerifyJniEntry {
 	}
 	
 	
+	private void saleImgToDsk(byte[] faceImgBytes, byte[] idCardBytes,float value) throws IOException{
+		BufferedImage fbi = ImageIO.read(ImageIO.createImageInputStream(new ByteArrayInputStream(faceImgBytes)));
+		BufferedImage ibi = ImageIO.read(ImageIO.createImageInputStream(new ByteArrayInputStream(idCardBytes)));
+		String ffn = "C:/pitchecking/imglog/" + faceImgBytes.hashCode() +"@"+value+ ".jpg";
+		String ifn = "C:/pitchecking/imglog/" + idCardBytes.hashCode() + ".jpg";
+		
+		
+		ImageIO.write(fbi, "JPEG", ImageIO.createImageOutputStream(new File(ffn)));
+//		ImageIO.write(ibi, "JPEG", ImageIO.createImageOutputStream(new File(ifn)));
+	}
+	
+	
 	public static void main(String[] args) {
 
 		FaceVerifyJniEntry v = new FaceVerifyJniEntry();
-		IDCard c1 = createIDCard("C:/pitchecking/lxy.jpg");
-		IDCard c2 = createIDCard("C:/pitchecking/lxy3.jpg");
+		IDCard c1 = createIDCard("C:/pitchecking/images/20160513/Passed/ID1544565937.jpg");
+		IDCard c2 = createIDCard("C:/pitchecking/images/20160513/Passed/FI1544565937@2016-05-13 09-40-16-477$0.75.jpg");
 				
 		v.verify(c1.getImageBytes(), c2.getImageBytes());
 

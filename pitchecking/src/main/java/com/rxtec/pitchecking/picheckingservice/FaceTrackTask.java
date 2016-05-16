@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.openimaj.image.ImageUtilities;
 import org.openimaj.image.MBFImage;
@@ -42,6 +44,32 @@ public class FaceTrackTask implements Runnable {
 
 		}
 	}
+	
+	
+	private static FaceTrackTask _instance;
+	private FaceTrackTask() {
+	}
+
+	public static synchronized FaceTrackTask getInstance() {
+		if (_instance == null)
+			_instance = new FaceTrackTask();
+		return _instance;
+	}
+	
+	
+	public static void startTracking(){
+		FaceTrackTask trackTask = FaceTrackTask.getInstance();
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		ExecutorService executer = Executors.newCachedThreadPool();
+		executer.execute(trackTask);
+		// executer.execute(detectTask);
+	}
+		
+	
 
 	private void detectFaceLocation() {
 		try {

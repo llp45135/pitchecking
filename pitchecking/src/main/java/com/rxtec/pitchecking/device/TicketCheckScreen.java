@@ -26,8 +26,8 @@ public class TicketCheckScreen {
 	private static TicketCheckScreen _instance = new TicketCheckScreen();
 	private ExecutorService executor = Executors.newCachedThreadPool();
 
-//	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-//	GraphicsDevice[] gs = ge.getScreenDevices();
+	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	GraphicsDevice[] gs = ge.getScreenDevices();
 
 	TicketCheckFrame ticketFrame = new TicketCheckFrame();
 	FaceCheckFrame faceFrame = new FaceCheckFrame();
@@ -38,12 +38,15 @@ public class TicketCheckScreen {
 	
 	
 	public void initUI(){
-		ticketFrame.setUndecorated(true);
+//		gs[0].setFullScreenWindow(ticketFrame);
+//		ticketFrame.setUndecorated(true);
 //		ticketFrame.setVisible(true);
 		
 		//
-		faceFrame.setUndecorated(true);
-		faceFrame.setVisible(true);
+		gs[0].setFullScreenWindow(faceFrame);
+//		faceFrame.setUndecorated(true);
+//		faceFrame.setVisible(true);
+		
 	}
 
 	public VideoPanel getVideoPanel(){

@@ -138,7 +138,7 @@ public class PICData {
 		return createTime;
 	}
 
-	public float faceCheckResult;
+	public float faceCheckResult = -1;
 
 	public float getFaceCheckResult() {
 		return faceCheckResult;
@@ -176,13 +176,13 @@ public class PICData {
 	}
 
 	public byte[] getExtractFaceImageBytes() {
-		if (!isDetectedFace)
+		if (!isDetectedFace || faceImage == null)
 			return null;
 
-		BufferedImage bi = ImageToolkit.scale(faceImage, 120, 140, true);
+//		BufferedImage bi = ImageToolkit.scale(faceImage, 120, 140, true);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		try {
-			ImageIO.write(bi, "JPEG", ImageIO.createImageOutputStream(os));
+			ImageIO.write(faceImage, "JPEG", ImageIO.createImageOutputStream(os));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

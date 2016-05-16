@@ -9,6 +9,13 @@ import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 
 public class Config {
 
+
+	public static int RealSenseVideo = 2;
+	public static int UVCVideo = 1;
+	
+	
+	
+	
 	private float faceCheckThreshold = (float) 0.7;
 	private float glassFaceCheckThreshold = (float) 0.68;
 	private long faceCheckDelayTime = 5000;

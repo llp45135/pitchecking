@@ -5,6 +5,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.EnumSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JPanel;
 
@@ -14,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.IDCard;
+import com.rxtec.pitchecking.picheckingservice.MFFaceTrackTask;
 import com.rxtec.pitchecking.picheckingservice.PICData;
 
 import intel.rssdk.PXCMBase;
@@ -22,8 +26,10 @@ import intel.rssdk.PXCMFaceConfiguration;
 import intel.rssdk.PXCMFaceData;
 import intel.rssdk.PXCMFaceModule;
 import intel.rssdk.PXCMImage;
+import intel.rssdk.PXCMImage.Option;
 import intel.rssdk.PXCMRectI32;
 import intel.rssdk.PXCMSenseManager;
+import intel.rssdk.PXCMVideoModule;
 import intel.rssdk.pxcmStatus;
 import intel.rssdk.PXCMCapture.Device;
 import intel.rssdk.PXCMCapture.Sample;
@@ -126,7 +132,7 @@ public class RSFaceTrackTask implements Runnable {
 						break;
 					PXCMFaceData.DetectionData detection = face.QueryDetection();
 					if (detection != null) {
-						PICData fd = extractFaceImage(frameImage, detection);
+						PICData fd = createFaceData(frameImage, detection);
 						if (fd.isDetectedFace() && currentIDCard != null) {
 							fd.setIdCard(currentIDCard);
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
@@ -140,7 +146,7 @@ public class RSFaceTrackTask implements Runnable {
 			}
 
 			// return NO_ERROR to continue, or any error to abort.
-			
+
 			sample.ReleaseImages();
 
 			return pxcmStatus.PXCM_STATUS_NO_ERROR;
@@ -171,26 +177,35 @@ public class RSFaceTrackTask implements Runnable {
 		}
 	};
 
-	private PICData extractFaceImage(BufferedImage frame, PXCMFaceData.DetectionData detection) {
+	
+	private PICData createFaceData(BufferedImage frame, PXCMFaceData.DetectionData detection) {
+		if (frame == null)
+			return null;
 		PXCMRectI32 rect = new PXCMRectI32();
 		PICData fd = new PICData(frame);
 		boolean ret = detection.QueryBoundingRect(rect);
 		if (ret) {
 			int x, y, w, h;
-			x = (int) (rect.x * 0.9);
+			x = (int) (rect.x);
 			y = (int) (rect.y * 0.8);
 			w = (int) (rect.w * 1.2);
 			h = (int) (rect.h * 1.3);
 
-			if (frame.getWidth() < w || frame.getHeight() < h) {
-				fd.setFaceImage(null);
-				fd.setDetectedFace(false);
-				return fd;
+			if (frame.getWidth() < (x + w) || frame.getHeight() < (y + h)) {
+				if (frame.getWidth() < (x + w)) {
+					w = frame.getWidth() - x;
+				}
+				if (frame.getHeight() < (y + h)) {
+					h = frame.getHeight() - y;
+				}
+				BufferedImage faceImage = frame.getSubimage(x, y, w, h);
+				fd.setFaceImage(faceImage);
+				fd.getFaceLocation().setLocation(rect.x, rect.y, rect.w, rect.h);
+				fd.setDetectedFace(true);
 			} else {
 				BufferedImage faceImage = frame.getSubimage(x, y, w, h);
 				fd.setFaceImage(faceImage);
 				fd.getFaceLocation().setLocation(rect.x, rect.y, rect.w, rect.h);
-				log.debug("x="+x +" y="+y+" w="+w+" h="+h);
 				fd.setDetectedFace(true);
 			}
 		}
@@ -239,16 +254,24 @@ public class RSFaceTrackTask implements Runnable {
 	}
 
 	private BufferedImage drawFrameImage(PXCMCapture.Sample sample) {
+
 		PXCMImage.ImageData cData = new PXCMImage.ImageData();
+
 		pxcmStatus sts = sample.color.AcquireAccess(PXCMImage.Access.ACCESS_READ,
-				PXCMImage.PixelFormat.PIXEL_FORMAT_RGB32, cData);
+				PXCMImage.PixelFormat.PIXEL_FORMAT_RGB32,
+				// PXCMImage.Rotation.ROTATION_90_DEGREE,
+				cData);
+
 		if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) < 0) {
 			log.error("Failed to AcquireAccess of color image data");
 			return null;
 		}
 		int cBuff[] = new int[cData.pitches[0] / 4 * cHeight];
 		cData.ToIntArray(0, cBuff);
+		// videoPanel.image.setRGB(0, 0, 480, 480, cBuff, 0, cData.pitches[0] /
+		// 4);
 		videoPanel.image.setRGB(0, 0, cWidth, cHeight, cBuff, 0, cData.pitches[0] / 4);
+
 		videoPanel.paintImg();
 		sts = sample.color.ReleaseAccess(cData);
 		if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) < 0) {
@@ -300,6 +323,7 @@ public class RSFaceTrackTask implements Runnable {
 
 		sts = senseMgr.EnableFace(null);
 		PXCMFaceModule faceModule = senseMgr.QueryFace();
+		PXCMFaceData faceData = faceModule.CreateOutput();
 
 		if (sts.isError() || faceModule == null) {
 			log.error("Failed to initialize face module.");
@@ -315,9 +339,7 @@ public class RSFaceTrackTask implements Runnable {
 		faceConfig.ApplyChanges();
 		faceConfig.Update();
 
-		FaceFrameHandler handler = new FaceFrameHandler();
-
-		sts = senseMgr.Init(handler);
+		sts = senseMgr.Init();
 
 		if (sts.isError()) {
 			log.error("Init failed: " + sts);
@@ -329,7 +351,46 @@ public class RSFaceTrackTask implements Runnable {
 		dev.QueryDeviceInfo(info);
 		log.debug("Using Camera: " + info.name);
 
-		senseMgr.StreamFrames(true);
+		while (startCapture) {
+			sts = senseMgr.AcquireFrame(true);
+			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
+			if (sample == null) {
+				senseMgr.ReleaseFrame();
+				continue;
+			}
+
+			BufferedImage frameImage = null;
+			if (sample.color != null) {
+				frameImage = drawFrameImage(sample);
+			}
+
+			faceData.Update();
+
+			for (int fidx = 0;; fidx++) {
+				PXCMFaceData.Face face = faceData.QueryFaceByIndex(fidx);
+				if (face == null)
+					break;
+				PXCMFaceData.DetectionData detection = face.QueryDetection();
+				float[] depthArray = new float[4];
+				if (detection.QueryFaceAverageDepth(depthArray)) {
+					// log.debug("QueryFaceAverageDepth=" + depthArray[0]);
+				}
+
+				if (detection != null) {
+					PICData fd = createFaceData(frameImage, detection);
+					if (fd != null) {
+						if (fd.isDetectedFace() && currentIDCard != null) {
+							fd.setIdCard(currentIDCard);
+							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+						}
+						drawLocation(detection);
+					}
+				}
+
+				// drawLandmark(face);
+			}
+			senseMgr.ReleaseFrame();
+		}
 	}
 
 }

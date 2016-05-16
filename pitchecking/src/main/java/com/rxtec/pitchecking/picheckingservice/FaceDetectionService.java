@@ -121,22 +121,12 @@ public class FaceDetectionService implements IFaceTrackService {
 		return trackededFaceQueue.poll();
 	}
 
-	private void beginFaceTrackThread() {
-		FaceTrackTask trackTask = new FaceTrackTask();
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		ExecutorService executer = Executors.newCachedThreadPool();
-		executer.execute(trackTask);
-		// executer.execute(detectTask);
-	}
+
 
 	int frameCounter = 0;
 
 	public void beginVideoCaptureAndTracking() {
-		beginFaceTrackThread();
+		MFFaceTrackTask.startTracking();
 
 		Video<MBFImage> video = null;
 		try {
@@ -145,8 +135,7 @@ public class FaceDetectionService implements IFaceTrackService {
 			else
 				video = new VideoCapture(640, 480);
 		} catch (VideoCaptureException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("beginVideoCaptureAndTracking",e);;
 		}
 
 		video.setCurrentFrameIndex(10);

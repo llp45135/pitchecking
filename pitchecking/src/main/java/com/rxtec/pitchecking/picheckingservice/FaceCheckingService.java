@@ -53,21 +53,10 @@ public class FaceCheckingService {
 	
 	
 	public void offerDetectedFaceData(PICData faceData){
-//		int len = detectedFaceDataQueue.size() /2;
-//		if(len>Config.getInstance().getDetectededFaceQueueThreshold()){
-//			detectedFaceDataQueue.poll();
-//			detectedFaceDataQueue.offer(faceData);
-//		}else{
-//			detectedFaceDataQueue.offer(faceData);
-//		}
-
-		
 		if(!detectedFaceDataQueue.offer(faceData)){
 			detectedFaceDataQueue.poll();
 			detectedFaceDataQueue.offer(faceData);
 		}
-//		log.debug("takeFaceDataForChecking offerDetectedFaceData size:"+detectedFaceDataQueue.size());	
-
 	}
 	
 

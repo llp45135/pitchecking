@@ -250,7 +250,7 @@ public class LightControlBoard {
 	public static void main(String[] args) {
 		LightControlBoard cb = new LightControlBoard();
 		if (cb.Cb_InitSDK() == 0) {
-			if (cb.Cb_ScanAndOpenCom() == 0) {
+			if (cb.Cb_OpenCom(1) == 0) {
 				cb.Cb_LightUnitOn(0, 30);
 			}
 		}

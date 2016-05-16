@@ -25,7 +25,7 @@ public class QRReader implements Runnable {
 	}
 
 	private IDeviceEvent readQRData() {
-		IDeviceEvent event = new QRCodeReaderEvent();
+		IDeviceEvent event = new QRCodeReaderEvent(0);
 
 		/*
 		 * 读二维码数据,填充event 读不到数据返回null

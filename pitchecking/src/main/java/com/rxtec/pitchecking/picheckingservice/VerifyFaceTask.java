@@ -30,7 +30,7 @@ public class VerifyFaceTask implements Callable<PICData> {
 
 	public VerifyFaceTask(IDeviceEvent e) {
 		event = (IDCardReaderEvent) e;
-		if(Config.getInstance().getVideoType() == 2) 
+		if(Config.getInstance().getVideoType() == Config.RealSenseVideo) 
 			faceTrackService = RSFaceDetectionService.getInstance();
 		else 
 			faceTrackService = FaceDetectionService.getInstance();

@@ -50,7 +50,7 @@ public class PITTestDemo {
 			TicketCheckScreen screen = TicketCheckScreen.getInstance();
 			screen.initUI();
 			
-			if(Config.getInstance().getVideoType() == 2) 
+			if(Config.getInstance().getVideoType() == Config.RealSenseVideo) 
 				faceTrackService = RSFaceDetectionService.getInstance();
 			else 
 				faceTrackService = FaceDetectionService.getInstance();

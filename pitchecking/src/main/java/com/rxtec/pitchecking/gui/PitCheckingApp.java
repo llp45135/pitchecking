@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openimaj.video.capture.VideoCaptureException;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceEventListener;
 import com.rxtec.pitchecking.device.PITStatusEnum;
 import com.rxtec.pitchecking.device.TicketCheckScreen;
@@ -36,14 +37,18 @@ public class PitCheckingApp {
 		// 启动事件监听
 
 		FaceCheckingService.getInstance().beginFaceCheckerTask();
-		// FaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
-		// FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
 
-		RSFaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
-		RSFaceDetectionService.getInstance().beginVideoCaptureAndTracking();
+		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {
+			RSFaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
+			RSFaceDetectionService.getInstance().beginVideoCaptureAndTracking();
+		} else {
+			 FaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
+			 FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
+		}
+
+
 
 		eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
-
 
 		// eventListener.startListenEvent();
 

@@ -96,9 +96,17 @@ public class DeviceEventListener implements Runnable{
 		
 		IDCardDevice.getInstance();
 
+//		LightControlBoard cb = new LightControlBoard();
+//		if (cb.Cb_InitSDK() == 0) {
+//			if (cb.Cb_OpenCom(1) == 0) {
+//				cb.Cb_LightUnitOn(0, 30);
+//			}
+//		}
+//		
+//		QRDevice qrDeviceTest = QRDevice.getInstance();
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleWithFixedDelay(new IDReader(), 0, 100, TimeUnit.MILLISECONDS);
-		scheduler.scheduleWithFixedDelay(new QRReader(), 0, 100, TimeUnit.MILLISECONDS);
+//		scheduler.scheduleWithFixedDelay(qrDeviceTest, 0, 100, TimeUnit.MILLISECONDS);
 		
 
 
