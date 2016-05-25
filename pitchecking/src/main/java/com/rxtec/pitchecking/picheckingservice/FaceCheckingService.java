@@ -47,7 +47,7 @@ public class FaceCheckingService {
 	
 	
 	public PICData takeDetectedFaceData() throws InterruptedException{
-//		log.debug("takeFaceDataForChecking takeDetectedFaceData size:"+detectedFaceDataQueue.size());	
+		log.debug("takeFaceDataForChecking takeDetectedFaceData size:"+detectedFaceDataQueue.size());	
 		return detectedFaceDataQueue.take();
 	}
 	

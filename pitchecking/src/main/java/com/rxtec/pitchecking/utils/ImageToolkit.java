@@ -45,36 +45,42 @@ public class ImageToolkit {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-//		// 1-缩放图像：
-//		// 方法一：按比例缩放
-//		ImageToolkit.scale("e:/abc.jpg", "e:/abc_scale.jpg", 2, true);// 测试OK
-//		// 方法二：按高度和宽度缩放
-//		ImageToolkit.scale2("e:/abc.jpg", "e:/abc_scale2.jpg", 500, 300, true);// 测试OK
-//
+		// // 1-缩放图像：
+		// // 方法一：按比例缩放
+		// ImageToolkit.scale("e:/abc.jpg", "e:/abc_scale.jpg", 2, true);// 测试OK
+		// // 方法二：按高度和宽度缩放
+		// ImageToolkit.scale2("e:/abc.jpg", "e:/abc_scale2.jpg", 500, 300,
+		// true);// 测试OK
+		//
 		// 2-切割图像：
 		// 方法一：按指定起点坐标和宽高切割
-		ImageToolkit.cut("C:/pitchecking/images/20160502/AA.jpg", "C:/pitchecking/images/20160502/BB.jpg", 245, 171, 181, 181);// 测试OK
-//		// 方法二：指定切片的行数和列数
-//		ImageToolkit.cut2("e:/abc.jpg", "e:/", 2, 2);// 测试OK
-//		// 方法三：指定切片的宽度和高度
-//		ImageToolkit.cut3("e:/abc.jpg", "e:/", 300, 300);// 测试OK
-//
-//		// 3-图像类型转换：
-//		ImageToolkit.convert("e:/abc.jpg", "GIF", "e:/abc_convert.gif");// 测试OK
-//
-//		// 4-彩色转黑白：
-//		ImageToolkit.gray("e:/abc.jpg", "e:/abc_gray.jpg");// 测试OK
-//
-//		// 5-给图片添加文字水印：
-//		// 方法一：
-//		ImageToolkit.pressText("我是水印文字", "e:/abc.jpg", "e:/abc_pressText.jpg", "宋体", Font.BOLD, Color.white, 80, 0, 0,
-//				0.5f);// 测试OK
-//		// 方法二：
-//		ImageToolkit.pressText2("我也是水印文字", "e:/abc.jpg", "e:/abc_pressText2.jpg", "黑体", 36, Color.white, 80, 0, 0,
-//				0.5f);// 测试OK
-//
-//		// 6-给图片添加图片水印：
-//		ImageToolkit.pressImage("e:/abc2.jpg", "e:/abc.jpg", "e:/abc_pressImage.jpg", 0, 0, 0.5f);// 测试OK
+		ImageToolkit.cut("C:/pitchecking/images/20160502/AA.jpg", "C:/pitchecking/images/20160502/BB.jpg", 245, 171,
+				181, 181);// 测试OK
+		// // 方法二：指定切片的行数和列数
+		// ImageToolkit.cut2("e:/abc.jpg", "e:/", 2, 2);// 测试OK
+		// // 方法三：指定切片的宽度和高度
+		// ImageToolkit.cut3("e:/abc.jpg", "e:/", 300, 300);// 测试OK
+		//
+		// // 3-图像类型转换：
+		// ImageToolkit.convert("e:/abc.jpg", "GIF", "e:/abc_convert.gif");//
+		// 测试OK
+		//
+		// // 4-彩色转黑白：
+		// ImageToolkit.gray("e:/abc.jpg", "e:/abc_gray.jpg");// 测试OK
+		//
+		// // 5-给图片添加文字水印：
+		// // 方法一：
+		// ImageToolkit.pressText("我是水印文字", "e:/abc.jpg",
+		// "e:/abc_pressText.jpg", "宋体", Font.BOLD, Color.white, 80, 0, 0,
+		// 0.5f);// 测试OK
+		// // 方法二：
+		// ImageToolkit.pressText2("我也是水印文字", "e:/abc.jpg",
+		// "e:/abc_pressText2.jpg", "黑体", 36, Color.white, 80, 0, 0,
+		// 0.5f);// 测试OK
+		//
+		// // 6-给图片添加图片水印：
+		// ImageToolkit.pressImage("e:/abc2.jpg", "e:/abc.jpg",
+		// "e:/abc_pressImage.jpg", 0, 0, 0.5f);// 测试OK
 	}
 
 	/**
@@ -218,16 +224,20 @@ public class ImageToolkit {
 			int srcWidth = bi.getHeight(); // 源图宽度
 			int srcHeight = bi.getWidth(); // 源图高度
 			if (srcWidth > 0 && srcHeight > 0) {
-//				Image image = bi.getScaledInstance(srcWidth, srcHeight, Image.SCALE_DEFAULT);
-//				// 四个参数分别为图像起点坐标和宽高
-//				// 即: CropImageFilter(int x,int y,int width,int height)
-//				ImageFilter cropFilter = new CropImageFilter(x, y, width, height);
-//				Image img = Toolkit.getDefaultToolkit()
-//						.createImage(new FilteredImageSource(image.getSource(), cropFilter));
-//				BufferedImage tag = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-//				Graphics g = tag.getGraphics();
-//				g.drawImage(img, 0, 0, width, height, null); // 绘制切割后的图
-//				g.dispose();
+				// Image image = bi.getScaledInstance(srcWidth, srcHeight,
+				// Image.SCALE_DEFAULT);
+				// // 四个参数分别为图像起点坐标和宽高
+				// // 即: CropImageFilter(int x,int y,int width,int height)
+				// ImageFilter cropFilter = new CropImageFilter(x, y, width,
+				// height);
+				// Image img = Toolkit.getDefaultToolkit()
+				// .createImage(new FilteredImageSource(image.getSource(),
+				// cropFilter));
+				// BufferedImage tag = new BufferedImage(width, height,
+				// BufferedImage.TYPE_INT_RGB);
+				// Graphics g = tag.getGraphics();
+				// g.drawImage(img, 0, 0, width, height, null); // 绘制切割后的图
+				// g.dispose();
 				// 输出为文件
 				ImageIO.write(bi.getSubimage(x, y, width, height), "JPEG", new File(result));
 			}
@@ -564,6 +574,51 @@ public class ImageToolkit {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static BufferedImage toGrayImage(BufferedImage image) {
+	    BufferedImage grayImage = 
+	            new BufferedImage(image.getWidth(), 
+	            		image.getHeight(), 
+	            		BufferedImage.TYPE_BYTE_GRAY);
+	            
+	        
+	        for (int i = 0; i < image.getWidth(); i++) {
+	            for (int j = 0; j < image.getHeight(); j++) {
+	                final int color = image.getRGB(i, j);
+	                final int r = (color >> 16) & 0xff;
+	                final int g = (color >> 8) & 0xff;
+	                final int b = color & 0xff;
+	                int gray = (int) (0.3 * r + 0.59 * g + 0.11 * b);
+	                int newPixel = colorToRGB(255, gray, gray, gray);
+	                grayImage.setRGB(i, j, newPixel);
+	            }
+	        }
+
+	        File newFile = new File("C:/Users/lenovo/Pictures/ok.bmp");
+	        try {
+				ImageIO.write(grayImage, "bmp", newFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+	        return grayImage;
+	}
+
+	private static int colorToRGB(int alpha, int red, int green, int blue) {
+
+		int newPixel = 0;
+		newPixel += alpha;
+		newPixel = newPixel << 8;
+		newPixel += red;
+		newPixel = newPixel << 8;
+		newPixel += green;
+		newPixel = newPixel << 8;
+		newPixel += blue;
+
+		return newPixel;
+
 	}
 
 	/**

@@ -39,12 +39,22 @@ public class Config {
 	private int detectededFaceQueueLen = 5;
 	private int detectededFaceQueueThreshold = 2;
 	private int videoType = 1;
+	private int videoCaptureFrequency=10;
+	
 
 	//
 	private String ticketXmlDir;
 	private String ticketImgDir;
 	private String stationDoc;
 	private boolean isDealQR = true;
+	
+	public int getVideoCaptureFrequency() {
+		return videoCaptureFrequency;
+	}
+
+	public void setVideoCaptureFrequency(int videoCaptureFrequency) {
+		this.videoCaptureFrequency = videoCaptureFrequency;
+	}
 
 	public boolean isDealQR() {
 		return isDealQR;
@@ -185,6 +195,8 @@ public class Config {
 			this.detectededFaceQueueLen = Integer.valueOf(p.getProperty("DetectededFaceQueueLen", "5"));
 			this.detectededFaceQueueThreshold = Integer.valueOf(p.getProperty("DetectededFaceQueueThreshold", "2"));
 			this.videoType = Integer.valueOf(p.getProperty("VideoType", "2"));
+			this.videoCaptureFrequency = Integer.valueOf(p.getProperty("VideoCaptureFrequency", "5"));
+			
 			//
 			this.ticketXmlDir = p.getProperty("TicketXmlDir", "./xml/");
 			this.ticketImgDir = p.getProperty("TicketImgDir", "./img/");

@@ -74,60 +74,70 @@ public class MFFaceTrackTask implements Runnable {
 		}
 	}
 
+	int frameCount = 0;
+
 	private void detectFaceLocation() {
-		try {
-			BufferedImage frame = FaceDetectionService.getInstance().takeFrameImage();
-			if (frame != null) {
-				BufferedImage fimg = ImageUtilities.createBufferedImage(ImageUtilities.createFImage(frame));
-				byte[] pixels = ImageToolkit.getImageBytes(fimg, "PNG");
-				// byte[] pixels = ((DataBufferByte)frame.getRaster().getDataBuffer()).getData();
-				if (pixels != null) {
-					long nowMils = Calendar.getInstance().getTimeInMillis();
-					Face[] faces = faceDetecter.frontal(pixels, frame.getWidth(), frame.getHeight());
-					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-					log.debug("faceDetecter.frontal, using " + usingTime + " ms");
-					for (Face face : faces) {
-						PICData fd = new PICData(frame);
-						fd.updateFaceLocation(face.getX(), face.getY(), face.getWidth(), face.getHeight());
-						fd.setDetectedFace(true);
-						if (fd.isDetectedFace()) {
-							FaceDetectionService.getInstance().offerTrackedFaceData(fd);
-							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+		frameCount++;
+		if (frameCount >= Config.getInstance().getVideoCaptureFrequency()) {
+			frameCount = 0;
+
+			try {
+				BufferedImage frame = FaceDetectionService.getInstance().takeFrameImage();
+				if (frame != null) {
+					BufferedImage grayImage = ImageToolkit.toGrayImage(frame);
+					byte[] pixels = ((DataBufferByte) grayImage.getRaster().getDataBuffer()).getData();
+					
+					if (pixels != null) {
+						long nowMils = Calendar.getInstance().getTimeInMillis();
+
+						Face[] faces = faceDetecter.frontal(pixels, frame.getHeight(), frame.getWidth());
+						
+						
+						long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+						log.debug("faceDetecter.frontal, using " + usingTime + " ms" + " detect faces=" + faces.length);
+						for (Face face : faces) {
+							PICData fd = new PICData(frame);
+							fd.updateFaceLocation(face.getX(), face.getY(), face.getWidth(), face.getHeight());
+							fd.setDetectedFace(true);
+							if (fd.isDetectedFace()) {
+								FaceDetectionService.getInstance().offerTrackedFaceData(fd);
+							}
 						}
 					}
-				}
 
+				}
+			} catch (InterruptedException e) {
+				log.error("FaceTrackTask ", e);
 			}
-		} catch (InterruptedException e) {
-			log.error("FaceTrackTask ", e);
 		}
 
 	}
 
-//	private byte[] convertToFImageBytes(BufferedImage frame) {
-//		byte[] pixels = null;
-//		BufferedImage fimg = ImageUtilities.createBufferedImage(ImageUtilities.createFImage(frame));
-//
-//		String dirName = Config.getInstance().getImagesLogDir();
-//		String fn = "";
-//		int ret = CommUtil.createDir(dirName);
-//		if (ret == 0 || ret == 1) {
-//			fn = dirName + "FCTMP.jpg";
-//			java.io.File f = new java.io.File(fn);
-//			if (f.exists())
-//				f.deleteOnExit();
-//			try {
-//				ImageIO.write(fimg, "JPEG", f);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//				fn = "";
-//			}
-//
-//		}
-//
-//		return fn;
-//	}
+	// private byte[] convertToFImageBytes(BufferedImage frame) {
+	// byte[] pixels = null;
+	// BufferedImage fimg =
+	// ImageUtilities.createBufferedImage(ImageUtilities.createFImage(frame));
+	//
+	// String dirName = Config.getInstance().getImagesLogDir();
+	// String fn = "";
+	// int ret = CommUtil.createDir(dirName);
+	// if (ret == 0 || ret == 1) {
+	// fn = dirName + "FCTMP.jpg";
+	// java.io.File f = new java.io.File(fn);
+	// if (f.exists())
+	// f.deleteOnExit();
+	// try {
+	// ImageIO.write(fimg, "JPEG", f);
+	// } catch (IOException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// fn = "";
+	// }
+	//
+	// }
+	//
+	// return fn;
+	// }
 
 	private void detectFaceImage() {
 		// try {

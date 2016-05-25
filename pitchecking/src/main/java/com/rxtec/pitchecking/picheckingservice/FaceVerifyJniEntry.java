@@ -87,7 +87,7 @@ public class FaceVerifyJniEntry {
 			
 			
 			
-//			log.debug("FaceChecking succ, using " + usingTime + " ms, value=" + result);
+			log.debug("FaceChecking succ, using " + usingTime + " ms, value=" + result);
 			
 			
 		} catch (NativeException e) {
