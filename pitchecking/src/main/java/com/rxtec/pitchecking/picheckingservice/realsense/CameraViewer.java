@@ -1,6 +1,8 @@
 package com.rxtec.pitchecking.picheckingservice.realsense;
 
 import intel.rssdk.*;
+import intel.rssdk.PXCMImage.ImageInfo;
+
 import java.lang.System.*;
 import java.util.*;
 import javax.swing.*;
@@ -79,6 +81,7 @@ public class CameraViewer {
 		dframe.setSize(dWidth, dHeight);
 		dframe.add(d_df);
 		dframe.setVisible(true);
+		PXCMProjection projection;
 
 		if (sts == pxcmStatus.PXCM_STATUS_NO_ERROR) {
 			while (listener.exit == false) {
@@ -111,18 +114,38 @@ public class CameraViewer {
 
 					if (sample.depth != null) {
 						PXCMImage.ImageData dData = new PXCMImage.ImageData();
-						sample.depth.AcquireAccess(PXCMImage.Access.ACCESS_READ,
-								PXCMImage.PixelFormat.PIXEL_FORMAT_RGB32, dData);
+						ImageInfo imageInfo = sample.depth.QueryInfo();
+						sample.depth.AcquireAccess(PXCMImage.Access.ACCESS_WRITE,imageInfo.format,dData);
 						if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) < 0) {
 							System.out.println("Failed to AcquireAccess of depth image data");
 							System.exit(3);
 						}
 
-						int dBuff[] = new int[dData.pitches[0] / 4 * dHeight];
-						dData.ToIntArray(0, dBuff);
-						d_df.image.setRGB(0, 0, dWidth, dHeight, dBuff, 0, dData.pitches[0] / 4);
-						d_df.repaint();
+//						int dBuff[] = new int[dData.pitches[0] / 4 * dHeight];
+//						dData.ToIntArray(0, dBuff);
+//						d_df.image.setRGB(0, 0, dWidth, dHeight, dBuff, 0, dData.pitches[0] / 4);
+//						d_df.repaint();
+
+						projection = device.CreateProjection();
+						PXCMPoint3DF32[] vertices = new PXCMPoint3DF32[sample.depth.QueryInfo().width * sample.depth.QueryInfo().height];
+						vertices[0] = new PXCMPoint3DF32();
+						sts = projection.QueryVertices(sample.depth, vertices);
+						PXCMPointF32 p = new PXCMPointF32(100, 100);
+						PXCMPointF32 pd = new PXCMPointF32(100, 100);
+						PXCMPointF32[] ps = new PXCMPointF32[1];
+						PXCMPointF32[] pds = new PXCMPointF32[1];
+						
+						PXCMPoint3DF32[] p3ds = new PXCMPoint3DF32[1];
+						
+						ps[0] = p;
+						pds[0] =pd; 
+						sts = projection.MapColorToDepth(sample.depth, 1, ps, pds);
+						
+						sts = projection.ProjectCameraToColor(1, p3ds, ps);
+						
+						System.out.println("projection.QueryVertices : " + sts);
 						sts = sample.depth.ReleaseAccess(dData);
+						projection.close();
 						if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) < 0) {
 							System.out.println("Failed to ReleaseAccess of depth image data");
 							System.exit(3);

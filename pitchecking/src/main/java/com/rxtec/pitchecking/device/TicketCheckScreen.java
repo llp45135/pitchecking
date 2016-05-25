@@ -14,6 +14,7 @@ import org.openimaj.video.capture.VideoCaptureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
@@ -38,12 +39,13 @@ public class TicketCheckScreen {
 	
 	
 	public void initUI(){
-//		gs[0].setFullScreenWindow(ticketFrame);
+//		gs[0].setFullScreenWindow(faceFrame);
+//		gs[1].setFullScreenWindow(ticketFrame);
 //		ticketFrame.setUndecorated(true);
-//		ticketFrame.setVisible(true);
+//		ticketFrame.setVisible(true);		
 		
-		//
-		gs[0].setFullScreenWindow(faceFrame);
+		gs[1].setFullScreenWindow(faceFrame);
+		gs[0].setFullScreenWindow(ticketFrame);
 //		faceFrame.setUndecorated(true);
 //		faceFrame.setVisible(true);
 		
@@ -63,10 +65,10 @@ public class TicketCheckScreen {
 	public void offerEvent(ScreenElementModifyEvent e) {
 		if (e != null) {
 			if (e.getScreenType() == 0) {
-				log.debug("收到Ticket屏幕事件，重画屏幕");
-
-				ticketFrame.getContentPane().repaint();
-				// gs[0].setFullScreenWindow(ticketFrame);
+				log.debug("收到Ticket屏幕事件，重画屏幕");	
+				Ticket ticket = e.getTicket();
+				
+				ticketFrame.showTicketContent(Config.getInstance(), ticket);
 			} else if (e.getScreenType() == 1) {
 				processEventByType(e);
 			}

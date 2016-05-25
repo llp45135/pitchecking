@@ -8,7 +8,7 @@ public enum DeviceEventTypeEnum {
             return true;
         }
     },
-    SUN(0) {
+    ReadQRCode(0) {
         @Override
         public boolean isRest() {
             return true;

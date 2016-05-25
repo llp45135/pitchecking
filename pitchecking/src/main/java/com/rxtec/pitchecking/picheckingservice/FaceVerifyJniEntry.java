@@ -87,14 +87,7 @@ public class FaceVerifyJniEntry {
 			
 			
 			
-			log.debug("FaceChecking succ, using " + usingTime + " ms, value=" + result);
-			
-			try {
-				saleImgToDsk(faceImgBytes,idCardBytes,result);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			log.debug("FaceChecking succ, using " + usingTime + " ms, value=" + result);
 			
 			
 		} catch (NativeException e) {
@@ -107,17 +100,7 @@ public class FaceVerifyJniEntry {
 	}
 	
 	
-	private void saleImgToDsk(byte[] faceImgBytes, byte[] idCardBytes,float value) throws IOException{
-		BufferedImage fbi = ImageIO.read(ImageIO.createImageInputStream(new ByteArrayInputStream(faceImgBytes)));
-		BufferedImage ibi = ImageIO.read(ImageIO.createImageInputStream(new ByteArrayInputStream(idCardBytes)));
-		String ffn = "C:/pitchecking/imglog/" + faceImgBytes.hashCode() +"@"+value+ ".jpg";
-		String ifn = "C:/pitchecking/imglog/" + idCardBytes.hashCode() + ".jpg";
-		
-		
-		ImageIO.write(fbi, "JPEG", ImageIO.createImageOutputStream(new File(ffn)));
-//		ImageIO.write(ibi, "JPEG", ImageIO.createImageOutputStream(new File(ifn)));
-	}
-	
+
 	
 	public static void main(String[] args) {
 

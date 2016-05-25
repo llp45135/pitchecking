@@ -17,13 +17,13 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.IDCard;
-import com.rxtec.pitchecking.picheckingservice.MFFaceTrackTask;
 import com.rxtec.pitchecking.picheckingservice.PICData;
 
 import intel.rssdk.PXCMBase;
 import intel.rssdk.PXCMCapture;
 import intel.rssdk.PXCMFaceConfiguration;
 import intel.rssdk.PXCMFaceData;
+import intel.rssdk.PXCMFaceData.LandmarkPoint;
 import intel.rssdk.PXCMFaceModule;
 import intel.rssdk.PXCMImage;
 import intel.rssdk.PXCMImage.Option;
@@ -226,12 +226,16 @@ public class RSFaceTrackTask implements Runnable {
 		}
 	}
 
-	private void drawLandmark(PXCMFaceData.Face face) {
+	private boolean drawLandmark(PXCMFaceData.Face face) {
 		if (face == null)
-			return;
+			return false;
 		PXCMFaceData.LandmarksData landmarks = face.QueryLandmarks();
+		if(landmarks == null) return false;
 		int npoints = landmarks.QueryNumPoints();
 		PXCMFaceData.LandmarkPoint[] points = new PXCMFaceData.LandmarkPoint[npoints];
+		for(int i=0;i<npoints;i++){
+			points[i] = new LandmarkPoint();
+		}
 		landmarks.QueryPoints(points);
 
 		Point point = new Point();
@@ -242,6 +246,8 @@ public class RSFaceTrackTask implements Runnable {
 			point.y = (int) (landmark.image.y + LandmarkAlignment);
 
 			Graphics2D graphics = (Graphics2D) videoPanel.getGraphics();
+			
+//			log.debug("landmark.confidenceImage=" + landmark.confidenceImage +"  landmark.confidenceWorld=" + landmark.confidenceWorld );
 			if (landmark.confidenceImage == 0) {
 				graphics.setColor(Color.RED);
 				graphics.drawString("x", point.x, point.y);
@@ -249,8 +255,30 @@ public class RSFaceTrackTask implements Runnable {
 				graphics.setColor(Color.YELLOW);
 				graphics.drawString("•", point.x, point.y);
 			}
+			
+//			log.debug("landmark :" + landmark.source.alias +"  z=" + landmark.world.z);
 		}
+		
+		return checkRealFace(points);
+		
 
+	}
+	
+	
+	private boolean checkRealFace(PXCMFaceData.LandmarkPoint[] points){
+		boolean isRealFace = false;
+		if(points == null) return isRealFace;
+		float p1,p2,p3,p4;
+		PXCMFaceData.LandmarkPoint landmark1,landmark2,landmark3,landmark4;
+		landmark1 = points[29];
+		landmark2 = points[30];
+		landmark3 = points[31];
+		landmark4 = points[32];
+		float zDIF = Math.abs(landmark1.world.z - landmark3.world.z);
+		if( zDIF > 0.01) isRealFace = true;
+		log.debug("--------Real face : " + isRealFace + " zDIF = " + zDIF);
+
+		return isRealFace;
 	}
 
 	private BufferedImage drawFrameImage(PXCMCapture.Sample sample) {
@@ -371,14 +399,11 @@ public class RSFaceTrackTask implements Runnable {
 				if (face == null)
 					break;
 				PXCMFaceData.DetectionData detection = face.QueryDetection();
-				float[] depthArray = new float[4];
-				if (detection.QueryFaceAverageDepth(depthArray)) {
-					// log.debug("QueryFaceAverageDepth=" + depthArray[0]);
-				}
 
+				boolean isRealFace = drawLandmark(face);
 				if (detection != null) {
 					PICData fd = createFaceData(frameImage, detection);
-					if (fd != null) {
+					if (fd != null && isRealFace) {
 						if (fd.isDetectedFace() && currentIDCard != null) {
 							fd.setIdCard(currentIDCard);
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
@@ -387,7 +412,7 @@ public class RSFaceTrackTask implements Runnable {
 					}
 				}
 
-				// drawLandmark(face);
+				 
 			}
 			senseMgr.ReleaseFrame();
 		}

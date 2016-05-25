@@ -77,14 +77,24 @@ public class MFFaceTrackTask implements Runnable {
 		try {
 			BufferedImage frame = FaceDetectionService.getInstance().takeFrameImage();
 			if (frame != null) {
-				PICData fd = new PICData(frame);
 				String fn = saveFImageToDsk(frame);
 				if (!fn.equals("")) {
+					long nowMils = Calendar.getInstance().getTimeInMillis();
 					Face[] faces = faceDetecter.frontal(fn, 0, 0, 0, 0, 0, 0, 0);
-//					faces[0].
+					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+					log.debug("faceDetecter.frontal, using " + usingTime + " ms");
 
-					if (fd.isDetectedFace())
-						FaceDetectionService.getInstance().offerTrackedFaceData(fd);
+					// faces[0].
+					for (Face face : faces) {
+						PICData fd = new PICData(frame);
+						fd.updateFaceLocation(face.getX(), face.getY(), face.getWidth(), face.getHeight());
+						fd.setDetectedFace(true);
+						if (fd.isDetectedFace()) {
+							FaceDetectionService.getInstance().offerTrackedFaceData(fd);
+							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+						}
+					}
+
 				}
 			}
 		} catch (InterruptedException e) {
@@ -101,7 +111,7 @@ public class MFFaceTrackTask implements Runnable {
 		String fn = "";
 		int ret = CommUtil.createDir(dirName);
 		if (ret == 0 || ret == 1) {
-			fn = dirName + "/FCTMP.jpg";
+			fn = dirName + "FCTMP.jpg";
 			java.io.File f = new java.io.File(fn);
 			if (f.exists())
 				f.deleteOnExit();

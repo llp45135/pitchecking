@@ -151,7 +151,6 @@ public class FaceDetectionService implements IFaceTrackService {
 
 				if (face != null) {
 					face.setIdCard(currentIDCard);
-					offerWaitForDetectedFaceData(face);
 					frame.drawShape(face.getFaceLocation().getFaceBounds(), RGBColour.RED);
 				}
 			}

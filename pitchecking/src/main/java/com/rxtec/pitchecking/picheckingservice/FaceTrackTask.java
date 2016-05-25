@@ -94,10 +94,10 @@ public class FaceTrackTask implements Runnable {
 				PICData fd = new PICData(frame);
 				faceDetecter.detectFaceImage(fd);
 
-				if (detectQuality(fd) && fd.isDetectedFace())
+				if (detectQuality(fd) && fd.isDetectedFace()){
 					FaceDetectionService.getInstance().offerTrackedFaceData(fd);
-				FaceCheckingService.getInstance().offerDetectedFaceData(fd);
-				if(fd.isDetectedFace()) fd.saveFaceDataToDsk();
+					FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+				}
 			}
 
 		} catch (InterruptedException e) {

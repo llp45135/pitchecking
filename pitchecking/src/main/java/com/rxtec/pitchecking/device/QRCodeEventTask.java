@@ -24,6 +24,8 @@ public class QRCodeEventTask implements Callable<Integer> {
 		log.debug("正在调用回调函数处理QRCodeEventTask==" + this.event);
 
 		ScreenElementModifyEvent semEvent = new ScreenElementModifyEvent(0, 1, 1);
+		Ticket ticket = (Ticket)this.event.getData();
+		semEvent.setTicket(ticket);
 		TicketCheckScreen.getInstance().offerEvent(semEvent);
 		return null;
 	}
