@@ -1,6 +1,7 @@
 package com.rxtec.pitchecking.picheckingservice;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.concurrent.ExecutorService;
@@ -77,14 +78,14 @@ public class MFFaceTrackTask implements Runnable {
 		try {
 			BufferedImage frame = FaceDetectionService.getInstance().takeFrameImage();
 			if (frame != null) {
-				String fn = saveFImageToDsk(frame);
-				if (!fn.equals("")) {
+				BufferedImage fimg = ImageUtilities.createBufferedImage(ImageUtilities.createFImage(frame));
+				byte[] pixels = ImageToolkit.getImageBytes(fimg, "PNG");
+				// byte[] pixels = ((DataBufferByte)frame.getRaster().getDataBuffer()).getData();
+				if (pixels != null) {
 					long nowMils = Calendar.getInstance().getTimeInMillis();
-					Face[] faces = faceDetecter.frontal(fn, 0, 0, 0, 0, 0, 0, 0);
+					Face[] faces = faceDetecter.frontal(pixels, frame.getWidth(), frame.getHeight());
 					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 					log.debug("faceDetecter.frontal, using " + usingTime + " ms");
-
-					// faces[0].
 					for (Face face : faces) {
 						PICData fd = new PICData(frame);
 						fd.updateFaceLocation(face.getX(), face.getY(), face.getWidth(), face.getHeight());
@@ -94,8 +95,8 @@ public class MFFaceTrackTask implements Runnable {
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
 						}
 					}
-
 				}
+
 			}
 		} catch (InterruptedException e) {
 			log.error("FaceTrackTask ", e);
@@ -103,30 +104,30 @@ public class MFFaceTrackTask implements Runnable {
 
 	}
 
-	private String saveFImageToDsk(BufferedImage frame) {
-		if (frame == null)
-			return "";
-		BufferedImage fimg = ImageUtilities.createBufferedImage(ImageUtilities.createFImage(frame));
-		String dirName = Config.getInstance().getImagesLogDir();
-		String fn = "";
-		int ret = CommUtil.createDir(dirName);
-		if (ret == 0 || ret == 1) {
-			fn = dirName + "FCTMP.jpg";
-			java.io.File f = new java.io.File(fn);
-			if (f.exists())
-				f.deleteOnExit();
-			try {
-				ImageIO.write(fimg, "JPEG", f);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				fn = "";
-			}
-
-		}
-
-		return fn;
-	}
+//	private byte[] convertToFImageBytes(BufferedImage frame) {
+//		byte[] pixels = null;
+//		BufferedImage fimg = ImageUtilities.createBufferedImage(ImageUtilities.createFImage(frame));
+//
+//		String dirName = Config.getInstance().getImagesLogDir();
+//		String fn = "";
+//		int ret = CommUtil.createDir(dirName);
+//		if (ret == 0 || ret == 1) {
+//			fn = dirName + "FCTMP.jpg";
+//			java.io.File f = new java.io.File(fn);
+//			if (f.exists())
+//				f.deleteOnExit();
+//			try {
+//				ImageIO.write(fimg, "JPEG", f);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//				fn = "";
+//			}
+//
+//		}
+//
+//		return fn;
+//	}
 
 	private void detectFaceImage() {
 		// try {
