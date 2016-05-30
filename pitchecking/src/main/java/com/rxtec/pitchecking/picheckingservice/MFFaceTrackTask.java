@@ -77,6 +77,8 @@ public class MFFaceTrackTask implements Runnable {
 	int frameCount = 0;
 
 	private void detectFaceLocation() {
+		
+		
 		frameCount++;
 		if (frameCount >= Config.getInstance().getVideoCaptureFrequency()) {
 			frameCount = 0;
