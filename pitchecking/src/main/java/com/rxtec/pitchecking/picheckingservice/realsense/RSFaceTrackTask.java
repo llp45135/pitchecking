@@ -223,6 +223,7 @@ public class RSFaceTrackTask implements Runnable {
 			g.setColor(Color.GREEN);
 			g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
 			g.drawRect(rect.x, rect.y, rect.w, rect.h);
+			g.dispose();
 		}
 	}
 
@@ -239,13 +240,13 @@ public class RSFaceTrackTask implements Runnable {
 		landmarks.QueryPoints(points);
 
 		Point point = new Point();
+		Graphics2D graphics = (Graphics2D) videoPanel.getGraphics();
 		for (PXCMFaceData.LandmarkPoint landmark : points) {
 			if (landmark == null)
 				continue;
 			point.x = (int) (landmark.image.x + LandmarkAlignment);
 			point.y = (int) (landmark.image.y + LandmarkAlignment);
 
-			Graphics2D graphics = (Graphics2D) videoPanel.getGraphics();
 			
 //			log.debug("landmark.confidenceImage=" + landmark.confidenceImage +"  landmark.confidenceWorld=" + landmark.confidenceWorld );
 			if (landmark.confidenceImage == 0) {
@@ -258,6 +259,7 @@ public class RSFaceTrackTask implements Runnable {
 			
 //			log.debug("landmark :" + landmark.source.alias +"  z=" + landmark.world.z);
 		}
+		graphics.dispose();
 		
 		return checkRealFace(points);
 		
@@ -401,6 +403,7 @@ public class RSFaceTrackTask implements Runnable {
 				PXCMFaceData.DetectionData detection = face.QueryDetection();
 
 				boolean isRealFace = drawLandmark(face);
+//				boolean isRealFace = true;
 				if (detection != null) {
 					PICData fd = createFaceData(frameImage, detection);
 					if (fd != null && isRealFace) {
