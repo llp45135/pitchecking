@@ -105,6 +105,8 @@ public class MFFaceTrackTask implements Runnable {
 								FaceDetectionService.getInstance().offerTrackedFaceData(fd);
 							}
 						}
+						
+						FaceDetectionService.getInstance().drawFaceLocation(faces);
 					}
 
 				}

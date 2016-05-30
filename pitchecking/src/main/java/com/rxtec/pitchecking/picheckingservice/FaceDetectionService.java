@@ -1,6 +1,8 @@
 package com.rxtec.pitchecking.picheckingservice;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.util.Calendar;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -12,6 +14,7 @@ import javax.swing.JPanel;
 import org.openimaj.image.ImageUtilities;
 import org.openimaj.image.MBFImage;
 import org.openimaj.image.colour.RGBColour;
+import org.openimaj.math.geometry.shape.Rectangle;
 import org.openimaj.video.Video;
 import org.openimaj.video.VideoDisplay;
 import org.openimaj.video.VideoDisplayListener;
@@ -21,7 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.facedetect.Face;
+import com.rxtec.pitchecking.facedetect.FaceDetect;
 import com.rxtec.pitchecking.gui.VideoPanel;
+import com.rxtec.pitchecking.utils.ImageToolkit;
 
 public class FaceDetectionService implements IFaceTrackService {
 	private Logger log = LoggerFactory.getLogger("FaceTrackingService");
@@ -31,7 +37,8 @@ public class FaceDetectionService implements IFaceTrackService {
 	public void setVideoPanel(JPanel videoPanel) {
 		this.videoPanel = videoPanel;
 	}
-	
+
+	private FaceDetect faceDetecter = new FaceDetect();
 
 	private LinkedBlockingQueue<BufferedImage> frameImageQueue = new LinkedBlockingQueue<BufferedImage>(3);
 
@@ -121,10 +128,9 @@ public class FaceDetectionService implements IFaceTrackService {
 		return trackededFaceQueue.poll();
 	}
 
-
-
-	int frameCounter = 0;
-
+	
+	MBFImage currentFrame;
+	
 	public void beginVideoCaptureAndTracking() {
 		MFFaceTrackTask.startTracking();
 
@@ -135,23 +141,28 @@ public class FaceDetectionService implements IFaceTrackService {
 			else
 				video = new VideoCapture(640, 480);
 		} catch (VideoCaptureException e) {
-			log.error("beginVideoCaptureAndTracking",e);;
+			log.error("beginVideoCaptureAndTracking", e);
+			;
 		}
 
-		video.setCurrentFrameIndex(10);
+//		video.setCurrentFrameIndex(10);
 		VideoDisplay<MBFImage> vd = VideoDisplay.createVideoDisplay(video, videoPanel);
 		vd.addVideoListener(new VideoDisplayListener<MBFImage>() {
 			@Override
 			public void beforeUpdate(MBFImage frame) {
-
+				currentFrame = frame;
 				BufferedImage bi = ImageUtilities.createBufferedImageForDisplay(frame.clone());
 				offerFrame(bi);
 
-				PICData face = pollTrackedFaceData();
+				PICData faceData = pollTrackedFaceData();
 
-				if (face != null) {
-					face.setIdCard(currentIDCard);
-					frame.drawShape(face.getFaceLocation().getFaceBounds(), RGBColour.RED);
+				if (faceData != null) {
+					faceData.setIdCard(currentIDCard);
+//					frame.drawShape(face.getFaceLocation().getFaceBounds(), RGBColour.RED);
+					
+					FaceCheckingService.getInstance().offerDetectedFaceData(faceData);
+
+				
 				}
 			}
 
@@ -160,6 +171,84 @@ public class FaceDetectionService implements IFaceTrackService {
 			}
 		});
 	}
+	
+	
+	
+	
+	
+	public void drawFaceLocation(Face[] faces){
+		if(currentFrame != null){
+			for(Face face : faces){
+				Rectangle rect = new Rectangle(face.getX(), face.getY(), face.getWidth(), face.getHeight());
+				currentFrame.drawShape(rect, RGBColour.RED);
+			}
+		}
+	}
+
+//	public void beginVideoCaptureAndTracking() {
+//		Video<MBFImage> video = null;
+//		try {
+//			if (Config.getInstance().getRoateCapture() == 1)
+//				video = new RotationVideoCapture(640, 480);
+//			else
+//				video = new VideoCapture(640, 480);
+//		} catch (VideoCaptureException e) {
+//			log.error("beginVideoCaptureAndTracking", e);
+//			;
+//		}
+//		video.setCurrentFrameIndex(10);
+//		VideoDisplay<MBFImage> vd = VideoDisplay.createVideoDisplay(video, videoPanel);
+//
+//		vd.addVideoListener(new VideoDisplayListener<MBFImage>() {
+//			@Override
+//			public void beforeUpdate(MBFImage frame) {
+//
+//				detectFaceLocation(frame);
+//				try {
+//					Thread.sleep(0);
+//				} catch (InterruptedException e) {
+//					log.error("InterruptedException",e);
+//				}
+//			}
+//
+//			@Override
+//			public void afterUpdate(VideoDisplay<MBFImage> display) {
+//			}
+//		});
+//	}
+//
+//	int frameCounter = 0;
+//
+//	private void detectFaceLocation(MBFImage frame) {
+//
+//		frameCounter++;
+//		if (frameCounter >= Config.getInstance().getVideoCaptureFrequency()) {
+//			frameCounter = 0;
+//
+//			BufferedImage frameImage = ImageUtilities.createBufferedImageForDisplay(frame.clone());
+//			if (frameImage != null) {
+//				BufferedImage grayImage = ImageToolkit.toGrayImage(frameImage);
+//				byte[] pixels = ((DataBufferByte) grayImage.getRaster().getDataBuffer()).getData();
+//
+//				if (pixels != null) {
+//					long nowMils = Calendar.getInstance().getTimeInMillis();
+//					Face[] faces = faceDetecter.frontal(pixels, frameImage.getHeight(), frameImage.getWidth());
+//					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+//					log.debug("faceDetecter.frontal, using " + usingTime + " ms" + " detect faces=" + faces.length);
+//					for (Face face : faces) {
+//						PICData fd = new PICData(frameImage);
+//						fd.updateFaceLocation(face.getX(), face.getY(), face.getWidth(), face.getHeight());
+//						fd.setDetectedFace(true);
+//						if (fd.isDetectedFace()) {
+//							fd.setIdCard(currentIDCard);
+//							frame.drawShape(fd.getFaceLocation().getFaceBounds(), RGBColour.RED);
+//							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	private IDCard currentIDCard = null;
 
@@ -191,7 +280,5 @@ public class FaceDetectionService implements IFaceTrackService {
 		trackededFaceQueue.clear();
 		waitForDetectedFaceQueue.clear();
 	}
-
-
 
 }
