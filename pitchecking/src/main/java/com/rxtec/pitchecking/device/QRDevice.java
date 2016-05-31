@@ -53,18 +53,13 @@ public class QRDevice implements Runnable {
 		deviceEventQueue.offer(e);
 	}
 
-	public Ticket doTicket(String instr, String year) {
+	public Ticket doTicket(String instr, String year) throws NumberFormatException, UnsupportedEncodingException {
 		byte[] outStrArray = uncompress(instr, year);
 		// log.debug("outStrArray.length==" + outStrArray.length);
 		Ticket ticket = null;
-		try {
-			// log.debug("outStrArray.length=="+outStrArray.length);
-			ticket = buildTicket(outStrArray);
-			// ticket.printTicket();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// log.debug("outStrArray.length=="+outStrArray.length);
+		ticket = buildTicket(outStrArray);
+		// ticket.printTicket();
 		return ticket;
 	}
 
@@ -189,10 +184,6 @@ public class QRDevice implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// catch (UnsupportedEncodingException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
 		return outStrArray;
 	}
 
@@ -228,22 +219,22 @@ public class QRDevice implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-//		try {
-//			// Thread.sleep(200);
-//
-//			log.debug("QRDevice 准备从阻塞队列取Device事件");
-//			IDeviceEvent e;
-//			e = deviceEventQueue.take();
-//			log.debug("QRDevice 从阻塞队列取到新的event==" + e);
-//			if (e != null) {
-//				log.debug("QRDevice e.hashCode==" + e.hashCode());
-//				QRCodeReaderEvent qrcode = (QRCodeReaderEvent) e;
-//				Ticket ticket = (Ticket) qrcode.getData();
-//				ticket.printTicket();
-//			}
-//		} catch (InterruptedException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+		// try {
+		// // Thread.sleep(200);
+		//
+		// log.debug("QRDevice 准备从阻塞队列取Device事件");
+		// IDeviceEvent e;
+		// e = deviceEventQueue.take();
+		// log.debug("QRDevice 从阻塞队列取到新的event==" + e);
+		// if (e != null) {
+		// log.debug("QRDevice e.hashCode==" + e.hashCode());
+		// QRCodeReaderEvent qrcode = (QRCodeReaderEvent) e;
+		// Ticket ticket = (Ticket) qrcode.getData();
+		// ticket.printTicket();
+		// }
+		// } catch (InterruptedException e1) {
+		// // TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
 	}
 }

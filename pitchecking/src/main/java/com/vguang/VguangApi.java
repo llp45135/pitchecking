@@ -1,5 +1,7 @@
 package com.vguang;
 
+import java.io.UnsupportedEncodingException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -68,13 +70,20 @@ public class VguangApi {
 	 */
 	public static void decodeCallBack(byte[] decodeStrBytes) {
 		String str = new String(decodeStrBytes);
-		log.debug("str==" + str);
+//		log.debug("str==" + str);
 		String year = GetDate.getStringDateShort2().substring(0, 4);
-		Ticket ticket = QRDevice.getInstance().doTicket(str, year);
-		QRCodeReaderEvent deviceEvent = new QRCodeReaderEvent(0);
-		deviceEvent.setTicket(ticket);
-//		QRDevice.getInstance().offerDeviceEvent(deviceEvent);
-		DeviceEventListener.getInstance().offerDeviceEvent(deviceEvent);
+		Ticket ticket;
+		try {
+			ticket = QRDevice.getInstance().doTicket(str, year);
+			QRCodeReaderEvent deviceEvent = new QRCodeReaderEvent(0);
+			deviceEvent.setTicket(ticket);
+			// QRDevice.getInstance().offerDeviceEvent(deviceEvent);
+			DeviceEventListener.getInstance().offerDeviceEvent(deviceEvent);
+		} catch (NumberFormatException | UnsupportedEncodingException ex) {
+			// TODO Auto-generated catch block
+			log.error("二维码解析出错:" + str, ex);
+			ex.printStackTrace();
+		}
 		return;
 	}
 
