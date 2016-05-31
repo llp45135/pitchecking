@@ -259,6 +259,8 @@ public class RSFaceTrackTask implements Runnable {
 			
 //			log.debug("landmark :" + landmark.source.alias +"  z=" + landmark.world.z);
 		}
+		
+		
 		graphics.dispose();
 		landmarks = null;
 		return checkRealFace(points);
