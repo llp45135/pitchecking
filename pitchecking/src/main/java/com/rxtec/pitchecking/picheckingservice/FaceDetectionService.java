@@ -145,7 +145,7 @@ public class FaceDetectionService implements IFaceTrackService {
 			;
 		}
 
-//		video.setCurrentFrameIndex(10);
+		video.setCurrentFrameIndex(10);
 		VideoDisplay<MBFImage> vd = VideoDisplay.createVideoDisplay(video, videoPanel);
 		vd.addVideoListener(new VideoDisplayListener<MBFImage>() {
 			@Override
@@ -158,7 +158,7 @@ public class FaceDetectionService implements IFaceTrackService {
 
 				if (faceData != null) {
 					faceData.setIdCard(currentIDCard);
-//					frame.drawShape(face.getFaceLocation().getFaceBounds(), RGBColour.RED);
+					frame.drawShape(faceData.getFaceLocation().getFaceBounds(), RGBColour.RED);
 					
 					FaceCheckingService.getInstance().offerDetectedFaceData(faceData);
 
