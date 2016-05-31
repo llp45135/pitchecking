@@ -260,10 +260,8 @@ public class RSFaceTrackTask implements Runnable {
 //			log.debug("landmark :" + landmark.source.alias +"  z=" + landmark.world.z);
 		}
 		graphics.dispose();
-		
+		landmarks = null;
 		return checkRealFace(points);
-		
-
 	}
 	
 	
@@ -280,6 +278,7 @@ public class RSFaceTrackTask implements Runnable {
 		if( zDIF > 0.01) isRealFace = true;
 		log.debug("--------Real face : " + isRealFace + " zDIF = " + zDIF);
 
+		points = null;
 		return isRealFace;
 	}
 
@@ -307,6 +306,7 @@ public class RSFaceTrackTask implements Runnable {
 		if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) < 0) {
 			log.error("Failed to ReleaseAccess of color image data");
 		}
+		
 		return videoPanel.image;
 	}
 
@@ -402,8 +402,8 @@ public class RSFaceTrackTask implements Runnable {
 					break;
 				PXCMFaceData.DetectionData detection = face.QueryDetection();
 
-				boolean isRealFace = drawLandmark(face);
-//				boolean isRealFace = true;
+//				boolean isRealFace = drawLandmark(face);
+				boolean isRealFace = true;
 				if (detection != null) {
 					PICData fd = createFaceData(frameImage, detection);
 					if (fd != null && isRealFace) {
