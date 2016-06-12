@@ -29,7 +29,6 @@ public class VideoPanel extends JPanel{
 		Graphics2D g = (Graphics2D) this.getGraphics();
 		g.drawImage(image, 0, 0, null);
 		g.dispose();
-
 	}
 
 }

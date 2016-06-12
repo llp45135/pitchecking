@@ -419,6 +419,7 @@ public class RSFaceTrackTask implements Runnable {
 
 				 
 			}
+			faceData.close();
 			senseMgr.ReleaseFrame();
 		}
 	}
