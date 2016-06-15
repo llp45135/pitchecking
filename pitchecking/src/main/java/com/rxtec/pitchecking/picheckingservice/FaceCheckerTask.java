@@ -20,6 +20,7 @@ public class FaceCheckerTask implements Runnable {
 			try {
 				Thread.sleep(50);
 				PICData fd = FaceCheckingService.getInstance().takeDetectedFaceData();
+				
 				if (fd != null) {
 					IDCard idCard = fd.getIdCard();
 					if (idCard == null)

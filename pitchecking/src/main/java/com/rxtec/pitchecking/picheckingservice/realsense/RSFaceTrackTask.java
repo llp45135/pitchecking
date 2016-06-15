@@ -325,7 +325,13 @@ public class RSFaceTrackTask implements Runnable {
 
 	public void beginCheckingFace(IDCard idCard) {
 		currentIDCard = idCard;
+		log.debug("beginCheckingFace......");
 
+	}
+	public void stopCheckingFace() {
+		currentIDCard = null;
+		FaceCheckingService.getInstance().resetFaceDataQueue();
+		log.debug("stopCheckingFace......");
 	}
 
 	private IDCard currentIDCard = null;
@@ -338,10 +344,6 @@ public class RSFaceTrackTask implements Runnable {
 		this.currentIDCard = currentIDCard;
 	}
 
-	public void stopCheckingFace() {
-		currentIDCard = null;
-		FaceCheckingService.getInstance().resetFaceDataQueue();
-	}
 
 	private void doTracking() {
 		PXCMSenseManager senseMgr = PXCMSenseManager.CreateInstance();

@@ -42,6 +42,7 @@ public class RSFaceDetectionService implements IFaceTrackService{
 	private boolean enableFaceLandmark = true;
 	
 	RSFaceTrackTask trackTask ;
+	private IDCard currentIDCard = null;
 
 
 	private int maxTrackedFaces = 4;
@@ -122,8 +123,12 @@ public class RSFaceDetectionService implements IFaceTrackService{
 		trackTask.beginCheckingFace(idCard);
 
 	}
+	public void stopCheckingFace() {
+		currentIDCard = null;
+		trackTask.stopCheckingFace();
+		FaceCheckingService.getInstance().resetFaceDataQueue();
+	}
 
-	private IDCard currentIDCard = null;
 
 	public IDCard getCurrentIDCard() {
 		return currentIDCard;
@@ -133,11 +138,6 @@ public class RSFaceDetectionService implements IFaceTrackService{
 		this.currentIDCard = currentIDCard;
 	}
 
-	public void stopCheckingFace() {
-		currentIDCard = null;
-		trackTask.stopCheckingFace();
-		FaceCheckingService.getInstance().resetFaceDataQueue();
-	}
 
 
 }

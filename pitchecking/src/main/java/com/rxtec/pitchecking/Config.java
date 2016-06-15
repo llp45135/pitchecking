@@ -39,8 +39,8 @@ public class Config {
 	public static int StopStatus = 0;
 	
 	
-	private float faceCheckThreshold = (float) 0.7;
-	private float glassFaceCheckThreshold = (float) 0.68;
+	private float faceCheckThreshold = (float) 0.6;
+	private float glassFaceCheckThreshold = (float) 0.58;
 	private long faceCheckDelayTime = 5000;
 	private int fastFaceDetect = 1;
 	private int faceCheckingInteval = 100;

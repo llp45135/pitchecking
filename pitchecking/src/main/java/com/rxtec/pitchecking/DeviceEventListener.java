@@ -20,7 +20,7 @@ import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.PICData;
 
 public class DeviceEventListener implements Runnable {
-
+	private VerifyFaceTask verifyFaceTask = new VerifyFaceTask();
 	private static DeviceEventListener _instance = new DeviceEventListener();
 	private ExecutorService executor = Executors.newCachedThreadPool();
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
@@ -33,13 +33,6 @@ public class DeviceEventListener implements Runnable {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
-		// try {
-		// startListenEvent();
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
 	}
 
 	public static DeviceEventListener getInstance() {
@@ -59,10 +52,8 @@ public class DeviceEventListener implements Runnable {
 		log.debug("消费者准备消费event");
 		IDeviceEvent e = deviceEventQueue.take();
 		log.debug("消费者取到新的event==" + e + ",e.getEventType==" + e.getEventType());
-
 		this.processEvent(e);
 	}
-
 
 	private void processEvent(IDeviceEvent e) {
 		if (e.getEventType() == Config.QRReaderEvent && e.getData() != null) {
@@ -71,20 +62,20 @@ public class DeviceEventListener implements Runnable {
 			 */
 			QRCodeEventTask qrtask = new QRCodeEventTask(e);
 			Future<Integer> result = executor.submit(qrtask);
-			ticketVerifier.setTicket((Ticket)e.getData());
-			
+			ticketVerifier.setTicket((Ticket) e.getData());
+
 			verifyTicket();
 		} else if (e.getEventType() == Config.IDReaderEvent && e.getData() != null) {
 			/**
 			 * 二代证读卡器读到了新数据
 			 */
-			ticketVerifier.setIdCard((IDCard)e.getData());
+			ticketVerifier.setIdCard((IDCard) e.getData());
 			verifyTicket();
 		}
 	}
-	
-	private void verifyTicket(){
-		if(ticketVerifier.verify() == Config.TicketVerifySucc){
+
+	private void verifyTicket() {
+		if (ticketVerifier.verify() == Config.TicketVerifySucc) {
 			GateDeviceManager.getInstance().openFirstDoor();
 			IDReader.getInstance().stop();
 			QRReader.getInstance().stop();
@@ -92,41 +83,28 @@ public class DeviceEventListener implements Runnable {
 			ticketVerifier.reset();
 			IDReader.getInstance().start();
 			QRReader.getInstance().start();
-		}else{
-			
+		} else {
+
 		}
 	}
-	
-	
-	private void verifyFace(IDCard idCard){
-		VerifyFaceTask idtask = new VerifyFaceTask(idCard);
-		Future<PICData> future =  executor.submit(idtask);
-		try {
-			PICData picData = future.get();
-			if(picData != null){
-				GateDeviceManager.getInstance().openThirdDoor();
-			}else{
-				GateDeviceManager.getInstance().openSecondDoor();
-			}
-		} catch (InterruptedException | ExecutionException e) {
-			log.error("verifyFace",e);
+
+	private void verifyFace(IDCard idCard) {
+		PICData picData = verifyFaceTask.beginCheckFace(idCard);
+		if (picData != null) {
+			GateDeviceManager.getInstance().openThirdDoor();
+		} else {
+			GateDeviceManager.getInstance().openSecondDoor();
 		}
-		
 	}
-	
-	
 
 	// 启动设备
 	private void startDevice() throws DeviceException {
 		log.debug("启动设备");
-
 		IDCardDevice.getInstance();
-
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleWithFixedDelay(new IDReader(), 0, 100, TimeUnit.MILLISECONDS);
 		QRDevice qrDevice = QRDevice.getInstance();
 		scheduler.scheduleWithFixedDelay(qrDevice, 0, 100, TimeUnit.MILLISECONDS);
-
 	}
 
 	private int pitStatus = -1;
@@ -147,9 +125,7 @@ public class DeviceEventListener implements Runnable {
 			e = deviceEventQueue.take();
 			this.processEvent(e);
 		} catch (InterruptedException ex) {
-			log.error("DeviceEventListener",ex);
+			log.error("DeviceEventListener", ex);
 		}
-
 	}
-
 }

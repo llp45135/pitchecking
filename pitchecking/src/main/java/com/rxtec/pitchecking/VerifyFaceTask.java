@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking;
 
+import java.util.Calendar;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
@@ -21,22 +22,19 @@ import com.rxtec.pitchecking.task.RunningStatus;
  * @author ZhaoLin
  *
  */
-public class VerifyFaceTask implements Callable<PICData> {
+public class VerifyFaceTask{
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 
 	IDCardReaderEvent event;
 	IFaceTrackService faceTrackService = null; 
-	IDCard idCard = null;
-	public VerifyFaceTask(IDCard idCard) {
-		this.idCard = idCard;
+	public VerifyFaceTask() {
 		if(Config.getInstance().getVideoType() == Config.RealSenseVideo) 
 			faceTrackService = RSFaceDetectionService.getInstance();
 		else 
 			faceTrackService = FaceDetectionService.getInstance();
 	}
 
-	@Override
-	public PICData call() {
+	public PICData beginCheckFace(IDCard idCard) {
 		TicketCheckScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1,ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(),null));
 
@@ -47,6 +45,7 @@ public class VerifyFaceTask implements Callable<PICData> {
 		
 		faceTrackService.beginCheckingFace(idCard);
 
+		long nowMils = Calendar.getInstance().getTimeInMillis();
 
 		PICData fd =  null;
 		try {
@@ -57,6 +56,9 @@ public class VerifyFaceTask implements Callable<PICData> {
 		
 
 		if(fd == null){
+			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+			log.debug("pollPassFaceData, using " + usingTime +" value = null");
+			faceTrackService.stopCheckingFace();
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), fd));
 			TicketCheckScreen.getInstance().offerEvent(
@@ -64,14 +66,15 @@ public class VerifyFaceTask implements Callable<PICData> {
 
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
 			
-			faceTrackService.stopCheckingFace();
 		}else{
+			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+			log.debug("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());
+			faceTrackService.stopCheckingFace();
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), fd));
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
-			faceTrackService.stopCheckingFace();
 		}
 
 		return fd;

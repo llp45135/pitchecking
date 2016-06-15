@@ -13,11 +13,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.IDCard;
 
 
 
-public class FaceCheckingService {
+public class FaceCheckingService implements Runnable {
 	private Logger log = LoggerFactory.getLogger("FaceCheckingService");
+	FaceVerifyJniEntry faceVerify = new FaceVerifyJniEntry();
+	
+	private boolean isCheck = true;
+
 
 	private static FaceCheckingService _instance = new FaceCheckingService();
 
@@ -33,7 +38,7 @@ public class FaceCheckingService {
 	}
 	private FaceCheckingService(){
 		detectedFaceDataQueue = new LinkedBlockingQueue<PICData>(Config.getInstance().getDetectededFaceQueueLen());
-		passFaceDataQueue =new LinkedBlockingQueue<PICData>(Config.getInstance().getDetectededFaceQueueLen());
+		passFaceDataQueue =new LinkedBlockingQueue<PICData>(1);
 	}
 	public static synchronized FaceCheckingService getInstance(){
 		if(_instance == null) _instance = new FaceCheckingService();
@@ -47,10 +52,13 @@ public class FaceCheckingService {
 	
 	
 	public PICData takeDetectedFaceData() throws InterruptedException{
-		log.debug("takeFaceDataForChecking takeDetectedFaceData size:"+detectedFaceDataQueue.size());	
 		return detectedFaceDataQueue.take();
 	}
 	
+	public void offerPassFaceData(PICData fd){
+		isCheck = passFaceDataQueue.offer(fd);
+		log.debug("offerPassFaceData...... " + isCheck);
+	}
 	
 	public void offerDetectedFaceData(PICData faceData){
 		if(!detectedFaceDataQueue.offer(faceData)){
@@ -66,15 +74,11 @@ public class FaceCheckingService {
 		passFaceDataQueue.clear();
 	}
 	
-	public void offerPassFaceData(PICData fd){
-		passFaceDataQueue.offer(fd);
-	}
 	ExecutorService executor = Executors.newCachedThreadPool();
 	
 	public void beginFaceCheckerTask(){
-		FaceCheckerTask checker = new FaceCheckerTask();
 		ExecutorService executer = Executors.newCachedThreadPool();
-		executer.execute(checker);
+		executer.execute(this);
 		
 	}
 
@@ -82,6 +86,48 @@ public class FaceCheckingService {
 //		FaceQualityDetecter detecter = new FaceQualityDetecter();
 //		executor.execute(detecter);
 		
+	}
+
+	@Override
+	public void run() {
+		while (true) {
+			if(!isCheck) continue;
+			try {
+				Thread.sleep(50);
+				PICData fd = FaceCheckingService.getInstance().takeDetectedFaceData();
+				
+				if (fd != null) {
+					IDCard idCard = fd.getIdCard();
+					if (idCard == null)
+						continue;
+					long nowMils = Calendar.getInstance().getTimeInMillis();
+					float resultValue = 0;
+					byte[] extractFaceImageBytes = fd.getExtractFaceImageBytes();
+					if (extractFaceImageBytes == null)
+						continue;
+					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCard().getImageBytes());
+					fd.setFaceCheckResult(resultValue);
+					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
+						offerPassFaceData(fd);
+					} else {
+						if (fd.getFaceDetectedResult() != null) {
+							if (fd.getFaceDetectedResult().isWearsglasses()) {
+								if (resultValue >= Config.getInstance().getGlassFaceCheckThreshold()) {
+									offerPassFaceData(fd);
+								}
+							}
+						}
+					}
+					fd.saveFaceDataToDsk();
+				}
+
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
 	}
 
 	
