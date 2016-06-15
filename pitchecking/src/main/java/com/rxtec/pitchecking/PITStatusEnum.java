@@ -1,14 +1,22 @@
-package com.rxtec.pitchecking.device;
+package com.rxtec.pitchecking;
 
-public enum DeviceEventTypeEnum {
-	
-	FindIDCard(1),ReadIDCard(2){
+public enum PITStatusEnum {
+	 DefaultStatus(0)
+	,ReadQR(1)
+	,QRChecked(2)
+	,FirstDoorOpened(3)
+	,IDCardReaded(4)
+	,FaceChecked(5)
+	,FaceCheckedFailed(6)
+	,SecondDoorOpened(7)
+	,Exception(8)
+	{
         @Override
         public boolean isRest() {
             return true;
         }
     },
-    ReadQRCode(0) {
+    SUN(0) {
         @Override
         public boolean isRest() {
             return true;
@@ -26,7 +34,7 @@ public enum DeviceEventTypeEnum {
     }
 
     
-    private DeviceEventTypeEnum(int value) {
+    private PITStatusEnum(int value) {
         this.value = value;
     }
 

@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.picheckingservice;
+package com.rxtec.pitchecking;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;

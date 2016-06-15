@@ -15,6 +15,8 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
+import com.rxtec.pitchecking.IDCard;
+
 public class FaceVerifyJniEntry {
 	
 	public FaceVerifyJniEntry(){
@@ -87,7 +89,7 @@ public class FaceVerifyJniEntry {
 			
 			
 			
-			log.debug("FaceChecking succ, using " + usingTime + " ms, value=" + result);
+			log.debug("FaceChecking end, using " + usingTime + " ms, value=" + result);
 			
 			
 		} catch (NativeException e) {

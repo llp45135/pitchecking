@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.device;
+package com.rxtec.pitchecking;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -8,27 +8,34 @@ import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.rxtec.pitchecking.device.event.IDCardReaderEvent;
-import com.rxtec.pitchecking.device.event.IDeviceEvent;
-import com.rxtec.pitchecking.picheckingservice.IDCard;
+import com.rxtec.pitchecking.device.IDCardDevice;
+import com.rxtec.pitchecking.event.IDCardReaderEvent;
+import com.rxtec.pitchecking.event.IDeviceEvent;
 
 public class IDReader implements Runnable {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	IDCardDevice device = IDCardDevice.getInstance();
+	private int deviceStatus = Config.StartStatus;
 
+
+	private static IDReader instance;
+	public static synchronized IDReader getInstance() {
+		if (instance == null) {
+			instance = new IDReader();
+		}
+		return instance;
+	}
+	
+	
 	@Override
 	public void run() {
-
-		if (DeviceEventListener.getInstance().getPitStatus() == PITStatusEnum.FaceChecked.getValue()
-				|| DeviceEventListener.getInstance().getPitStatus() == PITStatusEnum.FaceCheckedFailed.getValue()
-				|| DeviceEventListener.getInstance().getPitStatus() == PITStatusEnum.DefaultStatus.getValue()) {
-			readCard();
-		}
-
+		readCard();
 	}
 
 	private void readCard() {
 
+		if(deviceStatus == Config.StopStatus) return;
+		
 		/*
 		 * 读二代证数据,填充event 读不到数据返回null
 		 */
@@ -40,18 +47,15 @@ public class IDReader implements Runnable {
 			String findval = device.Syn_StartFindIDCard();
 			if (findval.equals("0")) {
 
-				IDeviceEvent findedCardEvent = new IDCardReaderEvent(DeviceEventTypeEnum.FindIDCard.getValue());
+				IDeviceEvent findedCardEvent = new IDCardReaderEvent();
 				DeviceEventListener.getInstance().offerDeviceEvent(findedCardEvent);
-
 				String selectval = device.Syn_SelectIDCard();
 				if (selectval.equals("0")) {
 					IDCard idCard = device.Syn_ReadBaseMsg();
 					if (idCard != null) {
-						IDCardReaderEvent readCardEvent = new IDCardReaderEvent(
-								DeviceEventTypeEnum.ReadIDCard.getValue());
+						IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
 						readCardEvent.setIdCard(idCard);
 						DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
-
 					}
 				}
 			} else {
@@ -60,6 +64,15 @@ public class IDReader implements Runnable {
 
 			device.Syn_ClosePort();
 		}
+	}
+	
+	
+	public void start(){
+		deviceStatus = Config.StartStatus;
+	}
+	
+	public void stop(){
+		deviceStatus = Config.StopStatus;
 	}
 
 	/**
@@ -80,5 +93,8 @@ public class IDReader implements Runnable {
 		return card;
 
 	}
+	
+	
+	
 
 }

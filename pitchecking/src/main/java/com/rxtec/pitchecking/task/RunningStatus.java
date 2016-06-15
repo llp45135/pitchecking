@@ -4,11 +4,11 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.rxtec.pitchecking.device.DeviceEventListener;
-import com.rxtec.pitchecking.device.PITStatusEnum;
-import com.rxtec.pitchecking.device.ScreenCmdEnum;
-import com.rxtec.pitchecking.device.TicketCheckScreen;
-import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.DeviceEventListener;
+import com.rxtec.pitchecking.PITStatusEnum;
+import com.rxtec.pitchecking.ScreenCmdEnum;
+import com.rxtec.pitchecking.TicketCheckScreen;
+import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.PICData;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 

@@ -1,8 +1,8 @@
-package com.rxtec.pitchecking.device.event;
+package com.rxtec.pitchecking.event;
 
 import com.rxtec.pitchecking.picheckingservice.PICData;
-import com.rxtec.pitchecking.device.Ticket;
-import com.rxtec.pitchecking.picheckingservice.IDCard;
+import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.Ticket;
 
 public class ScreenElementModifyEvent {
 	private int screenType = 0;

@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.device;
+package com.rxtec.pitchecking;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -14,8 +14,7 @@ import org.openimaj.video.capture.VideoCaptureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.gui.VideoPanel;
@@ -103,7 +102,7 @@ public class TicketCheckScreen {
 	
 	private void processEventByType(ScreenElementModifyEvent e){
 		if(e.getElementType() == 1){
-			log.debug("收到Face屏幕事件，重画屏幕");
+//			log.debug("收到Face屏幕事件，重画屏幕");
 			ImageIcon icon = new ImageIcon(e.getIdCard().getCardImage());
 			faceFrame.showIDCardImage(icon);
 

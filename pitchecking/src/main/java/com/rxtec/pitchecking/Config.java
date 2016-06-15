@@ -27,7 +27,18 @@ public class Config {
 
 	public static int RealSenseVideo = 2;
 	public static int UVCVideo = 1;
+	
+	public static int IDReaderEvent = 1;
+	public static int QRReaderEvent = 2;
 
+	public static int TicketVerifyWaitInput = 0;
+	public static int TicketVerifySucc = 1;
+	public static int TicketVerifyFailed = -1;
+	
+	public static int StartStatus = 1;
+	public static int StopStatus = 0;
+	
+	
 	private float faceCheckThreshold = (float) 0.7;
 	private float glassFaceCheckThreshold = (float) 0.68;
 	private long faceCheckDelayTime = 5000;
@@ -46,7 +57,6 @@ public class Config {
 	private String ticketXmlDir;
 	private String ticketImgDir;
 	private String stationDoc;
-	private boolean isDealQR = true;
 	
 	public int getVideoCaptureFrequency() {
 		return videoCaptureFrequency;
@@ -56,13 +66,6 @@ public class Config {
 		this.videoCaptureFrequency = videoCaptureFrequency;
 	}
 
-	public boolean isDealQR() {
-		return isDealQR;
-	}
-
-	public void setDealQR(boolean isDealQR) {
-		this.isDealQR = isDealQR;
-	}
 
 	public String getTicketXmlDir() {
 		return ticketXmlDir;

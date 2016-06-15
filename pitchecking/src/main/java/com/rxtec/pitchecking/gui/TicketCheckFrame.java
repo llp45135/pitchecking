@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.device.Ticket;
-import com.rxtec.pitchecking.utils.GetDate;
+import com.rxtec.pitchecking.Ticket;
+import com.rxtec.pitchecking.utils.DateUtils;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -238,8 +238,6 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 
 		timeIntevel = -1;
 		timer.start();
-		//
-		Config.getInstance().setDealQR(true);
 	}
 	
 	/**
@@ -282,7 +280,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	}
 
 	private void timeRefresh() {
-		String now = GetDate.getStringDate();
+		String now = DateUtils.getStringDate();
 		timelabel.setText(now);
 	}
 	

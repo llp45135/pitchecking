@@ -1,18 +1,18 @@
 package com.vguang;
 
-import java.io.UnsupportedEncodingException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.rxtec.pitchecking.device.DeviceEventListener;
-import com.rxtec.pitchecking.device.QRDevice;
-import com.rxtec.pitchecking.device.Ticket;
-import com.rxtec.pitchecking.device.event.IDeviceEvent;
-import com.rxtec.pitchecking.device.event.QRCodeReaderEvent;
-import com.rxtec.pitchecking.utils.GetDate;
+import com.rxtec.pitchecking.IDReader;
+import com.rxtec.pitchecking.QRReader;
+import com.rxtec.pitchecking.utils.DateUtils;
 
-public class VguangApi {
+public class VguangApi implements Runnable {
 	private static Log log = LogFactory.getLog("VguangApi");
 	public static final int DEVICE_VALID = 1; // 设备有效
 	public static final int DEVICE_INVALID = 2; // 设备无效
@@ -62,6 +62,32 @@ public class VguangApi {
 	// 重启设备
 	public native static void resetDevice();
 
+	public static void applyDeviceSetting() {
+		// 设置QR状态
+		VguangApi.setQRable(true);
+		// 设置DM状态
+		VguangApi.setDMable(true);
+		// 设置Bar状态
+		VguangApi.setBarcode(true);
+
+		// 设置解码间隔时间，单位毫秒
+		VguangApi.setDeodeIntervalTime(300);
+
+		// 设置自动休眠状态
+		VguangApi.setAI(false);
+		int aiLimit = 20;
+		if (aiLimit < 1 || aiLimit > 64) {
+			aiLimit = 20;
+		}
+		// 设置自动休眠灵敏度
+		VguangApi.setAISensitivity(aiLimit);
+		// 设置自动休眠响应时间，单位秒
+		VguangApi.setAIResponseTime(30);
+
+		// 设置扬声器状态
+		VguangApi.setBeepable(true);
+	}
+
 	/**
 	 * 扫码回调函数） 需要根据实现情况修改实现
 	 * 
@@ -70,21 +96,9 @@ public class VguangApi {
 	 */
 	public static void decodeCallBack(byte[] decodeStrBytes) {
 		String str = new String(decodeStrBytes);
-//		log.debug("str==" + str);
-		String year = GetDate.getStringDateShort2().substring(0, 4);
-		Ticket ticket;
-		try {
-			ticket = QRDevice.getInstance().doTicket(str, year);
-			QRCodeReaderEvent deviceEvent = new QRCodeReaderEvent(0);
-			deviceEvent.setTicket(ticket);
-			// QRDevice.getInstance().offerDeviceEvent(deviceEvent);
-			DeviceEventListener.getInstance().offerDeviceEvent(deviceEvent);
-		} catch (NumberFormatException | UnsupportedEncodingException ex) {
-			// TODO Auto-generated catch block
-			log.error("二维码解析出错:" + str, ex);
-			ex.printStackTrace();
-		}
-		return;
+		 log.debug("str==" + str);
+		String year = DateUtils.getStringDateShort2().substring(0, 4);
+		QRReader.getInstance().performDeviceCallback(str, year);
 	}
 
 	/**
@@ -98,5 +112,18 @@ public class VguangApi {
 		// VguangSample.vguangSample.setDeviceStatus(status);
 		// }
 		return;
+	}
+
+	public static void startScan() {
+//		ExecutorService executor = Executors.newCachedThreadPool();
+//		executor.execute(new VguangApi());
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.scheduleWithFixedDelay(new VguangApi(), 0, 100, TimeUnit.MILLISECONDS);
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+
 	}
 }

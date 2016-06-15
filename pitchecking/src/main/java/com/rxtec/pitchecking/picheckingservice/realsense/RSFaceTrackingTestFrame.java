@@ -2,9 +2,9 @@ package com.rxtec.pitchecking.picheckingservice.realsense;
 
 import javax.swing.JOptionPane;
 
-import com.rxtec.pitchecking.device.ScreenCmdEnum;
-import com.rxtec.pitchecking.device.TicketCheckScreen;
-import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.ScreenCmdEnum;
+import com.rxtec.pitchecking.TicketCheckScreen;
+import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PICData;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;

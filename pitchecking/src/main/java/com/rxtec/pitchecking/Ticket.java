@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.device;
+package com.rxtec.pitchecking;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -14,9 +14,9 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
-import com.rxtec.pitchecking.picheckingservice.IDCard;
 import com.rxtec.pitchecking.picheckingservice.PICData;
 
 import intel.rssdk.PXCMBase;
@@ -419,7 +419,6 @@ public class RSFaceTrackTask implements Runnable {
 
 				 
 			}
-			faceData.close();
 			senseMgr.ReleaseFrame();
 		}
 	}

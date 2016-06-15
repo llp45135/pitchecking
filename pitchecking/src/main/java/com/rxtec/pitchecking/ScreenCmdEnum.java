@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.device;
+package com.rxtec.pitchecking;
 
 public enum ScreenCmdEnum {
 	

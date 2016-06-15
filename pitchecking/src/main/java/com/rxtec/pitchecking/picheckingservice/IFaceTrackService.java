@@ -2,6 +2,7 @@ package com.rxtec.pitchecking.picheckingservice;
 
 import javax.swing.JPanel;
 
+import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.gui.VideoPanel;
 
 public interface IFaceTrackService {

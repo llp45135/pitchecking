@@ -1,8 +1,8 @@
-package com.rxtec.pitchecking.device;
+package com.rxtec.pitchecking;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 
 public class FaceCheckScreen {
 	private static FaceCheckScreen _instance = new FaceCheckScreen();

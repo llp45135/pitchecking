@@ -1,10 +1,11 @@
-package com.rxtec.pitchecking.device.event;
+package com.rxtec.pitchecking.event;
 
-import com.rxtec.pitchecking.device.Ticket;
+import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.Ticket;
 
 public class QRCodeReaderEvent implements IDeviceEvent {
 
-	int eventType;
+	int eventType = Config.QRReaderEvent;
 	private Ticket ticket;
 
 	public void setTicket(Ticket ticket) {

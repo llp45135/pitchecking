@@ -1,12 +1,6 @@
-package com.rxtec.pitchecking.device;
+package com.rxtec.pitchecking;
 
 import java.io.UnsupportedEncodingException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xvolks.jnative.JNative;
@@ -15,52 +9,71 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
-import com.rxtec.pitchecking.Ticket;
-import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.QRCodeReaderEvent;
 import com.vguang.VguangApi;
 
-public class QRDevice implements Runnable {
-	private Log log = LogFactory.getLog("QRDevice");
-	private static Log logger = LogFactory.getLog("QRDevice");
-	private static QRDevice _instance = new QRDevice();
+public class QRReader {
+	private Log log = LogFactory.getLog("QRReader");
+	private static QRReader instance = new QRReader();
 	private JNative qrDeviceJNative = null;
+	
+	
+	private int deviceStatus = Config.StartStatus;
+
 
 	public static void main(String[] args) {
 
-		QRDevice qrDeviceTest = QRDevice.getInstance();
+		QRReader qrDeviceTest = QRReader.getInstance();
 		// ExecutorService executor = Executors.newCachedThreadPool();
 		// executor.execute(qrDeviceTest);
 
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleWithFixedDelay(qrDeviceTest, 0, 100, TimeUnit.MILLISECONDS);
 
 	}
 
-	private QRDevice() {
+	private QRReader() {
 		JNative.setLoggingEnabled(true);
 		initQRDevice();
+		try {
+			qrDeviceJNative = new JNative("BAR2unsecurity.dll", "uncompress");
+		} catch (NativeException e) {
+			// TODO Auto-generated catch block
+			log.error("Init BAR2unsecurity.dll Failed!",e);
+		}
 	}
 
-	public static QRDevice getInstance() {
-		return _instance;
+	public static synchronized QRReader getInstance() {
+		if (instance == null) {
+			instance = new QRReader();
+		}
+		return instance;
 	}
-
-	private LinkedBlockingQueue<IDeviceEvent> deviceEventQueue = new LinkedBlockingQueue<IDeviceEvent>(20);
-
-	public void offerDeviceEvent(IDeviceEvent e) {
-		// 队列满了需要处理Exception,注意！
-		// log.debug("生产者准备生产event");
-		deviceEventQueue.offer(e);
+	
+	public void performDeviceCallback(String instr, String year){
+		if(deviceStatus == Config.StartStatus){
+			try {
+				Ticket ticket = uncompressTicket(instr,year);
+				if(deviceStatus == Config.StartStatus && ticket != null){
+					QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(
+							DeviceEventTypeEnum.ReadIDCard.getValue());
+					qrEvent.setTicket(ticket);
+					DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+				}
+			} catch (NumberFormatException | UnsupportedEncodingException e) {
+				log.error("uncompressTicket", e);
+			}
+		}
 	}
+	
 
-	public Ticket doTicket(String instr, String year) throws NumberFormatException, UnsupportedEncodingException {
+
+	
+	private Ticket uncompressTicket(String instr, String year) throws NumberFormatException, UnsupportedEncodingException {
 		byte[] outStrArray = uncompress(instr, year);
 		// log.debug("outStrArray.length==" + outStrArray.length);
 		Ticket ticket = null;
 		// log.debug("outStrArray.length=="+outStrArray.length);
 		ticket = buildTicket(outStrArray);
-		// ticket.printTicket();
+		 ticket.printTicket();
 		return ticket;
 	}
 
@@ -69,16 +82,13 @@ public class QRDevice implements Runnable {
 	 */
 	private void initQRDevice() {
 		log.debug("初始化二维码扫描器...");
-		try {
-			qrDeviceJNative = new JNative("BAR2unsecurity.dll", "uncompress");
-		} catch (NativeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		// 应用设置
-		applySetting();
+		VguangApi.applyDeviceSetting();
 		// 打开设备
 		VguangApi.openDevice();
+		//开始循环扫描
+		VguangApi.startScan();
+		
 	}
 
 	/**
@@ -89,7 +99,7 @@ public class QRDevice implements Runnable {
 	 * @throws NumberFormatException
 	 * @throws UnsupportedEncodingException
 	 */
-	public Ticket buildTicket(byte[] ticketArray) throws NumberFormatException, UnsupportedEncodingException {
+	private Ticket buildTicket(byte[] ticketArray) throws NumberFormatException, UnsupportedEncodingException {
 		Ticket ticket = null;
 		if (ticketArray.length == 117) {
 			ticket = new Ticket();
@@ -148,7 +158,7 @@ public class QRDevice implements Runnable {
 	 * @param year
 	 * @return
 	 */
-	public byte[] uncompress(String instr, String year) {
+	private byte[] uncompress(String instr, String year) {
 		byte[] outStrArray = new byte[117];
 		try {
 			String retval = "-1";
@@ -188,54 +198,15 @@ public class QRDevice implements Runnable {
 		return outStrArray;
 	}
 
-	/**
-	 * 应用设置
-	 */
-	private void applySetting() {
-		// 设置QR状态
-		VguangApi.setQRable(true);
-		// 设置DM状态
-		VguangApi.setDMable(true);
-		// 设置Bar状态
-		VguangApi.setBarcode(true);
 
-		// 设置解码间隔时间，单位毫秒
-		VguangApi.setDeodeIntervalTime(300);
-
-		// 设置自动休眠状态
-		VguangApi.setAI(false);
-		int aiLimit = 20;
-		if (aiLimit < 1 || aiLimit > 64) {
-			aiLimit = 20;
-		}
-		// 设置自动休眠灵敏度
-		VguangApi.setAISensitivity(aiLimit);
-		// 设置自动休眠响应时间，单位秒
-		VguangApi.setAIResponseTime(30);
-
-		// 设置扬声器状态
-		VguangApi.setBeepable(true);
+	public void start(){
+		deviceStatus = Config.StartStatus;
+	}
+	
+	public void stop(){
+		deviceStatus = Config.StopStatus;
 	}
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		// try {
-		// // Thread.sleep(200);
-		//
-		// log.debug("QRDevice 准备从阻塞队列取Device事件");
-		// IDeviceEvent e;
-		// e = deviceEventQueue.take();
-		// log.debug("QRDevice 从阻塞队列取到新的event==" + e);
-		// if (e != null) {
-		// log.debug("QRDevice e.hashCode==" + e.hashCode());
-		// QRCodeReaderEvent qrcode = (QRCodeReaderEvent) e;
-		// Ticket ticket = (Ticket) qrcode.getData();
-		// ticket.printTicket();
-		// }
-		// } catch (InterruptedException e1) {
-		// // TODO Auto-generated catch block
-		// e1.printStackTrace();
-		// }
-	}
+
+
 }

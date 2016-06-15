@@ -14,9 +14,9 @@ import java.text.*;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class GetDate {
+public class DateUtils {
 
-	public GetDate() {
+	public DateUtils() {
 	}
 
 	public static Date getNowDate() {

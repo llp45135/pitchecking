@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.facedetect.Face;
 import com.rxtec.pitchecking.facedetect.FaceDetect;
 import com.rxtec.pitchecking.gui.VideoPanel;

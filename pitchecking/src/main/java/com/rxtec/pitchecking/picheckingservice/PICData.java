@@ -21,6 +21,7 @@ import org.openimaj.image.processing.face.detection.DetectedFace;
 import org.openimaj.math.geometry.shape.Rectangle;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 

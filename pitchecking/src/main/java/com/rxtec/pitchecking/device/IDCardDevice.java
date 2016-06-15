@@ -19,9 +19,9 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
+import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectByPixelJNIEntryClone;
-import com.rxtec.pitchecking.picheckingservice.IDCard;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 /**

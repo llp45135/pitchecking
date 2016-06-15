@@ -1,16 +1,13 @@
-package com.rxtec.pitchecking.device.event;
+package com.rxtec.pitchecking.event;
 
-import com.rxtec.pitchecking.picheckingservice.IDCard;
+import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.IDCard;
 
 public class IDCardReaderEvent implements IDeviceEvent {
 
 	
-	int eventType;
+	int eventType = Config.IDReaderEvent;
 	
-	public IDCardReaderEvent(int t){
-		eventType = t;
-	}
-
 
 	private IDCard idCard;
 	public void setIdCard(IDCard idCard) {

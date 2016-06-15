@@ -1,26 +1,22 @@
-package com.rxtec.pitchecking.device;
+package com.rxtec.pitchecking;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.rxtec.pitchecking.device.event.IDeviceEvent;
-
-public class Customer implements Runnable {
+public class ScreenCustomer implements Runnable {
 	private Log log = LogFactory.getLog("DeviceEventListener");
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 		while (true) {
-			// 如果没有新事件将一直阻塞等待到新设备事件
 			try {
-				Thread.sleep(100);
-				DeviceEventListener.getInstance().takeDeviceEvent();				
+				TicketCheckScreen.getInstance().startShow();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
 		}
 	}
+
 }

@@ -15,11 +15,11 @@ import javax.swing.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.picheckingservice.PICData;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
-import com.rxtec.pitchecking.picheckingservice.IDCard;
 import com.rxtec.pitchecking.picheckingservice.IFaceTrackService;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 

@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.gui;
+package com.rxtec.pitchecking;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -6,11 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.openimaj.video.capture.VideoCaptureException;
 
-import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.device.DeviceEventListener;
-import com.rxtec.pitchecking.device.PITStatusEnum;
-import com.rxtec.pitchecking.device.TicketCheckScreen;
-import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PICData;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;

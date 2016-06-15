@@ -28,11 +28,12 @@ import org.openimaj.video.VideoDisplayListener;
 import org.openimaj.video.capture.VideoCapture;
 
 import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.device.DeviceEventListener;
-import com.rxtec.pitchecking.device.PITStatusEnum;
-import com.rxtec.pitchecking.device.ScreenCmdEnum;
-import com.rxtec.pitchecking.device.TicketCheckScreen;
-import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.DeviceEventListener;
+import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.PITStatusEnum;
+import com.rxtec.pitchecking.ScreenCmdEnum;
+import com.rxtec.pitchecking.TicketCheckScreen;
+import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 

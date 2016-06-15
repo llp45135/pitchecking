@@ -1,13 +1,13 @@
-package com.rxtec.pitchecking.device;
+package com.rxtec.pitchecking;
 
 import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.rxtec.pitchecking.device.event.IDeviceEvent;
-import com.rxtec.pitchecking.device.event.QRCodeReaderEvent;
-import com.rxtec.pitchecking.device.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.event.IDeviceEvent;
+import com.rxtec.pitchecking.event.QRCodeReaderEvent;
+import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 
 public class QRCodeEventTask implements Callable<Integer> {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
