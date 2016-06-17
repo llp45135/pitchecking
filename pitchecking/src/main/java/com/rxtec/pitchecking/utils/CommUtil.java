@@ -294,4 +294,91 @@ public class CommUtil {
             return -1;
         }
     }
+    
+    /** Sleep for timeout msecs. Returns when timeout has elapsed or thread was interrupted */
+    public static void sleep(long timeout) {
+        try {
+            Thread.sleep(timeout);
+        } catch (Throwable e) {
+        }
+    }
+
+    public static void sleep(long timeout, int nanos) {
+        try {
+            Thread.sleep(timeout, nanos);
+        } catch (Throwable e) {
+        }
+    }
+
+    /**
+     * On most UNIX systems, the minimum sleep time is 10-20ms. Even if we specify sleep(1), the thread will
+     * sleep for at least 10-20ms. On Windows, sleep() seems to be implemented as a busy sleep, that is the
+     * thread never relinquishes control and therefore the sleep(x) is exactly x ms long.
+     */
+    public static void sleep(long msecs, boolean busy_sleep) {
+        if (!busy_sleep) {
+            sleep(msecs);
+            return;
+        }
+
+        long start = System.currentTimeMillis();
+        long stop = start + msecs;
+
+        while (stop > start) {
+            start = System.currentTimeMillis();
+        }
+    }
+
+    /** Returns a random value in the range [1 - range] */
+    public static long random(long range) {
+        return (long) ((Math.random() * 100000) % range) + 1;
+    }
+    
+    /**
+     * 将指定字符串src，以每两个字符分割转换为16进制形式
+     * 如："2B44EFD9" --> byte[]{0x2B, 0x44, 0xEF, 0xD9}
+     * @param src String
+     * @return byte[]
+     */
+    public static byte[] hexStringToBytes(String src) {
+        byte[] tmp = src.getBytes();
+        int len = tmp.length / 2;
+        byte[] ret = new byte[len];
+
+        for (int i = 0; i < len; i++) {
+            ret[i] = uniteBytes(tmp[i * 2], tmp[i * 2 + 1]);
+        }
+        return ret;
+    }
+    
+    /**
+     * 将两个ASCII字符合成一个字节；
+     * 如："EF"--> 0xEF
+     * @param src0 byte
+     * @param src1 byte
+     * @return byte
+     */
+    public static byte uniteBytes(byte src0, byte src1) {
+        byte _b0 = Byte.decode("0x" + new String(new byte[]{src0})).byteValue();
+        _b0 = (byte) (_b0 << 4);
+        byte _b1 = Byte.decode("0x" + new String(new byte[]{src1})).byteValue();
+        byte ret = (byte) (_b0 ^ _b1);
+        return ret;
+    }
+    
+    /**
+     * 生成命令尾 出了0x10,其他各字节值相加
+     */
+    public static String tail(String xh, String cc1, String cc2) {
+        String retStr = "";
+        int i = Integer.parseInt(xh, 16);
+        int j = Integer.parseInt(cc1, 16);
+        int k = Integer.parseInt(cc2, 16);
+        int result = i + j + k + 5;
+        retStr = Integer.toHexString(result).toString().toUpperCase();
+        if (retStr.length() == 1) {
+            retStr = "0" + retStr;
+        }
+        return retStr;
+    }
 }

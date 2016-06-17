@@ -73,7 +73,7 @@ public class QRReader {
 		Ticket ticket = null;
 		// log.debug("outStrArray.length=="+outStrArray.length);
 		ticket = buildTicket(outStrArray);
-		 ticket.printTicket();
+//		 ticket.printTicket();
 		return ticket;
 	}
 
@@ -173,13 +173,13 @@ public class QRReader {
 
 			retval = qrDeviceJNative.getRetVal();
 
-			log.debug("uncompress: retval==" + retval);// 获取返回值
+//			log.debug("uncompress: retval==" + retval);// 获取返回值
 
 			if (retval.equals("0")) {
 				// outStr = ticketStrPointer.getAsString();
 				// outStr = new String(outStr.getBytes("UTF-8"),"GBK");
 				outStrArray = ticketStrPointer.getMemory();
-				log.debug("uncompress：outStrArray.length==" + outStrArray.length);
+//				log.debug("uncompress：outStrArray.length==" + outStrArray.length);
 				String ticketStr = new String(outStrArray, "gbk");
 				log.debug("uncompress: ticketArray==" + ticketStr + "##");
 			}

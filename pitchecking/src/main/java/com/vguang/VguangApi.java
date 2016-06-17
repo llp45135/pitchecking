@@ -96,7 +96,7 @@ public class VguangApi implements Runnable {
 	 */
 	public static void decodeCallBack(byte[] decodeStrBytes) {
 		String str = new String(decodeStrBytes);
-		 log.debug("str==" + str);
+//		 log.debug("str==" + str);
 		String year = DateUtils.getStringDateShort2().substring(0, 4);
 		QRReader.getInstance().performDeviceCallback(str, year);
 	}
@@ -111,6 +111,7 @@ public class VguangApi implements Runnable {
 		// if(VguangSample.vguangSample != null){
 		// VguangSample.vguangSample.setDeviceStatus(status);
 		// }
+//		log.debug("#########==="+status);
 		return;
 	}
 
@@ -118,7 +119,7 @@ public class VguangApi implements Runnable {
 //		ExecutorService executor = Executors.newCachedThreadPool();
 //		executor.execute(new VguangApi());
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleWithFixedDelay(new VguangApi(), 0, 100, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(new VguangApi(), 0, 150, TimeUnit.MILLISECONDS);
 	}
 
 	@Override

@@ -45,14 +45,11 @@ public class ScreenElementModifyEvent {
 		this.screenType = screenType;
 	}
 
-	public ScreenElementModifyEvent(int screenType, int elementType, int elementCmd) {
-		this.screenType = screenType;
-		this.elementType = elementType;
-	}
-	
-	public ScreenElementModifyEvent(int screenType, int elementCmd, PICData fd) {
+	public ScreenElementModifyEvent(int screenType, int elementCmd, Ticket ticket, IDCard idCard, PICData fd) {
 		this.screenType = screenType;
 		this.elementCmd = elementCmd;
+		this.ticket = ticket;
+		this.idCard = idCard;
 		this.faceData = fd;
 	}
 	

@@ -36,10 +36,11 @@ public class VerifyFaceTask{
 
 	public PICData beginCheckFace(IDCard idCard) {
 		TicketCheckScreen.getInstance().offerEvent(
-				new ScreenElementModifyEvent(1,ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(),null));
+				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
 
 		
-		ScreenElementModifyEvent semEvent = new ScreenElementModifyEvent(1, 1, 1);
+		ScreenElementModifyEvent semEvent = new ScreenElementModifyEvent(1, ScreenCmdEnum.showIDCardImage.getValue(),
+				null, null, null);
 		semEvent.setIdCard(idCard);
 		TicketCheckScreen.getInstance().offerEvent(semEvent);
 		
@@ -60,9 +61,9 @@ public class VerifyFaceTask{
 			log.debug("pollPassFaceData, using " + usingTime +" value = null");
 			faceTrackService.stopCheckingFace();
 			TicketCheckScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), fd));
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
 			TicketCheckScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
 
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
 			
@@ -71,9 +72,9 @@ public class VerifyFaceTask{
 			log.debug("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());
 			faceTrackService.stopCheckingFace();
 			TicketCheckScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), fd));
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
 			TicketCheckScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), fd));
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
 		}
 

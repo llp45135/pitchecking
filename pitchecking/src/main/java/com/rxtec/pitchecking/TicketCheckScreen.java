@@ -33,28 +33,26 @@ public class TicketCheckScreen {
 	FaceCheckFrame faceFrame = new FaceCheckFrame();
 
 	private TicketCheckScreen() {
-	
-	}
-	
-	
-	public void initUI(){
-//		gs[0].setFullScreenWindow(faceFrame);
-//		gs[1].setFullScreenWindow(ticketFrame);
-//		ticketFrame.setUndecorated(true);
-//		ticketFrame.setVisible(true);		
-		
-		gs[1].setFullScreenWindow(faceFrame);
-		gs[0].setFullScreenWindow(ticketFrame);
-//		faceFrame.setUndecorated(true);
-//		faceFrame.setVisible(true);
-		
+
 	}
 
-	public VideoPanel getVideoPanel(){
+	public void initUI() {
+		// gs[0].setFullScreenWindow(faceFrame);
+		// gs[1].setFullScreenWindow(ticketFrame);
+		// ticketFrame.setUndecorated(true);
+		// ticketFrame.setVisible(true);
+
+		gs[1].setFullScreenWindow(faceFrame);
+		gs[0].setFullScreenWindow(ticketFrame);
+		// faceFrame.setUndecorated(true);
+		// faceFrame.setVisible(true);
+
+	}
+
+	public VideoPanel getVideoPanel() {
 		return faceFrame.getVideoPanel();
 	}
-	
-	
+
 	public static TicketCheckScreen getInstance() {
 		return _instance;
 	}
@@ -64,10 +62,7 @@ public class TicketCheckScreen {
 	public void offerEvent(ScreenElementModifyEvent e) {
 		if (e != null) {
 			if (e.getScreenType() == 0) {
-				log.debug("收到Ticket屏幕事件，重画屏幕");	
-				Ticket ticket = e.getTicket();
-				
-				ticketFrame.showTicketContent(Config.getInstance(), ticket);
+				processEventByTicketCmdType(e);
 			} else if (e.getScreenType() == 1) {
 				processEventByType(e);
 			}
@@ -75,52 +70,81 @@ public class TicketCheckScreen {
 	}
 
 	public void startShow() throws InterruptedException {
-		
-//		while(true){
-//			ScreenElementModifyEvent e = screenEventQueue.take();
-//			/*
-//			 * 根据ScreenElementModifyEvent的screenType、elementType、
-//			 * elementCmd来决定屏幕的显示内容
-//			 */
-//			if (e != null) {
-//				if (e.getScreenType() == 0) {
-//					log.debug("收到Ticket屏幕事件，重画屏幕");
-//
-//					ticketFrame.getContentPane().repaint();
-//					// gs[0].setFullScreenWindow(ticketFrame);
-//				} else if (e.getScreenType() == 1) {
-//					processEventByType(e);
-//				}
-//			}
-//		}
+
+		// while(true){
+		// ScreenElementModifyEvent e = screenEventQueue.take();
+		// /*
+		// * 根据ScreenElementModifyEvent的screenType、elementType、
+		// * elementCmd来决定屏幕的显示内容
+		// */
+		// if (e != null) {
+		// if (e.getScreenType() == 0) {
+		// log.debug("收到Ticket屏幕事件，重画屏幕");
+		//
+		// ticketFrame.getContentPane().repaint();
+		// // gs[0].setFullScreenWindow(ticketFrame);
+		// } else if (e.getScreenType() == 1) {
+		// processEventByType(e);
+		// }
+		// }
+		// }
 
 	}
-	
-	
 
-	
-	
-	private void processEventByType(ScreenElementModifyEvent e){
-		if(e.getElementType() == 1){
-//			log.debug("收到Face屏幕事件，重画屏幕");
+	/**
+	 * 车票屏幕事件处理
+	 * 
+	 * @param e
+	 */
+	private void processEventByTicketCmdType(ScreenElementModifyEvent e) {
+		if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue()) {
+
+			log.debug("等待旅客扫描车票或刷身份证！");
+			if (e.getTicket() == null) {
+				ticketFrame.showWaitInputContent(e.getTicket(), e.getIdCard(), 1);
+			} else if (e.getIdCard() == null) {
+				ticketFrame.showWaitInputContent(e.getTicket(), e.getIdCard(), 2);
+			}
+		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyStationRuleFail.getValue()) {
+			log.debug("收到ShowTicketVerifyStationRuleFail屏幕事件，重画屏幕");
+			String msg = "车票不符合乘车条件！";
+			Ticket ticket = e.getTicket();
+			ticketFrame.showFailedContent(Config.getInstance(), ticket, 4, msg);
+		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyIDFail.getValue()) {
+			log.debug("收到ShowTicketVerifyIDFail屏幕事件，重画屏幕");
+			String msg = "车票与身份证不相符！";
+			Ticket ticket = e.getTicket();
+			ticketFrame.showFailedContent(Config.getInstance(), ticket, 4, msg);
+		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifySucc.getValue()) {
+			Ticket ticket = e.getTicket();
+			ticketFrame.showTicketContent(Config.getInstance(), ticket, 3);
+		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketDefault.getValue()) {
+			ticketFrame.showDefaultContent();
+		}
+	}
+
+	private void processEventByType(ScreenElementModifyEvent e) {
+		if (e.getElementCmd() == ScreenCmdEnum.showIDCardImage.getValue()) {
+			// log.debug("收到Face屏幕事件，重画屏幕");
 			ImageIcon icon = new ImageIcon(e.getIdCard().getCardImage());
 			faceFrame.showIDCardImage(icon);
 
-		}else if(e.getElementCmd() == ScreenCmdEnum.ShowBeginCheckFaceContent.getValue()){
+		} else if (e.getElementCmd() == ScreenCmdEnum.ShowBeginCheckFaceContent.getValue()) {
 			faceFrame.showBeginCheckFaceContent();
 
-		}else if(e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckPass.getValue()){
-			faceFrame.showFaceCheckPassContent();;
+		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckPass.getValue()) {
+			faceFrame.showFaceCheckPassContent();
+			;
 
-		}else if(e.getElementCmd() == ScreenCmdEnum.showDefaultContent.getValue()){
+		} else if (e.getElementCmd() == ScreenCmdEnum.showDefaultContent.getValue()) {
 			faceFrame.showDefaultContent();
 
-		}else if(e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckFailed.getValue()){
+		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckFailed.getValue()) {
 			faceFrame.showCheckFailedContent();
 		}
 	}
-	
-	public void repainFaceFrame(){
+
+	public void repainFaceFrame() {
 		faceFrame.showIDCardImage(null);
 		faceFrame.getContentPane().repaint();
 	}
@@ -128,6 +152,5 @@ public class TicketCheckScreen {
 	public ScreenElementModifyEvent getScreenEvent() {
 		return null;
 	}
-
 
 }

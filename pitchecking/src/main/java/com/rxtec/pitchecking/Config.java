@@ -31,9 +31,10 @@ public class Config {
 	public static int IDReaderEvent = 1;
 	public static int QRReaderEvent = 2;
 
-	public static int TicketVerifyWaitInput = 0;
-	public static int TicketVerifySucc = 1;
-	public static int TicketVerifyFailed = -1;
+	public static int TicketVerifyWaitInput = 0;			//等待票证验证数据
+	public static int TicketVerifySucc = 1;					//票证验证成功
+	public static int TicketVerifyIDFail = -1;				//票证验证失败
+	public static int TicketVerifyStationRuleFail = -2;		//票证验证失败：车站业务规则
 	
 	public static int StartStatus = 1;
 	public static int StopStatus = 0;

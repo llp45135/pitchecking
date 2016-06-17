@@ -18,13 +18,14 @@ import com.rxtec.pitchecking.device.QRDevice;
 import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.PICData;
+import com.rxtec.pitchecking.utils.CommUtil;
 
 public class DeviceEventListener implements Runnable {
 	private VerifyFaceTask verifyFaceTask = new VerifyFaceTask();
 	private static DeviceEventListener _instance = new DeviceEventListener();
-	private ExecutorService executor = Executors.newCachedThreadPool();
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private TicketVerify ticketVerifier = new TicketVerify();
+
 
 	private DeviceEventListener() {
 		try {
@@ -47,21 +48,21 @@ public class DeviceEventListener implements Runnable {
 		deviceEventQueue.offer(e);
 	}
 
-	public void takeDeviceEvent() throws InterruptedException {
-		// 队列满了需要处理Exception,注意！
-		log.debug("消费者准备消费event");
-		IDeviceEvent e = deviceEventQueue.take();
-		log.debug("消费者取到新的event==" + e + ",e.getEventType==" + e.getEventType());
-		this.processEvent(e);
-	}
+	// public void takeDeviceEvent() throws InterruptedException {
+	// // 队列满了需要处理Exception,注意！
+	// log.debug("消费者准备消费event");
+	// IDeviceEvent e = deviceEventQueue.take();
+	// log.debug("消费者取到新的event==" + e + ",e.getEventType==" + e.getEventType());
+	// this.processEvent(e);
+	// }
 
 	private void processEvent(IDeviceEvent e) {
 		if (e.getEventType() == Config.QRReaderEvent && e.getData() != null) {
 			/**
 			 * 二维码读卡器读到数据
 			 */
-			QRCodeEventTask qrtask = new QRCodeEventTask(e);
-			Future<Integer> result = executor.submit(qrtask);
+			// QRCodeEventTask qrtask = new QRCodeEventTask(e);
+			// Future<Integer> result = executor.submit(qrtask);
 			ticketVerifier.setTicket((Ticket) e.getData());
 
 			verifyTicket();
@@ -75,36 +76,60 @@ public class DeviceEventListener implements Runnable {
 	}
 
 	private void verifyTicket() {
-		if (ticketVerifier.verify() == Config.TicketVerifySucc) {
-			GateDeviceManager.getInstance().openFirstDoor();
+		int ticketVerifyResult = ticketVerifier.verify();// 核验结果
+
+		if (ticketVerifyResult == Config.TicketVerifySucc) { // 核验成功
+			// GateDeviceManager.getInstance().openFirstDoor();
+			
 			IDReader.getInstance().stop();
 			QRReader.getInstance().stop();
-			verifyFace(ticketVerifier.getIdCard());
+			
+			log.debug("TicketVerifySucc$$$");
+			TicketCheckScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+					ScreenCmdEnum.ShowTicketVerifySucc.getValue(), ticketVerifier.getTicket(), ticketVerifier.getIdCard(), null));
+			 verifyFace(ticketVerifier.getIdCard());
+//			CommUtil.sleep(5000);
 			ticketVerifier.reset();
+			log.debug("$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 			IDReader.getInstance().start();
 			QRReader.getInstance().start();
-		} else {
-
+			log.debug("#############################");
+			
+		} else if (ticketVerifyResult == Config.TicketVerifyWaitInput) { // 等待票证验证数据
+			if (!(ticketVerifier.getTicket() == null && ticketVerifier.getIdCard() == null)) {
+				TicketCheckScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+						ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue(), ticketVerifier.getTicket(), ticketVerifier.getIdCard(), null));
+			}
+		} else if (ticketVerifyResult == Config.TicketVerifyIDFail) { // 票证验证失败
+			TicketCheckScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+					ScreenCmdEnum.ShowTicketVerifyIDFail.getValue(), ticketVerifier.getTicket(), ticketVerifier.getIdCard(), null));
+			ticketVerifier.reset();
+		} else if (ticketVerifyResult == Config.TicketVerifyStationRuleFail) { // 车票未通过车站业务规则
+			TicketCheckScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+					ScreenCmdEnum.ShowTicketVerifyStationRuleFail.getValue(), ticketVerifier.getTicket(), ticketVerifier.getIdCard(), null));
+			ticketVerifier.reset();
 		}
 	}
 
 	private void verifyFace(IDCard idCard) {
 		PICData picData = verifyFaceTask.beginCheckFace(idCard);
-		if (picData != null) {
-			GateDeviceManager.getInstance().openThirdDoor();
-		} else {
-			GateDeviceManager.getInstance().openSecondDoor();
-		}
+//		if (picData != null) {
+//			GateDeviceManager.getInstance().openThirdDoor();
+//		} else {
+//			GateDeviceManager.getInstance().openSecondDoor();
+//		}
 	}
 
 	// 启动设备
 	private void startDevice() throws DeviceException {
 		log.debug("启动设备");
-		IDCardDevice.getInstance();
+		// IDCardDevice.getInstance();
+		IDReader idReader = IDReader.getInstance();
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleWithFixedDelay(new IDReader(), 0, 100, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(idReader, 0, 150, TimeUnit.MILLISECONDS);
 		QRDevice qrDevice = QRDevice.getInstance();
-		scheduler.scheduleWithFixedDelay(qrDevice, 0, 100, TimeUnit.MILLISECONDS);
+		// scheduler.scheduleWithFixedDelay(qrDevice, 0, 100,
+		// TimeUnit.MILLISECONDS);
 	}
 
 	private int pitStatus = -1;

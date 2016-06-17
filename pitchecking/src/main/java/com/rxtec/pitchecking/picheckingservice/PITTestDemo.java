@@ -68,16 +68,16 @@ public class PITTestDemo {
 			while(true){
 				Thread.sleep(100);
 				screen.offerEvent(
-						new ScreenElementModifyEvent(1,ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(),null));
+						new ScreenElementModifyEvent(1,ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(),null,null,null));
 				faceTrackService.beginCheckingFace(createIDCard());
 				PICData fd = FaceCheckingService.getInstance().pollPassFaceData();
 				if(fd == null){
 					TicketCheckScreen.getInstance().offerEvent(
-							new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), fd));
+							new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(),null,null, fd));
 					faceTrackService.stopCheckingFace();
 				}else{
 					TicketCheckScreen.getInstance().offerEvent(
-							new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), fd));
+							new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(),null,null, fd));
 					faceTrackService.stopCheckingFace();
 
 				}
