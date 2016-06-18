@@ -28,12 +28,17 @@ import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.IDReader;
 import com.rxtec.pitchecking.QRReader;
 import com.rxtec.pitchecking.Ticket;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.utils.DateUtils;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import javax.swing.JButton;
 import java.awt.SystemColor;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.SoftBevelBorder;
+import javax.swing.border.BevelBorder;
 
 @SuppressWarnings("serial")
 public class TicketCheckFrame extends JFrame implements ActionListener {
@@ -43,7 +48,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	private JPanel contentPane;
 	private JPanel topPanel;
 	private JPanel ticketPanel;
-	private JPanel initPanel;
+	private TicketInitPanel initPanel;
 	private JPanel bottomPanel;
 	//
 	private JLabel labelTitle;
@@ -132,6 +137,9 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		contentPane.add(ticketPanel);
 		ticketPanel.setLayout(null);
 
+		/**
+		 * 初始化启动界面
+		 */
 		initPanel = new TicketInitPanel();
 
 		labelTrainCode = new JLabel("G6612");
@@ -184,15 +192,15 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		labelMsg.setHorizontalAlignment(SwingConstants.CENTER);
 		labelMsg.setForeground(Color.GREEN);
 		labelMsg.setFont(new Font("微软雅黑", Font.PLAIN, 36));
-		labelMsg.setBounds(337, 373, 478, 54);
+		labelMsg.setBounds(346, 378, 575, 54);
 		ticketPanel.add(labelMsg);
 
 		lableImg = new JLabel("");
 		lableImg.setHorizontalAlignment(SwingConstants.CENTER);
-		lableImg.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
-		lableImg.setBounds(185, 125, 150, 211);
+		lableImg.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		lableImg.setBounds(151, 154, 180, 215);
 		ticketPanel.add(lableImg);
-		
+
 		lableWarnmsg = new JLabel("票证不符，请检查后重新刷票！");
 		lableWarnmsg.setForeground(Color.RED);
 		lableWarnmsg.setFont(new Font("微软雅黑", Font.PLAIN, 36));
@@ -238,6 +246,8 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		ticketPanel.setVisible(false);
 		initPanel.setVisible(true);
 		initPanel.setBackground(Color.WHITE);
+		initPanel.showIDCardImage(new ImageIcon(DeviceConfig.idReaderImgPath));
+		initPanel.showTicketInfo(new ImageIcon(DeviceConfig.qrReaderImgPath));
 		contentPane.remove(ticketPanel);
 		contentPane.remove(bottomPanel);
 		contentPane.add(initPanel);
@@ -251,6 +261,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 
 	/**
 	 * 重画等待输入信息界面
+	 * 
 	 * @param ticket
 	 * @param idCard
 	 */
@@ -282,13 +293,21 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		contentPane.add(initPanel);
 		contentPane.add(bottomPanel);
 
+		if (idCard != null) {
+			initPanel.showIDCardImage(new ImageIcon(idCard.getCardImage()));
+		}
+		if (ticket != null) {
+			initPanel.showTicketInfo(new ImageIcon(DeviceConfig.ticketImgPath));
+		}
+
 		contentPane.repaint();
 
 		timeIntevel = 4;
 	}
 
 	/**
-	 * 重画车票信息界面
+	 * 重画成功核验车票信息界面
+	 * 
 	 * @param ticket
 	 */
 	public void showTicketContent(Config config, Ticket ticket, int titleStrType) {
@@ -307,9 +326,9 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 			this.labelTicketType
 					.setText(config.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
 			this.labelSeatType.setText(config.getSeatTypesMap().get(ticket.getSeatCode()));
-			ImageIcon icon = new ImageIcon("./img/tky_allow.gif");
+			ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
 			this.lableWarnmsg.setText("");
-			this.labelMsg.setText("请过闸!!");
+			this.labelMsg.setText("请通行!");
 			showStatusImage(icon);
 
 			ticketPanel.setVisible(true);
@@ -326,12 +345,11 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		}
 
 	}
-	
-	
+
 	/**
 	 * 重画核验失败信息界面
 	 */
-	public void showFailedContent(Config config, Ticket ticket, int titleStrType,String failedMsg) {
+	public void showFailedContent(Config config, Ticket ticket, int titleStrType, String failedMsg) {
 		this.titleStrType = titleStrType;
 		try {
 			// ticket.printTicket();
@@ -347,7 +365,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 			this.labelTicketType
 					.setText(config.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
 			this.labelSeatType.setText(config.getSeatTypesMap().get(ticket.getSeatCode()));
-			ImageIcon icon = new ImageIcon("./img/tky_stop.gif");
+			ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
 			this.lableWarnmsg.setText(failedMsg);
 			this.labelMsg.setText("");
 			showStatusImage(icon);
@@ -364,7 +382,47 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
 
+	/**
+	 * 显示设备异常界面
+	 * 
+	 * @param config
+	 * @param ticket
+	 * @param titleStrType
+	 * @param failedMsg
+	 */
+	public void showExceptionContent(Config config, int titleStrType, String exMsg) {
+		this.titleStrType = titleStrType;
+		try {
+			// ticket.printTicket();
+			labelTitle.setText("设备异常!!");
+			labelTitle.setForeground(Color.RED);
+			labelFz.setText("");
+			this.labelZhi.setText("");
+			this.labelDz.setText("");
+			this.labelTrainCode.setText("");
+			this.label_rq.setText("");
+			this.labelTrainDate.setText("");
+			this.labelTicketType.setText("");
+			this.labelSeatType.setText("");
+			ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
+			this.lableWarnmsg.setText(exMsg);
+			this.labelMsg.setText("");
+			showStatusImage(icon);
+
+			ticketPanel.setVisible(true);
+			initPanel.setVisible(false);
+			contentPane.remove(initPanel);
+			contentPane.remove(bottomPanel);
+			contentPane.add(ticketPanel);
+			contentPane.add(bottomPanel);
+			contentPane.repaint();
+
+			timeIntevel = -1;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void timeRefresh() {
@@ -376,7 +434,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		timeRefresh();
-//		log.debug("TicketCheckFrame 计时开始==" + (timeIntevel - 1));
+		// log.debug("TicketCheckFrame 计时开始==" + (timeIntevel - 1));
 		if (timeIntevel >= 0) {
 			if (this.titleStrType == 1) {
 				labelTitle.setText("请扫描车票二维码！     " + (timeIntevel - 1));
@@ -384,7 +442,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 				labelTitle.setText("请刷二代证！     " + (timeIntevel - 1));
 			} else if (this.titleStrType == 3) {
 				labelTitle.setText("票证核验成功！     " + (timeIntevel - 1));
-			}else if (this.titleStrType == 4) {
+			} else if (this.titleStrType == 4) {
 				labelTitle.setText("票证核验失败,请重试！     " + (timeIntevel - 1));
 			}
 		}

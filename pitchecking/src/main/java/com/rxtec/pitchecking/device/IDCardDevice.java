@@ -140,6 +140,11 @@ public class IDCardDevice {
 			findUSBReaderJNative.invoke();
 			retval = findUSBReaderJNative.getRetVal();
 			log.info("Syn_FindUSBReader:retval==" + retval);// 获取返回值
+			if(retval.equals("0")){
+				DeviceConfig.getInstance().setIdDeviceStatus(Integer.parseInt(retval));
+			}else{
+				DeviceConfig.getInstance().setIdDeviceStatus(DeviceConfig.idDeviceSucc);
+			}
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -331,7 +336,8 @@ public class IDCardDevice {
 					Info[hh++] = (String) st.nextElement();
 					// log.debug(Info[hh - 1]);
 				}
-				// log.debug("姓名：" + Info[0]);
+//				 log.debug("姓名：" + Info[0]);
+				synIDCard.setPersonName(Info[0]);
 				if (Info[1].charAt(0) == '1') {
 					// log.debug("性别：" + "男");
 				} else if (Info[1].charAt(0) == '2') {

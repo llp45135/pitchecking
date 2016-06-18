@@ -12,6 +12,15 @@ import org.openimaj.image.MBFImage;
 
 public class IDCard {
 	private String idNo;
+	private String personName;
+
+	public String getPersonName() {
+		return personName;
+	}
+
+	public void setPersonName(String personName) {
+		this.personName = personName;
+	}
 
 	public String getIdNo() {
 		return idNo;

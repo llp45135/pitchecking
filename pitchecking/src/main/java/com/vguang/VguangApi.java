@@ -8,8 +8,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.IDReader;
 import com.rxtec.pitchecking.QRReader;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.utils.DateUtils;
 
 public class VguangApi implements Runnable {
@@ -111,7 +113,8 @@ public class VguangApi implements Runnable {
 		// if(VguangSample.vguangSample != null){
 		// VguangSample.vguangSample.setDeviceStatus(status);
 		// }
-//		log.debug("#########==="+status);
+		log.debug("#########==="+status);
+		DeviceConfig.getInstance().setQrdeviceStatus(status);
 		return;
 	}
 

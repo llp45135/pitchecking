@@ -98,11 +98,11 @@ public class TicketCheckScreen {
 	 */
 	private void processEventByTicketCmdType(ScreenElementModifyEvent e) {
 		if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue()) {
-
-			log.debug("等待旅客扫描车票或刷身份证！");
 			if (e.getTicket() == null) {
+				log.debug("等待旅客扫描车票！");
 				ticketFrame.showWaitInputContent(e.getTicket(), e.getIdCard(), 1);
 			} else if (e.getIdCard() == null) {
+				log.debug("等待旅客刷身份证！");
 				ticketFrame.showWaitInputContent(e.getTicket(), e.getIdCard(), 2);
 			}
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyStationRuleFail.getValue()) {
@@ -120,6 +120,12 @@ public class TicketCheckScreen {
 			ticketFrame.showTicketContent(Config.getInstance(), ticket, 3);
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketDefault.getValue()) {
 			ticketFrame.showDefaultContent();
+		}else if(e.getElementCmd() == ScreenCmdEnum.ShowQRDeviceException.getValue()){
+			String exMsg = "二维码扫描器故障，请联系维护人员!";
+			ticketFrame.showExceptionContent(Config.getInstance(), -1, exMsg);
+		}else if(e.getElementCmd() == ScreenCmdEnum.ShowIDDeviceException.getValue()){
+			String exMsg = "二代证读卡器故障，请联系维护人员!";
+			ticketFrame.showExceptionContent(Config.getInstance(), -1, exMsg);
 		}
 	}
 

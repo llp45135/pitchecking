@@ -13,7 +13,8 @@ import javax.swing.JButton;
 import javax.swing.border.LineBorder;
 
 public class TicketInitPanel extends JPanel {
-
+	private JButton holdTicketImg;
+	private JButton holdCardImg;
 	/**
 	 * Create the panel.
 	 */
@@ -24,7 +25,7 @@ public class TicketInitPanel extends JPanel {
 		setMaximumSize(new Dimension(1024, 568));
 		setLayout(null);
 		
-		JButton holdTicketImg = new JButton("");
+		holdTicketImg = new JButton("");
 		holdTicketImg.setBorder(new LineBorder(new Color(0, 0, 0)));
 		holdTicketImg.setBounds(612, 100, 318, 349);
 		add(holdTicketImg);
@@ -32,7 +33,7 @@ public class TicketInitPanel extends JPanel {
 		ImageIcon qrzoneIcon = new ImageIcon("./img/qrreader.gif");
 		holdTicketImg.setIcon(qrzoneIcon);
 		
-		JButton holdCardImg = new JButton("");
+		holdCardImg = new JButton("");
 		holdCardImg.setBorder(new LineBorder(new Color(0, 0, 0)));
 		holdCardImg.setBounds(98, 100, 318, 349);
 		add(holdCardImg);
@@ -40,5 +41,13 @@ public class TicketInitPanel extends JPanel {
 		ImageIcon idzoneIcon = new ImageIcon("./img/idreader.gif");
 		holdCardImg.setIcon(idzoneIcon);
 		
+	}
+	
+	public void showIDCardImage(ImageIcon icon) {
+		holdCardImg.setIcon(icon);
+	}
+	
+	public void showTicketInfo(ImageIcon icon) {
+		holdTicketImg.setIcon(icon);
 	}
 }

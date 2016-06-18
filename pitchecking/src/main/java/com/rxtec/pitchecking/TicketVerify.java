@@ -39,7 +39,7 @@ public class TicketVerify {
 				return Config.TicketVerifyStationRuleFail;
 			}
 			// 票证比对
-			if (!ticket.getCardNo().equals(idCard.getIdNo())) {
+			if (!ticket.getCardNo().equals(idCard.getIdNo()) || !ticket.getPassengerName().equals(idCard.getPersonName())) {
 				log.debug("TicketVerifyIDFail==" + Config.TicketVerifyIDFail);
 
 				// timeIntevel = 0;

@@ -17,9 +17,8 @@ public class QRReader {
 	private static QRReader instance = new QRReader();
 	private JNative qrDeviceJNative = null;
 	
-	
-	private int deviceStatus = Config.StartStatus;
 
+	private int deviceStatus = Config.StartStatus;
 
 	public static void main(String[] args) {
 
@@ -27,8 +26,9 @@ public class QRReader {
 		// ExecutorService executor = Executors.newCachedThreadPool();
 		// executor.execute(qrDeviceTest);
 
-
 	}
+
+	
 
 	private QRReader() {
 		JNative.setLoggingEnabled(true);
@@ -37,7 +37,7 @@ public class QRReader {
 			qrDeviceJNative = new JNative("BAR2unsecurity.dll", "uncompress");
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			log.error("Init BAR2unsecurity.dll Failed!",e);
+			log.error("Init BAR2unsecurity.dll Failed!", e);
 		}
 	}
 
@@ -47,14 +47,13 @@ public class QRReader {
 		}
 		return instance;
 	}
-	
-	public void performDeviceCallback(String instr, String year){
-		if(deviceStatus == Config.StartStatus){
+
+	public void performDeviceCallback(String instr, String year) {
+		if (deviceStatus == Config.StartStatus) {
 			try {
-				Ticket ticket = uncompressTicket(instr,year);
-				if(deviceStatus == Config.StartStatus && ticket != null){
-					QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(
-							DeviceEventTypeEnum.ReadIDCard.getValue());
+				Ticket ticket = uncompressTicket(instr, year);
+				if (deviceStatus == Config.StartStatus && ticket != null) {
+					QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(DeviceEventTypeEnum.ReadIDCard.getValue());
 					qrEvent.setTicket(ticket);
 					DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
 				}
@@ -63,17 +62,15 @@ public class QRReader {
 			}
 		}
 	}
-	
 
-
-	
-	private Ticket uncompressTicket(String instr, String year) throws NumberFormatException, UnsupportedEncodingException {
+	private Ticket uncompressTicket(String instr, String year)
+			throws NumberFormatException, UnsupportedEncodingException {
 		byte[] outStrArray = uncompress(instr, year);
 		// log.debug("outStrArray.length==" + outStrArray.length);
 		Ticket ticket = null;
 		// log.debug("outStrArray.length=="+outStrArray.length);
 		ticket = buildTicket(outStrArray);
-//		 ticket.printTicket();
+		// ticket.printTicket();
 		return ticket;
 	}
 
@@ -86,9 +83,9 @@ public class QRReader {
 		VguangApi.applyDeviceSetting();
 		// 打开设备
 		VguangApi.openDevice();
-		//开始循环扫描
+		// 开始循环扫描
 		VguangApi.startScan();
-		
+
 	}
 
 	/**
@@ -173,13 +170,14 @@ public class QRReader {
 
 			retval = qrDeviceJNative.getRetVal();
 
-//			log.debug("uncompress: retval==" + retval);// 获取返回值
+			// log.debug("uncompress: retval==" + retval);// 获取返回值
 
 			if (retval.equals("0")) {
 				// outStr = ticketStrPointer.getAsString();
 				// outStr = new String(outStr.getBytes("UTF-8"),"GBK");
 				outStrArray = ticketStrPointer.getMemory();
-//				log.debug("uncompress：outStrArray.length==" + outStrArray.length);
+				// log.debug("uncompress：outStrArray.length==" +
+				// outStrArray.length);
 				String ticketStr = new String(outStrArray, "gbk");
 				log.debug("uncompress: ticketArray==" + ticketStr + "##");
 			}
@@ -198,15 +196,12 @@ public class QRReader {
 		return outStrArray;
 	}
 
-
-	public void start(){
+	public void start() {
 		deviceStatus = Config.StartStatus;
 	}
-	
-	public void stop(){
+
+	public void stop() {
 		deviceStatus = Config.StopStatus;
 	}
-
-
 
 }
