@@ -36,20 +36,20 @@ public class IDReader implements Runnable {
 	 */
 	private void readCard() {
 		if (deviceStatus == Config.StartStatus) {
-			
+
 			// log.debug("开始寻卡...");
 			String openPortResult = device.Syn_OpenPort();
 			if (openPortResult.equals("0")) {
 				String findval = device.Syn_StartFindIDCard();
 				if (findval.equals("0")) {
 
-//					IDeviceEvent findedCardEvent = new IDCardReaderEvent();
-//					DeviceEventListener.getInstance().offerDeviceEvent(findedCardEvent);
+					// IDeviceEvent findedCardEvent = new IDCardReaderEvent();
+					// DeviceEventListener.getInstance().offerDeviceEvent(findedCardEvent);
 					String selectval = device.Syn_SelectIDCard();
 					if (selectval.equals("0")) {
 						IDCard idCard = device.Syn_ReadBaseMsg();
-						if (idCard != null) {
-//							log.debug("########idCard=="+idCard);
+						if (idCard != null && idCard.getIdNo() != null) {
+							log.debug("########idCard==" + idCard.getPersonName());
 							IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
 							readCardEvent.setIdCard(idCard);
 							DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);

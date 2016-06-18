@@ -14,7 +14,7 @@ import com.rxtec.pitchecking.QRReader;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.utils.DateUtils;
 
-public class VguangApi implements Runnable {
+public class VguangApi{
 	private static Log log = LogFactory.getLog("VguangApi");
 	public static final int DEVICE_VALID = 1; // 设备有效
 	public static final int DEVICE_INVALID = 2; // 设备无效
@@ -118,16 +118,16 @@ public class VguangApi implements Runnable {
 		return;
 	}
 
-	public static void startScan() {
-//		ExecutorService executor = Executors.newCachedThreadPool();
-//		executor.execute(new VguangApi());
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleWithFixedDelay(new VguangApi(), 0, 150, TimeUnit.MILLISECONDS);
-	}
+//	public static void startScan() {
+////		ExecutorService executor = Executors.newCachedThreadPool();
+////		executor.execute(new VguangApi());
+//		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//		scheduler.scheduleWithFixedDelay(new VguangApi(), 0, 150, TimeUnit.MILLISECONDS);
+//	}
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-
-	}
+//	@Override
+//	public void run() {
+//		// TODO Auto-generated method stub
+//
+//	}
 }

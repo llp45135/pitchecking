@@ -12,11 +12,11 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 import com.rxtec.pitchecking.event.QRCodeReaderEvent;
 import com.vguang.VguangApi;
 
-public class QRReader {
+public class QRReader implements Runnable {
 	private Log log = LogFactory.getLog("QRReader");
 	private static QRReader instance = new QRReader();
 	private JNative qrDeviceJNative = null;
-	
+
 
 	private int deviceStatus = Config.StartStatus;
 
@@ -58,7 +58,7 @@ public class QRReader {
 					DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
 				}
 			} catch (NumberFormatException | UnsupportedEncodingException e) {
-				log.error("uncompressTicket", e);
+				log.error("QRReader uncompressTicket", e);
 			}
 		}
 	}
@@ -66,10 +66,8 @@ public class QRReader {
 	private Ticket uncompressTicket(String instr, String year)
 			throws NumberFormatException, UnsupportedEncodingException {
 		byte[] outStrArray = uncompress(instr, year);
-		// log.debug("outStrArray.length==" + outStrArray.length);
-		Ticket ticket = null;
-		// log.debug("outStrArray.length=="+outStrArray.length);
-		ticket = buildTicket(outStrArray);
+		Ticket ticket = buildTicket(outStrArray);
+		outStrArray = null;
 		// ticket.printTicket();
 		return ticket;
 	}
@@ -84,7 +82,7 @@ public class QRReader {
 		// 打开设备
 		VguangApi.openDevice();
 		// 开始循环扫描
-		VguangApi.startScan();
+//		VguangApi.startScan();
 
 	}
 
@@ -97,9 +95,9 @@ public class QRReader {
 	 * @throws UnsupportedEncodingException
 	 */
 	private Ticket buildTicket(byte[] ticketArray) throws NumberFormatException, UnsupportedEncodingException {
-		Ticket ticket = null;
+		Ticket ticket = new Ticket();
 		if (ticketArray.length == 117) {
-			ticket = new Ticket();
+			
 			String ticketStr = new String(ticketArray, "gbk");
 
 			ticket.setTicketNo(ticketStr.substring(0, 7));
@@ -131,7 +129,7 @@ public class QRReader {
 			ticket.setSaleDate(ticketStr.substring(60, 68));
 			ticket.setCardType(ticketStr.substring(68, 70));
 			ticket.setCardNo(ticketStr.substring(72, 90));
-			;
+			
 			byte[] passengerNameArray = new byte[20];
 			for (int i = 0; i < 20; i++) {
 				passengerNameArray[i] = ticketArray[i + 90];
@@ -143,8 +141,13 @@ public class QRReader {
 				specialArray[i] = ticketArray[i + 110];
 			}
 			ticket.setSpecialStr(new String(specialArray, "gbk"));
+			
+			trainDateArray = null;
+			passengerNameArray = null;
+			specialArray = null;
 		}
-
+		
+		
 		return ticket;
 	}
 
@@ -157,11 +160,12 @@ public class QRReader {
 	 */
 	private byte[] uncompress(String instr, String year) {
 		byte[] outStrArray = new byte[117];
+		Pointer ticketStrPointer  = null;
 		try {
 			String retval = "-1";
 			int i = 0;
 
-			Pointer ticketStrPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(117));
+			ticketStrPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(117));
 			qrDeviceJNative.setParameter(i++, instr);
 			qrDeviceJNative.setParameter(i++, ticketStrPointer);
 			qrDeviceJNative.setParameter(i++, Type.LONG, year);
@@ -192,6 +196,14 @@ public class QRReader {
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}finally{
+			if(ticketStrPointer != null)
+				try {
+					ticketStrPointer.dispose();
+				} catch (NativeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 		return outStrArray;
 	}
@@ -202,6 +214,14 @@ public class QRReader {
 
 	public void stop() {
 		deviceStatus = Config.StopStatus;
+	}
+
+
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

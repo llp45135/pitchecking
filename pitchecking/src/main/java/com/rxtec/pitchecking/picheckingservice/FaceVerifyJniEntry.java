@@ -36,9 +36,9 @@ public class FaceVerifyJniEntry {
 			log.debug("PS_InitFaceIDSDK ret: " + jnativeInitFun.getRetVal());//获取返回值
 			jnativeVerifyFun = new JNative("FaceVRISDK.dll","PS_VerifyImage");
 		}catch (NativeException e) {
-			e.printStackTrace();
+			log.error("FaceVerifyJniEntry initJNIContext failed!",e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			log.error("FaceVerifyJniEntry initJNIContext failed!",e);
 		}  finally {   
 		}
 
@@ -90,9 +90,9 @@ public class FaceVerifyJniEntry {
 			
 			
 		} catch (NativeException e) {
-			e.printStackTrace();
+			log.error("FaceVerifyJniEntry verify failed!",e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			log.error("FaceVerifyJniEntry verify failed!",e);
 		}  finally {   
 		}
 		return result;
@@ -104,8 +104,8 @@ public class FaceVerifyJniEntry {
 	public static void main(String[] args) {
 
 		FaceVerifyJniEntry v = new FaceVerifyJniEntry();
-		IDCard c1 = createIDCard("C:/pitchecking/images/20160513/Passed/ID1544565937.jpg");
-		IDCard c2 = createIDCard("C:/pitchecking/images/20160513/Passed/FI1544565937@2016-05-13 09-40-16-477$0.75.jpg");
+		IDCard c1 = createIDCard("C:/pitchecking/test/ID1544565937.jpg");
+		IDCard c2 = createIDCard("C:/pitchecking/test/FI1544565937@2016-06-18 04-49-58-722$0.62.jpg");
 				
 		v.verify(c1.getImageBytes(), c2.getImageBytes());
 

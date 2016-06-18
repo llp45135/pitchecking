@@ -40,10 +40,10 @@ public class TicketCheckScreen {
 		// gs[0].setFullScreenWindow(faceFrame);
 		// gs[1].setFullScreenWindow(ticketFrame);
 		// ticketFrame.setUndecorated(true);
-		// ticketFrame.setVisible(true);
+		 ticketFrame.setVisible(true);
 
 		gs[1].setFullScreenWindow(faceFrame);
-		gs[0].setFullScreenWindow(ticketFrame);
+//		gs[0].setFullScreenWindow(ticketFrame);
 		// faceFrame.setUndecorated(true);
 		// faceFrame.setVisible(true);
 

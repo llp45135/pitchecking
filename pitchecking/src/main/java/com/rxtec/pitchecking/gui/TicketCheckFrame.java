@@ -314,18 +314,19 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		this.titleStrType = titleStrType;
 		try {
 			// ticket.printTicket();
-
-			labelFz.setText(config.getStationName(ticket.getFromStationCode()));
-			this.labelZhi.setText("至");
-			this.labelDz.setText(config.getStationName(ticket.getEndStationCode()));
-			this.labelTrainCode.setText(ticket.getTrainCode());
-			this.label_rq.setText("乘车日期:");
-			String strTrainDate = ticket.getTrainDate().substring(0, 4) + "年" + ticket.getTrainDate().substring(4, 6)
-					+ "月" + ticket.getTrainDate().substring(6, 8) + "日";
-			this.labelTrainDate.setText(strTrainDate);
-			this.labelTicketType
-					.setText(config.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
-			this.labelSeatType.setText(config.getSeatTypesMap().get(ticket.getSeatCode()));
+			if (ticket != null) {
+				labelFz.setText(config.getStationName(ticket.getFromStationCode()));
+				this.labelZhi.setText("至");
+				this.labelDz.setText(config.getStationName(ticket.getEndStationCode()));
+				this.labelTrainCode.setText(ticket.getTrainCode());
+				this.label_rq.setText("乘车日期:");
+				String strTrainDate = ticket.getTrainDate().substring(0, 4) + "年"
+						+ ticket.getTrainDate().substring(4, 6) + "月" + ticket.getTrainDate().substring(6, 8) + "日";
+				this.labelTrainDate.setText(strTrainDate);
+				this.labelTicketType
+						.setText(config.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
+				this.labelSeatType.setText(config.getSeatTypesMap().get(ticket.getSeatCode()));
+			}
 			ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
 			this.lableWarnmsg.setText("");
 			this.labelMsg.setText("请通行!");
@@ -448,7 +449,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		}
 
 		if (timeIntevel == 0) {
-			log.debug("showDefaultContent " + timeIntevel);
+			log.debug("等待结束，回到初始界面.. " + timeIntevel);
 			showDefaultContent();
 		}
 		if (timeIntevel-- < 0)

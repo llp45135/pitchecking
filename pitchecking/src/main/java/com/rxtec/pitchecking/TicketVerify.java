@@ -16,6 +16,8 @@ public class TicketVerify {
 	 * @return
 	 */
 	public int verify() {
+		
+		
 		log.debug("ticket==" + ticket + "||idcard==" + idCard);
 		if (ticket == null || idCard == null) {
 			if (ticket != null) {
@@ -38,15 +40,16 @@ public class TicketVerify {
 				// timeIntevel = 0;
 				return Config.TicketVerifyStationRuleFail;
 			}
-			// 票证比对
-			if (!ticket.getCardNo().equals(idCard.getIdNo()) || !ticket.getPassengerName().equals(idCard.getPersonName())) {
-				log.debug("TicketVerifyIDFail==" + Config.TicketVerifyIDFail);
-
-				// timeIntevel = 0;
-				return Config.TicketVerifyIDFail;
-			}
+//			 票证比对
+//			if (!ticket.getCardNo().equals(idCard.getIdNo()) || !ticket.getPassengerName().equals(idCard.getPersonName())) {
+//				log.debug("TicketVerifyIDFail==" + Config.TicketVerifyIDFail);
+//
+//				// timeIntevel = 0;
+//				return Config.TicketVerifyIDFail;
+//			}
 			return Config.TicketVerifySucc;
 		}
+//		return Config.TicketVerifySucc;
 	}
 
 	public Ticket getTicket() {
