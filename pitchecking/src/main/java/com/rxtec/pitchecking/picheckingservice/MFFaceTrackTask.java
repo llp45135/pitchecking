@@ -98,7 +98,7 @@ public class MFFaceTrackTask implements Runnable {
 						long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 						log.debug("faceDetecter.frontal, using " + usingTime + " ms" + " detect faces=" + faces.length);
 						for (Face face : faces) {
-							PICData fd = new PICData(frame);
+							PITData fd = new PITData(frame);
 							fd.updateFaceLocation(face.getX(), face.getY(), face.getWidth(), face.getHeight());
 							fd.setDetectedFace(true);
 							if (fd.isDetectedFace()) {
@@ -170,7 +170,7 @@ public class MFFaceTrackTask implements Runnable {
 		return buff;
 	}
 
-	private boolean detectQuality(PICData fd) {
+	private boolean detectQuality(PITData fd) {
 		FaceDetectedResult r = fd.getFaceDetectedResult();
 		if (r.isEyesfrontal() && r.isFacefrontal() && r.isEyesopen() && r.isHasface() && r.isExpression())
 			return true;

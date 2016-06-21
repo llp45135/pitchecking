@@ -53,6 +53,24 @@ public class Config {
 	private int videoType = 1;
 	private int videoCaptureFrequency=10;
 	
+	private String multicastAddress="234.5.6.7";
+	public String getMulticastAddress() {
+		return multicastAddress;
+	}
+
+	public void setMulticastAddress(String multicastAddress) {
+		this.multicastAddress = multicastAddress;
+	}
+
+	public int getMulticastPort() {
+		return multicastPort;
+	}
+
+	public void setMulticastPort(int multicastPort) {
+		this.multicastPort = multicastPort;
+	}
+
+	private int multicastPort=8899;
 
 	//
 	private String ticketXmlDir;

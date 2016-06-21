@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
-import com.rxtec.pitchecking.picheckingservice.PICData;
+import com.rxtec.pitchecking.picheckingservice.PITData;
 
 import intel.rssdk.PXCMBase;
 import intel.rssdk.PXCMCapture;
@@ -132,7 +132,7 @@ public class RSFaceTrackTask implements Runnable {
 						break;
 					PXCMFaceData.DetectionData detection = face.QueryDetection();
 					if (detection != null) {
-						PICData fd = createFaceData(frameImage, detection);
+						PITData fd = createFaceData(frameImage, detection);
 						if (fd.isDetectedFace() && currentIDCard != null) {
 							fd.setIdCard(currentIDCard);
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
@@ -178,11 +178,11 @@ public class RSFaceTrackTask implements Runnable {
 	};
 
 	
-	private PICData createFaceData(BufferedImage frame, PXCMFaceData.DetectionData detection) {
+	private PITData createFaceData(BufferedImage frame, PXCMFaceData.DetectionData detection) {
 		if (frame == null)
 			return null;
 		PXCMRectI32 rect = new PXCMRectI32();
-		PICData fd = new PICData(frame);
+		PITData fd = new PITData(frame);
 		boolean ret = detection.QueryBoundingRect(rect);
 		if (ret) {
 			int x, y, w, h;
@@ -409,7 +409,7 @@ public class RSFaceTrackTask implements Runnable {
 //				boolean isRealFace = drawLandmark(face);
 				boolean isRealFace = true;
 				if (detection != null) {
-					PICData fd = createFaceData(frameImage, detection);
+					PITData fd = createFaceData(frameImage, detection);
 					if (fd != null && isRealFace) {
 						if (fd.isDetectedFace() && currentIDCard != null) {
 							fd.setIdCard(currentIDCard);

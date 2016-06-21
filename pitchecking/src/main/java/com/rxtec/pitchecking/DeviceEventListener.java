@@ -18,7 +18,7 @@ import com.rxtec.pitchecking.device.IDCardDevice;
 import com.rxtec.pitchecking.device.QRDevice;
 import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
-import com.rxtec.pitchecking.picheckingservice.PICData;
+import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class DeviceEventListener implements Runnable {
@@ -105,7 +105,7 @@ public class DeviceEventListener implements Runnable {
 	}
 
 	private void verifyFace(IDCard idCard) {
-		PICData picData = verifyFaceTask.beginCheckFace(idCard);
+		PITData picData = verifyFaceTask.beginCheckFace(idCard);
 		log.debug("认证比对结果：picData==" + picData);
 		// if (picData != null) {
 		// GateDeviceManager.getInstance().openThirdDoor();

@@ -13,7 +13,7 @@ import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.IFaceTrackService;
-import com.rxtec.pitchecking.picheckingservice.PICData;
+import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 import com.rxtec.pitchecking.task.RunningStatus;
 
@@ -34,7 +34,7 @@ public class VerifyFaceTask{
 			faceTrackService = FaceDetectionService.getInstance();
 	}
 
-	public PICData beginCheckFace(IDCard idCard) {
+	public PITData beginCheckFace(IDCard idCard) {
 		TicketCheckScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
 
@@ -48,7 +48,7 @@ public class VerifyFaceTask{
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
-		PICData fd =  null;
+		PITData fd =  null;
 		try {
 			fd = FaceCheckingService.getInstance().pollPassFaceData();
 		} catch (InterruptedException e) {

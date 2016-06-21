@@ -13,6 +13,25 @@ import org.openimaj.image.MBFImage;
 public class IDCard {
 	private String idNo;
 	private String personName;
+	private int gender;
+	private int age;
+
+
+	public int getGender() {
+		return gender;
+	}
+
+	public void setGender(int gender) {
+		this.gender = gender;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
 
 	public String getPersonName() {
 		return personName;

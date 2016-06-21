@@ -31,7 +31,7 @@ import com.rxtec.pitchecking.utils.ImageToolkit;
  *
  */
 
-public class PICData {
+public class PITData {
 	private BufferedImage frame = null;
 
 	public BufferedImage getFrame() {
@@ -158,7 +158,7 @@ public class PICData {
 		faceImage = fm.getSubimage(x, y, width, height);
 	}
 
-	public PICData(BufferedImage frame) {
+	public PITData(BufferedImage frame) {
 		this.frame = frame;
 		this.faceLocation = new FaceLocation();
 	}

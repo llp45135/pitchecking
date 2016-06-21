@@ -46,7 +46,7 @@ public class FaceDetectByPixelJNIEntryClone  {
 
 					try {
 						BufferedImage bi = ImageIO.read(new File("C:/pitchecking/llp.jpg"));
-						PICData fd = new PICData(bi);
+						PITData fd = new PITData(bi);
 						FaceDetectByPixelJNIEntry detecter = FaceDetectByPixelJNIEntry.getInstance();
 						detecter.detectFaceImage(fd);
 						System.out.println(fd.getFaceDetectedResult());
@@ -124,7 +124,7 @@ public class FaceDetectByPixelJNIEntryClone  {
 		return result;
 	}
 
-	public void detectFaceLocation(PICData fd) {
+	public void detectFaceLocation(PITData fd) {
 //		FaceDetectedResult fdr = fd.getFaceDetectedResult();
 //
 //		byte[] imgBytes = fdr.getFrameImageBytes();
@@ -230,7 +230,7 @@ public class FaceDetectByPixelJNIEntryClone  {
 
 	}
 
-	public void detectFaceImageQuality(PICData fd) {
+	public void detectFaceImageQuality(PITData fd) {
 		FaceDetectedResult fdr = new FaceDetectedResult();
 		byte[] imgBytes = ImageToolkit.getImageBytes(fd.getFrame(), "jpeg");
 
@@ -409,7 +409,7 @@ public class FaceDetectByPixelJNIEntryClone  {
 
 	}
 
-	public void detectFaceImage(PICData fd) {
+	public void detectFaceImage(PITData fd) {
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 		this.detectFaceLocation(fd);
 		this.detectFaceImageQuality(fd);

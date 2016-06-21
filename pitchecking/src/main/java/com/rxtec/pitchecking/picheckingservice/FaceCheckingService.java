@@ -27,40 +27,40 @@ public class FaceCheckingService implements Runnable {
 	private static FaceCheckingService _instance = new FaceCheckingService();
 
 	//已经检测人脸质量，待验证的队列
-	private LinkedBlockingQueue<PICData> detectedFaceDataQueue ;
+	private LinkedBlockingQueue<PITData> detectedFaceDataQueue ;
 
 	//比对验证通过的队列
-	private LinkedBlockingQueue<PICData> passFaceDataQueue;
+	private LinkedBlockingQueue<PITData> passFaceDataQueue;
 
 
-	public LinkedBlockingQueue<PICData> getPassFaceDataQueue() {
+	public LinkedBlockingQueue<PITData> getPassFaceDataQueue() {
 		return passFaceDataQueue;
 	}
 	private FaceCheckingService(){
-		detectedFaceDataQueue = new LinkedBlockingQueue<PICData>(Config.getInstance().getDetectededFaceQueueLen());
-		passFaceDataQueue =new LinkedBlockingQueue<PICData>(1);
+		detectedFaceDataQueue = new LinkedBlockingQueue<PITData>(Config.getInstance().getDetectededFaceQueueLen());
+		passFaceDataQueue =new LinkedBlockingQueue<PITData>(1);
 	}
 	public static synchronized FaceCheckingService getInstance(){
 		if(_instance == null) _instance = new FaceCheckingService();
 		return _instance;
 	}
 	
-	public PICData pollPassFaceData() throws InterruptedException{
-		PICData fd = passFaceDataQueue.poll(Config.getInstance().getFaceCheckDelayTime(),TimeUnit.MILLISECONDS );
+	public PITData pollPassFaceData() throws InterruptedException{
+		PITData fd = passFaceDataQueue.poll(Config.getInstance().getFaceCheckDelayTime(),TimeUnit.MILLISECONDS );
 		return fd;
 	}
 	
 	
-	public PICData takeDetectedFaceData() throws InterruptedException{
+	public PITData takeDetectedFaceData() throws InterruptedException{
 		return detectedFaceDataQueue.take();
 	}
 	
-	public void offerPassFaceData(PICData fd){
+	public void offerPassFaceData(PITData fd){
 		isCheck = passFaceDataQueue.offer(fd);
 		log.debug("offerPassFaceData...... " + isCheck);
 	}
 	
-	public void offerDetectedFaceData(PICData faceData){
+	public void offerDetectedFaceData(PITData faceData){
 		if(!detectedFaceDataQueue.offer(faceData)){
 			detectedFaceDataQueue.poll();
 			detectedFaceDataQueue.offer(faceData);
@@ -94,7 +94,7 @@ public class FaceCheckingService implements Runnable {
 			if(!isCheck) continue;
 			try {
 				Thread.sleep(50);
-				PICData fd = FaceCheckingService.getInstance().takeDetectedFaceData();
+				PITData fd = FaceCheckingService.getInstance().takeDetectedFaceData();
 				
 				if (fd != null) {
 					IDCard idCard = fd.getIdCard();

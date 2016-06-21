@@ -75,7 +75,7 @@ public class FaceTrackTask implements Runnable {
 		try {
 			BufferedImage frame = FaceDetectionService.getInstance().takeFrameImage();
 			if (frame != null) {
-				PICData fd = new PICData(frame);
+				PITData fd = new PITData(frame);
 				faceDetecter.detectFaceLocation(fd);
 
 				if (fd.isDetectedFace())
@@ -91,7 +91,7 @@ public class FaceTrackTask implements Runnable {
 		try {
 			BufferedImage frame = FaceDetectionService.getInstance().takeFrameImage();
 			if (frame != null) {
-				PICData fd = new PICData(frame);
+				PITData fd = new PITData(frame);
 				faceDetecter.detectFaceImage(fd);
 
 				if (detectQuality(fd) && fd.isDetectedFace()){
@@ -113,7 +113,7 @@ public class FaceTrackTask implements Runnable {
 		return buff;
 	}
 
-	private boolean detectQuality(PICData fd) {
+	private boolean detectQuality(PITData fd) {
 		FaceDetectedResult r = fd.getFaceDetectedResult();
 		if (r.isEyesfrontal() && r.isFacefrontal() && r.isEyesopen() && r.isHasface() && r.isExpression())
 			return true;

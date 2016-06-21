@@ -43,11 +43,11 @@ public class FaceDetectionService implements IFaceTrackService {
 
 	private LinkedBlockingQueue<BufferedImage> frameImageQueue = new LinkedBlockingQueue<BufferedImage>(3);
 
-	private LinkedBlockingQueue<PICData> trackededFaceQueue = new LinkedBlockingQueue<PICData>(3);
+	private LinkedBlockingQueue<PITData> trackededFaceQueue = new LinkedBlockingQueue<PITData>(3);
 
-	private LinkedBlockingQueue<PICData> waitForDetectedFaceQueue = new LinkedBlockingQueue<PICData>(3);
+	private LinkedBlockingQueue<PITData> waitForDetectedFaceQueue = new LinkedBlockingQueue<PITData>(3);
 
-	public LinkedBlockingQueue<PICData> getDetectedFaceQueue() {
+	public LinkedBlockingQueue<PITData> getDetectedFaceQueue() {
 		return trackededFaceQueue;
 	}
 
@@ -55,7 +55,7 @@ public class FaceDetectionService implements IFaceTrackService {
 		return frameImageQueue.take();
 	}
 
-	public void offerWaitForDetectedFaceData(PICData fd) {
+	public void offerWaitForDetectedFaceData(PITData fd) {
 		if (!waitForDetectedFaceQueue.offer(fd)) {
 			waitForDetectedFaceQueue.poll();
 			waitForDetectedFaceQueue.offer(fd);
@@ -63,13 +63,13 @@ public class FaceDetectionService implements IFaceTrackService {
 
 	}
 
-	public PICData takeWaitForDetectedFaceData() throws InterruptedException {
+	public PITData takeWaitForDetectedFaceData() throws InterruptedException {
 		// log.debug("takeWaitForDetectedFaceData,waitForDetectedFaceQueue
 		// size=" + waitForDetectedFaceQueue.size());
 		return waitForDetectedFaceQueue.take();
 	}
 
-	public void offerTrackedFaceData(PICData fd) {
+	public void offerTrackedFaceData(PITData fd) {
 		if (!trackededFaceQueue.offer(fd)) {
 			trackededFaceQueue.poll();
 			trackededFaceQueue.offer(fd);
@@ -77,7 +77,7 @@ public class FaceDetectionService implements IFaceTrackService {
 
 	}
 
-	public PICData takeTrackedFaceData() throws InterruptedException {
+	public PITData takeTrackedFaceData() throws InterruptedException {
 		log.debug("takeDetectedFaceData,detectedFaceQueue size=" + trackededFaceQueue.size());
 		return trackededFaceQueue.take();
 	}
@@ -125,7 +125,7 @@ public class FaceDetectionService implements IFaceTrackService {
 	 * 
 	 * @return
 	 */
-	private PICData pollTrackedFaceData() {
+	private PITData pollTrackedFaceData() {
 		return trackededFaceQueue.poll();
 	}
 
@@ -155,7 +155,7 @@ public class FaceDetectionService implements IFaceTrackService {
 				BufferedImage bi = ImageUtilities.createBufferedImageForDisplay(frame.clone());
 				offerFrame(bi);
 
-				PICData faceData = pollTrackedFaceData();
+				PITData faceData = pollTrackedFaceData();
 
 				if (faceData != null) {
 					faceData.setIdCard(currentIDCard);

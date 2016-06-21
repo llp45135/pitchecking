@@ -33,7 +33,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.border.LineBorder;
 
 import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.picheckingservice.PICData;
+import com.rxtec.pitchecking.picheckingservice.PITData;
 
 import java.awt.Rectangle;
 import java.awt.Toolkit;
