@@ -88,6 +88,7 @@ public class VguangApi{
 
 		// 设置扬声器状态
 		VguangApi.setBeepable(true);
+		VguangApi.beep(1);
 	}
 
 	/**
@@ -113,7 +114,7 @@ public class VguangApi{
 		// if(VguangSample.vguangSample != null){
 		// VguangSample.vguangSample.setDeviceStatus(status);
 		// }
-		log.debug("#########==="+status);
+//		log.debug("#########==="+status);
 		DeviceConfig.getInstance().setQrdeviceStatus(status);
 		return;
 	}

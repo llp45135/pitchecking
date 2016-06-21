@@ -300,13 +300,17 @@ public class IDCardDevice {
 	public IDCard Syn_ReadBaseMsg() {
 		String retval = "";
 		IDCard synIDCard = new IDCard();
+		Pointer chmsgPointer = null;
+		Pointer chlenPointer = null;
+		Pointer phmsgPointer = null;
+		Pointer phlenPointer = null;
 		try {
 			int i = 0;
 
-			Pointer chmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(500));
-			Pointer chlenPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(256));
-			Pointer phmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1024 * 3));
-			Pointer phlenPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1024));
+			chmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(500));
+			chlenPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(256));
+			phmsgPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1024 * 3));
+			phlenPointer = new Pointer(MemoryBlockFactory.createMemoryBlock(1024));
 
 			readBaseMsgJNative.setParameter(i++, port);
 			readBaseMsgJNative.setParameter(i++, chmsgPointer);
@@ -319,7 +323,6 @@ public class IDCardDevice {
 			retval = readBaseMsgJNative.getRetVal();
 			if (retval.equals("0")) {
 				// log.debug("读取二代身份证成功！");
-				
 
 				int count = chlenPointer.getSize();
 				byte[] byteArray = new byte[count + 2];
@@ -590,6 +593,24 @@ public class IDCardDevice {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			try {
+				if (chmsgPointer != null) {
+					chmsgPointer.dispose();
+				}
+				if (chlenPointer != null) {
+					chlenPointer.dispose();
+				}
+				if (phmsgPointer != null) {
+					phmsgPointer.dispose();
+				}
+				if (phlenPointer != null) {
+					phlenPointer.dispose();
+				}
+			} catch (NativeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return synIDCard;
 	}

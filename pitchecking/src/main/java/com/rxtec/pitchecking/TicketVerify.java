@@ -15,8 +15,7 @@ public class TicketVerify {
 	 * 
 	 * @return
 	 */
-	public int verify() {
-		
+	public int verify() {		
 		
 		log.debug("ticket==" + ticket + "||idcard==" + idCard);
 		if (ticket == null || idCard == null) {

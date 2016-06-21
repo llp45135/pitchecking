@@ -52,8 +52,6 @@ public class DeviceEventListener implements Runnable {
 			/**
 			 * 二维码读卡器读到数据
 			 */
-			// QRCodeEventTask qrtask = new QRCodeEventTask(e);
-			// Future<Integer> result = executor.submit(qrtask);
 			ticketVerifier.setTicket((Ticket) e.getData());
 
 			verifyTicket();
@@ -71,21 +69,20 @@ public class DeviceEventListener implements Runnable {
 
 		if (ticketVerifyResult == Config.TicketVerifySucc) { // 核验成功
 			// GateDeviceManager.getInstance().openFirstDoor();
-			//停止寻卡
-			IDReader.getInstance().stop();
-			QRReader.getInstance().stop();
+			// 停止寻卡
+			this.setDeviceReader(false);
+
 			log.debug("票证核验通过，停止寻卡，开始人证比对");
 			TicketCheckScreen.getInstance()
 					.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifySucc.getValue(),
 							ticketVerifier.getTicket(), ticketVerifier.getIdCard(), null));
 			// 开始进行人脸检测和比对
 			verifyFace(ticketVerifier.getIdCard());
-			
+
 			ticketVerifier.reset();
 
 			// 开始寻卡
-			IDReader.getInstance().start();
-			QRReader.getInstance().start();
+			this.setDeviceReader(true);
 			log.debug("人证比对完成，开始寻卡");
 
 		} else if (ticketVerifyResult == Config.TicketVerifyWaitInput) { // 等待票证验证数据
@@ -129,8 +126,8 @@ public class DeviceEventListener implements Runnable {
 
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
-		
-		scheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
+
+		scheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 1000, TimeUnit.MILLISECONDS);
 	}
 
 	private int startIDDevice() {
@@ -140,8 +137,7 @@ public class DeviceEventListener implements Runnable {
 			log.debug("二代证读卡器异常,请联系维护人员!");
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowIDDeviceException.getValue(), null, null, null));
-			IDReader.getInstance().stop();
-//			QRReader.getInstance().stop();
+			setDeviceReader(false);
 			return 0;
 		}
 		return 1;
@@ -156,8 +152,7 @@ public class DeviceEventListener implements Runnable {
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowQRDeviceException.getValue(), null, null, null));
 
-			IDReader.getInstance().stop();
-			QRReader.getInstance().stop();
+			setDeviceReader(false);
 			return 0;
 		}
 		return 1;
@@ -171,6 +166,24 @@ public class DeviceEventListener implements Runnable {
 
 	public void setPitStatus(int pitStatus) {
 		this.pitStatus = pitStatus;
+	}
+
+	/**
+	 * 读卡器是否开始寻卡
+	 * 
+	 * @param isRead
+	 */
+	public void setDeviceReader(boolean isRead) {
+		if (isRead) {
+			log.debug("读卡器开始寻卡");
+			IDReader.getInstance().start();
+			QRReader.getInstance().start();
+		} else {
+			log.debug("读卡器停止寻卡");
+			IDReader.getInstance().stop();
+			QRReader.getInstance().stop();
+		}
+
 	}
 
 	@Override

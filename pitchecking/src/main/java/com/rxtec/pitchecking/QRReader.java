@@ -17,7 +17,6 @@ public class QRReader implements Runnable {
 	private static QRReader instance = new QRReader();
 	private JNative qrDeviceJNative = null;
 
-
 	private int deviceStatus = Config.StartStatus;
 
 	public static void main(String[] args) {
@@ -27,8 +26,6 @@ public class QRReader implements Runnable {
 		// executor.execute(qrDeviceTest);
 
 	}
-
-	
 
 	private QRReader() {
 		JNative.setLoggingEnabled(true);
@@ -77,12 +74,13 @@ public class QRReader implements Runnable {
 	 */
 	private void initQRDevice() {
 		log.debug("初始化二维码扫描器...");
+		
 		// 应用设置
 		VguangApi.applyDeviceSetting();
 		// 打开设备
 		VguangApi.openDevice();
 		// 开始循环扫描
-//		VguangApi.startScan();
+		// VguangApi.startScan();
 
 	}
 
@@ -97,7 +95,7 @@ public class QRReader implements Runnable {
 	private Ticket buildTicket(byte[] ticketArray) throws NumberFormatException, UnsupportedEncodingException {
 		Ticket ticket = new Ticket();
 		if (ticketArray.length == 117) {
-			
+
 			String ticketStr = new String(ticketArray, "gbk");
 
 			ticket.setTicketNo(ticketStr.substring(0, 7));
@@ -129,7 +127,7 @@ public class QRReader implements Runnable {
 			ticket.setSaleDate(ticketStr.substring(60, 68));
 			ticket.setCardType(ticketStr.substring(68, 70));
 			ticket.setCardNo(ticketStr.substring(72, 90));
-			
+
 			byte[] passengerNameArray = new byte[20];
 			for (int i = 0; i < 20; i++) {
 				passengerNameArray[i] = ticketArray[i + 90];
@@ -141,13 +139,12 @@ public class QRReader implements Runnable {
 				specialArray[i] = ticketArray[i + 110];
 			}
 			ticket.setSpecialStr(new String(specialArray, "gbk"));
-			
+
 			trainDateArray = null;
 			passengerNameArray = null;
 			specialArray = null;
 		}
-		
-		
+
 		return ticket;
 	}
 
@@ -160,7 +157,7 @@ public class QRReader implements Runnable {
 	 */
 	private byte[] uncompress(String instr, String year) {
 		byte[] outStrArray = new byte[117];
-		Pointer ticketStrPointer  = null;
+		Pointer ticketStrPointer = null;
 		try {
 			String retval = "-1";
 			int i = 0;
@@ -188,21 +185,17 @@ public class QRReader implements Runnable {
 			ticketStrPointer.dispose();
 
 		} catch (NativeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("QRReader uncompress", e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("QRReader uncompress", e);
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally{
-			if(ticketStrPointer != null)
+			log.error("QRReader uncompress", e);
+		} finally {
+			if (ticketStrPointer != null)
 				try {
 					ticketStrPointer.dispose();
 				} catch (NativeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error("QRReader uncompress", e);
 				}
 		}
 		return outStrArray;
@@ -216,12 +209,10 @@ public class QRReader implements Runnable {
 		deviceStatus = Config.StopStatus;
 	}
 
-
-
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
