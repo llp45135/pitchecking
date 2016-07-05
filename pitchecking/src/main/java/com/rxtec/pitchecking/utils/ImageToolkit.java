@@ -595,13 +595,13 @@ public class ImageToolkit {
 	            }
 	        }
 
-	        File newFile = new File("C:/Users/lenovo/Pictures/ok.bmp");
-	        try {
-				ImageIO.write(grayImage, "bmp", newFile);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//	        File newFile = new File("C:/Users/lenovo/Pictures/ok.bmp");
+//	        try {
+//				ImageIO.write(grayImage, "bmp", newFile);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 
 	        return grayImage;
 	}

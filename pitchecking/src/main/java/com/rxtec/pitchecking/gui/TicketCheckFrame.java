@@ -118,16 +118,16 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		topPanel.setLayout(null);
 
 		labelTitle = new JLabel("请刷二代证和车票二维码");
-		labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
+		labelTitle.setHorizontalAlignment(SwingConstants.RIGHT);
 		labelTitle.setForeground(Color.BLUE);
-		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 36));
-		labelTitle.setBounds(10, 0, 994, 57);
+		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 42));
+		labelTitle.setBounds(10, 31, 734, 57);
 		topPanel.add(labelTitle);
 
 		timelabel = new JLabel("yyyyMMdd hh:mm:ss");
 		timelabel.setForeground(Color.RED);
 		timelabel.setFont(new Font("微软雅黑", Font.PLAIN, 18));
-		timelabel.setBounds(790, 62, 195, 26);
+		timelabel.setBounds(790, 56, 195, 26);
 		topPanel.add(timelabel);
 
 		ticketPanel = new JPanel();
@@ -231,6 +231,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	public void showDefaultContent() {
 
 		this.labelTitle.setText("请刷二代证和车票二维码");
+		labelTitle.setForeground(Color.blue);
 		// this.labelFz.setText("");
 		// this.labelZhi.setText("");
 		// this.labelDz.setText("");
@@ -294,10 +295,11 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		contentPane.add(bottomPanel);
 
 		if (idCard != null) {
-			initPanel.showIDCardImage(new ImageIcon(idCard.getCardImage()));
+//			initPanel.showIDCardImage(new ImageIcon(idCard.getCardImage()));
+			initPanel.showIDCardImage(new ImageIcon(DeviceConfig.readedIdImgPath));
 		}
 		if (ticket != null) {
-			initPanel.showTicketInfo(new ImageIcon(DeviceConfig.ticketImgPath));
+			initPanel.showTicketInfo(new ImageIcon(DeviceConfig.readerQRImgPath));
 		}
 
 		contentPane.repaint();
@@ -438,13 +440,17 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		// log.debug("TicketCheckFrame 计时开始==" + (timeIntevel - 1));
 		if (timeIntevel >= 0) {
 			if (this.titleStrType == 1) {
-				labelTitle.setText("请扫描车票二维码！     " + (timeIntevel - 1));
+				labelTitle.setText("请扫描车票二维码!   " + (timeIntevel - 1));
+				labelTitle.setForeground(Color.RED);
 			} else if (this.titleStrType == 2) {
-				labelTitle.setText("请刷二代证！     " + (timeIntevel - 1));
+				labelTitle.setText("请刷二代证!   " + (timeIntevel - 1));
+				labelTitle.setForeground(Color.RED);
 			} else if (this.titleStrType == 3) {
-				labelTitle.setText("票证核验成功！     " + (timeIntevel - 1));
+				labelTitle.setText("票证核验成功!   " + (timeIntevel - 1));
+				labelTitle.setForeground(Color.blue);
 			} else if (this.titleStrType == 4) {
-				labelTitle.setText("票证核验失败,请重试！     " + (timeIntevel - 1));
+				labelTitle.setText("票证核验失败,请重试!   " + (timeIntevel - 1));
+				labelTitle.setForeground(Color.RED);
 			}
 		}
 

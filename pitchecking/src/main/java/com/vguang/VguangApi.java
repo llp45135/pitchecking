@@ -77,14 +77,14 @@ public class VguangApi{
 
 		// 设置自动休眠状态
 		VguangApi.setAI(false);
-		int aiLimit = 20;
-		if (aiLimit < 1 || aiLimit > 64) {
-			aiLimit = 20;
-		}
-		// 设置自动休眠灵敏度
-		VguangApi.setAISensitivity(aiLimit);
-		// 设置自动休眠响应时间，单位秒
-		VguangApi.setAIResponseTime(30);
+//		int aiLimit = 20;
+//		if (aiLimit < 1 || aiLimit > 64) {
+//			aiLimit = 20;
+//		}
+//		// 设置自动休眠灵敏度
+//		VguangApi.setAISensitivity(aiLimit);
+//		// 设置自动休眠响应时间，单位秒
+//		VguangApi.setAIResponseTime(30);
 
 		// 设置扬声器状态
 		VguangApi.setBeepable(true);
@@ -114,7 +114,7 @@ public class VguangApi{
 		// if(VguangSample.vguangSample != null){
 		// VguangSample.vguangSample.setDeviceStatus(status);
 		// }
-//		log.debug("#########==="+status);
+		log.debug("#########==="+status);
 		DeviceConfig.getInstance().setQrdeviceStatus(status);
 		return;
 	}

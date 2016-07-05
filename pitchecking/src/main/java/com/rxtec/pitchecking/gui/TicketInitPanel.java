@@ -12,6 +12,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.border.LineBorder;
 
+import com.rxtec.pitchecking.device.DeviceConfig;
+
 public class TicketInitPanel extends JPanel {
 	private JButton holdTicketImg;
 	private JButton holdCardImg;
@@ -30,7 +32,7 @@ public class TicketInitPanel extends JPanel {
 		holdTicketImg.setBounds(612, 100, 318, 349);
 		add(holdTicketImg);
 		
-		ImageIcon qrzoneIcon = new ImageIcon("./img/qrreader.gif");
+		ImageIcon qrzoneIcon = new ImageIcon(DeviceConfig.qrReaderImgPath);
 		holdTicketImg.setIcon(qrzoneIcon);
 		
 		holdCardImg = new JButton("");
@@ -38,7 +40,7 @@ public class TicketInitPanel extends JPanel {
 		holdCardImg.setBounds(98, 100, 318, 349);
 		add(holdCardImg);
 		
-		ImageIcon idzoneIcon = new ImageIcon("./img/idreader.gif");
+		ImageIcon idzoneIcon = new ImageIcon(DeviceConfig.idReaderImgPath);
 		holdCardImg.setIcon(idzoneIcon);
 		
 	}

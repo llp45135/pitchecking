@@ -119,6 +119,7 @@ public class RSFaceDetectionService implements IFaceTrackService{
 	
 
 	public void beginCheckingFace(IDCard idCard) {
+		FaceCheckingService.getInstance().resetFaceDataQueue();  //by zhao 20160705
 		currentIDCard = idCard;
 		trackTask.beginCheckingFace(idCard);
 

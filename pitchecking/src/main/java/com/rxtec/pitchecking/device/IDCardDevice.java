@@ -21,6 +21,7 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
+import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectByPixelJNIEntryClone;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -50,36 +51,26 @@ public class IDCardDevice {
 
 		IDCardDevice device = IDCardDevice.getInstance();
 		if (device.getPort() != 0) {
-			FaceCheckFrame frame = new FaceCheckFrame();
-			// device.Syn_OpenPort();
+			TicketCheckFrame frame = new TicketCheckFrame();
+			frame.setVisible(true);
+			
 			while (true) {
+				device.Syn_OpenPort();
 				String findval = device.Syn_StartFindIDCard();
 				if (findval.equals("0")) {
-					frame.showIDCardImage(null);
-					frame.setVisible(false);
 					String selectval = device.Syn_SelectIDCard();
 					if (selectval.equals("0")) {
 						IDCard idCard = new IDCard();
 						idCard = device.Syn_ReadBaseMsg();
 						if (idCard.getIdNo() != null) {
-
-							ImageIcon icon = new ImageIcon(idCard.getCardImage());
-							frame.showIDCardImage(icon);
-						} else {
-							frame.showIDCardImage(null);
-							frame.getContentPane().repaint();
+							frame.showWaitInputContent(null, idCard, 1);
+							CommUtil.sleep(3000);
 						}
-						frame.setVisible(true);
 					}
 				}
-				// device.Syn_ClosePort(port);
+				device.Syn_ClosePort();
 
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				CommUtil.sleep(150);
 			}
 		}
 	}

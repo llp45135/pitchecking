@@ -17,7 +17,7 @@ public class TicketVerify {
 	 */
 	public int verify() {		
 		
-		log.debug("ticket==" + ticket + "||idcard==" + idCard);
+//		log.debug("ticket==" + ticket + "||idcard==" + idCard);
 		if (ticket == null || idCard == null) {
 			if (ticket != null) {
 				if (ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {

@@ -32,11 +32,11 @@ public class PitCheckingApp {
 		// TODO Auto-generated method stub
 		// 启动事件监听
 
-		FaceCheckingService.getInstance().beginFaceCheckerTask();
+		FaceCheckingService.getInstance().beginFaceCheckerTask();  //启动人脸比对线程
 
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {
 			RSFaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
-			RSFaceDetectionService.getInstance().beginVideoCaptureAndTracking();
+			RSFaceDetectionService.getInstance().beginVideoCaptureAndTracking();  //启动人脸检测线程
 		} else {
 			 FaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
 			 FaceDetectionService.getInstance().beginVideoCaptureAndTracking();

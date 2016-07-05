@@ -75,10 +75,7 @@ public class MFFaceTrackTask implements Runnable {
 	}
 
 	int frameCount = 0;
-
 	private void detectFaceLocation() {
-		
-		
 		frameCount++;
 		if (frameCount >= Config.getInstance().getVideoCaptureFrequency()) {
 			frameCount = 0;
@@ -91,12 +88,9 @@ public class MFFaceTrackTask implements Runnable {
 					
 					if (pixels != null) {
 						long nowMils = Calendar.getInstance().getTimeInMillis();
-
 						Face[] faces = faceDetecter.frontal(pixels, frame.getHeight(), frame.getWidth());
-						
-						
 						long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-						log.debug("faceDetecter.frontal, using " + usingTime + " ms" + " detect faces=" + faces.length);
+//						log.debug("faceDetecter.frontal, using " + usingTime + " ms" + " detect faces=" + faces.length);
 						for (Face face : faces) {
 							PITData fd = new PITData(frame);
 							fd.updateFaceLocation(face.getX(), face.getY(), face.getWidth(), face.getHeight());
@@ -105,43 +99,16 @@ public class MFFaceTrackTask implements Runnable {
 								FaceDetectionService.getInstance().offerTrackedFaceData(fd);
 							}
 						}
-						
 						FaceDetectionService.getInstance().drawFaceLocation(faces);
 					}
-
 				}
 			} catch (InterruptedException e) {
 				log.error("FaceTrackTask ", e);
 			}
 		}
-
 	}
 
-	// private byte[] convertToFImageBytes(BufferedImage frame) {
-	// byte[] pixels = null;
-	// BufferedImage fimg =
-	// ImageUtilities.createBufferedImage(ImageUtilities.createFImage(frame));
-	//
-	// String dirName = Config.getInstance().getImagesLogDir();
-	// String fn = "";
-	// int ret = CommUtil.createDir(dirName);
-	// if (ret == 0 || ret == 1) {
-	// fn = dirName + "FCTMP.jpg";
-	// java.io.File f = new java.io.File(fn);
-	// if (f.exists())
-	// f.deleteOnExit();
-	// try {
-	// ImageIO.write(fimg, "JPEG", f);
-	// } catch (IOException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// fn = "";
-	// }
-	//
-	// }
-	//
-	// return fn;
-	// }
+
 
 	private void detectFaceImage() {
 		// try {

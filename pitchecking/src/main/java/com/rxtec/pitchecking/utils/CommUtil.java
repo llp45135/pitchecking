@@ -1,12 +1,18 @@
 package com.rxtec.pitchecking.utils;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Random;
+
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.FileImageOutputStream;
 
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -381,4 +387,135 @@ public class CommUtil {
         }
         return retStr;
     }
+    
+    /**
+     * 生成18位随机数
+     * @return
+     */
+    public static String getRandomUUID() {
+		// 1、创建时间戳
+		java.util.Date dateNow = new java.util.Date();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+		String dateNowStr = dateFormat.format(dateNow);
+		StringBuffer sb = new StringBuffer(dateNowStr);
+
+		// 2、创建随机对象
+		Random rd = new Random();
+
+		// 3、产生4位随机数
+		String n = "";
+		int rdGet; // 取得随机数
+
+		do {
+			rdGet = Math.abs(rd.nextInt()) % 10 + 48; // 产生48到57的随机数(0-9的键位值)
+			// rdGet=Math.abs(rd.nextInt())%26+97; //产生97到122的随机数(a-z的键位值)
+			char num1 = (char) rdGet;
+			String dd = Character.toString(num1);
+			n += dd;
+		} while (n.length() < 4);// 假如长度小于4
+		sb.append(n);
+
+		// 4、返回唯一码
+		return sb.toString();
+	}
+
+	/**
+	 * 图片到byte数组
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public byte[] image2byte(String path) {
+		byte[] data = null;
+		FileImageInputStream input = null;
+		try {
+			input = new FileImageInputStream(new File(path));
+			ByteArrayOutputStream output = new ByteArrayOutputStream();
+			byte[] buf = new byte[1024];
+			int numBytesRead = 0;
+			while ((numBytesRead = input.read(buf)) != -1) {
+				output.write(buf, 0, numBytesRead);
+			}
+			data = output.toByteArray();
+			output.close();
+			input.close();
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex1) {
+			ex1.printStackTrace();
+		}
+		return data;
+	}
+
+	/**
+	 * byte数组到图片
+	 * 
+	 * @param data
+	 * @param path
+	 */
+	public static void byte2image(byte[] data, String path) {
+		if (data.length < 3 || path.equals(""))
+			return;
+		try {
+			FileImageOutputStream imageOutput = new FileImageOutputStream(new File(path));
+			imageOutput.write(data, 0, data.length);
+			imageOutput.close();
+			System.out.println("Make Picture success,Please find image in " + path);
+		} catch (Exception ex) {
+			System.out.println("Exception: " + ex);
+			ex.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 * @param f
+	 * @return
+	 */
+	public static byte[] getBytesFromFile(File f) {
+		if (f == null) {
+			return null;
+		}
+		try {
+			FileInputStream stream = new FileInputStream(f);
+			ByteArrayOutputStream out = new ByteArrayOutputStream(1000);
+			byte[] b = new byte[1000];
+			int n;
+			while ((n = stream.read(b)) != -1)
+				out.write(b, 0, n);
+			stream.close();
+			out.close();
+			return out.toByteArray();
+		} catch (IOException e) {
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param b
+	 * @param outputFile
+	 * @return
+	 */
+	public static File getFileFromBytes(byte[] b, String outputFile) {
+		BufferedOutputStream stream = null;
+		File file = null;
+		try {
+			file = new File(outputFile);
+			FileOutputStream fstream = new FileOutputStream(file);
+			stream = new BufferedOutputStream(fstream);
+			stream.write(b);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+		return file;
+	}
 }

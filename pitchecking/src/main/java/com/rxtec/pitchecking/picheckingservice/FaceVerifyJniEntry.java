@@ -16,11 +16,13 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 
 public class FaceVerifyJniEntry {
 
-	public FaceVerifyJniEntry() {
+	public FaceVerifyJniEntry(String DLLName) {
+		this.DLLName = DLLName;
 		initJNIContext();
 	}
 
@@ -28,14 +30,16 @@ public class FaceVerifyJniEntry {
 	JNative jnativeVerifyFun = null;
 	JNative jnativeExitFun = null;
 	private Logger log = LoggerFactory.getLogger("FaceAuthentication");
+	String DLLName = "";
 
 	private void initJNIContext() {
+
 		try {
-			jnativeInitFun = new JNative("FaceVRISDK.dll", "PS_InitFaceIDSDK");
+			jnativeInitFun = new JNative(DLLName, "PS_InitFaceIDSDK");
 			jnativeInitFun.setRetVal(Type.INT);
 			jnativeInitFun.invoke();
 			log.debug("PS_InitFaceIDSDK ret: " + jnativeInitFun.getRetVal());// 获取返回值
-			jnativeVerifyFun = new JNative("FaceVRISDK.dll", "PS_VerifyImage");
+			jnativeVerifyFun = new JNative(DLLName, "PS_VerifyImage");
 		} catch (NativeException e) {
 			log.error("FaceVerifyJniEntry initJNIContext failed!", e);
 		} catch (IllegalAccessException e) {
@@ -47,7 +51,7 @@ public class FaceVerifyJniEntry {
 
 	public void clearJNIContext() {
 		try {
-			jnativeExitFun = new JNative("FaceVRISDK.dll", "PS_ExitFaceIDSDK");
+			jnativeExitFun = new JNative(DLLName, "PS_ExitFaceIDSDK");
 			jnativeExitFun.setRetVal(Type.INT);
 			jnativeExitFun.invoke();
 			log.debug("PS_ExitFaceIDSDK ret: " + jnativeExitFun.getRetVal());// 获取返回值
@@ -61,6 +65,7 @@ public class FaceVerifyJniEntry {
 	}
 
 	public float verify(byte[] faceImgBytes, byte[] idCardBytes) {
+
 		float result = 0;
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
@@ -95,25 +100,29 @@ public class FaceVerifyJniEntry {
 		} catch (IllegalAccessException e) {
 			log.error("FaceVerifyJniEntry verify failed!", e);
 		} finally {
-//			try {
-//				if (aArrIntInputf != null) {
-//					aArrIntInputf.dispose();
-//				}
-//			} catch (NativeException e) {
-//				log.error("FaceVerifyJniEntry verify failed!", e);
-//			}
+			// try {
+			// if (aArrIntInputf != null) {
+			// aArrIntInputf.dispose();
+			// }
+			// } catch (NativeException e) {
+			// log.error("FaceVerifyJniEntry verify failed!", e);
+			// }
 		}
 		return result;
 	}
 
 	public static void main(String[] args) {
 
-		FaceVerifyJniEntry v = new FaceVerifyJniEntry();
-		IDCard c1 = createIDCard("C:/pitchecking/test/ID1544565937.jpg");
-		IDCard c2 = createIDCard("C:/pitchecking/test/FI1544565937@2016-06-18 04-49-58-722$0.62.jpg");
+		FaceVerifyJniEntry v = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
+		FaceVerifyJniEntry v2 = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
 
-		v.verify(c1.getImageBytes(), c2.getImageBytes());
+		IDCard c1 = createIDCard("C:/pitchecking/B1.jpg");
+		IDCard c2 = createIDCard("C:/pitchecking/B2.jpg");
 
+		for (int i = 0; i < 100; i++) {
+			v.verify(c1.getImageBytes(), c2.getImageBytes());
+			v2.verify(c1.getImageBytes(), c2.getImageBytes());
+		}
 	}
 
 	private static IDCard createIDCard(String fn) {

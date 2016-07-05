@@ -3,6 +3,7 @@ package com.rxtec.pitchecking.picheckingservice;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,6 +19,7 @@ import org.openimaj.math.geometry.shape.Rectangle;
 import org.openimaj.video.Video;
 import org.openimaj.video.VideoDisplay;
 import org.openimaj.video.VideoDisplayListener;
+import org.openimaj.video.capture.Device;
 import org.openimaj.video.capture.VideoCapture;
 import org.openimaj.video.capture.VideoCaptureException;
 import org.slf4j.Logger;
@@ -132,15 +134,35 @@ public class FaceDetectionService implements IFaceTrackService {
 	
 	MBFImage currentFrame;
 	
+	
+	private Device getDefaultDevice(){
+		List<Device> devices = VideoCapture.getVideoDevices();
+		Device device = null;
+		for(Device d : devices){
+			String name = d.getNameStr();
+			if(name.equals(Config.UVCCameraName)){
+				device = d;
+				break;
+			}
+		}
+		return device;
+
+	}
+	
 	public void beginVideoCaptureAndTracking() {
 		MFFaceTrackTask.startTracking();
 
+		Device device = getDefaultDevice();
+		if(device == null){
+			log.error("!!!!!! Not found camera device!!!!!!!");
+			return;
+		}
 		Video<MBFImage> video = null;
 		try {
 			if (Config.getInstance().getRoateCapture() == 1)
-				video = new RotationVideoCapture(640, 480);
+				video = new RotationVideoCapture(Config.FrameHeigh, Config.FrameWidth, device);
 			else
-				video = new VideoCapture(640, 480);
+				video = new VideoCapture(Config.FrameWidth, Config.FrameHeigh, device);
 		} catch (VideoCaptureException e) {
 			log.error("beginVideoCaptureAndTracking", e);
 			;
@@ -159,7 +181,7 @@ public class FaceDetectionService implements IFaceTrackService {
 
 				if (faceData != null) {
 					faceData.setIdCard(currentIDCard);
-					frame.drawShape(faceData.getFaceLocation().getFaceBounds(), RGBColour.RED);
+//					frame.drawShape(faceData.getFaceLocation().getFaceBounds(), RGBColour.GREEN);
 					
 					FaceCheckingService.getInstance().offerDetectedFaceData(faceData);
 

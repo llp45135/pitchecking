@@ -6,6 +6,8 @@ import org.xvolks.jnative.JNative;
 import org.xvolks.jnative.Type;
 import org.xvolks.jnative.exceptions.NativeException;
 
+import com.rxtec.pitchecking.Config;
+
 /**
  * 错误码 错误值 标识符 错误描述 0 _CB_SUCCESS 函数执行成功;
  * 
@@ -16,7 +18,7 @@ import org.xvolks.jnative.exceptions.NativeException;
  *
  */
 public class LightControlBoard {
-	private static Logger log = LoggerFactory.getLogger("ControlBoard");
+	private static Logger log = LoggerFactory.getLogger("LightControlBoard");
 
 	private JNative Cb_InitJnative = null;
 	private JNative Cb_ExitJnative = null;
@@ -250,10 +252,12 @@ public class LightControlBoard {
 	public static void main(String[] args) {
 		LightControlBoard cb = new LightControlBoard();
 		if (cb.Cb_InitSDK() == 0) {
-			if (cb.Cb_OpenCom(1) == 0) {
-				cb.Cb_LightUnitOn(0, 30);
+			if (cb.Cb_OpenCom(Config.getInstance().getLightBoardComm()) == 0) {
+//				cb.Cb_LightUnitOn(0, 30);
+				cb.Cb_LightUnitOff(0,30);
 			}
 		}
+		
 	}
 
 }

@@ -1,6 +1,9 @@
 package com.rxtec.pitchecking;
 
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.xvolks.jnative.JNative;
@@ -9,27 +12,35 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
+import com.rxtec.pitchecking.device.AudioDevice;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.event.QRCodeReaderEvent;
+import com.rxtec.pitchecking.gui.TicketCheckFrame;
+import com.rxtec.pitchecking.utils.CommUtil;
 import com.vguang.VguangApi;
 
 public class QRReader implements Runnable {
 	private Log log = LogFactory.getLog("QRReader");
 	private static QRReader instance = new QRReader();
 	private JNative qrDeviceJNative = null;
+	
+//	private TicketCheckFrame frame = new TicketCheckFrame();//仅供测试用
 
 	private int deviceStatus = Config.StartStatus;
 
 	public static void main(String[] args) {
 
 		QRReader qrDeviceTest = QRReader.getInstance();
-		// ExecutorService executor = Executors.newCachedThreadPool();
-		// executor.execute(qrDeviceTest);
+		 ExecutorService executor = Executors.newCachedThreadPool();
+		 executor.execute(qrDeviceTest);
 
 	}
 
 	private QRReader() {
 		JNative.setLoggingEnabled(true);
 		initQRDevice();
+		
+//		frame.setVisible(true);//仅供测试用
 		try {
 			qrDeviceJNative = new JNative("BAR2unsecurity.dll", "uncompress");
 		} catch (NativeException e) {
@@ -50,6 +61,10 @@ public class QRReader implements Runnable {
 			try {
 				Ticket ticket = uncompressTicket(instr, year);
 				if (deviceStatus == Config.StartStatus && ticket != null) {
+					
+//					frame.showWaitInputContent(ticket, null, 2);  //仅供测试用
+					
+					//以下为正式使用代码
 					QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(DeviceEventTypeEnum.ReadIDCard.getValue());
 					qrEvent.setTicket(ticket);
 					DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
@@ -180,7 +195,7 @@ public class QRReader implements Runnable {
 				// log.debug("uncompress：outStrArray.length==" +
 				// outStrArray.length);
 				String ticketStr = new String(outStrArray, "gbk");
-				log.debug("uncompress: ticketArray==" + ticketStr + "##");
+//				log.debug("uncompress: ticketArray==" + ticketStr + "##");
 			}
 			ticketStrPointer.dispose();
 
@@ -212,7 +227,9 @@ public class QRReader implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-
+		while(true){
+			CommUtil.sleep(100);
+		}
 	}
 
 }

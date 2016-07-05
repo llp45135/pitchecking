@@ -94,11 +94,12 @@ public class GateDeviceManager implements SerialPortEventListener {
 		this.setStatus(false);
 		this.setFirstDoorCloseStr("");
 		try {
-			String cmd = "1002";
-			String xh = "00";
-			cmd += xh;
-			cmd += "0101" + "1003";
-			cmd += CommUtil.tail(xh, "01", "01");
+//			String cmd = "1002";
+//			String xh = "00";
+//			cmd += xh;
+//			cmd += "0101" + "1003";
+//			cmd += CommUtil.tail(xh, "01", "01");
+			String cmd = "2A040123";
 			log.debug("openFirstDoor cmd==" + cmd);
 			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
 			for (int i = 0; i < cmdData.length; i++) {
@@ -117,16 +118,20 @@ public class GateDeviceManager implements SerialPortEventListener {
 		return 0;
 	}
 
-	// 电磁开关侧门
+	/**
+	 * 电磁开关侧门
+	 * @return
+	 */
 	public int openSecondDoor() {
 		this.setStatus(false);
 		this.setSecondDoorCloseStr("");
 		try {
-			String cmd = "1002";
-			String xh = "00";
-			cmd += xh;
-			cmd += "0101" + "1003";
-			cmd += CommUtil.tail(xh, "01", "01");
+//			String cmd = "1002";
+//			String xh = "00";
+//			cmd += xh;
+//			cmd += "0101" + "1003";
+//			cmd += CommUtil.tail(xh, "01", "01");
+			String cmd = "2a500123";
 			log.debug("openSecondDoor cmd==" + cmd);
 			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
 			for (int i = 0; i < cmdData.length; i++) {
@@ -159,6 +164,193 @@ public class GateDeviceManager implements SerialPortEventListener {
 			cmd += "0101" + "1003";
 			cmd += CommUtil.tail(xh, "01", "01");
 			log.debug("openThirdDoor cmd==" + cmd);
+			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
+			for (int i = 0; i < cmdData.length; i++) {
+				this.out.write(cmdData[i]);
+			}
+			this.out.flush();
+			for (int i = 1; i < delayCount; i++) {
+				CommUtil.sleep(delayTime);
+				if (this.isStatus()) {
+					break;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 主机---->闸机   (入口箭头指示灯为 箭头)
+	 * @return
+	 */
+	public int LightEntryArrow() {
+		this.setStatus(false);
+		this.setThirdDoorCloseStr("");
+		try {
+			String cmd = "2a510123";
+			log.debug("LightEntryArrow cmd==" + cmd);
+			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
+			for (int i = 0; i < cmdData.length; i++) {
+				this.out.write(cmdData[i]);
+			}
+			this.out.flush();
+			for (int i = 1; i < delayCount; i++) {
+				CommUtil.sleep(delayTime);
+				if (this.isStatus()) {
+					break;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 主机---->闸机   (入口箭头指示灯为 箭头)
+	 * @return
+	 */
+	public int LightEntryCross() {
+		this.setStatus(false);
+		this.setThirdDoorCloseStr("");
+		try {
+			String cmd = "2a510123";
+			log.debug("LightEntryCross cmd==" + cmd);
+			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
+			for (int i = 0; i < cmdData.length; i++) {
+				this.out.write(cmdData[i]);
+			}
+			this.out.flush();
+			for (int i = 1; i < delayCount; i++) {
+				CommUtil.sleep(delayTime);
+				if (this.isStatus()) {
+					break;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	
+	/**
+	 * 主机---->闸机   (出口箭头指示灯为 箭头)
+	 * @return
+	 */
+	public int LightExitArrow() {
+		this.setStatus(false);
+		this.setThirdDoorCloseStr("");
+		try {
+			String cmd = "2a520123";
+			log.debug("LightExitArrow cmd==" + cmd);
+			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
+			for (int i = 0; i < cmdData.length; i++) {
+				this.out.write(cmdData[i]);
+			}
+			this.out.flush();
+			for (int i = 1; i < delayCount; i++) {
+				CommUtil.sleep(delayTime);
+				if (this.isStatus()) {
+					break;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 主机---->闸机   (出口箭头指示灯为红色‘X’)
+	 * @return
+	 */
+	public int LightExitCross() {
+		this.setStatus(false);
+		this.setThirdDoorCloseStr("");
+		try {
+			String cmd = "2a520023";
+			log.debug("LightExitCross cmd==" + cmd);
+			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
+			for (int i = 0; i < cmdData.length; i++) {
+				this.out.write(cmdData[i]);
+			}
+			this.out.flush();
+			for (int i = 1; i < delayCount; i++) {
+				CommUtil.sleep(delayTime);
+				if (this.isStatus()) {
+					break;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 主机---->闸机   (玻璃门提示指示灯收到指令后红绿闪烁)
+	 */
+	public int LightGlassDoorLED() {
+		this.setStatus(false);
+		this.setThirdDoorCloseStr("");
+		try {
+			String cmd = "2a530123";
+			log.debug("LightGlassDoorLED cmd==" + cmd);
+			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
+			for (int i = 0; i < cmdData.length; i++) {
+				this.out.write(cmdData[i]);
+			}
+			this.out.flush();
+			for (int i = 1; i < delayCount; i++) {
+				CommUtil.sleep(delayTime);
+				if (this.isStatus()) {
+					break;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 主机---->闸机   (顶盖指示灯变绿色)
+	 */
+	public int LightGreenLED() {
+		this.setStatus(false);
+		this.setThirdDoorCloseStr("");
+		try {
+			String cmd = "2a540123";
+			log.debug("LightGreenLED cmd==" + cmd);
+			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
+			for (int i = 0; i < cmdData.length; i++) {
+				this.out.write(cmdData[i]);
+			}
+			this.out.flush();
+			for (int i = 1; i < delayCount; i++) {
+				CommUtil.sleep(delayTime);
+				if (this.isStatus()) {
+					break;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 主机---->闸机   (顶盖指示灯变为红色)
+	 */
+	public int LightRedLED() {
+		this.setStatus(false);
+		this.setThirdDoorCloseStr("");
+		try {
+			String cmd = "2a540023";
+			log.debug("LightRedLED cmd==" + cmd);
 			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
 			for (int i = 0; i < cmdData.length; i++) {
 				this.out.write(cmdData[i]);

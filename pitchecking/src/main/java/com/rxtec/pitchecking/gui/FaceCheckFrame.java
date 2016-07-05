@@ -44,13 +44,11 @@ import javax.swing.BoxLayout;
 public class FaceCheckFrame extends JFrame implements ActionListener {
 
 	private JPanel contentPane;
-	private JButton idCardImage;
 	private Timer timer = new Timer(1000, this);
 	private JLabel label_title = new JLabel("\u8BF7\u5E73\u89C6\u6444\u50CF\u5934");
 	private JPanel panel_title = new JPanel();
 	private JPanel panel_bottom = new JPanel();
-	private VideoPanel videoPanel = new VideoPanel(640,480);
-	private JPanel panel_idCardImage = new JPanel();
+	private VideoPanel videoPanel = new VideoPanel(960,540);
 	JLabel label_result = new JLabel("");
 
 
@@ -87,23 +85,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		contentPane = new JPanel();
 		setContentPane(contentPane);
-		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS)); 
-		panel_idCardImage.setAlignmentX(Component.LEFT_ALIGNMENT);
-		
-		
-		
-		panel_idCardImage.setName("");
-		panel_idCardImage.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		panel_idCardImage.setToolTipText("");
-		panel_idCardImage.setMinimumSize(new Dimension(150, 180));
-		panel_idCardImage.setMaximumSize(new Dimension(150, 180));
-		panel_idCardImage.setLayout(new BorderLayout(0, 0));
-
-		idCardImage = new JButton("");
-		idCardImage.setMinimumSize(new Dimension(140, 170));
-		idCardImage.setMaximumSize(new Dimension(140, 170));
-
-		panel_idCardImage.add(idCardImage);
+		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		
 		JPanel panel_center = new JPanel();
 		panel_center.setLayout(new BoxLayout(panel_center, BoxLayout.X_AXIS));
@@ -112,12 +94,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		
 		
 		videoPanel.setBorder(new LineBorder(Color.GREEN));
-		videoPanel.setMinimumSize(new Dimension(640, 480));
-		videoPanel.setMaximumSize(new Dimension(640, 480));
-
-		panel_center.add(Box.createHorizontalStrut(100));  
-		panel_center.add(panel_idCardImage);
-		panel_center.add(Box.createHorizontalStrut(100));  
+		videoPanel.setMinimumSize(new Dimension(1024, 540));
+		videoPanel.setMaximumSize(new Dimension(1024, 540));
 		panel_center.add(videoPanel);
 		
 		JPanel panel_title = new JPanel();
@@ -161,11 +139,10 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		
 	}
 
-	public void showIDCardImage(ImageIcon icon) {
-		idCardImage.setIcon(icon);
-		//idCardImage.repaint();
-		//panel_idCardImage.repaint();
-	}
+//	public void showIDCardImage(ImageIcon icon) {
+//		//idCardImage.repaint();
+//		//panel_idCardImage.repaint();
+//	}
 	
 
 	
@@ -174,7 +151,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		
 		label_title.setText("验证通过");
 		label_result.setText("");
-		timeIntevel = 5;
+		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 		timer.stop();
 		panel_title.setBackground(Color.GREEN);
 		panel_bottom.setBackground(Color.GREEN);;
@@ -184,7 +161,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	
 	public void showCheckFailedContent(){
 		timer.stop();
-		timeIntevel = 5;
+		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 		panel_bottom.setVisible(true);
 		label_title.setText("验证失败");
 		label_result.setText("请从边门离开或按求助按钮");
@@ -211,15 +188,15 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_title.setText("请刷二代证");
 		label_result.setText("");
 		panel_bottom.setBackground(Color.ORANGE);
-		this.showIDCardImage(null);
-		timeIntevel = 5;
+//		this.showIDCardImage(null);
+		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 //		panel_title.repaint();
 //		panel_bottom.repaint();
 
 	}
 	
 	
-	int timeIntevel = 5;
+	int timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 	public void showBeginCheckFaceContent(){
 		panel_title.setBackground(Color.ORANGE);
 		panel_bottom.setBackground(Color.ORANGE);

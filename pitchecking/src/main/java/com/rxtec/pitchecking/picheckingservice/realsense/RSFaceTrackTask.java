@@ -5,7 +5,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -14,6 +18,7 @@ import javax.swing.JPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
@@ -23,6 +28,7 @@ import intel.rssdk.PXCMBase;
 import intel.rssdk.PXCMCapture;
 import intel.rssdk.PXCMFaceConfiguration;
 import intel.rssdk.PXCMFaceData;
+import intel.rssdk.PXCMFaceData.Face;
 import intel.rssdk.PXCMFaceData.LandmarkPoint;
 import intel.rssdk.PXCMFaceModule;
 import intel.rssdk.PXCMImage;
@@ -36,8 +42,8 @@ import intel.rssdk.PXCMCapture.Sample;
 
 public class RSFaceTrackTask implements Runnable {
 
-	static int cWidth = 640;
-	static int cHeight = 480;
+	static int cWidth = Config.FrameWidth;
+	static int cHeight = Config.FrameHeigh;
 	static int dWidth, dHeight;
 	static boolean exit = false;
 	private Logger log = LoggerFactory.getLogger("RSFaceTrackTask");
@@ -48,7 +54,6 @@ public class RSFaceTrackTask implements Runnable {
 	private boolean enableExpression = true;
 	private boolean enableFaceLandmark = true;
 
-	private int maxTrackedFaces = 4;
 	private static int LandmarkAlignment = -3;
 
 	private RSModuleStatus rsStatus;
@@ -111,72 +116,6 @@ public class RSFaceTrackTask implements Runnable {
 
 	}
 
-	class FaceFrameHandler implements PXCMSenseManager.Handler {
-		public pxcmStatus OnModuleProcessedFrame(int mid, PXCMBase module, PXCMCapture.Sample sample) {
-			// check if the callback is from the face tracking module.
-			if (mid == PXCMFaceModule.CUID) {
-
-				BufferedImage frameImage = null;
-				if (sample.color != null) {
-					frameImage = drawFrameImage(sample);
-				}
-
-				PXCMFaceModule faceModule = (PXCMFaceModule) module.QueryInstance(PXCMFaceModule.CUID);
-				PXCMFaceData faceData = faceModule.CreateOutput();
-
-				faceData.Update();
-
-				for (int fidx = 0;; fidx++) {
-					PXCMFaceData.Face face = faceData.QueryFaceByIndex(fidx);
-					if (face == null)
-						break;
-					PXCMFaceData.DetectionData detection = face.QueryDetection();
-					if (detection != null) {
-						PITData fd = createFaceData(frameImage, detection);
-						if (fd.isDetectedFace() && currentIDCard != null) {
-							fd.setIdCard(currentIDCard);
-							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
-						}
-					}
-
-					drawLocation(detection);
-					// drawLandmark(face);
-
-				}
-			}
-
-			// return NO_ERROR to continue, or any error to abort.
-
-			sample.ReleaseImages();
-
-			return pxcmStatus.PXCM_STATUS_NO_ERROR;
-		}
-
-		@Override
-		public pxcmStatus OnConnect(Device arg0, boolean arg1) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public pxcmStatus OnModuleSetProfile(int arg0, PXCMBase arg1) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public pxcmStatus OnNewSample(int arg0, Sample arg1) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void OnStatus(int arg0, pxcmStatus arg1) {
-			// TODO Auto-generated method stub
-
-		}
-	};
-
 	
 	private PITData createFaceData(BufferedImage frame, PXCMFaceData.DetectionData detection) {
 		if (frame == null)
@@ -187,9 +126,9 @@ public class RSFaceTrackTask implements Runnable {
 		if (ret) {
 			int x, y, w, h;
 			x = (int) (rect.x);
-			y = (int) (rect.y * 0.8);
+			y = (int) (rect.y * 0.9);
 			w = (int) (rect.w * 1.2);
-			h = (int) (rect.h * 1.3);
+			h = (int) (rect.h * 1.5);
 
 			if (frame.getWidth() < (x + w) || frame.getHeight() < (y + h)) {
 				if (frame.getWidth() < (x + w)) {
@@ -227,11 +166,11 @@ public class RSFaceTrackTask implements Runnable {
 		}
 	}
 
-	private boolean drawLandmark(PXCMFaceData.Face face) {
+	private void drawLandmark(PXCMFaceData.Face face) {
 		if (face == null)
-			return false;
+			return ;
 		PXCMFaceData.LandmarksData landmarks = face.QueryLandmarks();
-		if(landmarks == null) return false;
+		if(landmarks == null) return ;
 		int npoints = landmarks.QueryNumPoints();
 		PXCMFaceData.LandmarkPoint[] points = new PXCMFaceData.LandmarkPoint[npoints];
 		for(int i=0;i<npoints;i++){
@@ -249,7 +188,7 @@ public class RSFaceTrackTask implements Runnable {
 
 			
 //			log.debug("landmark.confidenceImage=" + landmark.confidenceImage +"  landmark.confidenceWorld=" + landmark.confidenceWorld );
-			if (landmark.confidenceImage == 0) {
+			if (landmark.confidenceWorld == 0) {
 				graphics.setColor(Color.RED);
 				graphics.drawString("x", point.x, point.y);
 			} else {
@@ -263,27 +202,52 @@ public class RSFaceTrackTask implements Runnable {
 		
 		graphics.dispose();
 		landmarks = null;
-		return checkRealFace(points);
 	}
 	
 	
-	private boolean checkRealFace(PXCMFaceData.LandmarkPoint[] points){
+	private boolean checkRealFace(SortFace sf ){
+		
 		boolean isRealFace = false;
-		if(points == null) return isRealFace;
-		float p1,p2,p3,p4;
-		PXCMFaceData.LandmarkPoint landmark1,landmark2,landmark3,landmark4;
-		landmark1 = points[29];
-		landmark2 = points[30];
-		landmark3 = points[31];
-		landmark4 = points[32];
-		float zDIF = Math.abs(landmark1.world.z - landmark3.world.z);
-		if( zDIF > 0.01) isRealFace = true;
-		log.debug("--------Real face : " + isRealFace + " zDIF = " + zDIF);
+		PXCMFaceData.Face face = sf.face;
+		if (face == null) {
+			isRealFace = false;
+			return isRealFace;
+		}
+		PXCMFaceData.LandmarksData landmarks = face.QueryLandmarks();
+		if(landmarks == null) {
+			isRealFace = false;
+			log.debug(sf.distance + " face landmarks == null");
+			return isRealFace;
+		}
+		int npoints = landmarks.QueryNumPoints();
+		PXCMFaceData.LandmarkPoint[] points = new PXCMFaceData.LandmarkPoint[npoints];
+		for(int i=0;i<npoints;i++){
+			points[i] = new LandmarkPoint();
+		}
+		landmarks.QueryPoints(points);
 
+		float zDIF = Math.abs(dValueDepth(points)) * 1000;
+		log.debug(sf.distance + " face DValueDepth = " + zDIF);
+
+		if(zDIF >=Config.DValueDepth){
+			isRealFace = true;
+		}else
 		points = null;
 		return isRealFace;
 	}
 
+	private float dValueDepth(PXCMFaceData.LandmarkPoint[] points){
+		float d = 0;
+		ArrayList<Float> l = new ArrayList<Float>();
+		for(LandmarkPoint p : points){
+			Float f = p.world.z;
+			l.add(f);
+		}
+		Collections.sort(l);
+		return l.get(0) - l.get(l.size() -1);
+	}
+	
+	
 	private BufferedImage drawFrameImage(PXCMCapture.Sample sample) {
 
 		PXCMImage.ImageData cData = new PXCMImage.ImageData();
@@ -299,8 +263,6 @@ public class RSFaceTrackTask implements Runnable {
 		}
 		int cBuff[] = new int[cData.pitches[0] / 4 * cHeight];
 		cData.ToIntArray(0, cBuff);
-		// videoPanel.image.setRGB(0, 0, 480, 480, cBuff, 0, cData.pitches[0] /
-		// 4);
 		videoPanel.image.setRGB(0, 0, cWidth, cHeight, cBuff, 0, cData.pitches[0] / 4);
 
 		videoPanel.paintImg();
@@ -353,12 +315,10 @@ public class RSFaceTrackTask implements Runnable {
 			return;
 		}
 
-		pxcmStatus sts = senseMgr.EnableStream(PXCMCapture.StreamType.STREAM_TYPE_COLOR, cWidth, cHeight);
+		pxcmStatus sts = senseMgr.EnableStream(PXCMCapture.StreamType.STREAM_TYPE_COLOR, cWidth, cHeight,30);
 
 		sts = senseMgr.EnableFace(null);
 		PXCMFaceModule faceModule = senseMgr.QueryFace();
-		PXCMFaceData faceData = faceModule.CreateOutput();
-
 		if (sts.isError() || faceModule == null) {
 			log.error("Failed to initialize face module.");
 			return;
@@ -369,7 +329,13 @@ public class RSFaceTrackTask implements Runnable {
 		PXCMFaceConfiguration faceConfig = faceModule.CreateActiveConfiguration();
 		faceConfig.SetTrackingMode(PXCMFaceConfiguration.TrackingModeType.FACE_MODE_COLOR_PLUS_DEPTH);
 		faceConfig.detection.isEnabled = true;
+		faceConfig.detection.maxTrackedFaces = Config.MaxTrackedFaces;
+		faceConfig.landmarks.maxTrackedFaces = Config.MaxTrackedLandmark;
+		faceConfig.landmarks.numLandmarks = Config.MaxTrackedLandmark;
 		faceConfig.landmarks.isEnabled = true;
+		faceConfig.pose.isEnabled = true;
+		faceConfig.pose.maxTrackedFaces = Config.MaxTrackedFaces;
+		faceConfig.strategy = PXCMFaceConfiguration.TrackingStrategyType.STRATEGY_CLOSEST_TO_FARTHEST;
 		faceConfig.ApplyChanges();
 		faceConfig.Update();
 
@@ -380,6 +346,14 @@ public class RSFaceTrackTask implements Runnable {
 			return;
 		}
 
+		PXCMFaceData faceData = faceModule.CreateOutput();
+
+		if (faceData == null) {
+			log.error("PXCMFaceData == null");
+			return;
+		}
+
+		
 		PXCMCapture.Device dev = senseMgr.QueryCaptureManager().QueryDevice();
 		PXCMCapture.DeviceInfo info = new PXCMCapture.DeviceInfo();
 		dev.QueryDeviceInfo(info);
@@ -399,15 +373,16 @@ public class RSFaceTrackTask implements Runnable {
 			}
 
 			faceData.Update();
-
-			for (int fidx = 0;; fidx++) {
-				PXCMFaceData.Face face = faceData.QueryFaceByIndex(fidx);
-				if (face == null)
-					break;
+			
+			List<SortFace> sortFaces = sortFaceByDistence(faceData);
+			
+			for (SortFace sf : sortFaces) {
+				PXCMFaceData.Face face = sf.face;
 				PXCMFaceData.DetectionData detection = face.QueryDetection();
-
-//				boolean isRealFace = drawLandmark(face);
-				boolean isRealFace = true;
+				drawLocation(detection);
+				drawLandmark(face);
+				boolean isRealFace = checkRealFace(sf);
+//				boolean isRealFace = true;
 				if (detection != null) {
 					PITData fd = createFaceData(frameImage, detection);
 					if (fd != null && isRealFace) {
@@ -415,14 +390,67 @@ public class RSFaceTrackTask implements Runnable {
 							fd.setIdCard(currentIDCard);
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
 						}
-						drawLocation(detection);
 					}
 				}
-
-				 
 			}
 			senseMgr.ReleaseFrame();
 		}
 	}
+	
+	private List<SortFace> sortFaceByDistence(PXCMFaceData faceData){
+		List<SortFace> sortFaces = new ArrayList<SortFace>();
+		int faceCount = faceData.QueryNumberOfDetectedFaces();
+		for(int i=0;i<faceCount;i++){
+			PXCMFaceData.Face face = faceData.QueryFaceByIndex(i);
+			
+			float[] averageDepth = new float[1];
+			PXCMFaceData.DetectionData detection = face.QueryDetection();
+			detection.QueryFaceAverageDepth(averageDepth);
+			float distance = averageDepth[0];
+
+			if(distance>Config.MinAverageDepth){
+				SortFace sf = new SortFace(face, distance);
+				sortFaces.add(sf);
+//				log.debug("averageDepth = " + distance);
+
+			}
+			
+			
+
+		}
+		
+		Collections.sort(sortFaces);
+//		int i=0;
+//		for(SortFace s : sortFaces){
+//			log.debug("Face "+i+ " averageDepth = " + s.distance);
+//			i++;
+//		}
+		 
+		return sortFaces;
+				
+				
+	}
 
 }
+
+class SortFace implements Comparable<SortFace>{
+	public PXCMFaceData.Face face;
+	public float distance = 0;
+	
+	public SortFace(PXCMFaceData.Face face,float distance){
+		this.face = face;
+		this.distance = distance;
+		
+	}
+
+	@Override
+	public int compareTo(SortFace o) {
+		if(distance < o.distance)
+			return 0;
+		else 
+			return 1;
+	}
+	
+}
+
+

@@ -13,11 +13,14 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.DeviceException;
-import com.rxtec.pitchecking.device.GateDeviceManager;
+import com.rxtec.pitchecking.device.FirstGateDevice;
+import com.rxtec.pitchecking.device.SecondGateDevice;
 import com.rxtec.pitchecking.device.IDCardDevice;
+import com.rxtec.pitchecking.device.LightControlBoard;
 import com.rxtec.pitchecking.device.QRDevice;
 import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.mq.JmsReceiver;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -68,7 +71,8 @@ public class DeviceEventListener implements Runnable {
 		int ticketVerifyResult = ticketVerifier.verify();// 核验结果
 
 		if (ticketVerifyResult == Config.TicketVerifySucc) { // 核验成功
-			// GateDeviceManager.getInstance().openFirstDoor();
+			// 打开第一道门
+//			FirstGateDevice.getInstance().openFirstDoor();
 			// 停止寻卡
 			this.setDeviceReader(false);
 
@@ -106,28 +110,89 @@ public class DeviceEventListener implements Runnable {
 
 	private void verifyFace(IDCard idCard) {
 		PITData picData = verifyFaceTask.beginCheckFace(idCard);
-		log.debug("认证比对结果：picData==" + picData);
-		// if (picData != null) {
-		// GateDeviceManager.getInstance().openThirdDoor();
-		// } else {
-		// GateDeviceManager.getInstance().openSecondDoor();
-		// }
 	}
 
 	// 启动设备
 	private void startDevice() throws DeviceException {
 		log.debug("启动设备");
 		if (this.startIDDevice() != 1) {
+//			FirstGateDevice.getInstance().LightEntryCross();
 			return;
 		}
 		if (this.startQRDevice() != 1) {
+//			FirstGateDevice.getInstance().LightEntryCross();
 			return;
 		}
+//		if (this.startGateDevice() != 1) {
+//			FirstGateDevice.getInstance().LightEntryCross();
+//			return;
+//		}
+//		if (this.startLED() != 1) {
+//			FirstGateDevice.getInstance().LightEntryCross();
+//			return;
+//		}
 
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
+		// this.startMQReceiver();
 
-		scheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 1000, TimeUnit.MILLISECONDS);
+		ScheduledExecutorService idReaderScheduler = Executors.newScheduledThreadPool(1);
+		idReaderScheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
+
+		ExecutorService executor = Executors.newCachedThreadPool();
+		executor.execute(QRReader.getInstance());
+		//求助按钮事件处理
+//		executor.execute(EmerButtonTask.getInstance());
+		// 启动成功点亮绿色通行箭头
+//		FirstGateDevice.getInstance().LightEntryArrow();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private int startLED() {
+		LightControlBoard cb = new LightControlBoard();
+		if (cb.Cb_InitSDK() == 0) {
+			if (cb.Cb_OpenCom(Config.getInstance().getLightBoardComm()) == 0) {
+				if (cb.Cb_LightUnitOn(0, 30) != 0) {
+					return 0;
+				}
+			} else {
+				return 0;
+			}
+		} else {
+			return 0;
+		}
+		return 1;
+	}
+
+	/**
+	 * 启动通行控制板
+	 * 
+	 * @return
+	 */
+	private int startGateDevice() {
+		try {
+			FirstGateDevice.getInstance().connect(DeviceConfig.getInstance().getGateCrtlPort());
+			SecondGateDevice.getInstance().connect(DeviceConfig.getInstance().getGteCrtlSecondPort());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+		return 1;
+	}
+
+	/**
+	 * 启动activemq
+	 */
+	private void startMQReceiver() {
+		JmsReceiver receiver = new JmsReceiver();
+		try {
+			receiver.receiveMessage();
+		} catch (Exception ex) {
+			// TODO Auto-generated catch block
+			log.error("DeviceEventListener startMQReceiver" + ex);
+		}
 	}
 
 	private int startIDDevice() {

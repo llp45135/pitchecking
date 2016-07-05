@@ -1,11 +1,13 @@
 package com.rxtec.pitchecking.picheckingservice;
 
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import org.openimaj.image.ImageUtilities;
 import org.openimaj.image.MBFImage;
 import org.openimaj.image.processing.transform.ProjectionProcessor;
 import org.openimaj.math.geometry.transforms.TransformUtilities;
+import org.openimaj.video.capture.Device;
 import org.openimaj.video.capture.VideoCapture;
 import org.openimaj.video.capture.VideoCaptureException;
 
@@ -16,8 +18,8 @@ import org.openimaj.video.capture.VideoCaptureException;
  */
 public class RotationVideoCapture extends VideoCapture{
 
-	public RotationVideoCapture(int width, int height) throws VideoCaptureException {
-		super(width, height);
+	public RotationVideoCapture(int width, int height,Device d) throws VideoCaptureException {
+		super(width, height, d);
 		// TODO Auto-generated constructor stub
 	}
 

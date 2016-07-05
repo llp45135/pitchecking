@@ -27,6 +27,23 @@ public class Config {
 
 	public static int RealSenseVideo = 2;
 	public static int UVCVideo = 1;
+	public static String UVCCameraName="Logitech HD Pro Webcam C920";
+	
+	public static String FaceVerifyDLLName = "C:/pitchecking/DLL/FaceVRISDK.dll";
+	public static String FaceVerifyCloneDLLName = "C:/pitchecking/DLLClone/FaceVRISDK.dll";
+	
+	
+	public static int FrameWidth = 960;
+	public static int FrameHeigh = 540;
+	
+	public static float MinAverageDepth = 300F;
+	public static float DValueDepth = 50F;
+	public static int MaxTrackedFaces = 4;
+	public static int MaxTrackedLandmark = 4;
+	
+	
+	
+	
 	
 	public static int IDReaderEvent = 1;
 	public static int QRReaderEvent = 2;
@@ -40,9 +57,9 @@ public class Config {
 	public static int StopStatus = 0;
 	
 	
-	private float faceCheckThreshold = (float) 0.6;
-	private float glassFaceCheckThreshold = (float) 0.58;
-	private long faceCheckDelayTime = 5000;
+	private float faceCheckThreshold = (float) 0.68;
+	private float glassFaceCheckThreshold = (float) 0.65;
+	private int faceCheckDelayTime = 10;
 	private int fastFaceDetect = 1;
 	private int faceCheckingInteval = 100;
 	private int defaultFaceCheckScreenDeley = 1000;
@@ -52,8 +69,17 @@ public class Config {
 	private int detectededFaceQueueThreshold = 2;
 	private int videoType = 1;
 	private int videoCaptureFrequency=10;
-	
+	private int lightBoardComm = 0;
 	private String multicastAddress="234.5.6.7";
+	
+	public int getLightBoardComm() {
+		return lightBoardComm;
+	}
+
+	public void setLightBoardComm(int lightBoardComm) {
+		this.lightBoardComm = lightBoardComm;
+	}
+
 	public String getMulticastAddress() {
 		return multicastAddress;
 	}
@@ -142,11 +168,11 @@ public class Config {
 		this.imagesLogDir = imagesLogDir;
 	}
 
-	public long getFaceCheckDelayTime() {
+	public int getFaceCheckDelayTime() {
 		return faceCheckDelayTime;
 	}
 
-	public void setFaceCheckDelayTime(long faceCheckDelayTime) {
+	public void setFaceCheckDelayTime(int faceCheckDelayTime) {
 		this.faceCheckDelayTime = faceCheckDelayTime;
 	}
 
@@ -208,7 +234,7 @@ public class Config {
 			p.load(is);
 			this.faceCheckThreshold = Float.valueOf(p.getProperty("FaceCheckThreshold", "0.7"));
 			this.glassFaceCheckThreshold = Float.valueOf(p.getProperty("GlassFaceCheckThreshold", "0.68"));
-			this.faceCheckDelayTime = Integer.valueOf(p.getProperty("FaceCheckDelayTime", "5000"));
+			this.faceCheckDelayTime = Integer.valueOf(p.getProperty("FaceCheckDelayTime", "10"));
 			this.fastFaceDetect = Integer.valueOf(p.getProperty("FastFaceDetect", "1"));
 			this.faceCheckingInteval = Integer.valueOf(p.getProperty("faceCheckingInteval", "100"));
 			this.defaultFaceCheckScreenDeley = Integer.valueOf(p.getProperty("DefaultFaceCheckScreenDeley", "1000"));
@@ -218,10 +244,11 @@ public class Config {
 			this.detectededFaceQueueThreshold = Integer.valueOf(p.getProperty("DetectededFaceQueueThreshold", "2"));
 			this.videoType = Integer.valueOf(p.getProperty("VideoType", "2"));
 			this.videoCaptureFrequency = Integer.valueOf(p.getProperty("VideoCaptureFrequency", "5"));
+			this.lightBoardComm = Integer.valueOf(p.getProperty("LightBoardComm", "0"));
 			
 			//
-			this.ticketXmlDir = p.getProperty("TicketXmlDir", "./xml/");
-			this.ticketImgDir = p.getProperty("TicketImgDir", "./img/");
+			this.ticketXmlDir = p.getProperty("TicketXmlDir", "/pitchecking/xml/");
+			this.ticketImgDir = p.getProperty("TicketImgDir", "/pitchecking/img");
 			this.stationDoc = p.getProperty("StationDoc", "BaseData.xml");
 
 			is.close(); // 关闭流
