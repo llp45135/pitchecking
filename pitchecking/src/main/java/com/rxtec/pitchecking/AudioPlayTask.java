@@ -1,13 +1,9 @@
 package com.rxtec.pitchecking;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.device.AudioDevice;
-import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.domain.EmerButtonEvent;
 
 public class AudioPlayTask implements Runnable {
 	private Logger log = LoggerFactory.getLogger("AudioPlayTask");
@@ -34,7 +30,6 @@ public class AudioPlayTask implements Runnable {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		if (deviceStatus == Config.StartStatus) {
 			AudioDevice.getInstance().play();
 			this.stop();

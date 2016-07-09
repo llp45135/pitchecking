@@ -134,18 +134,13 @@ public class DeviceEventListener implements Runnable {
 
 		// this.startMQReceiver();
 
-		ScheduledExecutorService idReaderScheduler = Executors.newScheduledThreadPool(1);
-		idReaderScheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
-
-		ScheduledExecutorService qrReaderScheduler = Executors.newScheduledThreadPool(1);
-		qrReaderScheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		//求助按钮事件处理
-		ScheduledExecutorService embReaderScheduler = Executors.newScheduledThreadPool(1);
-		embReaderScheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		//
-		ScheduledExecutorService audioScheduler = Executors.newScheduledThreadPool(1);
-		audioScheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		// 启动成功点亮绿色通行箭头
 		FirstGateDevice.getInstance().LightEntryArrow();
 	}
