@@ -49,7 +49,7 @@ public class IDReader implements Runnable {
 					if (selectval.equals("0")) {
 						IDCard idCard = device.Syn_ReadBaseMsg();
 						if (idCard != null && idCard.getIdNo() != null) {
-							log.debug("########idCard==" + idCard.getPersonName());
+//							log.debug("########idCard==" + idCard.getPersonName());
 							IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
 							readCardEvent.setIdCard(idCard);
 							DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);

@@ -72,7 +72,7 @@ public class DeviceEventListener implements Runnable {
 
 		if (ticketVerifyResult == Config.TicketVerifySucc) { // 核验成功
 			// 打开第一道门
-//			FirstGateDevice.getInstance().openFirstDoor();
+			FirstGateDevice.getInstance().openFirstDoor();
 			// 停止寻卡
 			this.setDeviceReader(false);
 
@@ -115,34 +115,39 @@ public class DeviceEventListener implements Runnable {
 	// 启动设备
 	private void startDevice() throws DeviceException {
 		log.debug("启动设备");
+		if (this.startGateDevice() != 1) {
+			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+			return;
+		}
 		if (this.startIDDevice() != 1) {
-//			FirstGateDevice.getInstance().LightEntryCross();
+			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 			return;
 		}
 		if (this.startQRDevice() != 1) {
-//			FirstGateDevice.getInstance().LightEntryCross();
+			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+			return;
+		}		
+		if (this.startLED() != 1) {
+			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 			return;
 		}
-//		if (this.startGateDevice() != 1) {
-//			FirstGateDevice.getInstance().LightEntryCross();
-//			return;
-//		}
-//		if (this.startLED() != 1) {
-//			FirstGateDevice.getInstance().LightEntryCross();
-//			return;
-//		}
 
 		// this.startMQReceiver();
 
 		ScheduledExecutorService idReaderScheduler = Executors.newScheduledThreadPool(1);
 		idReaderScheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 
-		ExecutorService executor = Executors.newCachedThreadPool();
-		executor.execute(QRReader.getInstance());
+		ScheduledExecutorService qrReaderScheduler = Executors.newScheduledThreadPool(1);
+		qrReaderScheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+
 		//求助按钮事件处理
-//		executor.execute(EmerButtonTask.getInstance());
+		ScheduledExecutorService embReaderScheduler = Executors.newScheduledThreadPool(1);
+		embReaderScheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		//
+		ScheduledExecutorService audioScheduler = Executors.newScheduledThreadPool(1);
+		audioScheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		// 启动成功点亮绿色通行箭头
-//		FirstGateDevice.getInstance().LightEntryArrow();
+		FirstGateDevice.getInstance().LightEntryArrow();
 	}
 
 	/**
@@ -152,7 +157,11 @@ public class DeviceEventListener implements Runnable {
 	private int startLED() {
 		LightControlBoard cb = new LightControlBoard();
 		if (cb.Cb_InitSDK() == 0) {
-			if (cb.Cb_OpenCom(Config.getInstance().getLightBoardComm()) == 0) {
+			if (cb.Cb_OpenCom(DeviceConfig.getInstance().getCameraLEDPort()) == 0) {
+				if(cb.Cb_LightUnitOff(0,30)!=0){
+					return 0;
+				}
+				CommUtil.sleep(1000);
 				if (cb.Cb_LightUnitOn(0, 30) != 0) {
 					return 0;
 				}

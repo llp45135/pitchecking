@@ -30,6 +30,9 @@ import intel.rssdk.PXCMFaceConfiguration;
 import intel.rssdk.PXCMFaceData;
 import intel.rssdk.PXCMFaceData.Face;
 import intel.rssdk.PXCMFaceData.LandmarkPoint;
+import intel.rssdk.PXCMFaceData.LandmarkType;
+import intel.rssdk.PXCMFaceData.LandmarksData;
+import intel.rssdk.PXCMFaceData.LandmarksGroupType;
 import intel.rssdk.PXCMFaceModule;
 import intel.rssdk.PXCMImage;
 import intel.rssdk.PXCMImage.Option;
@@ -219,32 +222,58 @@ public class RSFaceTrackTask implements Runnable {
 			log.debug(sf.distance + " face landmarks == null");
 			return isRealFace;
 		}
-		int npoints = landmarks.QueryNumPoints();
-		PXCMFaceData.LandmarkPoint[] points = new PXCMFaceData.LandmarkPoint[npoints];
-		for(int i=0;i<npoints;i++){
-			points[i] = new LandmarkPoint();
-		}
-		landmarks.QueryPoints(points);
 
-		float zDIF = Math.abs(dValueDepth(points)) * 1000;
-		log.debug(sf.distance + " face DValueDepth = " + zDIF);
-
-		if(zDIF >=Config.DValueDepth){
-			isRealFace = true;
-		}else
-		points = null;
-		return isRealFace;
+		return dValueDepthAndWidth(landmarks);
 	}
 
-	private float dValueDepth(PXCMFaceData.LandmarkPoint[] points){
-		float d = 0;
-		ArrayList<Float> l = new ArrayList<Float>();
-		for(LandmarkPoint p : points){
-			Float f = p.world.z;
-			l.add(f);
+	private boolean dValueDepthAndWidth(LandmarksData landmarks){
+		
+		int nJawPoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_JAW);
+		PXCMFaceData.LandmarkPoint[] jawPoints = new PXCMFaceData.LandmarkPoint[nJawPoints];
+		
+		for(int i=0;i<nJawPoints;i++){
+			jawPoints[i] = new LandmarkPoint();
 		}
-		Collections.sort(l);
-		return l.get(0) - l.get(l.size() -1);
+
+		int nLeftEyePoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_LEFT_EYE);
+		PXCMFaceData.LandmarkPoint[] leftEyePoints = new PXCMFaceData.LandmarkPoint[nLeftEyePoints];
+		
+		for(int i=0;i<nLeftEyePoints;i++){
+			leftEyePoints[i] = new LandmarkPoint();
+		}
+		
+		landmarks.QueryPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_JAW, jawPoints);
+		landmarks.QueryPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_LEFT_EYE, leftEyePoints);
+		
+		float d1=0,d2=0;
+		
+		for(LandmarkPoint p : jawPoints){
+			d1 += p.world.z;
+		}
+		
+		d1 = d1 / nJawPoints;
+		
+		for(LandmarkPoint p : leftEyePoints){
+			d2 += p.world.z;
+		}
+		
+		d2 = d2 / nLeftEyePoints;
+		
+		float zDIF = Math.abs(d1 - d2) * 1000;
+		
+		int faceBorderLeftIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_FACE_BORDER_TOP_LEFT);
+		int faceBorderRightIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_FACE_BORDER_TOP_RIGHT);
+		LandmarkPoint pLeftBorder = new LandmarkPoint();
+		LandmarkPoint pRightBorder = new LandmarkPoint();
+		
+		landmarks.QueryPoint(faceBorderLeftIdx, pLeftBorder) ;
+		landmarks.QueryPoint(faceBorderRightIdx, pRightBorder) ;
+		
+		float wDIF = Math.abs(pLeftBorder.world.x - pRightBorder.world.x) * 1000;
+		log.debug("wDIF=" + wDIF + "	zDIF=" + zDIF);
+		
+		if(zDIF > Config.DValueDepth && wDIF > Config.DValueWidth) return true;
+		else return false;
 	}
 	
 	
@@ -328,6 +357,7 @@ public class RSFaceTrackTask implements Runnable {
 		sts = pxcmStatus.PXCM_STATUS_DATA_UNAVAILABLE;
 		PXCMFaceConfiguration faceConfig = faceModule.CreateActiveConfiguration();
 		faceConfig.SetTrackingMode(PXCMFaceConfiguration.TrackingModeType.FACE_MODE_COLOR_PLUS_DEPTH);
+		faceConfig.strategy = PXCMFaceConfiguration.TrackingStrategyType.STRATEGY_CLOSEST_TO_FARTHEST;
 		faceConfig.detection.isEnabled = true;
 		faceConfig.detection.maxTrackedFaces = Config.MaxTrackedFaces;
 		faceConfig.landmarks.maxTrackedFaces = Config.MaxTrackedLandmark;
@@ -335,9 +365,8 @@ public class RSFaceTrackTask implements Runnable {
 		faceConfig.landmarks.isEnabled = true;
 		faceConfig.pose.isEnabled = true;
 		faceConfig.pose.maxTrackedFaces = Config.MaxTrackedFaces;
-		faceConfig.strategy = PXCMFaceConfiguration.TrackingStrategyType.STRATEGY_CLOSEST_TO_FARTHEST;
-		faceConfig.ApplyChanges();
 		faceConfig.Update();
+		faceConfig.ApplyChanges();
 
 		sts = senseMgr.Init();
 
@@ -375,17 +404,21 @@ public class RSFaceTrackTask implements Runnable {
 			faceData.Update();
 			
 			List<SortFace> sortFaces = sortFaceByDistence(faceData);
-			
 			for (SortFace sf : sortFaces) {
 				PXCMFaceData.Face face = sf.face;
+				
+//				log.debug(sf.distance + "  SortFace'size=" + sortFaces.size());
 				PXCMFaceData.DetectionData detection = face.QueryDetection();
+				
 				drawLocation(detection);
-				drawLandmark(face);
-				boolean isRealFace = checkRealFace(sf);
-//				boolean isRealFace = true;
-				if (detection != null) {
+				boolean isRealFace = true;
+				if(Config.getInstance().getIsCheckRealFace() == 1){
+					isRealFace = checkRealFace(sf);
+					drawLandmark(face);
+				}
+				if (detection != null && isRealFace) {
 					PITData fd = createFaceData(frameImage, detection);
-					if (fd != null && isRealFace) {
+					if (fd != null) {
 						if (fd.isDetectedFace() && currentIDCard != null) {
 							fd.setIdCard(currentIDCard);
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
@@ -403,20 +436,26 @@ public class RSFaceTrackTask implements Runnable {
 		for(int i=0;i<faceCount;i++){
 			PXCMFaceData.Face face = faceData.QueryFaceByIndex(i);
 			
-			float[] averageDepth = new float[1];
+			PXCMRectI32 rect = new PXCMRectI32();
 			PXCMFaceData.DetectionData detection = face.QueryDetection();
-			detection.QueryFaceAverageDepth(averageDepth);
-			float distance = averageDepth[0];
+			boolean ret = detection.QueryBoundingRect(rect);
+			if(ret){
+				
+				int w = rect.w;
+//				log.debug("face width = " + w);
+				float[] averageDepth = new float[1];
+				detection.QueryFaceAverageDepth(averageDepth);
+				float distance = averageDepth[0];
 
-			if(distance>Config.MinAverageDepth){
-				SortFace sf = new SortFace(face, distance);
-				sortFaces.add(sf);
-//				log.debug("averageDepth = " + distance);
-
+				
+				if(distance>Config.MinAverageDepth){
+					SortFace sf = new SortFace(face, distance);
+					sortFaces.add(sf);
+					
+				}
+				
 			}
 			
-			
-
 		}
 		
 		Collections.sort(sortFaces);

@@ -23,7 +23,6 @@ import javax.swing.border.MatteBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.IDReader;
 import com.rxtec.pitchecking.QRReader;
@@ -63,6 +62,8 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	private JLabel labelSeatType;
 	private JLabel labelMsg;
 	private JLabel lableWarnmsg;
+	private JLabel labelVersion;
+	private JLabel lblIp;
 	int timeIntevel = 5;
 	private JLabel timelabel;
 	private int titleStrType = 0;
@@ -74,7 +75,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Config config = Config.getInstance();
+					DeviceConfig deviceConfig = DeviceConfig.getInstance();
 					GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 					GraphicsDevice[] gs = ge.getScreenDevices();
 					TicketCheckFrame frame = new TicketCheckFrame();
@@ -88,7 +89,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 					ticket.setTrainDate("20160405");
 					ticket.setTicketType("1");
 					ticket.setSeatCode("O");
-					frame.showTicketContent(config, ticket, 3);
+					frame.showTicketContent(deviceConfig, ticket, 3);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -101,8 +102,8 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	 */
 	public TicketCheckFrame() {
 		setBounds(new Rectangle(0, 0, 1920, 1080));
-		setMinimumSize(new Dimension(1024, 768));
-		setMaximumSize(new Dimension(1024, 768));
+		setMinimumSize(new Dimension(1280, 768));
+		setMaximumSize(new Dimension(1280, 768));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -112,28 +113,28 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 
 		topPanel = new JPanel();
 		topPanel.setBackground(Color.CYAN);
-		topPanel.setMinimumSize(new Dimension(1024, 100));
-		topPanel.setMaximumSize(new Dimension(1024, 100));
+		topPanel.setMinimumSize(new Dimension(1280, 100));
+		topPanel.setMaximumSize(new Dimension(1280, 100));
 		contentPane.add(topPanel);
 		topPanel.setLayout(null);
 
 		labelTitle = new JLabel("请刷二代证和车票二维码");
-		labelTitle.setHorizontalAlignment(SwingConstants.RIGHT);
+		labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		labelTitle.setForeground(Color.BLUE);
-		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 42));
-		labelTitle.setBounds(10, 31, 734, 57);
+		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 48));
+		labelTitle.setBounds(10, 24, 1250, 64);
 		topPanel.add(labelTitle);
 
 		timelabel = new JLabel("yyyyMMdd hh:mm:ss");
 		timelabel.setForeground(Color.RED);
-		timelabel.setFont(new Font("微软雅黑", Font.PLAIN, 18));
-		timelabel.setBounds(790, 56, 195, 26);
+		timelabel.setFont(new Font("微软雅黑", Font.PLAIN, 20));
+		timelabel.setBounds(1000, 10, 235, 26);
 		topPanel.add(timelabel);
 
 		ticketPanel = new JPanel();
 		ticketPanel.setBackground(Color.WHITE);
-		ticketPanel.setMinimumSize(new Dimension(1024, 568));
-		ticketPanel.setMaximumSize(new Dimension(1024, 568));
+		ticketPanel.setMinimumSize(new Dimension(1280, 608));
+		ticketPanel.setMaximumSize(new Dimension(1280, 608));
 		contentPane.add(ticketPanel);
 		ticketPanel.setLayout(null);
 
@@ -145,78 +146,95 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		labelTrainCode = new JLabel("G6612");
 		labelTrainCode.setHorizontalAlignment(SwingConstants.CENTER);
 		labelTrainCode.setFont(new Font("微软雅黑", Font.PLAIN, 28));
-		labelTrainCode.setBounds(365, 67, 110, 54);
+		labelTrainCode.setBounds(585, 67, 110, 54);
 		ticketPanel.add(labelTrainCode);
 
 		labelFz = new JLabel("广州南");
 		labelFz.setHorizontalAlignment(SwingConstants.CENTER);
 		labelFz.setFont(new Font("微软雅黑", Font.PLAIN, 28));
-		labelFz.setBounds(490, 67, 110, 54);
+		labelFz.setBounds(710, 67, 110, 54);
 		ticketPanel.add(labelFz);
 
 		labelZhi = new JLabel("至");
 		labelZhi.setHorizontalAlignment(SwingConstants.CENTER);
 		labelZhi.setFont(new Font("微软雅黑", Font.PLAIN, 28));
-		labelZhi.setBounds(617, 70, 48, 54);
+		labelZhi.setBounds(837, 70, 48, 54);
 		ticketPanel.add(labelZhi);
 
 		labelDz = new JLabel("长沙南");
 		labelDz.setHorizontalAlignment(SwingConstants.CENTER);
 		labelDz.setFont(new Font("微软雅黑", Font.PLAIN, 28));
-		labelDz.setBounds(690, 70, 110, 54);
+		labelDz.setBounds(910, 70, 110, 54);
 		ticketPanel.add(labelDz);
 
 		label_rq = new JLabel("乘车日期");
 		label_rq.setFont(new Font("微软雅黑", Font.PLAIN, 28));
-		label_rq.setBounds(410, 149, 134, 54);
+		label_rq.setBounds(630, 149, 134, 54);
 		ticketPanel.add(label_rq);
 
 		labelTrainDate = new JLabel("2016年5月16日");
 		labelTrainDate.setFont(new Font("微软雅黑", Font.PLAIN, 28));
-		labelTrainDate.setBounds(553, 149, 262, 54);
+		labelTrainDate.setBounds(773, 149, 262, 54);
 		ticketPanel.add(labelTrainDate);
 
 		labelSeatType = new JLabel("二等软座");
 		labelSeatType.setHorizontalAlignment(SwingConstants.CENTER);
 		labelSeatType.setFont(new Font("微软雅黑", Font.PLAIN, 28));
-		labelSeatType.setBounds(448, 220, 134, 54);
+		labelSeatType.setBounds(668, 220, 134, 54);
 		ticketPanel.add(labelSeatType);
 
 		labelTicketType = new JLabel("全票");
 		labelTicketType.setHorizontalAlignment(SwingConstants.CENTER);
 		labelTicketType.setFont(new Font("微软雅黑", Font.PLAIN, 28));
-		labelTicketType.setBounds(634, 223, 110, 54);
+		labelTicketType.setBounds(854, 223, 110, 54);
 		ticketPanel.add(labelTicketType);
 
 		labelMsg = new JLabel("请过闸!");
 		labelMsg.setHorizontalAlignment(SwingConstants.CENTER);
 		labelMsg.setForeground(Color.GREEN);
 		labelMsg.setFont(new Font("微软雅黑", Font.PLAIN, 36));
-		labelMsg.setBounds(346, 378, 575, 54);
+		labelMsg.setBounds(566, 378, 575, 54);
 		ticketPanel.add(labelMsg);
 
 		lableImg = new JLabel("");
 		lableImg.setHorizontalAlignment(SwingConstants.CENTER);
 		lableImg.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		lableImg.setBounds(151, 154, 180, 215);
+		lableImg.setBounds(270, 149, 180, 215);
 		ticketPanel.add(lableImg);
 
 		lableWarnmsg = new JLabel("票证不符，请检查后重新刷票！");
 		lableWarnmsg.setForeground(Color.RED);
 		lableWarnmsg.setFont(new Font("微软雅黑", Font.PLAIN, 36));
 		lableWarnmsg.setHorizontalAlignment(SwingConstants.CENTER);
-		lableWarnmsg.setBounds(337, 303, 588, 46);
+		lableWarnmsg.setBounds(557, 303, 588, 46);
 		ticketPanel.add(lableWarnmsg);
 
 		bottomPanel = new JPanel();
 		bottomPanel.setBackground(Color.CYAN);
-		bottomPanel.setMinimumSize(new Dimension(1024, 100));
-		bottomPanel.setMaximumSize(new Dimension(1024, 100));
+		bottomPanel.setMinimumSize(new Dimension(1280, 60));
+		bottomPanel.setMaximumSize(new Dimension(1280, 60));
 		bottomPanel.setLayout(null);
+		
+		labelVersion = new JLabel("版本号：pitcheck160709.02");
+		labelVersion.setForeground(Color.BLACK);
+		labelVersion.setFont(new Font("微软雅黑", Font.PLAIN, 18));
+		labelVersion.setHorizontalAlignment(SwingConstants.CENTER);
+		labelVersion.setBounds(96, 10, 302, 42);
+		bottomPanel.add(labelVersion);
+		
+		lblIp = new JLabel("IP地址：192.168.1.5");
+		lblIp.setForeground(Color.BLACK);
+		lblIp.setHorizontalAlignment(SwingConstants.CENTER);
+		lblIp.setFont(new Font("微软雅黑", Font.PLAIN, 18));
+		lblIp.setBounds(928, 10, 276, 42);
+		bottomPanel.add(lblIp);
 
 		setUndecorated(true);
 
 		showDefaultContent();
+		
+		setSoftVersion("软件版本号：" + DeviceConfig.softVersion);
+		setGateIP("IP地址：" + DeviceConfig.getInstance().getIpAddress());
 	}
 
 	public JPanel getTicketPanel() {
@@ -226,6 +244,14 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	public void showStatusImage(ImageIcon icon) {
 		lableImg.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
 		lableImg.setIcon(icon);
+	}
+	
+	public void setSoftVersion(String verText){
+		labelVersion.setText(verText);
+	}
+	
+	public void setGateIP(String ipText){
+		lblIp.setText(ipText);
 	}
 
 	public void showDefaultContent() {
@@ -312,22 +338,22 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	 * 
 	 * @param ticket
 	 */
-	public void showTicketContent(Config config, Ticket ticket, int titleStrType) {
+	public void showTicketContent(DeviceConfig deviceConfig, Ticket ticket, int titleStrType) {
 		this.titleStrType = titleStrType;
 		try {
 			// ticket.printTicket();
 			if (ticket != null) {
-				labelFz.setText(config.getStationName(ticket.getFromStationCode()));
+				labelFz.setText(deviceConfig.getStationName(ticket.getFromStationCode()));
 				this.labelZhi.setText("至");
-				this.labelDz.setText(config.getStationName(ticket.getEndStationCode()));
+				this.labelDz.setText(deviceConfig.getStationName(ticket.getEndStationCode()));
 				this.labelTrainCode.setText(ticket.getTrainCode());
 				this.label_rq.setText("乘车日期:");
 				String strTrainDate = ticket.getTrainDate().substring(0, 4) + "年"
 						+ ticket.getTrainDate().substring(4, 6) + "月" + ticket.getTrainDate().substring(6, 8) + "日";
 				this.labelTrainDate.setText(strTrainDate);
 				this.labelTicketType
-						.setText(config.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
-				this.labelSeatType.setText(config.getSeatTypesMap().get(ticket.getSeatCode()));
+						.setText(deviceConfig.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
+				this.labelSeatType.setText(deviceConfig.getSeatTypesMap().get(ticket.getSeatCode()));
 			}
 			ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
 			this.lableWarnmsg.setText("");
@@ -352,22 +378,22 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	/**
 	 * 重画核验失败信息界面
 	 */
-	public void showFailedContent(Config config, Ticket ticket, int titleStrType, String failedMsg) {
+	public void showFailedContent(DeviceConfig deviceConfig, Ticket ticket, int titleStrType, String failedMsg) {
 		this.titleStrType = titleStrType;
 		try {
 			// ticket.printTicket();
 
-			labelFz.setText(config.getStationName(ticket.getFromStationCode()));
+			labelFz.setText(deviceConfig.getStationName(ticket.getFromStationCode()));
 			this.labelZhi.setText("至");
-			this.labelDz.setText(config.getStationName(ticket.getEndStationCode()));
+			this.labelDz.setText(deviceConfig.getStationName(ticket.getEndStationCode()));
 			this.labelTrainCode.setText(ticket.getTrainCode());
 			this.label_rq.setText("乘车日期:");
 			String strTrainDate = ticket.getTrainDate().substring(0, 4) + "年" + ticket.getTrainDate().substring(4, 6)
 					+ "月" + ticket.getTrainDate().substring(6, 8) + "日";
 			this.labelTrainDate.setText(strTrainDate);
 			this.labelTicketType
-					.setText(config.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
-			this.labelSeatType.setText(config.getSeatTypesMap().get(ticket.getSeatCode()));
+					.setText(deviceConfig.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
+			this.labelSeatType.setText(deviceConfig.getSeatTypesMap().get(ticket.getSeatCode()));
 			ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
 			this.lableWarnmsg.setText(failedMsg);
 			this.labelMsg.setText("");
@@ -395,7 +421,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	 * @param titleStrType
 	 * @param failedMsg
 	 */
-	public void showExceptionContent(Config config, int titleStrType, String exMsg) {
+	public void showExceptionContent(DeviceConfig deviceConfig, int titleStrType, String exMsg) {
 		this.titleStrType = titleStrType;
 		try {
 			// ticket.printTicket();
@@ -443,11 +469,11 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 				labelTitle.setText("请扫描车票二维码!   " + (timeIntevel - 1));
 				labelTitle.setForeground(Color.RED);
 			} else if (this.titleStrType == 2) {
-				labelTitle.setText("请刷二代证!   " + (timeIntevel - 1));
+				labelTitle.setText("请刷第二代身份证!   " + (timeIntevel - 1));
 				labelTitle.setForeground(Color.RED);
 			} else if (this.titleStrType == 3) {
 				labelTitle.setText("票证核验成功!   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.blue);
+				labelTitle.setForeground(Color.BLUE);
 			} else if (this.titleStrType == 4) {
 				labelTitle.setText("票证核验失败,请重试!   " + (timeIntevel - 1));
 				labelTitle.setForeground(Color.RED);
@@ -455,7 +481,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		}
 
 		if (timeIntevel == 0) {
-			log.debug("等待结束，回到初始界面.. " + timeIntevel);
+			log.debug("等待结束，回到TicketFrame初始界面.. " + timeIntevel);
 			showDefaultContent();
 		}
 		if (timeIntevel-- < 0)

@@ -36,10 +36,16 @@ public class Config {
 	public static int FrameWidth = 960;
 	public static int FrameHeigh = 540;
 	
-	public static float MinAverageDepth = 300F;
+	public static float MinAverageDepth = 550F;
 	public static float DValueDepth = 50F;
+	public static float DValueWidth = 100F;
 	public static int MaxTrackedFaces = 4;
 	public static int MaxTrackedLandmark = 4;
+	
+	public static int PIVerify_Send_STREAM_ID = 10;
+	public static int PIVerify_Receive_STREAM_ID = 11;
+	public static String PIVerify_CHANNEL = "aeron:ipc";
+	
 	
 	
 	
@@ -69,17 +75,19 @@ public class Config {
 	private int detectededFaceQueueThreshold = 2;
 	private int videoType = 1;
 	private int videoCaptureFrequency=10;
-	private int lightBoardComm = 0;
+	private int isCheckRealFace = 0;
+
 	private String multicastAddress="234.5.6.7";
 	
-	public int getLightBoardComm() {
-		return lightBoardComm;
+	public int getIsCheckRealFace() {
+		return isCheckRealFace;
 	}
 
-	public void setLightBoardComm(int lightBoardComm) {
-		this.lightBoardComm = lightBoardComm;
+	public void setIsCheckRealFace(int isCheckRealFace) {
+		this.isCheckRealFace = isCheckRealFace;
 	}
 
+	
 	public String getMulticastAddress() {
 		return multicastAddress;
 	}
@@ -99,9 +107,7 @@ public class Config {
 	private int multicastPort=8899;
 
 	//
-	private String ticketXmlDir;
-	private String ticketImgDir;
-	private String stationDoc;
+	
 	
 	public int getVideoCaptureFrequency() {
 		return videoCaptureFrequency;
@@ -109,31 +115,6 @@ public class Config {
 
 	public void setVideoCaptureFrequency(int videoCaptureFrequency) {
 		this.videoCaptureFrequency = videoCaptureFrequency;
-	}
-
-
-	public String getTicketXmlDir() {
-		return ticketXmlDir;
-	}
-
-	public void setTicketXmlDir(String ticketXmlDir) {
-		this.ticketXmlDir = ticketXmlDir;
-	}
-
-	public String getTicketImgDir() {
-		return ticketImgDir;
-	}
-
-	public void setTicketImgDir(String ticketImgDir) {
-		this.ticketImgDir = ticketImgDir;
-	}
-
-	public String getStationDoc() {
-		return stationDoc;
-	}
-
-	public void setStationDoc(String stationDoc) {
-		this.stationDoc = stationDoc;
 	}
 
 	public int getDetectededFaceQueueThreshold() {
@@ -244,139 +225,23 @@ public class Config {
 			this.detectededFaceQueueThreshold = Integer.valueOf(p.getProperty("DetectededFaceQueueThreshold", "2"));
 			this.videoType = Integer.valueOf(p.getProperty("VideoType", "2"));
 			this.videoCaptureFrequency = Integer.valueOf(p.getProperty("VideoCaptureFrequency", "5"));
-			this.lightBoardComm = Integer.valueOf(p.getProperty("LightBoardComm", "0"));
+			this.isCheckRealFace = Integer.valueOf(p.getProperty("IsCheckRealFace", "0"));
 			
-			//
-			this.ticketXmlDir = p.getProperty("TicketXmlDir", "/pitchecking/xml/");
-			this.ticketImgDir = p.getProperty("TicketImgDir", "/pitchecking/img");
-			this.stationDoc = p.getProperty("StationDoc", "BaseData.xml");
-
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-
-		try {
-			readStationConfigDataFromLocal();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		}		
 	}
 
 	public static synchronized Config getInstance() {
 		if (_instance == null)
 			_instance = new Config();
 		return _instance;
-	}
-
-	private Map<String, StationInfo> stationsMap;
-	private Map<Integer, String> ticketTypesMap;
-	private Map<String, String> seatTypesMap;
-
-	public Map<String, StationInfo> getStationsMap() {
-		return stationsMap;
-	}
-
-	public void setStationsMap(Map stationsMap) {
-		this.stationsMap = stationsMap;
-	}
-
-	public String getStationName(String stationTeleCode) {
-		String stationName = "";
-		if (this.stationsMap.get(stationTeleCode) != null) {
-			stationName = this.stationsMap.get(stationTeleCode).getStationName();
-		}
-		return stationName;
-	}
-
-	public Map<Integer, String> getTicketTypesMap() {
-		return ticketTypesMap;
-	}
-
-	public void setTicketTypesMap(Map ticketTypesMap) {
-		this.ticketTypesMap = ticketTypesMap;
-	}
-
-	public Map<String, String> getSeatTypesMap() {
-		return seatTypesMap;
-	}
-
-	public void setSeatTypesMap(Map seatTypesMap) {
-		this.seatTypesMap = seatTypesMap;
-	}
-
-	/**
-	 * 读取本地站名表文件
-	 * 
-	 * @throws FileNotFoundException
-	 * @throws JDOMException
-	 * @throws IOException
-	 */
-	private void readStationConfigDataFromLocal() throws FileNotFoundException, JDOMException, IOException {
-		log.debug("we get Stations Config from local file!");
-		SAXBuilder saxBuilder = new org.jdom.input.SAXBuilder();
-		Document stationdoc;
-		stationdoc = saxBuilder.build(new FileInputStream(this.ticketXmlDir + this.stationDoc));
-
-		org.jdom.Element tkyRoot = stationdoc.getRootElement();
-		List<Element> stationlists;
-		stationlists = XPath.selectNodes(tkyRoot, "/ETicketMsg/StationInfos/StationInfo");
-		Map<String, StationInfo> stationsMap = new HashMap();
-
-		for (int i = 0; i < stationlists.size(); i++) {
-			Element node = (Element) stationlists.get(i);
-			StationInfo stationInfo = new StationInfo();
-			stationInfo.setStationTelecode(node.getAttributeValue("stationTelecode").trim());
-			stationInfo.setStationName(node.getAttributeValue("stationName").trim());
-			stationInfo.setBelongLineCode(node.getAttributeValue("belongLineCode").trim());
-			stationInfo.setBelongLineName(node.getAttributeValue("belongLineName").trim());
-			stationInfo.setStartDate(node.getAttributeValue("startDate").trim());
-			stationInfo.setDistance(Integer.parseInt(node.getAttributeValue("distance").trim()));
-			stationsMap.put(node.getAttributeValue("stationTelecode").trim(), stationInfo);
-		}
-		//
-		List<Element> ticketTypes;
-		ticketTypes = XPath.selectNodes(tkyRoot, "/ETicketMsg/TicketTypes/TicketType");
-		Map<Integer, String> ticketTypesMap = new HashMap<Integer, String>();
-		for (int i = 0; i < ticketTypes.size(); i++) {
-			Element node = (Element) ticketTypes.get(i);
-			int ticketTypeId = Integer.parseInt(node.getAttributeValue("ticketTypeId"));
-			String ticketTypeName = node.getAttributeValue("ticketTypeName").trim();
-			// log.debug("ticketType==" + ticketTypeId + "-" + ticketTypeName);
-			ticketTypesMap.put(ticketTypeId, ticketTypeName);
-		}
-		//
-		List<Element> seatTypes;
-		seatTypes = XPath.selectNodes(tkyRoot, "/ETicketMsg/SeatTypes/SeatType");
-		Map<String, String> seatTypesMap = new HashMap();
-		for (int i = 0; i < seatTypes.size(); i++) {
-			Element node = (Element) seatTypes.get(i);
-			String seatTypeId = node.getAttributeValue("seatTypeId").trim();
-			String seatTypeName = node.getAttributeValue("seatTypeName").trim();
-			// log.debug("seatType==" + seatTypeId + "-" + seatTypeName);
-			seatTypesMap.put(seatTypeId, seatTypeName);
-		}
-
-		setStationsMap(stationsMap);
-		setTicketTypesMap(ticketTypesMap);
-		setSeatTypesMap(seatTypesMap);
-	}
+	}	
 
 	public static void main(String[] args) {
 		Config.getInstance();
-		System.out.println(Config.getInstance().getStationsMap().size());
-		System.out.println(Config.getInstance().getStationsMap().get("GGQ").getStationName());
-		System.out.println(Config.getInstance().getStationName("KQW"));
-		System.out.println(Config.getInstance().getTicketTypesMap().size());
-		System.out.println(Config.getInstance().getSeatTypesMap().size());
-		System.out.println(Config.getInstance().getSeatTypesMap().get("O"));
+		
 	}
 
 }

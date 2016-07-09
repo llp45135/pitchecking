@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -31,7 +32,11 @@ import com.rxtec.pitchecking.utils.ImageToolkit;
  *
  */
 
-public class PITData {
+public class PITData implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8362192728485137547L;
 	private BufferedImage frame = null;
 
 	public BufferedImage getFrame() {
@@ -303,6 +308,12 @@ public class PITData {
 		this.isDetectedFace = isDetectedFace;
 	}
 
+	
+	@Override
+	public String toString(){
+		return "VerifyResult=" + this.faceCheckResult;
+	}
+	
 }
 
 class FaceDataComparator implements Comparator {

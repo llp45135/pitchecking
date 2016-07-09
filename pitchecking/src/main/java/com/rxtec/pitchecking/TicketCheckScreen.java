@@ -14,6 +14,7 @@ import org.openimaj.video.capture.VideoCaptureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
@@ -22,9 +23,8 @@ import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 
 public class TicketCheckScreen {
-	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
+	private Logger log = LoggerFactory.getLogger("TicketCheckScreen");
 	private static TicketCheckScreen _instance = new TicketCheckScreen();
-	private ExecutorService executor = Executors.newCachedThreadPool();
 
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	GraphicsDevice[] gs = ge.getScreenDevices();
@@ -37,16 +37,17 @@ public class TicketCheckScreen {
 	}
 
 	public void initUI() {
-		// gs[0].setFullScreenWindow(faceFrame);
-		// gs[1].setFullScreenWindow(ticketFrame);
+		
+		 gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
+		 gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
 		// ticketFrame.setUndecorated(true);
 		// ticketFrame.setVisible(true);
 
-		gs[1].setFullScreenWindow(faceFrame);
-//		if(gs.length>1)
-//			gs[1].setFullScreenWindow(ticketFrame);
-//		else 
-//			gs[0].setFullScreenWindow(ticketFrame);
+//		gs[1].setFullScreenWindow(faceFrame);
+		// if(gs.length>1)
+		// gs[1].setFullScreenWindow(ticketFrame);
+		// else
+		// gs[0].setFullScreenWindow(ticketFrame);
 		// faceFrame.setUndecorated(true);
 		// faceFrame.setVisible(true);
 
@@ -102,33 +103,33 @@ public class TicketCheckScreen {
 	private void processEventByTicketCmdType(ScreenElementModifyEvent e) {
 		if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue()) {
 			if (e.getTicket() == null) {
-//				log.debug("等待旅客扫描车票！");
+				// log.debug("等待旅客扫描车票！");
 				ticketFrame.showWaitInputContent(e.getTicket(), e.getIdCard(), 1);
 			} else if (e.getIdCard() == null) {
-//				log.debug("等待旅客刷身份证！");
+				// log.debug("等待旅客刷身份证！");
 				ticketFrame.showWaitInputContent(e.getTicket(), e.getIdCard(), 2);
 			}
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyStationRuleFail.getValue()) {
 			log.debug("收到ShowTicketVerifyStationRuleFail屏幕事件，重画屏幕");
 			String msg = "车票不符合乘车条件！";
 			Ticket ticket = e.getTicket();
-			ticketFrame.showFailedContent(Config.getInstance(), ticket, 4, msg);
+			ticketFrame.showFailedContent(DeviceConfig.getInstance(), ticket, 4, msg);
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyIDFail.getValue()) {
 			log.debug("收到ShowTicketVerifyIDFail屏幕事件，重画屏幕");
 			String msg = "车票与身份证不相符！";
 			Ticket ticket = e.getTicket();
-			ticketFrame.showFailedContent(Config.getInstance(), ticket, 4, msg);
+			ticketFrame.showFailedContent(DeviceConfig.getInstance(), ticket, 4, msg);
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifySucc.getValue()) {
 			Ticket ticket = e.getTicket();
-			ticketFrame.showTicketContent(Config.getInstance(), ticket, 3);
+			ticketFrame.showTicketContent(DeviceConfig.getInstance(), ticket, 3);
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketDefault.getValue()) {
 			ticketFrame.showDefaultContent();
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowQRDeviceException.getValue()) {
 			String exMsg = "二维码扫描器故障，请联系维护人员!";
-			ticketFrame.showExceptionContent(Config.getInstance(), -1, exMsg);
+			ticketFrame.showExceptionContent(DeviceConfig.getInstance(), -1, exMsg);
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowIDDeviceException.getValue()) {
 			String exMsg = "二代证读卡器故障，请联系维护人员!";
-			ticketFrame.showExceptionContent(Config.getInstance(), -1, exMsg);
+			ticketFrame.showExceptionContent(DeviceConfig.getInstance(), -1, exMsg);
 		}
 	}
 

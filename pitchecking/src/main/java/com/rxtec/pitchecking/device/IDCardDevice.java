@@ -1,5 +1,7 @@
 package com.rxtec.pitchecking.device;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -49,10 +51,15 @@ public class IDCardDevice {
 
 	public static void main(String[] args) {
 
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gs = ge.getScreenDevices();
 		IDCardDevice device = IDCardDevice.getInstance();
 		if (device.getPort() != 0) {
-			TicketCheckFrame frame = new TicketCheckFrame();
-			frame.setVisible(true);
+			TicketCheckFrame ticketFrame = new TicketCheckFrame();
+			ticketFrame.setSoftVersion("软件版本号："+"160709.02");
+			ticketFrame.setGateIP("IP地址："+DeviceConfig.getInstance().getIpAddress());
+//			frame.setVisible(true);
+			gs[0].setFullScreenWindow(ticketFrame);
 			
 			while (true) {
 				device.Syn_OpenPort();
@@ -63,7 +70,7 @@ public class IDCardDevice {
 						IDCard idCard = new IDCard();
 						idCard = device.Syn_ReadBaseMsg();
 						if (idCard.getIdNo() != null) {
-							frame.showWaitInputContent(null, idCard, 1);
+							ticketFrame.showWaitInputContent(null, idCard, 1);
 							CommUtil.sleep(3000);
 						}
 					}

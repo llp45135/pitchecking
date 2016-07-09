@@ -25,6 +25,7 @@ import com.rxtec.pitchecking.utils.CommUtil;
 public class AudioDevice {
 	private Log log = LogFactory.getLog("AudioDevice");
 	private static AudioDevice _instance = new AudioDevice();
+	File audioFile = null;
 
 	public static synchronized AudioDevice getInstance() {
 		if (_instance == null) {
@@ -34,7 +35,7 @@ public class AudioDevice {
 	}
 
 	private AudioDevice() {
-
+		audioFile = new File(DeviceConfig.cameraWav);
 	}
 
 	/**
@@ -42,14 +43,14 @@ public class AudioDevice {
 	 * 
 	 * @param filename
 	 */
-	public void play(String filename) {
+	public void play() {
 		AudioInputStream audioStream = null;
 		AudioFormat audioFormat = null;
 		DataInputStream audioDis = null;
 		byte[] audioSamples = null;
 		try {
-			log.debug("载入声音文件:" + filename);
-			audioStream = AudioSystem.getAudioInputStream(new File(filename));
+			log.debug("载入声音文件:" + audioFile);
+			audioStream = AudioSystem.getAudioInputStream(audioFile);
 			audioFormat = audioStream.getFormat();
 
 			int length = (int) (audioStream.getFrameLength() * audioFormat.getFrameSize());
@@ -103,7 +104,7 @@ public class AudioDevice {
 			audioInputStream.close();
 			audioBuffer = null;
 			audioSamples = null;
-			log.debug("语音播放完毕..."+filename);
+			log.debug("语音播放完毕..."+audioFile);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
@@ -130,10 +131,10 @@ public class AudioDevice {
 //			CommUtil.sleep(5000);
 //		}
 		
-		AudioPlayTask audioTask = new AudioPlayTask();
-		ExecutorService audioExecuter = Executors.newCachedThreadPool();
-		audioExecuter.execute(audioTask);		
-		audioExecuter.shutdown();		
+//		AudioPlayTask audioTask = new AudioPlayTask();
+//		ExecutorService audioExecuter = Executors.newCachedThreadPool();
+//		audioExecuter.execute(audioTask);		
+//		audioExecuter.shutdown();		
 		// exit
 //		 System.exit(0);
 	}

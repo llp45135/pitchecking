@@ -3,6 +3,8 @@ package com.rxtec.pitchecking;
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,10 +32,8 @@ public class QRReader implements Runnable {
 
 	public static void main(String[] args) {
 
-		QRReader qrDeviceTest = QRReader.getInstance();
-		 ExecutorService executor = Executors.newCachedThreadPool();
-		 executor.execute(qrDeviceTest);
-
+		ScheduledExecutorService qrReaderScheduler = Executors.newScheduledThreadPool(1);
+		qrReaderScheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 	}
 
 	private QRReader() {
@@ -227,9 +227,10 @@ public class QRReader implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		while(true){
-			CommUtil.sleep(100);
-		}
+//		log.debug("QRReader running!");
+//		while(true){
+//			CommUtil.sleep(100);
+//		}
 	}
 
 }

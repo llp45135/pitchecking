@@ -41,6 +41,7 @@ public class VerifyFaceTask {
 		else
 			faceTrackService = FaceDetectionService.getInstance();
 	}
+	
 
 	public PITData beginCheckFace(IDCard idCard) {
 		TicketCheckScreen.getInstance().offerEvent(
@@ -53,10 +54,11 @@ public class VerifyFaceTask {
 		// TicketCheckScreen.getInstance().offerEvent(semEvent);
 		
 		//调用语音
-		AudioPlayTask audioTask = new AudioPlayTask();
-		ExecutorService audioExecuter = Executors.newCachedThreadPool();
-		audioExecuter.execute(audioTask);		
-		audioExecuter.shutdown();
+//		ExecutorService audioExecutorService = Executors.newCachedThreadPool();
+//		AudioPlayTask audioTask = new AudioPlayTask();
+//		audioExecutorService.execute(audioTask);		
+//		audioExecutorService.shutdownNow();
+		AudioPlayTask.getInstance().start();
 
 		faceTrackService.beginCheckingFace(idCard);
 
@@ -75,7 +77,7 @@ public class VerifyFaceTask {
 			faceTrackService.stopCheckingFace();
 
 			log.debug("认证比对结果：picData==" + fd);
-//			SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门
+			SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门
 
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
@@ -96,11 +98,11 @@ public class VerifyFaceTask {
 
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.debug("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());
+			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());
 			faceTrackService.stopCheckingFace();
 
 			log.debug("认证比对结果：picData==" + fd);
-//			SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
+			SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
 
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));

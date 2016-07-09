@@ -41,19 +41,17 @@ public class EmerButtonTask implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		while (true) {
-			CommUtil.sleep(100);
+
 			try {
 				EmerButtonEvent embe = EmerButtonTask.getInstance().takeEmerButtonEvent(); // take若队列为空，发生阻塞，等待有元素
 				if (embe != null) {
 					log.debug("求助按钮事件被触发，打开紧急电磁门。触发时间：" + embe.getEventTime());
-					SecondGateDevice.getInstance().openThirdDoor();
+					SecondGateDevice.getInstance().openSecondDoor();
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
 	}
 
 	public static void main(String args[]) {

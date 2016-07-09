@@ -252,7 +252,7 @@ public class LightControlBoard {
 	public static void main(String[] args) {
 		LightControlBoard cb = new LightControlBoard();
 		if (cb.Cb_InitSDK() == 0) {
-			if (cb.Cb_OpenCom(Config.getInstance().getLightBoardComm()) == 0) {
+			if (cb.Cb_OpenCom(DeviceConfig.getInstance().getCameraLEDPort()) == 0) {
 //				cb.Cb_LightUnitOn(0, 30);
 				cb.Cb_LightUnitOff(0,30);
 			}
