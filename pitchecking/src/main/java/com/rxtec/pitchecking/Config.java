@@ -29,8 +29,8 @@ public class Config {
 	public static int UVCVideo = 1;
 	public static String UVCCameraName="Logitech HD Pro Webcam C920";
 	
-	public static String FaceVerifyDLLName = "C:/pitchecking/DLL/FaceVRISDK.dll";
-	public static String FaceVerifyCloneDLLName = "C:/pitchecking/DLLClone/FaceVRISDK.dll";
+	public static String FaceVerifyDLLName = "FaceVRISDK.dll";
+	public static String FaceVerifyCloneDLLName = "FaceVRISDK.dll";
 	
 	
 	public static int FrameWidth = 960;

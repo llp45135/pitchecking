@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Calendar;
 
 import javax.imageio.ImageIO;
@@ -31,6 +33,7 @@ public class FaceVerifyJniEntry {
 	JNative jnativeExitFun = null;
 	private Logger log = LoggerFactory.getLogger("FaceAuthentication");
 	String DLLName = "";
+	DecimalFormat df=(DecimalFormat)NumberFormat.getInstance(); 
 
 	private void initJNIContext() {
 
@@ -47,6 +50,7 @@ public class FaceVerifyJniEntry {
 		} finally {
 		}
 
+		df.setMaximumFractionDigits(2);
 	}
 
 	public void clearJNIContext() {
@@ -90,20 +94,20 @@ public class FaceVerifyJniEntry {
 			result = aArrIntInputf.getAsFloat(0);
 			aArrIntInputf.dispose();
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.info("FaceChecking end, using " + usingTime + " ms, value=" + result);
+			log.info("Using " + usingTime + " ms, value=" + df.format(result));
 
 		} catch (NativeException e) {
 			log.error("FaceVerifyJniEntry verify failed!", e);
 		} catch (IllegalAccessException e) {
 			log.error("FaceVerifyJniEntry verify failed!", e);
 		} finally {
-			// try {
-			// if (aArrIntInputf != null) {
-			// aArrIntInputf.dispose();
-			// }
-			// } catch (NativeException e) {
-			// log.error("FaceVerifyJniEntry verify failed!", e);
-			// }
+			try {
+				if (aArrIntInputf != null) {
+					aArrIntInputf.dispose();
+				}
+			} catch (NativeException e) {
+				log.error("FaceVerifyJniEntry verify failed!", e);
+			}
 		}
 		return result;
 	}
