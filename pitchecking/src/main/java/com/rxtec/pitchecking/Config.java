@@ -35,9 +35,10 @@ public class Config {
 	
 	public static int FrameWidth = 960;
 	public static int FrameHeigh = 540;
+	public static int frameRate = 30;
 	
-	public static float MinAverageDepth = 450F;
-	public static float MaxAverageDepth = 900F;
+	public static float MinAverageDepth = 400F;
+	public static float MaxAverageDepth = 1200F;
 	
 	public static float DValueMaxDepth = 50F;
 	public static float DValueMinDepth = 10F;
@@ -220,8 +221,7 @@ public class Config {
 	private Config() {
 		Properties p = new Properties();
 		try {
-			ClassLoader cl = this.getClass().getClassLoader();
-			InputStream is = cl.getResourceAsStream("conf.properties");
+			InputStream is = new FileInputStream("./conf/conf.properties");
 			p.load(is);
 			this.faceCheckThreshold = Float.valueOf(p.getProperty("FaceCheckThreshold", "0.7"));
 			this.glassFaceCheckThreshold = Float.valueOf(p.getProperty("GlassFaceCheckThreshold", "0.68"));
@@ -251,7 +251,7 @@ public class Config {
 
 	public static void main(String[] args) {
 		Config.getInstance();
-		
+		System.out.println("getIsCheckRealFace=="+Config.getInstance().getIsCheckRealFace());
 	}
 
 }

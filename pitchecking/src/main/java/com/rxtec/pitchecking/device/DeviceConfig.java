@@ -34,7 +34,7 @@ public class DeviceConfig {
 	private int idDeviceStatus = -1;
 	private int qrdeviceStatus = -1;
 
-	private String ticketXmlDir = "./xml/";
+	private String ticketXmlDir = "./conf/";
 	private String ticketImgDir = "./img";
 	private String stationDoc = "BaseData.xml";
 
@@ -316,7 +316,7 @@ public class DeviceConfig {
 		try {
 			SAXBuilder saxhandle = new org.jdom.input.SAXBuilder();
 			Document deviceDoc;
-			deviceDoc = saxhandle.build(new FileInputStream("./xml/GateConfig.xml"));
+			deviceDoc = saxhandle.build(new FileInputStream("./conf/GateConfig.xml"));
 			org.jdom.Element root = deviceDoc.getRootElement();
 			this.setGateNo(root.getChild("GateConfig").getAttributeValue("gateNo"));
 			this.setFaceScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("faceScreen")));

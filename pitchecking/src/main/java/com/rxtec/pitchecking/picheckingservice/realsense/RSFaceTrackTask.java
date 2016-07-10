@@ -47,6 +47,7 @@ public class RSFaceTrackTask implements Runnable {
 
 	static int cWidth = Config.FrameWidth;
 	static int cHeight = Config.FrameHeigh;
+	static int frameRate = Config.frameRate;
 	static int dWidth, dHeight;
 	static boolean exit = false;
 	private Logger log = LoggerFactory.getLogger("RSFaceTrackTask");
@@ -272,8 +273,12 @@ public class RSFaceTrackTask implements Runnable {
 		float wDIF = Math.abs(pLeftBorder.world.x - pRightBorder.world.x) * 1000;
 		log.debug("wDIF=" + wDIF + "	zDIF=" + zDIF);
 		
-		if(checkFaceDepth(zDIF) && checkFaceWidth(wDIF)) return true;
-		else return false;
+//		if(checkFaceDepth(zDIF) && checkFaceWidth(wDIF)) return true;
+//		else return false;
+		
+		
+		return checkFaceWidth(wDIF);
+		
 	}
 	
 	
@@ -355,7 +360,7 @@ public class RSFaceTrackTask implements Runnable {
 			return;
 		}
 
-		pxcmStatus sts = senseMgr.EnableStream(PXCMCapture.StreamType.STREAM_TYPE_COLOR, cWidth, cHeight,30);
+		pxcmStatus sts = senseMgr.EnableStream(PXCMCapture.StreamType.STREAM_TYPE_COLOR, cWidth, cHeight, frameRate);
 
 		sts = senseMgr.EnableFace(null);
 		PXCMFaceModule faceModule = senseMgr.QueryFace();
