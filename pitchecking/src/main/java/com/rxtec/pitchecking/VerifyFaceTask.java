@@ -53,11 +53,6 @@ public class VerifyFaceTask {
 		// semEvent.setIdCard(idCard);
 		// TicketCheckScreen.getInstance().offerEvent(semEvent);
 		
-		//调用语音
-//		ExecutorService audioExecutorService = Executors.newCachedThreadPool();
-//		AudioPlayTask audioTask = new AudioPlayTask();
-//		audioExecutorService.execute(audioTask);		
-//		audioExecutorService.shutdownNow();
 		AudioPlayTask.getInstance().start();
 
 		faceTrackService.beginCheckingFace(idCard);

@@ -185,7 +185,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 			e.printStackTrace();
 		}
 		panel_title.setBackground(Color.orange);
-		label_title.setText("请刷二代证");
+		label_title.setText("请摘下眼镜后平视摄像头");
 		label_result.setText("");
 		panel_bottom.setBackground(Color.ORANGE);
 //		this.showIDCardImage(null);

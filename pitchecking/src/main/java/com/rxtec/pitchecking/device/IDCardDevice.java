@@ -56,8 +56,6 @@ public class IDCardDevice {
 		IDCardDevice device = IDCardDevice.getInstance();
 		if (device.getPort() != 0) {
 			TicketCheckFrame ticketFrame = new TicketCheckFrame();
-			ticketFrame.setSoftVersion("软件版本号："+"160709.02");
-			ticketFrame.setGateIP("IP地址："+DeviceConfig.getInstance().getIpAddress());
 //			frame.setVisible(true);
 			gs[0].setFullScreenWindow(ticketFrame);
 			

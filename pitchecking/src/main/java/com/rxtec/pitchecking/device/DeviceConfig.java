@@ -56,6 +56,8 @@ public class DeviceConfig {
 	private int ticketScreen=1;
 	private String gateNo = "00";
 	private int CameraLEDPort = 0;
+	public static int CameraLEDUnit = 0;
+	public static int CameraLEDLevel = 31;
 	private String GateCrtlPort = "COM2";
 	private String GteCrtlSecondPort = "COM3";
 	private int GateCrtoRate = 9600;

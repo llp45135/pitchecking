@@ -139,7 +139,7 @@ public class DeviceEventListener implements Runnable {
 		scheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		//求助按钮事件处理
 		scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-		//
+		//语音调用线程
 		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		// 启动成功点亮绿色通行箭头
 		FirstGateDevice.getInstance().LightEntryArrow();
@@ -153,11 +153,11 @@ public class DeviceEventListener implements Runnable {
 		LightControlBoard cb = new LightControlBoard();
 		if (cb.Cb_InitSDK() == 0) {
 			if (cb.Cb_OpenCom(DeviceConfig.getInstance().getCameraLEDPort()) == 0) {
-				if(cb.Cb_LightUnitOff(0,30)!=0){
+				if(cb.Cb_LightUnitOff(DeviceConfig.CameraLEDUnit,DeviceConfig.CameraLEDLevel)!=0){
 					return 0;
 				}
 				CommUtil.sleep(1000);
-				if (cb.Cb_LightUnitOn(0, 30) != 0) {
+				if (cb.Cb_LightUnitOn(DeviceConfig.CameraLEDUnit,DeviceConfig.CameraLEDLevel) != 0) {
 					return 0;
 				}
 			} else {
