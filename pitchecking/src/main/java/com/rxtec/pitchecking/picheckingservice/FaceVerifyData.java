@@ -71,6 +71,7 @@ public class FaceVerifyData implements Serializable {
 
 	}
 
+	@Override
 	public String toString() {
 		return faceID + "   idImg=" + idCardImg.length + " faceImg=" + faceImg.length + " verifyResult=" + verifyResult;
 	}

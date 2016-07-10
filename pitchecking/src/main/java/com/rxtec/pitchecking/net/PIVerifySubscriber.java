@@ -123,7 +123,7 @@ class SubscriberUtils {
 				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
 				FaceVerifyData fd = (FaceVerifyData)ois.readObject();
 				FaceCheckingService.getInstance().offerFaceVerifyData(fd);
-				System.out.println(fd.toString());
+				Log.info("Receive request message : " + fd);
 			} catch (IOException | ClassNotFoundException e) {
 				Log.error("processMessage",e);
 			}
