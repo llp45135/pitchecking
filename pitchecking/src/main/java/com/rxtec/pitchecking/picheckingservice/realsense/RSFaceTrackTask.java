@@ -272,7 +272,18 @@ public class RSFaceTrackTask implements Runnable {
 		float wDIF = Math.abs(pLeftBorder.world.x - pRightBorder.world.x) * 1000;
 		log.debug("wDIF=" + wDIF + "	zDIF=" + zDIF);
 		
-		if(zDIF > Config.DValueDepth && wDIF > Config.DValueWidth) return true;
+		if(checkFaceDepth(zDIF) && checkFaceWidth(wDIF)) return true;
+		else return false;
+	}
+	
+	
+	private boolean checkFaceDepth(float f){
+		if(Config.DValueMinWidth< f && f<Config.DValueMaxDepth) return true;
+		else return false;
+	}
+	
+	private boolean checkFaceWidth(float f){
+		if(Config.DValueMinWidth< f && f<Config.DValueMaxWidth) return true;
 		else return false;
 	}
 	
@@ -448,7 +459,8 @@ public class RSFaceTrackTask implements Runnable {
 				float distance = averageDepth[0];
 
 				
-				if(distance>Config.MinAverageDepth){
+				
+				if(distance>Config.MinAverageDepth && distance<Config.MaxAverageDepth){
 					SortFace sf = new SortFace(face, distance);
 					sortFaces.add(sf);
 					
@@ -459,11 +471,6 @@ public class RSFaceTrackTask implements Runnable {
 		}
 		
 		Collections.sort(sortFaces);
-//		int i=0;
-//		for(SortFace s : sortFaces){
-//			log.debug("Face "+i+ " averageDepth = " + s.distance);
-//			i++;
-//		}
 		 
 		return sortFaces;
 				

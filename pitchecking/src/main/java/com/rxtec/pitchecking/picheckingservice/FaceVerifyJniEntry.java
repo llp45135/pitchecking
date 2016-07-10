@@ -112,30 +112,5 @@ public class FaceVerifyJniEntry {
 		return result;
 	}
 
-	public static void main(String[] args) {
 
-		FaceVerifyJniEntry v = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
-		FaceVerifyJniEntry v2 = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
-
-		IDCard c1 = createIDCard("C:/pitchecking/B1.jpg");
-		IDCard c2 = createIDCard("C:/pitchecking/B2.jpg");
-
-		for (int i = 0; i < 100; i++) {
-			v.verify(c1.getImageBytes(), c2.getImageBytes());
-			v2.verify(c1.getImageBytes(), c2.getImageBytes());
-		}
-	}
-
-	private static IDCard createIDCard(String fn) {
-		IDCard card = new IDCard();
-		BufferedImage bi = null;
-		try {
-			bi = ImageIO.read(new File(fn));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		card.setCardImage(bi);
-		return card;
-	}
 }

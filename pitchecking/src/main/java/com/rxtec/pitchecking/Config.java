@@ -36,9 +36,16 @@ public class Config {
 	public static int FrameWidth = 960;
 	public static int FrameHeigh = 540;
 	
-	public static float MinAverageDepth = 550F;
-	public static float DValueDepth = 50F;
-	public static float DValueWidth = 100F;
+	public static float MinAverageDepth = 450F;
+	public static float MaxAverageDepth = 900F;
+	
+	public static float DValueMaxDepth = 50F;
+	public static float DValueMinDepth = 10F;
+	
+	public static float DValueMaxWidth = 250F;
+	public static float DValueMinWidth = 90F;
+	
+	
 	public static int MaxTrackedFaces = 4;
 	public static int MaxTrackedLandmark = 4;
 	
