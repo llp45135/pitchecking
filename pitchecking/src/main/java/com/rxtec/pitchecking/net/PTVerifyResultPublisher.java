@@ -13,6 +13,8 @@ import javax.imageio.ImageIO;
 
 import org.agrona.BufferUtil;
 import org.agrona.concurrent.UnsafeBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
@@ -22,6 +24,7 @@ import io.aeron.Aeron;
 import io.aeron.Publication;
 
 public class PTVerifyResultPublisher {
+	private Logger log = LoggerFactory.getLogger("PTVerifyResultPublisher");
 
 	private static final int STREAM_ID = Config.PIVerify_Receive_STREAM_ID;
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
@@ -77,19 +80,19 @@ public class PTVerifyResultPublisher {
 
 		if (result < 0L) {
 			if (result == Publication.BACK_PRESSURED) {
-				System.out.println("  Offer failed due to back pressure");
+				log.error("  Offer failed due to back pressure");
 			} else if (result == Publication.NOT_CONNECTED) {
-				System.out.println("  Offer failed because publisher is not yet connected to subscriber");
+				log.error("  Offer failed because publisher is not yet connected to subscriber");
 			} else if (result == Publication.ADMIN_ACTION) {
-				System.out.println("  Offer failed because of an administration action in the system");
+				log.error("  Offer failed because of an administration action in the system");
 			} else if (result == Publication.CLOSED) {
-				System.out.println("  Offer failed publication is closed");
+				log.error("  Offer failed publication is closed");
 			} else {
-				System.out.println("  Offer failed due to unknown reason");
+				log.error("  Offer failed due to unknown reason");
 			}
 			return false;
 		} else {
-			System.out.println("   yay!");
+			log.info("FaceVerifyResult has sended!");
 			return true;
 		}
 	}

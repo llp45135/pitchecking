@@ -85,15 +85,12 @@ public class FaceVerifyJniEntry {
 			jnativeVerifyFun.setParameter(i++, Type.INT, "" + idCardBytes.length);
 			jnativeVerifyFun.setParameter(i++, aArrIntInputf);
 			jnativeVerifyFun.invoke();
-			// 打印函数返回值
-			// log.debug("PS_VerifyImage retCode=" +
-			// jnative3.getRetValAsInt());//获取返回值
 
 			// 获取输出参数值（验证分数值）
 			result = aArrIntInputf.getAsFloat(0);
 			aArrIntInputf.dispose();
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.debug("FaceChecking end, using " + usingTime + " ms, value=" + result);
+			log.info("FaceChecking end, using " + usingTime + " ms, value=" + result);
 
 		} catch (NativeException e) {
 			log.error("FaceVerifyJniEntry verify failed!", e);

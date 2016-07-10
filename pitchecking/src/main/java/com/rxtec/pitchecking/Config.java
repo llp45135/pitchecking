@@ -42,9 +42,12 @@ public class Config {
 	public static int MaxTrackedFaces = 4;
 	public static int MaxTrackedLandmark = 4;
 	
+	public static int FaceVerifyThreads = 2;
+	
 	public static int PIVerify_Send_STREAM_ID = 10;
 	public static int PIVerify_Receive_STREAM_ID = 11;
 	public static String PIVerify_CHANNEL = "aeron:ipc";
+//	public static String PIVerify_CHANNEL = "aeron:udp?endpoint=192.168.1.21:40456";
 	
 	
 	

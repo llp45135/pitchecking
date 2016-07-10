@@ -139,7 +139,6 @@ class ResultSubscriberUtils {
 				PITData pd = new PITData(null);
 				pd.setFaceCheckResult(fd.getVerifyResult());
 				FaceCheckingService.getInstance().offerPassFaceData(pd);
-				System.out.println(pd);
 			} catch (IOException | ClassNotFoundException e) {
 				Log.error("processMessage",e);
 			}
