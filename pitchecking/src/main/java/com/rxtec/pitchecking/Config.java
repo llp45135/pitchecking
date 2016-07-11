@@ -40,7 +40,7 @@ public class Config {
 	public static float MinAverageDepth = 400F;
 	public static float MaxAverageDepth = 1200F;
 	
-	public static float DValueMaxDepth = 50F;
+	public static float DValueMaxDepth = 100F;
 	public static float DValueMinDepth = 10F;
 	
 	public static float DValueMaxWidth = 250F;
@@ -49,6 +49,8 @@ public class Config {
 	
 	public static int MaxTrackedFaces = 4;
 	public static int MaxTrackedLandmark = 4;
+	public static int NumOfLandmarks = 78;
+	
 	
 	public static int FaceVerifyThreads = 2;
 	

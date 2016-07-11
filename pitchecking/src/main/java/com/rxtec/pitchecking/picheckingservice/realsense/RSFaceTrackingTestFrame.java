@@ -1,5 +1,7 @@
 package com.rxtec.pitchecking.picheckingservice.realsense;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Calendar;
@@ -18,6 +20,7 @@ import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.PITStatusEnum;
 import com.rxtec.pitchecking.ScreenCmdEnum;
 import com.rxtec.pitchecking.TicketCheckScreen;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.SecondGateDevice;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
@@ -34,20 +37,26 @@ public class RSFaceTrackingTestFrame {
 
 	public static void main(String[] args) throws InterruptedException {
 
-//		TicketCheckScreen screen = TicketCheckScreen.getInstance();
-//		screen.initUI();
 		
-		FaceCheckFrame frame = new FaceCheckFrame();
+		
+		TicketCheckScreen frame = TicketCheckScreen.getInstance();
+		frame.initUI();
+//		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+//		GraphicsDevice[] gs = ge.getScreenDevices();
+//		
+//		FaceCheckFrame frame = new FaceCheckFrame();
+//		 gs[1].setFullScreenWindow(frame);
 
 		RSFaceDetectionService rsft = RSFaceDetectionService.getInstance();
 		rsft.setVideoPanel(frame.getVideoPanel());
 		rsft.beginVideoCaptureAndTracking();
 
-		frame.show();
 
 		FaceCheckingService.getInstance().beginFaceCheckerTask();
 
+//		IDCard idCard = createIDCard("C:/pitchecking/LLPID.jpg");
 		IDCard idCard = createIDCard("C:/pitchecking/zhaolin.jpg");
+		
 
 		while (true) {
 			CommUtil.sleep(500);
@@ -58,8 +67,8 @@ public class RSFaceTrackingTestFrame {
 
 	public static PITData beginCheckFace(IDCard idCard) {
 
-//		TicketCheckScreen.getInstance().offerEvent(
-//				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
+		TicketCheckScreen.getInstance().offerEvent(
+				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
 
 		faceTrackService.beginCheckingFace(idCard);
 
@@ -79,20 +88,20 @@ public class RSFaceTrackingTestFrame {
 
 			log.debug("认证比对结果：picData==" + fd);
 
-//			TicketCheckScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
-//			TicketCheckScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
 
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.debug("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());
 			faceTrackService.stopCheckingFace();
 
-//			TicketCheckScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-//			TicketCheckScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
 		}
 		return fd;
 	}

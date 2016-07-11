@@ -36,8 +36,10 @@ import intel.rssdk.PXCMFaceData.LandmarksGroupType;
 import intel.rssdk.PXCMFaceModule;
 import intel.rssdk.PXCMImage;
 import intel.rssdk.PXCMImage.Option;
+import intel.rssdk.PXCMPowerState;
 import intel.rssdk.PXCMRectI32;
 import intel.rssdk.PXCMSenseManager;
+import intel.rssdk.PXCMSession;
 import intel.rssdk.PXCMVideoModule;
 import intel.rssdk.pxcmStatus;
 import intel.rssdk.PXCMCapture.Device;
@@ -120,7 +122,6 @@ public class RSFaceTrackTask implements Runnable {
 
 	}
 
-	
 	private PITData createFaceData(BufferedImage frame, PXCMFaceData.DetectionData detection) {
 		if (frame == null)
 			return null;
@@ -172,12 +173,13 @@ public class RSFaceTrackTask implements Runnable {
 
 	private void drawLandmark(PXCMFaceData.Face face) {
 		if (face == null)
-			return ;
+			return;
 		PXCMFaceData.LandmarksData landmarks = face.QueryLandmarks();
-		if(landmarks == null) return ;
+		if (landmarks == null)
+			return;
 		int npoints = landmarks.QueryNumPoints();
 		PXCMFaceData.LandmarkPoint[] points = new PXCMFaceData.LandmarkPoint[npoints];
-		for(int i=0;i<npoints;i++){
+		for (int i = 0; i < npoints; i++) {
 			points[i] = new LandmarkPoint();
 		}
 		landmarks.QueryPoints(points);
@@ -190,8 +192,8 @@ public class RSFaceTrackTask implements Runnable {
 			point.x = (int) (landmark.image.x + LandmarkAlignment);
 			point.y = (int) (landmark.image.y + LandmarkAlignment);
 
-			
-//			log.debug("landmark.confidenceImage=" + landmark.confidenceImage +"  landmark.confidenceWorld=" + landmark.confidenceWorld );
+			// log.debug("landmark.confidenceImage=" + landmark.confidenceImage
+			// +" landmark.confidenceWorld=" + landmark.confidenceWorld );
 			if (landmark.confidenceWorld == 0) {
 				graphics.setColor(Color.RED);
 				graphics.drawString("x", point.x, point.y);
@@ -199,18 +201,17 @@ public class RSFaceTrackTask implements Runnable {
 				graphics.setColor(Color.YELLOW);
 				graphics.drawString("•", point.x, point.y);
 			}
-			
-//			log.debug("landmark :" + landmark.source.alias +"  z=" + landmark.world.z);
+
+			// log.debug("landmark :" + landmark.source.alias +" z=" +
+			// landmark.world.z);
 		}
-		
-		
+
 		graphics.dispose();
 		landmarks = null;
 	}
-	
-	
-	private boolean checkRealFace(SortFace sf ){
-		
+
+	private boolean checkRealFace(SortFace sf) {
+
 		boolean isRealFace = false;
 		PXCMFaceData.Face face = sf.face;
 		if (face == null) {
@@ -218,81 +219,80 @@ public class RSFaceTrackTask implements Runnable {
 			return isRealFace;
 		}
 		PXCMFaceData.LandmarksData landmarks = face.QueryLandmarks();
-		if(landmarks == null) {
+		if (landmarks == null) {
 			isRealFace = false;
 			log.debug(sf.distance + " face landmarks == null");
 			return isRealFace;
 		}
 
-		return dValueDepthAndWidth(landmarks);
+
+		return checkFaceDepth(landmarks)&checkFaceWidth(landmarks);
 	}
 
-	private boolean dValueDepthAndWidth(LandmarksData landmarks){
-		
+	private boolean checkFaceDepth(LandmarksData landmarks) {
+
 		int nJawPoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_JAW);
 		PXCMFaceData.LandmarkPoint[] jawPoints = new PXCMFaceData.LandmarkPoint[nJawPoints];
-		
-		for(int i=0;i<nJawPoints;i++){
+
+		for (int i = 0; i < nJawPoints; i++) {
 			jawPoints[i] = new LandmarkPoint();
 		}
 
 		int nLeftEyePoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_LEFT_EYE);
 		PXCMFaceData.LandmarkPoint[] leftEyePoints = new PXCMFaceData.LandmarkPoint[nLeftEyePoints];
-		
-		for(int i=0;i<nLeftEyePoints;i++){
+
+		for (int i = 0; i < nLeftEyePoints; i++) {
 			leftEyePoints[i] = new LandmarkPoint();
 		}
-		
+
 		landmarks.QueryPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_JAW, jawPoints);
 		landmarks.QueryPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_LEFT_EYE, leftEyePoints);
-		
-		float d1=0,d2=0;
-		
-		for(LandmarkPoint p : jawPoints){
+
+		float d1 = 0, d2 = 0;
+
+		for (LandmarkPoint p : jawPoints) {
 			d1 += p.world.z;
 		}
-		
+
 		d1 = d1 / nJawPoints;
-		
-		for(LandmarkPoint p : leftEyePoints){
+
+		for (LandmarkPoint p : leftEyePoints) {
 			d2 += p.world.z;
 		}
-		
+
 		d2 = d2 / nLeftEyePoints;
-		
+
 		float zDIF = Math.abs(d1 - d2) * 1000;
-		
+
+		if (Config.DValueMinDepth < zDIF && zDIF < Config.DValueMaxDepth) {
+			log.debug("zDIF=" + zDIF + "  checkFaceDepth = true");
+			return true;
+		} else {
+			log.debug("zDIF=" + zDIF + "  checkFaceDepth = false");
+			return false;
+		}
+	}
+
+	private boolean checkFaceWidth(LandmarksData landmarks) {
 		int faceBorderLeftIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_FACE_BORDER_TOP_LEFT);
 		int faceBorderRightIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_FACE_BORDER_TOP_RIGHT);
 		LandmarkPoint pLeftBorder = new LandmarkPoint();
 		LandmarkPoint pRightBorder = new LandmarkPoint();
-		
-		landmarks.QueryPoint(faceBorderLeftIdx, pLeftBorder) ;
-		landmarks.QueryPoint(faceBorderRightIdx, pRightBorder) ;
-		
+
+		landmarks.QueryPoint(faceBorderLeftIdx, pLeftBorder);
+		landmarks.QueryPoint(faceBorderRightIdx, pRightBorder);
+
 		float wDIF = Math.abs(pLeftBorder.world.x - pRightBorder.world.x) * 1000;
-		log.debug("wDIF=" + wDIF + "	zDIF=" + zDIF);
-		
-//		if(checkFaceDepth(zDIF) && checkFaceWidth(wDIF)) return true;
-//		else return false;
-		
-		
-		return checkFaceWidth(wDIF);
-		
+
+		if (Config.DValueMinWidth < wDIF && wDIF < Config.DValueMaxWidth) {
+			log.debug("wDIF=" + wDIF + "  checkFaceWidth = true");
+			return true;
+		} else {
+			log.debug("wDIF=" + wDIF + "  checkFaceWidth = false");
+			return false;
+		}
 	}
-	
-	
-	private boolean checkFaceDepth(float f){
-		if(Config.DValueMinWidth< f && f<Config.DValueMaxDepth) return true;
-		else return false;
-	}
-	
-	private boolean checkFaceWidth(float f){
-		if(Config.DValueMinWidth< f && f<Config.DValueMaxWidth) return true;
-		else return false;
-	}
-	
-	
+
 	private BufferedImage drawFrameImage(PXCMCapture.Sample sample) {
 
 		PXCMImage.ImageData cData = new PXCMImage.ImageData();
@@ -315,7 +315,7 @@ public class RSFaceTrackTask implements Runnable {
 		if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) < 0) {
 			log.error("Failed to ReleaseAccess of color image data");
 		}
-		
+
 		return videoPanel.image;
 	}
 
@@ -335,6 +335,7 @@ public class RSFaceTrackTask implements Runnable {
 		log.debug("beginCheckingFace......");
 
 	}
+
 	public void stopCheckingFace() {
 		currentIDCard = null;
 		FaceCheckingService.getInstance().resetFaceDataQueue();
@@ -351,9 +352,26 @@ public class RSFaceTrackTask implements Runnable {
 		this.currentIDCard = currentIDCard;
 	}
 
+	private void setupColorCameraDevice(PXCMCapture.Device dev) {
+		if (dev == null)
+			return;
+		PXCMCapture.DeviceInfo info = new PXCMCapture.DeviceInfo();
+		dev.QueryDeviceInfo(info);
+		log.debug("Using Camera: " + info.name);
+
+		dev.SetColorAutoExposure(true);
+		dev.SetColorAutoWhiteBalance(true);
+		dev.SetColorBackLightCompensation(true);
+	}
 
 	private void doTracking() {
-		PXCMSenseManager senseMgr = PXCMSenseManager.CreateInstance();
+		PXCMSession session = PXCMSession.CreateInstance();
+		PXCMPowerState ps = session.CreatePowerManager();
+		// Set the power state
+		ps.SetState(PXCMPowerState.State.PERFORMANCE);
+		// Set the inactivity interval.
+		ps.SetInactivityInterval(5);
+		PXCMSenseManager senseMgr = session.CreateSenseManager();
 
 		if (senseMgr == null) {
 			log.error("Failed to create a sense manager instance.");
@@ -377,11 +395,11 @@ public class RSFaceTrackTask implements Runnable {
 		faceConfig.detection.isEnabled = true;
 		faceConfig.detection.maxTrackedFaces = Config.MaxTrackedFaces;
 		faceConfig.landmarks.maxTrackedFaces = Config.MaxTrackedLandmark;
-		faceConfig.landmarks.numLandmarks = Config.MaxTrackedLandmark;
+		faceConfig.landmarks.numLandmarks = Config.NumOfLandmarks;
 		faceConfig.landmarks.isEnabled = true;
 		faceConfig.pose.isEnabled = true;
 		faceConfig.pose.maxTrackedFaces = Config.MaxTrackedFaces;
-		faceConfig.Update();
+		// faceConfig.Update();
 		faceConfig.ApplyChanges();
 
 		sts = senseMgr.Init();
@@ -398,12 +416,8 @@ public class RSFaceTrackTask implements Runnable {
 			return;
 		}
 
-		
 		PXCMCapture.Device dev = senseMgr.QueryCaptureManager().QueryDevice();
-		PXCMCapture.DeviceInfo info = new PXCMCapture.DeviceInfo();
-		dev.QueryDeviceInfo(info);
-		log.debug("Using Camera: " + info.name);
-
+		setupColorCameraDevice(dev);
 		while (startCapture) {
 			sts = senseMgr.AcquireFrame(true);
 			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
@@ -418,17 +432,15 @@ public class RSFaceTrackTask implements Runnable {
 			}
 
 			faceData.Update();
-			
+
 			List<SortFace> sortFaces = sortFaceByDistence(faceData);
 			for (SortFace sf : sortFaces) {
 				PXCMFaceData.Face face = sf.face;
-				
-//				log.debug(sf.distance + "  SortFace'size=" + sortFaces.size());
 				PXCMFaceData.DetectionData detection = face.QueryDetection();
-				
+
 				drawLocation(detection);
 				boolean isRealFace = true;
-				if(Config.getInstance().getIsCheckRealFace() == 1){
+				if (Config.getInstance().getIsCheckRealFace() == 1) {
 					isRealFace = checkRealFace(sf);
 					drawLandmark(face);
 				}
@@ -445,63 +457,58 @@ public class RSFaceTrackTask implements Runnable {
 			senseMgr.ReleaseFrame();
 		}
 	}
-	
-	private List<SortFace> sortFaceByDistence(PXCMFaceData faceData){
+
+	private List<SortFace> sortFaceByDistence(PXCMFaceData faceData) {
 		List<SortFace> sortFaces = new ArrayList<SortFace>();
 		int faceCount = faceData.QueryNumberOfDetectedFaces();
-		for(int i=0;i<faceCount;i++){
+		for (int i = 0; i < faceCount; i++) {
 			PXCMFaceData.Face face = faceData.QueryFaceByIndex(i);
-			
+
 			PXCMRectI32 rect = new PXCMRectI32();
 			PXCMFaceData.DetectionData detection = face.QueryDetection();
 			boolean ret = detection.QueryBoundingRect(rect);
-			if(ret){
-				
+			if (ret) {
+
 				int w = rect.w;
-//				log.debug("face width = " + w);
+				// log.debug("face width = " + w);
 				float[] averageDepth = new float[1];
 				detection.QueryFaceAverageDepth(averageDepth);
 				float distance = averageDepth[0];
 
-				
-				
-				if(distance>Config.MinAverageDepth && distance<Config.MaxAverageDepth){
+				if (distance > Config.MinAverageDepth && distance < Config.MaxAverageDepth) {
 					SortFace sf = new SortFace(face, distance);
 					sortFaces.add(sf);
-					
+
 				}
-				
+
 			}
-			
+
 		}
-		
+
 		Collections.sort(sortFaces);
-		 
+
 		return sortFaces;
-				
-				
+
 	}
 
 }
 
-class SortFace implements Comparable<SortFace>{
+class SortFace implements Comparable<SortFace> {
 	public PXCMFaceData.Face face;
 	public float distance = 0;
-	
-	public SortFace(PXCMFaceData.Face face,float distance){
+
+	public SortFace(PXCMFaceData.Face face, float distance) {
 		this.face = face;
 		this.distance = distance;
-		
+
 	}
 
 	@Override
 	public int compareTo(SortFace o) {
-		if(distance < o.distance)
+		if (distance < o.distance)
 			return 0;
-		else 
+		else
 			return 1;
 	}
-	
+
 }
-
-

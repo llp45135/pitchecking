@@ -94,6 +94,8 @@ public class FaceCheckingService {
 			faceVerifyDataQueue.offer(vd);
 		}
 
+		
+		
 	}
 	
 	

@@ -29,7 +29,7 @@ public class PTVerifyResultPublisher {
 	private static final int STREAM_ID = Config.PIVerify_Receive_STREAM_ID;
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
-	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 64, 256));
+	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 128, 32));
 
 	private Publication publication;
 

@@ -18,6 +18,8 @@ import javax.imageio.ImageIO;
 
 import org.agrona.BufferUtil;
 import org.agrona.concurrent.UnsafeBuffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
@@ -33,17 +35,18 @@ import io.aeron.driver.MediaDriver;
 
 public class PTVerifyPublisher implements Runnable {
 
+	private Logger log = LoggerFactory.getLogger("PTVerifyPublisher");
 	private static final int STREAM_ID = Config.PIVerify_Send_STREAM_ID;
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
-	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 64, 256));
+	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 128, 32));
 
 	private Publication publication;
 
 	private static PTVerifyPublisher _instance = new PTVerifyPublisher();
 
 	private PTVerifyPublisher() {
-		initAeron();
+		initAeronContext();
 	}
 
 	public static synchronized PTVerifyPublisher getInstance() {
@@ -53,7 +56,7 @@ public class PTVerifyPublisher implements Runnable {
 	}
 
 
-	private void initAeron() {
+	private void initAeronContext() {
 
 		final Aeron.Context ctx = new Aeron.Context();
 
@@ -71,7 +74,7 @@ public class PTVerifyPublisher implements Runnable {
 			executor.execute(this);
 
 		} catch (Exception ex) {
-
+			log.error("initAeronContext",ex);
 		}
 
 	}
@@ -87,28 +90,29 @@ public class PTVerifyPublisher implements Runnable {
 				byte[] buf = serialObjToBytes(data);
 				if (buf == null)
 					continue;
+				log.debug("FaceVerifyData serial obj bytes = " + buf.length + " BUFFER.capacity = "+BUFFER.capacity());
 				BUFFER.putBytes(0, buf);
 				final long result = publication.offer(BUFFER, 0, buf.length);
 
 				if (result < 0L) {
 					if (result == Publication.BACK_PRESSURED) {
-						System.out.println("  Offer failed due to back pressure");
+						log.error("  Offer failed due to back pressure");
 					} else if (result == Publication.NOT_CONNECTED) {
-						System.out.println("  Offer failed because publisher is not yet connected to subscriber");
+						log.error("  Offer failed because publisher is not yet connected to subscriber");
 					} else if (result == Publication.ADMIN_ACTION) {
-						System.out.println("  Offer failed because of an administration action in the system");
+						log.error("  Offer failed because of an administration action in the system");
 					} else if (result == Publication.CLOSED) {
-						System.out.println("  Offer failed publication is closed");
+						log.error("  Offer failed publication is closed");
 					} else {
-						System.out.println("  Offer failed due to unknown reason");
+						log.error("  Offer failed due to unknown reason");
 					}
 				} else {
-					System.out.println("   yay!");
+//					log.info("Send Face verify request message succ!");
 				}
 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("PTVerifyPublisher running loop failed",e);
 			}
 		}
 	}
@@ -124,7 +128,7 @@ public class PTVerifyPublisher implements Runnable {
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("serialObjToBytes",e);
 		}
 
 		return buf;
