@@ -33,15 +33,18 @@ public class Config {
 	public static String FaceVerifyCloneDLLName = "FaceVRISDK.dll";
 	
 	
-	public static int FrameWidth = 960;
-	public static int FrameHeigh = 540;
+//	public static int FrameWidth = 960;
+//	public static int FrameHeigh = 540;
+	public static int FrameWidth = 640;
+	public static int FrameHeigh = 480;
+
 	public static int frameRate = 30;
 	
 	public static float MinAverageDepth = 400F;
 	public static float MaxAverageDepth = 1200F;
 	
 	public static float DValueMaxDepth = 100F;
-	public static float DValueMinDepth = 10F;
+	public static float DValueMinDepth = 20F;
 	
 	public static float DValueMaxWidth = 250F;
 	public static float DValueMinWidth = 90F;
@@ -52,7 +55,6 @@ public class Config {
 	public static int NumOfLandmarks = 78;
 	
 	
-	public static int FaceVerifyThreads = 2;
 	
 	public static int PIVerify_Send_STREAM_ID = 10;
 	public static int PIVerify_Receive_STREAM_ID = 11;
@@ -75,7 +77,9 @@ public class Config {
 	public static int StartStatus = 1;
 	public static int StopStatus = 0;
 	
-	
+	private int faceVerifyThreads = 2;						//人脸比对线程数
+
+
 	private float faceCheckThreshold = (float) 0.68;
 	private float glassFaceCheckThreshold = (float) 0.65;
 	private int faceCheckDelayTime = 10;
@@ -89,9 +93,17 @@ public class Config {
 	private int videoType = 1;
 	private int videoCaptureFrequency=10;
 	private int isCheckRealFace = 0;
-
 	private String multicastAddress="234.5.6.7";
 	
+	
+	public int getFaceVerifyThreads() {
+		return faceVerifyThreads;
+	}
+
+	public void setFaceVerifyThreads(int faceVerifyThreads) {
+		this.faceVerifyThreads = faceVerifyThreads;
+	}
+
 	public int getIsCheckRealFace() {
 		return isCheckRealFace;
 	}
@@ -238,7 +250,7 @@ public class Config {
 			this.videoType = Integer.valueOf(p.getProperty("VideoType", "2"));
 			this.videoCaptureFrequency = Integer.valueOf(p.getProperty("VideoCaptureFrequency", "5"));
 			this.isCheckRealFace = Integer.valueOf(p.getProperty("IsCheckRealFace", "0"));
-			
+			this.faceVerifyThreads = Integer.valueOf(p.getProperty("FaceVerifyThreads", "1"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();

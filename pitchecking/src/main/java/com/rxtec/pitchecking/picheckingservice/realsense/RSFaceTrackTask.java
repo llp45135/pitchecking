@@ -229,11 +229,111 @@ public class RSFaceTrackTask implements Runnable {
 		return checkFaceDepth(landmarks)&checkFaceWidth(landmarks);
 	}
 
+	
+	
+	private void printFaceLandmarkZ(LandmarksData landmarks){
+		int noseTipPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_NOSE_TIP);
+		int noseBottomPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_NOSE_BOTTOM);
+		int noseLeftPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_NOSE_LEFT);
+		int noseRightPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_NOSE_RIGHT);
+		int eyeRightPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_EYE_RIGHT_CENTER);
+		int eyeLeftPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_EYE_LEFT_CENTER);
+
+		int faceRightPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_FACE_BORDER_TOP_RIGHT);
+		int faceLeftPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_FACE_BORDER_TOP_LEFT);
+		int chinPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_CHIN);
+
+//		LandmarkPoint noseTipPoint = new LandmarkPoint();
+//		float noseTipPointZ = 0f;
+//		if(landmarks.QueryPoint(noseTipPointIdx, noseTipPoint)){
+//			noseTipPointZ = noseTipPoint.world.z*1000;
+//			log.debug("noseTipPoint confidenceWorld=" + noseTipPoint.confidenceWorld + " Z="+noseTipPointZ );
+//		}
+//		
+//		float noseBottomPointZ = 0f;
+//		LandmarkPoint noseBottomPoint = new LandmarkPoint();
+//		if(landmarks.QueryPoint(noseBottomPointIdx, noseBottomPoint)){
+//			noseBottomPointZ = noseBottomPoint.world.z*1000;
+//			log.debug("noseBottomPoint confidenceWorld=" + noseBottomPoint.confidenceWorld + " Z="+noseBottomPointZ );
+//		}
+//		
+//		float noseRightPointZ = 0f;
+//		LandmarkPoint noseRightPoint = new LandmarkPoint();
+//		if(landmarks.QueryPoint(noseRightPointIdx, noseRightPoint)){
+//			noseBottomPointZ = noseRightPoint.world.z*1000;
+//			log.debug("noseRightPoint confidenceWorld=" + noseRightPoint.confidenceWorld + " Z="+noseRightPointZ );
+//		}
+//		
+//		float noseLeftPointZ = 0f;
+//		LandmarkPoint noseLeftPoint = new LandmarkPoint();
+//		if(landmarks.QueryPoint(noseLeftPointIdx, noseLeftPoint)){
+//			noseLeftPointZ = noseLeftPoint.world.z*1000;
+//			log.debug("noseLeftPoint confidenceWorld=" + noseLeftPoint.confidenceWorld + " Z="+noseLeftPointZ );
+//		}
+//		
+//		float eyeLeftPointZ = 0f;
+//		LandmarkPoint eyeLeftPoint = new LandmarkPoint();
+//		if(landmarks.QueryPoint(eyeLeftPointIdx, eyeLeftPoint)){
+//			eyeLeftPointZ = eyeLeftPoint.world.z*1000;
+//			log.debug("eyeLeftPoint confidenceWorld=" + eyeLeftPoint.confidenceWorld + " Z="+eyeLeftPointZ );
+//		}
+//
+//		float eyeRightPointZ = 0f;
+//		LandmarkPoint eyeRightPoint = new LandmarkPoint();
+//		if(landmarks.QueryPoint(eyeRightPointIdx, eyeRightPoint)){
+//			eyeRightPointZ = eyeRightPoint.world.z*1000;
+//			log.debug("eyeRightPoint confidenceWorld=" + eyeRightPoint.confidenceWorld + " Z="+eyeRightPointZ );
+//		}
+	
+		float faceLeftPointX = 0f;
+		float faceLeftPointY = 0f;
+		
+		LandmarkPoint faceLeftPoint = new LandmarkPoint();
+		if(landmarks.QueryPoint(faceLeftPointIdx, faceLeftPoint)){
+			faceLeftPointX = faceLeftPoint.world.x;
+			faceLeftPointY = faceLeftPoint.world.y;
+			log.debug("faceLeftPoint confidenceWorld=" + faceLeftPoint.confidenceWorld + " X="+faceLeftPointX+" Y=" +faceLeftPointY );
+		}
+
+		float faceRightPointX = 0f;
+		float faceRightPointY = 0f;
+		
+		LandmarkPoint faceRightPoint = new LandmarkPoint();
+		if(landmarks.QueryPoint(faceRightPointIdx, faceRightPoint)){
+			faceRightPointX = faceRightPoint.world.z;
+			faceRightPointY = faceRightPoint.world.y;
+			log.debug("faceRightPoint confidenceWorld=" + faceRightPoint.confidenceWorld + " X="+faceRightPointX +" Y=" +faceRightPointY);
+		}
+
+		float chinPointX = 0f;
+		float chinPointY = 0f;
+		
+		LandmarkPoint chinPoint = new LandmarkPoint();
+		if(landmarks.QueryPoint(chinPointIdx, chinPoint)){
+			chinPointX = chinPoint.world.z;
+			chinPointY = chinPoint.world.y;
+			log.debug("chinPoint confidenceWorld=" + chinPoint.confidenceWorld + " Y="+chinPointY );
+		}
+
+		
+//		log.debug("zDIF = " + Math.abs(eyeRightPointZ - noseTipPointZ));
+		
+		float faceHight = Math.abs(chinPointY) + Math.abs(faceRightPointY);
+		float faceWidth = Math.abs(faceRightPointX) + Math.abs(faceLeftPointX);
+		float faceArea = faceHight*faceWidth*1000;
+		log.debug("faceArea = " + faceArea);
+	
+
+	}
+	
+	
 	private boolean checkFaceDepth(LandmarksData landmarks) {
 
 		int nJawPoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_JAW);
 		PXCMFaceData.LandmarkPoint[] jawPoints = new PXCMFaceData.LandmarkPoint[nJawPoints];
 
+//		printFaceLandmarkZ(landmarks);
+		
 		for (int i = 0; i < nJawPoints; i++) {
 			jawPoints[i] = new LandmarkPoint();
 		}
@@ -241,26 +341,49 @@ public class RSFaceTrackTask implements Runnable {
 		int nLeftEyePoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_LEFT_EYE);
 		PXCMFaceData.LandmarkPoint[] leftEyePoints = new PXCMFaceData.LandmarkPoint[nLeftEyePoints];
 
+		int nRightEyePoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_RIGHT_EYE);
+		PXCMFaceData.LandmarkPoint[] rightEyePoints = new PXCMFaceData.LandmarkPoint[nRightEyePoints];
+
+		for (int i = 0; i < nRightEyePoints; i++) {
+			rightEyePoints[i] = new LandmarkPoint();
+		}
+		
 		for (int i = 0; i < nLeftEyePoints; i++) {
 			leftEyePoints[i] = new LandmarkPoint();
 		}
 
+
 		landmarks.QueryPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_JAW, jawPoints);
 		landmarks.QueryPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_LEFT_EYE, leftEyePoints);
+		landmarks.QueryPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_RIGHT_EYE, rightEyePoints);
 
 		float d1 = 0, d2 = 0;
 
 		for (LandmarkPoint p : jawPoints) {
+			if(p.confidenceWorld ==0){
+				return false;
+			}
 			d1 += p.world.z;
 		}
 
 		d1 = d1 / nJawPoints;
 
 		for (LandmarkPoint p : leftEyePoints) {
+			if(p.confidenceWorld ==0){
+				return false;
+			}
 			d2 += p.world.z;
 		}
+		
+		for (LandmarkPoint p : rightEyePoints) {
+			if(p.confidenceWorld ==0){
+				return false;
+			}
+			d2 += p.world.z;
+		}
+		
 
-		d2 = d2 / nLeftEyePoints;
+		d2 = d2 / (nLeftEyePoints + nRightEyePoints);
 
 		float zDIF = Math.abs(d1 - d2) * 1000;
 
@@ -281,6 +404,9 @@ public class RSFaceTrackTask implements Runnable {
 
 		landmarks.QueryPoint(faceBorderLeftIdx, pLeftBorder);
 		landmarks.QueryPoint(faceBorderRightIdx, pRightBorder);
+		if(pLeftBorder.confidenceWorld == 0 || pRightBorder.confidenceWorld ==0){
+			return false;
+		}
 
 		float wDIF = Math.abs(pLeftBorder.world.x - pRightBorder.world.x) * 1000;
 
@@ -390,7 +516,7 @@ public class RSFaceTrackTask implements Runnable {
 		// Retrieve the input requirements
 		sts = pxcmStatus.PXCM_STATUS_DATA_UNAVAILABLE;
 		PXCMFaceConfiguration faceConfig = faceModule.CreateActiveConfiguration();
-		faceConfig.SetTrackingMode(PXCMFaceConfiguration.TrackingModeType.FACE_MODE_COLOR_PLUS_DEPTH);
+		faceConfig.SetTrackingMode(PXCMFaceConfiguration.TrackingModeType.FACE_MODE_IR);
 		faceConfig.strategy = PXCMFaceConfiguration.TrackingStrategyType.STRATEGY_CLOSEST_TO_FARTHEST;
 		faceConfig.detection.isEnabled = true;
 		faceConfig.detection.maxTrackedFaces = Config.MaxTrackedFaces;

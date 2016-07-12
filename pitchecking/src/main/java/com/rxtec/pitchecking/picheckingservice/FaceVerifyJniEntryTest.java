@@ -49,7 +49,7 @@ public class FaceVerifyJniEntryTest implements Runnable {
 		ExecutorService executer = Executors.newCachedThreadPool();
 		FaceVerifyJniEntryTest task1 = new FaceVerifyJniEntryTest();
 		executer.execute(task1);
-		if (Config.FaceVerifyThreads == 2) {
+		if (Config.getInstance().getFaceVerifyThreads() == 2) {
 			FaceVerifyJniEntryTest task2 = new FaceVerifyJniEntryTest();
 			executer.execute(task2);
 		}

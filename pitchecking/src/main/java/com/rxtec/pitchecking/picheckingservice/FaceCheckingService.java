@@ -140,10 +140,11 @@ public class FaceCheckingService {
 		ExecutorService executer = Executors.newCachedThreadPool();
 		FaceCheckingStandaloneTask task1 = new FaceCheckingStandaloneTask(Config.FaceVerifyDLLName);
 		executer.execute(task1);
-		if(Config.FaceVerifyThreads == 2){
+		if(Config.getInstance().getFaceVerifyThreads() == 2){
 			FaceCheckingStandaloneTask task2 = new FaceCheckingStandaloneTask(Config.FaceVerifyCloneDLLName);
 			executer.execute(task2);
 		}
+		log.info(".............Start FaceVerifyThreads" + Config.getInstance().getFaceVerifyThreads());
 		executer.shutdown();
 	}
 

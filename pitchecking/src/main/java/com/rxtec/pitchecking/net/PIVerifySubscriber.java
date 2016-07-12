@@ -9,6 +9,7 @@ import io.aeron.protocol.HeaderFlyweight;
 
 import org.agrona.CloseHelper;
 import org.agrona.LangUtil;
+import org.agrona.concurrent.BackoffIdleStrategy;
 import org.agrona.concurrent.BusySpinIdleStrategy;
 import org.agrona.concurrent.IdleStrategy;
 import org.agrona.concurrent.SigInt;
@@ -82,8 +83,8 @@ class SubscriberUtils {
 	 */
 	public static Consumer<Subscription> subscriberLoop(final FragmentHandler fragmentHandler, final int limit,
 			final AtomicBoolean running) {
-		final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
-
+//		final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
+		final IdleStrategy idleStrategy = new BackoffIdleStrategy(1, 1, 1, 1);
 		return subscriberLoop(fragmentHandler, limit, running, idleStrategy);
 	}
 
