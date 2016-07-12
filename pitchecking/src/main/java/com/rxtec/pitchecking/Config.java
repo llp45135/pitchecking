@@ -33,10 +33,10 @@ public class Config {
 	public static String FaceVerifyCloneDLLName = "FaceVRISDK.dll";
 	
 	
-//	public static int FrameWidth = 960;
-//	public static int FrameHeigh = 540;
-	public static int FrameWidth = 640;
-	public static int FrameHeigh = 480;
+	public static int FrameWidth = 960;
+	public static int FrameHeigh = 540;
+	public static int IRFrameWidth = 640;
+	public static int IRFrameHeigh = 480;
 
 	public static int frameRate = 30;
 	

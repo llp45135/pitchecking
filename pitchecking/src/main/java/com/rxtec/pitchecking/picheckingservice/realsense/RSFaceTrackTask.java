@@ -60,7 +60,7 @@ public class RSFaceTrackTask implements Runnable {
 	private boolean enableExpression = true;
 	private boolean enableFaceLandmark = true;
 
-	private static int LandmarkAlignment = -3;
+	private static int LandmarkAlignment = 10;
 
 	private RSModuleStatus rsStatus;
 
@@ -130,10 +130,15 @@ public class RSFaceTrackTask implements Runnable {
 		boolean ret = detection.QueryBoundingRect(rect);
 		if (ret) {
 			int x, y, w, h;
-			x = (int) (rect.x);
-			y = (int) (rect.y * 0.65);
+			x = (int) (rect.x) + LandmarkAlignment;
+			y = (int) (rect.y * 0.75);
 			w = (int) (rect.w * 1.2);
-			h = (int) (rect.h * 1.6);
+			h = (int) (rect.h * 1.8);
+			
+			x = x*Config.FrameWidth/Config.IRFrameWidth;
+			y = y*Config.FrameHeigh/Config.IRFrameHeigh;
+			w = w*Config.FrameWidth/Config.IRFrameWidth;
+			h = h*Config.FrameHeigh/Config.IRFrameHeigh;
 
 			if (frame.getWidth() < (x + w) || frame.getHeight() < (y + h)) {
 				if (frame.getWidth() < (x + w)) {
@@ -166,7 +171,11 @@ public class RSFaceTrackTask implements Runnable {
 			float thick = 2.0f;
 			g.setColor(Color.GREEN);
 			g.setStroke(new BasicStroke(thick, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
-			g.drawRect(rect.x, rect.y, rect.w, rect.h);
+			
+			g.drawRect(rect.x*Config.FrameWidth/Config.IRFrameWidth
+					, rect.y*Config.FrameHeigh/Config.IRFrameHeigh
+					, rect.w*Config.FrameWidth/Config.IRFrameWidth
+					, rect.h*Config.FrameHeigh/Config.IRFrameHeigh);
 			g.dispose();
 		}
 	}
@@ -196,10 +205,12 @@ public class RSFaceTrackTask implements Runnable {
 			// +" landmark.confidenceWorld=" + landmark.confidenceWorld );
 			if (landmark.confidenceWorld == 0) {
 				graphics.setColor(Color.RED);
-				graphics.drawString("x", point.x, point.y);
+				graphics.drawString("x", point.x*Config.FrameWidth/Config.IRFrameWidth
+						, point.y*Config.FrameHeigh/Config.IRFrameHeigh);
 			} else {
 				graphics.setColor(Color.YELLOW);
-				graphics.drawString("•", point.x, point.y);
+				graphics.drawString("x", point.x*Config.FrameWidth/Config.IRFrameWidth
+						, point.y*Config.FrameHeigh/Config.IRFrameHeigh);
 			}
 
 			// log.debug("landmark :" + landmark.source.alias +" z=" +
