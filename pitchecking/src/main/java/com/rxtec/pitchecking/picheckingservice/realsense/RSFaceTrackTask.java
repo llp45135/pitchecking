@@ -131,9 +131,9 @@ public class RSFaceTrackTask implements Runnable {
 		if (ret) {
 			int x, y, w, h;
 			x = (int) (rect.x);
-			y = (int) (rect.y * 0.9);
+			y = (int) (rect.y * 0.65);
 			w = (int) (rect.w * 1.2);
-			h = (int) (rect.h * 1.5);
+			h = (int) (rect.h * 1.6);
 
 			if (frame.getWidth() < (x + w) || frame.getHeight() < (y + h)) {
 				if (frame.getWidth() < (x + w)) {
