@@ -38,8 +38,8 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCardImg());//比对人脸
 					fd.setVerifyResult(resultValue);
 					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
-						publisher.publishResult(fd);
+					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {  
+						publisher.publishResult(fd);  //比对结果公布
 						FaceCheckingService.getInstance().resetFaceDataQueue();
 					} 
 					FaceImageLog.saveFaceDataToDsk(fd);

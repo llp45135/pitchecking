@@ -23,6 +23,11 @@ import com.rxtec.pitchecking.picheckingservice.FaceVerifyData;
 import io.aeron.Aeron;
 import io.aeron.Publication;
 
+/**
+ * 人脸比对单独进程-比对结果公布者
+ * @author ZhaoLin
+ *
+ */
 public class PTVerifyResultPublisher {
 	private Logger log = LoggerFactory.getLogger("PTVerifyResultPublisher");
 

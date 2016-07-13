@@ -135,7 +135,9 @@ public class FaceCheckingService {
 
 	}
 	
-	
+	/**
+	 * 单独比对人脸进程Task，通过共享内存通信
+	 */
 	public void beginFaceCheckerStandaloneTask() {
 		ExecutorService executer = Executors.newCachedThreadPool();
 		FaceCheckingStandaloneTask task1 = new FaceCheckingStandaloneTask(Config.FaceVerifyDLLName);

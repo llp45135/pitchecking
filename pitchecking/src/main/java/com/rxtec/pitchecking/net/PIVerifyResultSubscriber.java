@@ -26,6 +26,11 @@ import io.aeron.Image;
 import io.aeron.Subscription;
 import io.aeron.logbuffer.FragmentHandler;
 
+/**
+ * 人脸比对结果-订阅者
+ * @author ZhaoLin
+ *
+ */
 public class PIVerifyResultSubscriber implements Runnable{
 
 	private Logger log = LoggerFactory.getLogger("PIVerifyResultSubscriber");
@@ -58,7 +63,7 @@ public class PIVerifyResultSubscriber implements Runnable{
 		final Aeron.Context ctx = new Aeron.Context().availableImageHandler(ResultSubscriberUtils::printAvailableImage)
 				.unavailableImageHandler(ResultSubscriberUtils::printUnavailableImage);
 
-		final FragmentHandler fragmentHandler = ResultSubscriberUtils.processMessage(STREAM_ID);
+		final FragmentHandler fragmentHandler = ResultSubscriberUtils.processMessage(STREAM_ID);  //处理message
 		final AtomicBoolean running = new AtomicBoolean(true);
 
 		// Register a SIGINT handler for graceful shutdown.
@@ -128,6 +133,11 @@ class ResultSubscriberUtils {
 		};
 	}
 
+	/**
+	 * 处理人脸比对单独进程传回来的FaceVerifyData消息
+	 * @param streamId
+	 * @return
+	 */
 	public static FragmentHandler processMessage(final int streamId) {
 		return (buffer, offset, length, header) -> {
 			final byte[] data = new byte[length];

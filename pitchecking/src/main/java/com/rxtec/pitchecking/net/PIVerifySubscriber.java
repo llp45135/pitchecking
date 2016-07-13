@@ -28,6 +28,11 @@ import java.io.ObjectInputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+/**
+ * 人脸比对单独进程-订阅者
+ * @author ZhaoLin
+ *
+ */
 public class PIVerifySubscriber {
 	private Logger log = LoggerFactory.getLogger("PIVerifyEventSubscriber");
 
@@ -123,7 +128,7 @@ class SubscriberUtils {
 			try {
 				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
 				FaceVerifyData fd = (FaceVerifyData)ois.readObject();
-				FaceCheckingService.getInstance().offerFaceVerifyData(fd);
+				FaceCheckingService.getInstance().offerFaceVerifyData(fd);  //加入待验证队列
 				Log.info("Receive request message : " + fd);
 			} catch (IOException | ClassNotFoundException e) {
 				Log.error("processMessage",e);

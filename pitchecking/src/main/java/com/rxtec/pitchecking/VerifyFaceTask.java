@@ -53,7 +53,7 @@ public class VerifyFaceTask {
 		// semEvent.setIdCard(idCard);
 		// TicketCheckScreen.getInstance().offerEvent(semEvent);
 		
-		AudioPlayTask.getInstance().start();
+		AudioPlayTask.getInstance().start();  //调用语音
 
 		faceTrackService.beginCheckingFace(idCard);
 

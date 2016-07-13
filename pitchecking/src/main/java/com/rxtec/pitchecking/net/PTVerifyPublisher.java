@@ -33,6 +33,11 @@ import io.aeron.Aeron;
 import io.aeron.Publication;
 import io.aeron.driver.MediaDriver;
 
+/**
+ * 主程序待验证人脸公布者
+ * @author ZhaoLin
+ *
+ */
 public class PTVerifyPublisher implements Runnable {
 
 	private Logger log = LoggerFactory.getLogger("PTVerifyPublisher");
@@ -125,6 +130,7 @@ public class PTVerifyPublisher implements Runnable {
 			oo.writeObject(o);
 			buf = bos.toByteArray();
 			oo.close();
+			bos.close();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
