@@ -33,7 +33,7 @@ public class VerifyFaceTask {
 
 	IDCardReaderEvent event;
 	IFaceTrackService faceTrackService = null;
-//	JmsSender mqSender = new JmsSender();
+	// JmsSender mqSender = new JmsSender();
 
 	public VerifyFaceTask() {
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo)
@@ -41,7 +41,6 @@ public class VerifyFaceTask {
 		else
 			faceTrackService = FaceDetectionService.getInstance();
 	}
-	
 
 	public PITData beginCheckFace(IDCard idCard) {
 		TicketCheckScreen.getInstance().offerEvent(
@@ -52,8 +51,8 @@ public class VerifyFaceTask {
 		// null, null, null);
 		// semEvent.setIdCard(idCard);
 		// TicketCheckScreen.getInstance().offerEvent(semEvent);
-		
-		AudioPlayTask.getInstance().start();  //调用语音
+
+		AudioPlayTask.getInstance().start(); // 调用语音
 
 		faceTrackService.beginCheckingFace(idCard);
 
@@ -82,19 +81,21 @@ public class VerifyFaceTask {
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
 
 			// mq发送人脸
-//			try {
-//				FailedFace failedFace = FaceCheckingService.getInstance().getFailedFace();
-//				if (failedFace != null) {
-//					mqSender.sendMessage("map", "", failedFace);
-//				}
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
+			try {
+				FailedFace failedFace = FaceCheckingService.getInstance().getFailedFace();
+				if (failedFace != null) {
+					FaceCheckingService.getInstance().getJmsSender().sendMessage("map", "", failedFace);
+					FaceCheckingService.getInstance().setFailedFace(null);
+				}
+			} catch (Exception ex) {
+				log.error("VerifyFaceTask activemq sendMessage:" + ex);
+			}
 
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());
 			faceTrackService.stopCheckingFace();
+			FaceCheckingService.getInstance().setFailedFace(null);
 
 			log.debug("认证比对结果：picData==" + fd);
 			SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门

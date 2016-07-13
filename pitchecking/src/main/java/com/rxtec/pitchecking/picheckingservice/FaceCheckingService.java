@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.domain.FailedFace;
+import com.rxtec.pitchecking.mq.JmsSender;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
 import com.rxtec.pitchecking.net.PTVerifyPublisher;
 
@@ -26,12 +27,21 @@ public class FaceCheckingService {
 	private LinkedBlockingQueue<PITData> detectedFaceDataQueue;
 
 	// 待验证的队列,独立进程比对
-	private LinkedBlockingQueue<FaceVerifyData> faceVerifyDataQueue ;
+	private LinkedBlockingQueue<FaceVerifyData> faceVerifyDataQueue;
 
 	// 比对验证通过的队列
 	private LinkedBlockingQueue<PITData> passFaceDataQueue;
 
-	private FailedFace failedFace;
+	private JmsSender jmsSender = null;  //activemq
+	private FailedFace failedFace = null;
+
+	public JmsSender getJmsSender() {
+		return jmsSender;
+	}
+
+	public void setJmsSender(JmsSender jmsSender) {
+		this.jmsSender = jmsSender;
+	}
 
 	public FailedFace getFailedFace() {
 		return failedFace;
@@ -94,11 +104,8 @@ public class FaceCheckingService {
 			faceVerifyDataQueue.offer(vd);
 		}
 
-		
-		
 	}
-	
-	
+
 	public void offerFaceVerifyData(FaceVerifyData faceData) {
 		if (!faceVerifyDataQueue.offer(faceData)) {
 			faceVerifyDataQueue.poll();
@@ -106,8 +113,6 @@ public class FaceCheckingService {
 		}
 
 	}
-	
-	
 
 	public void offerDetectedFaceData(List<PITData> faceDatas) {
 		detectedFaceDataQueue.clear();
@@ -123,18 +128,21 @@ public class FaceCheckingService {
 	ExecutorService executor = Executors.newCachedThreadPool();
 
 	public void beginFaceCheckerTask() {
-//		ExecutorService executer = Executors.newCachedThreadPool();
-//		FaceCheckingTask task1 = new FaceCheckingTask(Config.FaceVerifyDLLName);
-//		executer.execute(task1);
-//
-//		FaceCheckingTask task2 = new FaceCheckingTask(Config.FaceVerifyCloneDLLName);
-//		executer.execute(task2);
-		
+		// ExecutorService executer = Executors.newCachedThreadPool();
+		// FaceCheckingTask task1 = new
+		// FaceCheckingTask(Config.FaceVerifyDLLName);
+		// executer.execute(task1);
+		//
+		// FaceCheckingTask task2 = new
+		// FaceCheckingTask(Config.FaceVerifyCloneDLLName);
+		// executer.execute(task2);
+
 		PIVerifyResultSubscriber.getInstance().startSubscribing();
 		PTVerifyPublisher.getInstance();
-
+		//实例化mq发送端
+		this.setJmsSender(new JmsSender());
 	}
-	
+
 	/**
 	 * 单独比对人脸进程Task，通过共享内存通信
 	 */
@@ -142,7 +150,7 @@ public class FaceCheckingService {
 		ExecutorService executer = Executors.newCachedThreadPool();
 		FaceCheckingStandaloneTask task1 = new FaceCheckingStandaloneTask(Config.FaceVerifyDLLName);
 		executer.execute(task1);
-		if(Config.getInstance().getFaceVerifyThreads() == 2){
+		if (Config.getInstance().getFaceVerifyThreads() == 2) {
 			FaceCheckingStandaloneTask task2 = new FaceCheckingStandaloneTask(Config.FaceVerifyCloneDLLName);
 			executer.execute(task2);
 		}

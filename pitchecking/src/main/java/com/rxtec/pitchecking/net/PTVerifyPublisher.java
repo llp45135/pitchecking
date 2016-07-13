@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.IDReader;
+import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceVerifyData;
 import com.rxtec.pitchecking.picheckingservice.PITData;
@@ -34,7 +36,7 @@ import io.aeron.Publication;
 import io.aeron.driver.MediaDriver;
 
 /**
- * 主程序待验证人脸公布者
+ * 主程序-待验证人脸(公布者)
  * @author ZhaoLin
  *
  */
@@ -95,6 +97,7 @@ public class PTVerifyPublisher implements Runnable {
 				byte[] buf = serialObjToBytes(data);
 				if (buf == null)
 					continue;
+				this.putFailedFace(data);  //每次将待验证的人脸放入FailedFace
 				log.debug("FaceVerifyData serial obj bytes = " + buf.length + " BUFFER.capacity = "+BUFFER.capacity());
 				BUFFER.putBytes(0, buf);
 				final long result = publication.offer(BUFFER, 0, buf.length);
@@ -120,6 +123,20 @@ public class PTVerifyPublisher implements Runnable {
 				log.error("PTVerifyPublisher running loop failed",e);
 			}
 		}
+	}
+	
+	/**
+	 * 每次将待验证的人脸放入FailedFace
+	 * @param fd
+	 */
+	private void putFailedFace(FaceVerifyData fd){
+		FailedFace failedFace = new FailedFace();
+		failedFace.setIdNo(CommUtil.getRandomUUID());
+		failedFace.setIpAddress(DeviceConfig.getInstance().getIpAddress());
+		failedFace.setGateNo(DeviceConfig.getInstance().getGateNo());
+		failedFace.setCardImage(fd.getIdCardImg());
+		failedFace.setFaceImage(fd.getFaceImg());
+		FaceCheckingService.getInstance().setFailedFace(failedFace);
 	}
 
 	private byte[] serialObjToBytes(Object o) {

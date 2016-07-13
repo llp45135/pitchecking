@@ -132,7 +132,7 @@ public class DeviceEventListener implements Runnable {
 			return;
 		}
 
-		// this.startMQReceiver();
+		 this.startMQReceiver();
 
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
