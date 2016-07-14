@@ -94,8 +94,16 @@ public class Config {
 	private int videoCaptureFrequency=10;
 	private int isCheckRealFace = 0;
 	private String multicastAddress="234.5.6.7";
+	private int faceLogRemainDays = 7;
 	
-	
+	public int getFaceLogRemainDays() {
+		return faceLogRemainDays;
+	}
+
+	public void setFaceLogRemainDays(int faceLogRemainDays) {
+		this.faceLogRemainDays = faceLogRemainDays;
+	}
+
 	public int getFaceVerifyThreads() {
 		return faceVerifyThreads;
 	}
@@ -251,6 +259,7 @@ public class Config {
 			this.videoCaptureFrequency = Integer.valueOf(p.getProperty("VideoCaptureFrequency", "5"));
 			this.isCheckRealFace = Integer.valueOf(p.getProperty("IsCheckRealFace", "0"));
 			this.faceVerifyThreads = Integer.valueOf(p.getProperty("FaceVerifyThreads", "1"));
+			this.faceLogRemainDays = Integer.valueOf(p.getProperty("FaceLogRemainDays", "7"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();

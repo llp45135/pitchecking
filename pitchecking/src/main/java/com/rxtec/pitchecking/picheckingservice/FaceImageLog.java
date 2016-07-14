@@ -1,19 +1,47 @@
 package com.rxtec.pitchecking.picheckingservice;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class FaceImageLog {
 
+	public static void clearFaceLogs(){
+		int days = Config.getInstance().getFaceLogRemainDays();
+		SimpleDateFormat sFormat = new SimpleDateFormat("yyyyMMdd");
+		
+
+		Date today = new Date();
+		String dn = sFormat.format(new Date(today.getTime() - days * 24 * 60 * 60 * 1000));
+		
+		File imgDir = new File(Config.getInstance().getImagesLogDir());
+		
+		if(imgDir.exists()){
+			File dirs[] = imgDir.listFiles();
+			for(File d : dirs){
+				if(d.isDirectory()){
+					if(d.getName().compareTo(dn)<0){
+						if(CommUtil.deleteDir(d)){
+							System.out.println("Remove face log dir " + d.getAbsolutePath());
+						}
+					}
+				}
+			}
+		}
+		 
+	}
+	
+	
+	
 	public static void saveFaceDataToDsk(FaceVerifyData fd) {
 		String dirName = Config.getInstance().getImagesLogDir();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
@@ -22,17 +50,21 @@ public class FaceImageLog {
 		String passedDir = dirName + "/Passed";
 		String failedDir = dirName + "/Failed";
 
-		if (fd.getVerifyResult() == 0) {
-			saveFrameImage(trackedDir,fd);
-			saveFaceImage(trackedDir,fd);
-		} else if (fd.getVerifyResult() >= Config.getInstance().getFaceCheckThreshold()) {
-			saveFrameImage(passedDir,fd);
-			saveFaceImage(passedDir,fd);
-			saveIDCardImage(passedDir,fd);
+		float result = fd.getVerifyResult();
+		if (result >= Config.getInstance().getFaceCheckThreshold()) {
+			saveFrameImage(passedDir, fd);
+			saveFaceImage(passedDir, fd);
+			saveIDCardImage(passedDir, fd);
+
+		} else if (result < Config.getInstance().getFaceCheckThreshold() && result > 0) {
+			saveFrameImage(failedDir, fd);
+			saveFaceImage(failedDir, fd);
+			saveIDCardImage(failedDir, fd);
+
 		} else {
-			saveFrameImage(failedDir,fd);
-			saveFaceImage(failedDir,fd);
-			saveIDCardImage(failedDir,fd);
+			saveFrameImage(trackedDir, fd);
+			saveFaceImage(trackedDir, fd);
+			saveIDCardImage(trackedDir, fd);
 
 		}
 	}
@@ -134,4 +166,9 @@ public class FaceImageLog {
 		}
 	}
 
+	
+	
+	public static void main(String[] args) {
+		FaceImageLog.clearFaceLogs();
+	}
 }

@@ -11,6 +11,7 @@ import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
+import com.rxtec.pitchecking.picheckingservice.FaceImageLog;
 import com.rxtec.pitchecking.task.RunningStatus;
 
 /**
@@ -25,6 +26,7 @@ public class PitCheckingApp {
 	static TicketCheckScreen ticketCheckScreen = TicketCheckScreen.getInstance();
 
 	public static void main(String[] args) throws InterruptedException {
+		FaceImageLog.clearFaceLogs();
 		ticketCheckScreen.initUI();
 
 		Thread.sleep(1000);
