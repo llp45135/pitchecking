@@ -26,8 +26,8 @@ import com.rxtec.pitchecking.domain.StationInfo;
 public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
-	
-	public static String softVersion= "160709.15.02";
+
+	public static String softVersion = "160709.15.02";
 
 	public static int idDeviceSucc = 1;
 	public static int qrDeviceSucc = 1;
@@ -52,8 +52,8 @@ public class DeviceConfig {
 	public static String qrReaderWav = "./wav/talkforever16.wav";
 	public static String cameraWav = "./wav/camera.wav";// "./wav/12-35.wav";
 
-	private int faceScreen=0;
-	private int ticketScreen=1;
+	private int faceScreen = 0;
+	private int ticketScreen = 1;
 	private String gateNo = "00";
 	private int CameraLEDPort = 0;
 	public static int CameraLEDUnit = 0;
@@ -210,8 +210,7 @@ public class DeviceConfig {
 	public void setQrdeviceStatus(int qrdeviceStatus) {
 		this.qrdeviceStatus = qrdeviceStatus;
 	}
-	
-	
+
 	private Map<String, StationInfo> stationsMap;
 	private Map<Integer, String> ticketTypesMap;
 	private Map<String, String> seatTypesMap;
@@ -325,7 +324,7 @@ public class DeviceConfig {
 			this.setGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtlPort"));
 			this.setGteCrtlSecondPort(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtlSecondPort"));
 			this.setGateCrtoRate(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtoRate")));
-			this.setMQURL(root.getChild("MQConfig").getAttributeValue("MQURL"));
+//			 this.setMQURL(root.getChild("MQConfig").getAttributeValue("MQURL"));
 			this.setTOPIC(root.getChild("MQConfig").getAttributeValue("TOPIC"));
 			this.setTOPIC_RESULT(root.getChild("MQConfig").getAttributeValue("TOPIC_RESULT"));
 			this.setUSER(root.getChild("MQConfig").getAttributeValue("USER"));
@@ -349,6 +348,7 @@ public class DeviceConfig {
 			etcIP = ip.getHostAddress();
 			log.debug("gateConfig.getIpAddr==" + etcIP);
 			this.setIpAddress(etcIP);
+			this.setMQURL("failover://tcp://" + etcIP + ":61616");
 		} catch (UnknownHostException ex) {
 			// TODO Auto-generated catch block
 			log.error("DeviceConfig getLocalIPAddress:" + ex);
@@ -358,14 +358,14 @@ public class DeviceConfig {
 
 	public static void main(String[] args) {
 		DeviceConfig dconfig = DeviceConfig.getInstance();
-		
+
 		System.out.println(DeviceConfig.getInstance().getStationsMap().size());
 		System.out.println(DeviceConfig.getInstance().getStationsMap().get("GGQ").getStationName());
 		System.out.println(DeviceConfig.getInstance().getStationName("KQW"));
 		System.out.println(DeviceConfig.getInstance().getTicketTypesMap().size());
 		System.out.println(DeviceConfig.getInstance().getSeatTypesMap().size());
 		System.out.println(DeviceConfig.getInstance().getSeatTypesMap().get("O"));
-		
+
 		System.out.println("getGateNo==" + dconfig.getGateNo());
 		System.out.println("getCameraLEDPort==" + dconfig.getCameraLEDPort());
 		System.out.println("GateCrtoPort==" + dconfig.getGateCrtlPort());

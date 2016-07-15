@@ -21,13 +21,14 @@ import com.rxtec.pitchecking.device.QRDevice;
 import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.mq.JmsReceiver;
+import com.rxtec.pitchecking.mq.JmsReceiverTask;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class DeviceEventListener implements Runnable {
-	private VerifyFaceTask verifyFaceTask = new VerifyFaceTask();
-	private static DeviceEventListener _instance = new DeviceEventListener();
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
+	private static DeviceEventListener _instance = new DeviceEventListener();
+	private VerifyFaceTask verifyFaceTask = new VerifyFaceTask();
 	private TicketVerify ticketVerifier = new TicketVerify();
 
 	private DeviceEventListener() {
@@ -126,20 +127,25 @@ public class DeviceEventListener implements Runnable {
 		if (this.startQRDevice() != 1) {
 			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 			return;
-		}		
+		}
 		if (this.startLED() != 1) {
 			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 			return;
 		}
 
-		 this.startMQReceiver();
+		/**
+		 * 连接mq服务，启动mq receiver线程
+		 */
+		ExecutorService executer = Executors.newCachedThreadPool();
+		JmsReceiverTask jmsReceiverTask = new JmsReceiverTask();
+		executer.execute(jmsReceiverTask);
 
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		scheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-		//求助按钮事件处理
+		// 求助按钮事件处理
 		scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-		//语音调用线程
+		// 语音调用线程
 		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		// 启动成功点亮绿色通行箭头
 		FirstGateDevice.getInstance().LightEntryArrow();
@@ -153,11 +159,11 @@ public class DeviceEventListener implements Runnable {
 		LightControlBoard cb = new LightControlBoard();
 		if (cb.Cb_InitSDK() == 0) {
 			if (cb.Cb_OpenCom(DeviceConfig.getInstance().getCameraLEDPort()) == 0) {
-				if(cb.Cb_LightUnitOff(DeviceConfig.CameraLEDUnit,DeviceConfig.CameraLEDLevel)!=0){
+				if (cb.Cb_LightUnitOff(DeviceConfig.CameraLEDUnit, DeviceConfig.CameraLEDLevel) != 0) {
 					return 0;
 				}
 				CommUtil.sleep(1000);
-				if (cb.Cb_LightUnitOn(DeviceConfig.CameraLEDUnit,DeviceConfig.CameraLEDLevel) != 0) {
+				if (cb.Cb_LightUnitOn(DeviceConfig.CameraLEDUnit, DeviceConfig.CameraLEDLevel) != 0) {
 					return 0;
 				}
 			} else {
@@ -184,19 +190,6 @@ public class DeviceEventListener implements Runnable {
 			return 0;
 		}
 		return 1;
-	}
-
-	/**
-	 * 启动activemq
-	 */
-	private void startMQReceiver() {
-		JmsReceiver receiver = new JmsReceiver();
-		try {
-			receiver.receiveMessage();
-		} catch (Exception ex) {
-			// TODO Auto-generated catch block
-			log.error("DeviceEventListener startMQReceiver" + ex);
-		}
 	}
 
 	private int startIDDevice() {
