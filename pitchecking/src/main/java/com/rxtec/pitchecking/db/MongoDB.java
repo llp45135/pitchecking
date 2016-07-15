@@ -26,7 +26,7 @@ public class MongoDB {
 				Config.getInstance().getMongoDBPort());
 		db = client.getDatabase(Config.MongoDBName);
 		passedCollections = db.getCollection(Config.PassedMongoCollectionName, DBObject.class);
-		failedCollections = db.getCollection(Config.PassedMongoCollectionName, DBObject.class);
+		failedCollections = db.getCollection(Config.FailedMongoCollectionName, DBObject.class);
 	}
 	
 	public static synchronized MongoDB getInstance() {
@@ -35,7 +35,7 @@ public class MongoDB {
 		return _instance;
 	}
 	
-	public void save(PITVerifyData data,boolean isPassed){
+	public void save(PITVerifyData data, boolean isPassed){
 		DBObject rec = new BasicDBObject();
 		rec.put("id_no", data.getIdNo());
 		rec.put("name",data.getPersonName());
