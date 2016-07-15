@@ -18,7 +18,7 @@ public class FaceVerifyJniEntryTest implements Runnable {
 
 //	FaceVerifyJniEntry jni = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
 	
-	FaceVerifyMicroVJNIEntry jni = new FaceVerifyMicroVJNIEntry("MPALLibFaceRecFInf.dll");
+	FaceVerifyMicroPJNIEntry jni = new FaceVerifyMicroPJNIEntry("C:/maven/git/pitchecking/micropattern/MPALLibFaceRecFInf.dll");
 	
 	byte[] img1, img2;
 	DecimalFormat df = (DecimalFormat) NumberFormat.getInstance();
