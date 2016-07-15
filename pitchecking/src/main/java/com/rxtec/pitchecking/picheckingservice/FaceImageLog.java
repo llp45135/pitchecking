@@ -15,61 +15,68 @@ import com.rxtec.pitchecking.utils.CommUtil;
 
 public class FaceImageLog {
 
-	public static void clearFaceLogs(){
+	public static void clearFaceLogs() {
 		int days = Config.getInstance().getFaceLogRemainDays();
 		SimpleDateFormat sFormat = new SimpleDateFormat("yyyyMMdd");
-		
 
 		Date today = new Date();
 		String dn = sFormat.format(new Date(today.getTime() - days * 24 * 60 * 60 * 1000));
-		
+
 		File imgDir = new File(Config.getInstance().getImagesLogDir());
-		
-		if(imgDir.exists()){
+
+		if (imgDir.exists()) {
 			File dirs[] = imgDir.listFiles();
-			for(File d : dirs){
-				if(d.isDirectory()){
-					if(d.getName().compareTo(dn)<0){
-						if(CommUtil.deleteDir(d)){
+			for (File d : dirs) {
+				if (d.isDirectory()) {
+					if (d.getName().compareTo(dn) < 0) {
+						if (CommUtil.deleteDir(d)) {
 							System.out.println("Remove face log dir " + d.getAbsolutePath());
 						}
 					}
 				}
 			}
 		}
+		
+		MongoDB.getInstance().clearExpirationData();
 	}
-	
-	
-	
+
 	public static void saveFaceDataToDsk(PITVerifyData fd) {
-		String dirName = Config.getInstance().getImagesLogDir();
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-		dirName += formatter.format(new Date());
-		String trackedDir = dirName + "/Tracked";
-		String passedDir = dirName + "/Passed";
-		String failedDir = dirName + "/Failed";
+		if (!(Config.getInstance().getIsSaveFaceImageToLocaldisk() == 0)) {
+			float result = fd.getVerifyResult();
+			if (result >= Config.getInstance().getFaceCheckThreshold()) {
+				MongoDB.getInstance().save(fd, true);
 
-		float result = fd.getVerifyResult();
-		if (result >= Config.getInstance().getFaceCheckThreshold()) {
-			saveFrameImage(passedDir, fd);
-			saveFaceImage(passedDir, fd);
-			saveIDCardImage(passedDir, fd);
-			MongoDB.getInstance().save(fd);
+			} else {
+				MongoDB.getInstance().save(fd, false);
 
-
-		} else if (result < Config.getInstance().getFaceCheckThreshold() && result > 0) {
-			saveFrameImage(failedDir, fd);
-			saveFaceImage(failedDir, fd);
-			saveIDCardImage(failedDir, fd);
-			
-			MongoDB.getInstance().save(fd);
-
+			}
 		} else {
-			saveFrameImage(trackedDir, fd);
-			saveFaceImage(trackedDir, fd);
-			saveIDCardImage(trackedDir, fd);
+			String dirName = Config.getInstance().getImagesLogDir();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+			dirName += formatter.format(new Date());
+			String trackedDir = dirName + "/Tracked";
+			String passedDir = dirName + "/Passed";
+			String failedDir = dirName + "/Failed";
 
+			float result = fd.getVerifyResult();
+			if (result >= Config.getInstance().getFaceCheckThreshold()) {
+				saveFrameImage(passedDir, fd);
+				saveFaceImage(passedDir, fd);
+				saveIDCardImage(passedDir, fd);
+
+			} else if (result < Config.getInstance().getFaceCheckThreshold() && result > 0) {
+				saveFrameImage(failedDir, fd);
+				saveFaceImage(failedDir, fd);
+				saveIDCardImage(failedDir, fd);
+
+			} else {
+				saveFrameImage(trackedDir, fd);
+				saveFaceImage(trackedDir, fd);
+				saveIDCardImage(trackedDir, fd);
+
+			}
 		}
+
 	}
 
 	private static void saveFrameImage(String dirName, PITVerifyData fd) {
@@ -166,8 +173,6 @@ public class FaceImageLog {
 		}
 	}
 
-	
-	
 	public static void main(String[] args) {
 		FaceImageLog.clearFaceLogs();
 	}

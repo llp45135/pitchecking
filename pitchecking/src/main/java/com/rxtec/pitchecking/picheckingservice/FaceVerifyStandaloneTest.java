@@ -12,18 +12,15 @@ import javax.imageio.ImageIO;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.utils.CommUtil;
 
-public class FaceVerifyJniEntryTest implements Runnable {
+public class FaceVerifyStandaloneTest implements Runnable {
 
-//	FaceVerifyJniEntry jni = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
-	
-	FaceVerifyMicroVJNIEntry jni = new FaceVerifyMicroVJNIEntry("MPALLibFaceRecFInf.dll");
-	
 	byte[] img1, img2;
 	DecimalFormat df = (DecimalFormat) NumberFormat.getInstance();
 
-	public FaceVerifyJniEntryTest() {
+	public FaceVerifyStandaloneTest() {
 		IDCard c1 = createIDCard("C:/pitchecking/B1.jpg");
 		IDCard c2 = createIDCard("C:/pitchecking/B2.jpg");
 
@@ -31,6 +28,8 @@ public class FaceVerifyJniEntryTest implements Runnable {
 		img2 = c2.getImageBytes();
 
 		df.setMaximumFractionDigits(2);
+		
+		FaceCheckingService.getInstance().beginFaceCheckerTask();
 	}
 
 	@Override
@@ -39,10 +38,25 @@ public class FaceVerifyJniEntryTest implements Runnable {
 			CommUtil.sleep(500);
 			long nowMils = Calendar.getInstance().getTimeInMillis();
 
-			float result = jni.verify(img1, img2);
+			PITVerifyData faceData = new PITVerifyData();
+			faceData.setFrameImg(img1);
+			faceData.setFaceImg(img1);
+			faceData.setIdCardImg(img2);
+			faceData.setIdNo("123456");
+			faceData.setPersonName("XX");
+			faceData.setAge(12);
+			faceData.setGender(1);
+			Ticket t = new Ticket();
+			t.setTrainCode("D001");
+			t.setTrainDate("20160701");
+			t.setFromStationCode("GGQ");
+			t.setEndStationCode("SZQ");
+			t.setCoachNo("01");
+			t.setSeatCode("0001");
+			faceData.setTicket(t);
+			FaceCheckingService.getInstance().offerFaceVerifyData(faceData);
 
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			System.out.println("Using " + usingTime + " ms, value=" + df.format(result));
 		}
 
 	}
@@ -50,12 +64,8 @@ public class FaceVerifyJniEntryTest implements Runnable {
 	public static void main(String[] args) {
 
 		ExecutorService executer = Executors.newCachedThreadPool();
-		FaceVerifyJniEntryTest task1 = new FaceVerifyJniEntryTest();
+		FaceVerifyStandaloneTest task1 = new FaceVerifyStandaloneTest();
 		executer.execute(task1);
-		if (Config.getInstance().getFaceVerifyThreads() == 2) {
-			FaceVerifyJniEntryTest task2 = new FaceVerifyJniEntryTest();
-			executer.execute(task2);
-		}
 		executer.shutdown();
 
 	}

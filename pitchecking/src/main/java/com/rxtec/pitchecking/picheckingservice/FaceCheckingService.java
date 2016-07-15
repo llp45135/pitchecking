@@ -154,7 +154,7 @@ public class FaceCheckingService {
 			FaceCheckingStandaloneTask task2 = new FaceCheckingStandaloneTask(Config.FaceVerifyCloneDLLName);
 			executer.execute(task2);
 		}
-		log.info(".............Start FaceVerifyThreads" + Config.getInstance().getFaceVerifyThreads());
+		log.info(".............Start "+Config.getInstance().getFaceVerifyThreads()+ " FaceVerifyThreads");
 		executer.shutdown();
 	}
 

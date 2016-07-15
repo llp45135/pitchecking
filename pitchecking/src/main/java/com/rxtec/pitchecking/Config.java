@@ -70,7 +70,9 @@ public class Config {
 	public static int StopStatus = 0;
 
 	public static String MongoDBName = "pitcheck";
-	public static String MongoCollectionName = "pit_record";
+	public static String PassedMongoCollectionName = "passed_record";
+	public static String FailedMongoCollectionName = "failed_record";
+	
 
 	private int faceVerifyThreads = 2; // 人脸比对线程数
 
@@ -88,9 +90,10 @@ public class Config {
 	private int videoCaptureFrequency = 10;
 	private int isCheckRealFace = 0;
 	private String multicastAddress = "234.5.6.7";
-	private int faceLogRemainDays = 7;
+	private int faceLogRemainDays = 14;
 	private String mongoDBAddress = "localhost";
 	private int mongoDBPort = 27017;
+	private int isSaveFaceImageToLocaldisk=1;
 
 	public String getMongoDBAddress() {
 		return mongoDBAddress;
@@ -247,6 +250,15 @@ public class Config {
 	public void setVideoType(int videoType) {
 		this.videoType = videoType;
 	}
+	
+	public int getIsSaveFaceImageToLocaldisk() {
+		return isSaveFaceImageToLocaldisk;
+	}
+
+	public void setIsSaveFaceImageToLocaldisk(int isSaveFaceImageToLocaldisk) {
+		this.isSaveFaceImageToLocaldisk = isSaveFaceImageToLocaldisk;
+	}
+
 
 	private static Config _instance = new Config();
 
@@ -269,15 +281,18 @@ public class Config {
 			this.videoCaptureFrequency = Integer.valueOf(p.getProperty("VideoCaptureFrequency", "5"));
 			this.isCheckRealFace = Integer.valueOf(p.getProperty("IsCheckRealFace", "0"));
 			this.faceVerifyThreads = Integer.valueOf(p.getProperty("FaceVerifyThreads", "1"));
-			this.faceLogRemainDays = Integer.valueOf(p.getProperty("FaceLogRemainDays", "7"));
+			this.faceLogRemainDays = Integer.valueOf(p.getProperty("FaceLogRemainDays", "14"));
 			this.mongoDBPort = Integer.valueOf(p.getProperty("MongoDBPort", "27017"));
 			this.mongoDBAddress = p.getProperty("MongoDBAddress", "localhost");
+			this.isSaveFaceImageToLocaldisk = Integer.valueOf(p.getProperty("IsSaveFaceImageToLocaldisk", "1"));
+			
 
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+
 
 	public static synchronized Config getInstance() {
 		if (_instance == null)

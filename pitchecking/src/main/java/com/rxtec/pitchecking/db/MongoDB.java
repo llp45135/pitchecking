@@ -8,13 +8,16 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.result.DeleteResult;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 
 public class MongoDB {
 	private MongoClient client;
 	private MongoDatabase db;
-	MongoCollection<DBObject> collections ;
+	MongoCollection<DBObject> passedCollections ;
+	MongoCollection<DBObject> failedCollections ;
+
 	SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 	private static MongoDB _instance = new MongoDB();
 
@@ -22,7 +25,8 @@ public class MongoDB {
 		client = new MongoClient(Config.getInstance().getMongoDBAddress(),
 				Config.getInstance().getMongoDBPort());
 		db = client.getDatabase(Config.MongoDBName);
-		collections = db.getCollection(Config.MongoCollectionName, DBObject.class);
+		passedCollections = db.getCollection(Config.PassedMongoCollectionName, DBObject.class);
+		failedCollections = db.getCollection(Config.PassedMongoCollectionName, DBObject.class);
 	}
 	
 	public static synchronized MongoDB getInstance() {
@@ -31,7 +35,7 @@ public class MongoDB {
 		return _instance;
 	}
 	
-	public void save(PITVerifyData data){
+	public void save(PITVerifyData data,boolean isPassed){
 		DBObject rec = new BasicDBObject();
 		rec.put("id_no", data.getIdNo());
 		rec.put("name",data.getPersonName());
@@ -52,9 +56,35 @@ public class MongoDB {
 		rec.put("in_date", sf.format(new Date()));
 		rec.put("gate_no", data.getTicket().getInGateNo());
 		
-		collections.insertOne(rec);
+		if(isPassed) passedCollections.insertOne(rec);
+		else failedCollections.insertOne(rec);
 		
 		
 	}
+	
+	
+	public void clearExpirationData(){
+		int days = Config.getInstance().getFaceLogRemainDays();
+		SimpleDateFormat sFormat = new SimpleDateFormat("yyyyMMdd");
+
+		Date today = new Date();
+		String dn = sFormat.format(new Date(today.getTime() - days * 24 * 60 * 60 * 1000));
+		BasicDBObject query = new BasicDBObject();  
+		query.put("in_date", new BasicDBObject("$lte", dn));
+		DeleteResult result = passedCollections.deleteMany(query);
+		System.out.println("Delete passedCollections "+result.getDeletedCount() + " docs");
+		
+		result = failedCollections.deleteMany(query);
+		System.out.println("Delete failedCollections "+result.getDeletedCount() + " docs");
+
+		
+	}
+
+
+
+
+
+
+
 
 }
