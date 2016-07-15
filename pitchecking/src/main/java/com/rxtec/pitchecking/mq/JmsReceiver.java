@@ -48,7 +48,7 @@ public class JmsReceiver implements MessageListener {
 		// 目的地是客户用来指定他生产消息的目标还有他消费消息的来源的对象.
 		// dest = session.createQueue(SUBJECT);
 		dest = session.createTopic(DeviceConfig.getInstance().getTOPIC_RESULT());
-		log.info("TOPIC==" + dest);
+		log.info("TOPIC_RESULT==" + dest);
 		// dest = session.createTopic(SUBJECT);
 		// 会话创建消息的生产者将消息发送到目的地
 		consumer = session.createConsumer(dest);

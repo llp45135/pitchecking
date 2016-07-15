@@ -326,7 +326,7 @@ public class SecondGateDevice implements SerialPortEventListener {
 	public static void main(String[] args) {
 		SecondGateDevice gateDevice = SecondGateDevice.getInstance();
 		try {
-			gateDevice.connect(DeviceConfig.getInstance().getGteCrtlSecondPort());
+			gateDevice.connect(DeviceConfig.getInstance().getSecondGateCrtlPort());
 			gateDevice.openThirdDoor();
 			CommUtil.sleep(1000);
 			gateDevice.openSecondDoor();

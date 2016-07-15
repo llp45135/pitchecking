@@ -14,39 +14,39 @@ public class RunSender {
 //		JmsReceiver receiver = new JmsReceiver();
 
 		int i = 0;
-		while (true) {
+//		while (true) {
 			
 			 i++;
-			// sender.sendMessage("text",String.valueOf(i)+" 这是一条jms信息!");
+			 sender.sendMessage("text","N192.168.1.5*201605281634158191",null);
 			// sender.close();
 			Thread.sleep(20*1000);
-			String msgType = "map";
-			String msgStr = "";
-			FailedFace failedFace = new FailedFace();
-			failedFace.setIdNo(CommUtil.getRandomUUID());
-			failedFace.setIpAddress(DeviceConfig.getInstance().getIpAddress());
-			failedFace.setGateNo("01");
-			
-			File image = null; 
-			image = new File("zp.jpg");
-			failedFace.setCardImage(CommUtil.getBytesFromFile(image));
-			
-			File faceImage = new File("zhao.jpg");
-			failedFace.setFaceImage(CommUtil.getBytesFromFile(faceImage));
-			
-			sender.sendMessage(msgType, msgStr, failedFace);
-			System.out.println("已经发送第"+String.valueOf(i)+"条msg!!");
-			Thread.sleep(20 * 1000);
-			
-			i++;
-			failedFace.setIdNo(CommUtil.getRandomUUID());
-			failedFace.setIpAddress("192.168.0.202");
-			failedFace.setGateNo("02");
-			faceImage = new File("lin.jpg");
-			failedFace.setFaceImage(CommUtil.getBytesFromFile(faceImage));
-			
-			sender.sendMessage(msgType, msgStr, failedFace);
+//			String msgType = "map";
+//			String msgStr = "";
+//			FailedFace failedFace = new FailedFace();
+//			failedFace.setIdNo(CommUtil.getRandomUUID());
+//			failedFace.setIpAddress(DeviceConfig.getInstance().getIpAddress());
+//			failedFace.setGateNo("01");
+//			
+//			File image = null; 
+//			image = new File("zp.jpg");
+//			failedFace.setCardImage(CommUtil.getBytesFromFile(image));
+//			
+//			File faceImage = new File("zhao.jpg");
+//			failedFace.setFaceImage(CommUtil.getBytesFromFile(faceImage));
+//			
+//			sender.sendMessage(msgType, msgStr, failedFace);
+//			System.out.println("已经发送第"+String.valueOf(i)+"条msg!!");
+//			Thread.sleep(20 * 1000);
+//			
+//			i++;
+//			failedFace.setIdNo(CommUtil.getRandomUUID());
+//			failedFace.setIpAddress("192.168.0.202");
+//			failedFace.setGateNo("02");
+//			faceImage = new File("lin.jpg");
+//			failedFace.setFaceImage(CommUtil.getBytesFromFile(faceImage));
+//			
+//			sender.sendMessage(msgType, msgStr, failedFace);
 			System.out.println("已经发送第"+String.valueOf(i)+"条msg!!");
 		}
 	}
-}
+//}

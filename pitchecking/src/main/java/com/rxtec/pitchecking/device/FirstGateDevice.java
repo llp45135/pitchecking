@@ -339,7 +339,7 @@ public class FirstGateDevice implements SerialPortEventListener {
 	public static void main(String[] args) {
 		FirstGateDevice gateDevice = FirstGateDevice.getInstance();
 		try {
-			gateDevice.connect(DeviceConfig.getInstance().getGateCrtlPort());
+			gateDevice.connect(DeviceConfig.getInstance().getFirstGateCrtlPort());
 			gateDevice.openFirstDoor();
 			CommUtil.sleep(1000);
 			gateDevice.LightEntryArrow();
