@@ -132,7 +132,7 @@ public class PTVerifyPublisher implements Runnable {
 	 */
 	private void putFailedFace(PITVerifyData fd){
 		FailedFace failedFace = new FailedFace();
-		failedFace.setIdNo(CommUtil.getRandomUUID());
+		failedFace.setIdNo(fd.getIdNo());
 		failedFace.setIpAddress(DeviceConfig.getInstance().getIpAddress());
 		failedFace.setGateNo(DeviceConfig.getInstance().getGateNo());
 		failedFace.setCardImage(fd.getIdCardImg());
