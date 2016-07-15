@@ -182,8 +182,8 @@ public class DeviceEventListener implements Runnable {
 	 */
 	private int startGateDevice() {
 		try {
-			FirstGateDevice.getInstance().connect(DeviceConfig.getInstance().getGateCrtlPort());
-			SecondGateDevice.getInstance().connect(DeviceConfig.getInstance().getGteCrtlSecondPort());
+			FirstGateDevice.getInstance().connect(DeviceConfig.getInstance().getFirstGateCrtlPort());
+			SecondGateDevice.getInstance().connect(DeviceConfig.getInstance().getSecondGateCrtlPort());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

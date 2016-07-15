@@ -58,8 +58,8 @@ public class DeviceConfig {
 	private int CameraLEDPort = 0;
 	public static int CameraLEDUnit = 0;
 	public static int CameraLEDLevel = 31;
-	private String GateCrtlPort = "COM2";
-	private String GteCrtlSecondPort = "COM3";
+	private String firstGateCrtlPort = "COM2";
+	private String secondGateCrtlPort = "COM3";
 	private int GateCrtoRate = 9600;
 	private String TOPIC = "Pitchecking";
 	private String TOPIC_RESULT = "PitcheckingResult";
@@ -114,15 +114,6 @@ public class DeviceConfig {
 			_instance = new DeviceConfig();
 		return _instance;
 	}
-
-	public String getGteCrtlSecondPort() {
-		return GteCrtlSecondPort;
-	}
-
-	public void setGteCrtlSecondPort(String gteCrtlSecondPort) {
-		GteCrtlSecondPort = gteCrtlSecondPort;
-	}
-
 	public int getCameraLEDPort() {
 		return CameraLEDPort;
 	}
@@ -131,20 +122,28 @@ public class DeviceConfig {
 		CameraLEDPort = cameraLEDPort;
 	}
 
+	public String getFirstGateCrtlPort() {
+		return firstGateCrtlPort;
+	}
+
+	public void setFirstGateCrtlPort(String firstGateCrtlPort) {
+		this.firstGateCrtlPort = firstGateCrtlPort;
+	}
+
+	public String getSecondGateCrtlPort() {
+		return secondGateCrtlPort;
+	}
+
+	public void setSecondGateCrtlPort(String secondGateCrtlPort) {
+		this.secondGateCrtlPort = secondGateCrtlPort;
+	}
+
 	public String getIpAddress() {
 		return ipAddress;
 	}
 
 	public void setIpAddress(String ipAddress) {
 		this.ipAddress = ipAddress;
-	}
-
-	public String getGateCrtlPort() {
-		return GateCrtlPort;
-	}
-
-	public void setGateCrtlPort(String gateCrtlPort) {
-		GateCrtlPort = gateCrtlPort;
 	}
 
 	public int getGateCrtoRate() {
@@ -321,8 +320,8 @@ public class DeviceConfig {
 			this.setFaceScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("faceScreen")));
 			this.setTicketScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("ticketScreen")));
 			this.setCameraLEDPort(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("cameraLEDPort")));
-			this.setGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtlPort"));
-			this.setGteCrtlSecondPort(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtlSecondPort"));
+			this.setFirstGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtlPort"));
+			this.setSecondGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtlSecondPort"));
 			this.setGateCrtoRate(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtoRate")));
 //			 this.setMQURL(root.getChild("MQConfig").getAttributeValue("MQURL"));
 			this.setTOPIC(root.getChild("MQConfig").getAttributeValue("TOPIC"));
@@ -368,8 +367,8 @@ public class DeviceConfig {
 
 		System.out.println("getGateNo==" + dconfig.getGateNo());
 		System.out.println("getCameraLEDPort==" + dconfig.getCameraLEDPort());
-		System.out.println("GateCrtoPort==" + dconfig.getGateCrtlPort());
-		System.out.println("getGteCrtlSecondPort==" + dconfig.getGteCrtlSecondPort());
+		System.out.println("getFirstGateCrtlPort==" + dconfig.getFirstGateCrtlPort());
+		System.out.println("getSecondGateCrtlPort==" + dconfig.getSecondGateCrtlPort());
 		System.out.println("GateCrtlRate==" + dconfig.getGateCrtoRate());
 		System.out.println("getMQURL==" + dconfig.getMQURL());
 		System.out.println("getTOPIC==" + dconfig.getTOPIC());
