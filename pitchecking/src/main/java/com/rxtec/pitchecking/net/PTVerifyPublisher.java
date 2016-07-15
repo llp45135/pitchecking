@@ -24,10 +24,11 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.IDReader;
+import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
-import com.rxtec.pitchecking.picheckingservice.FaceVerifyData;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -91,7 +92,7 @@ public class PTVerifyPublisher implements Runnable {
 		while (true) {
 			CommUtil.sleep(50);
 			try {
-				FaceVerifyData data = FaceCheckingService.getInstance().takeFaceVerifyData();
+				PITVerifyData data = FaceCheckingService.getInstance().takeFaceVerifyData();
 				if (data == null)
 					continue;
 				byte[] buf = serialObjToBytes(data);
@@ -129,7 +130,7 @@ public class PTVerifyPublisher implements Runnable {
 	 * 每次将待验证的人脸放入FailedFace
 	 * @param fd
 	 */
-	private void putFailedFace(FaceVerifyData fd){
+	private void putFailedFace(PITVerifyData fd){
 		FailedFace failedFace = new FailedFace();
 		failedFace.setIdNo(CommUtil.getRandomUUID());
 		failedFace.setIpAddress(DeviceConfig.getInstance().getIpAddress());
@@ -160,11 +161,12 @@ public class PTVerifyPublisher implements Runnable {
 	public static void main(String[] args) {
 
 		for (int i = 0; i < 100; i++) {
-			FaceVerifyData d = new FaceVerifyData();
-			d.setFaceID("1234567890");
+			PITVerifyData d = new PITVerifyData();
+			d.setIdNo("1234567890");
 			IDCard c1 = createIDCard("C:/pitchecking/B1.jpg");
 			d.setFaceImg(c1.getImageBytes());
 			d.setIdCardImg(c1.getImageBytes());
+			d.setTicket(new Ticket());
 			FaceCheckingService.getInstance().offerFaceVerifyData(d);
 		}
 

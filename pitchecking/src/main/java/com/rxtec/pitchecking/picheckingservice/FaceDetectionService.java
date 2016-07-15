@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.facedetect.Face;
 import com.rxtec.pitchecking.facedetect.FaceDetect;
 import com.rxtec.pitchecking.gui.VideoPanel;
@@ -274,6 +275,7 @@ public class FaceDetectionService implements IFaceTrackService {
 //	}
 
 	private IDCard currentIDCard = null;
+	private Ticket currentTicket = null;
 
 	public IDCard getCurrentIDCard() {
 		return currentIDCard;
@@ -288,8 +290,9 @@ public class FaceDetectionService implements IFaceTrackService {
 	 * 
 	 * @param idCard
 	 */
-	public void beginCheckingFace(IDCard idCard) {
+	public void beginCheckingFace(IDCard idCard,Ticket ticket) {
 		currentIDCard = idCard;
+		currentTicket = ticket;
 
 	}
 
@@ -298,6 +301,7 @@ public class FaceDetectionService implements IFaceTrackService {
 	 */
 	public void stopCheckingFace() {
 		currentIDCard = null;
+		currentTicket = null;
 		FaceCheckingService.getInstance().resetFaceDataQueue();
 		this.frameImageQueue.clear();
 		trackededFaceQueue.clear();

@@ -42,7 +42,7 @@ public class VerifyFaceTask {
 			faceTrackService = FaceDetectionService.getInstance();
 	}
 
-	public PITData beginCheckFace(IDCard idCard) {
+	public PITData beginCheckFace(IDCard idCard,Ticket ticket) {
 		TicketCheckScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
 
@@ -54,7 +54,7 @@ public class VerifyFaceTask {
 
 		AudioPlayTask.getInstance().start(); // 调用语音
 
-		faceTrackService.beginCheckingFace(idCard);
+		faceTrackService.beginCheckingFace(idCard,ticket);
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 

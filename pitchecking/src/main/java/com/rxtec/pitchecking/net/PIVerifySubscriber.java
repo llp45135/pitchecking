@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
-import com.rxtec.pitchecking.picheckingservice.FaceVerifyData;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 
 import java.io.ByteArrayInputStream;
@@ -127,7 +127,7 @@ class SubscriberUtils {
 
 			try {
 				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-				FaceVerifyData fd = (FaceVerifyData)ois.readObject();
+				PITVerifyData fd = (PITVerifyData)ois.readObject();
 				FaceCheckingService.getInstance().offerFaceVerifyData(fd);  //加入待验证队列
 				Log.info("Receive request message : " + fd);
 			} catch (IOException | ClassNotFoundException e) {

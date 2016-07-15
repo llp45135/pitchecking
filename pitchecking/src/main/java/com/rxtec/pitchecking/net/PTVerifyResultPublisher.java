@@ -18,8 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
-import com.rxtec.pitchecking.picheckingservice.FaceVerifyData;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import io.aeron.Aeron;
 import io.aeron.Publication;
 
@@ -74,7 +75,7 @@ public class PTVerifyResultPublisher {
 	
 	
 	
-	public boolean publishResult(FaceVerifyData data){
+	public boolean publishResult(PITVerifyData data){
 		if (data == null)
 			return false;
 		byte[] buf = serialObjToBytes(data);
@@ -123,11 +124,12 @@ public class PTVerifyResultPublisher {
 	public static void main(String[] args) {
 
 		for (int i = 0; i < 100; i++) {
-			FaceVerifyData d = new FaceVerifyData();
-			d.setFaceID("1234567890");
+			PITVerifyData d = new PITVerifyData();
+			d.setIdNo("1234567890");
 			IDCard c1 = createIDCard("C:/pitchecking/B1.jpg");
 			d.setFaceImg(c1.getImageBytes());
 			d.setIdCardImg(c1.getImageBytes());
+			d.setTicket(new Ticket());
 			FaceCheckingService.getInstance().offerFaceVerifyData(d);
 		}
 

@@ -23,6 +23,7 @@ import org.openimaj.math.geometry.shape.Rectangle;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
@@ -37,6 +38,18 @@ public class PITData implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 8362192728485137547L;
+	
+	private Ticket ticket;
+	
+	
+	public Ticket getTicket() {
+		return ticket;
+	}
+
+	public void setTicket(Ticket ticket) {
+		this.ticket = ticket;
+	}
+
 	private BufferedImage frame = null;
 
 	public BufferedImage getFrame() {

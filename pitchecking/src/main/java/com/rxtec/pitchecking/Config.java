@@ -27,58 +27,52 @@ public class Config {
 
 	public static int RealSenseVideo = 2;
 	public static int UVCVideo = 1;
-	public static String UVCCameraName="Logitech HD Pro Webcam C920";
-	
+	public static String UVCCameraName = "Logitech HD Pro Webcam C920";
+
 	public static String FaceVerifyDLLName = "FaceVRISDK.dll";
 	public static String FaceVerifyCloneDLLName = "FaceVRISDK.dll";
-	
-	
+
 	public static int FrameWidth = 960;
 	public static int FrameHeigh = 540;
 	public static int IRFrameWidth = 640;
 	public static int IRFrameHeigh = 480;
 
 	public static int frameRate = 30;
-	
+
 	public static float MinAverageDepth = 400F;
 	public static float MaxAverageDepth = 1200F;
-	
+
 	public static float DValueMaxDepth = 100F;
 	public static float DValueMinDepth = 20F;
-	
+
 	public static float DValueMaxWidth = 250F;
 	public static float DValueMinWidth = 90F;
-	
-	
+
 	public static int MaxTrackedFaces = 4;
 	public static int MaxTrackedLandmark = 4;
 	public static int NumOfLandmarks = 78;
-	
-	
-	
+
 	public static int PIVerify_Send_STREAM_ID = 10;
 	public static int PIVerify_Receive_STREAM_ID = 11;
 	public static String PIVerify_CHANNEL = "aeron:ipc";
-//	public static String PIVerify_CHANNEL = "aeron:udp?endpoint=192.168.1.21:40456";
-	
-	
-	
-	
-	
-	
+	// public static String PIVerify_CHANNEL =
+	// "aeron:udp?endpoint=192.168.1.21:40456";
+
 	public static int IDReaderEvent = 1;
 	public static int QRReaderEvent = 2;
 
-	public static int TicketVerifyWaitInput = 0;			//等待票证验证数据
-	public static int TicketVerifySucc = 1;					//票证验证成功
-	public static int TicketVerifyIDFail = -1;				//票证验证失败
-	public static int TicketVerifyStationRuleFail = -2;		//票证验证失败：车站业务规则
-	
+	public static int TicketVerifyWaitInput = 0; // 等待票证验证数据
+	public static int TicketVerifySucc = 1; // 票证验证成功
+	public static int TicketVerifyIDFail = -1; // 票证验证失败
+	public static int TicketVerifyStationRuleFail = -2; // 票证验证失败：车站业务规则
+
 	public static int StartStatus = 1;
 	public static int StopStatus = 0;
-	
-	private int faceVerifyThreads = 2;						//人脸比对线程数
 
+	public static String MongoDBName = "pitcheck";
+	public static String MongoCollectionName = "pit_record";
+
+	private int faceVerifyThreads = 2; // 人脸比对线程数
 
 	private float faceCheckThreshold = (float) 0.68;
 	private float glassFaceCheckThreshold = (float) 0.65;
@@ -91,11 +85,29 @@ public class Config {
 	private int detectededFaceQueueLen = 5;
 	private int detectededFaceQueueThreshold = 2;
 	private int videoType = 1;
-	private int videoCaptureFrequency=10;
+	private int videoCaptureFrequency = 10;
 	private int isCheckRealFace = 0;
-	private String multicastAddress="234.5.6.7";
+	private String multicastAddress = "234.5.6.7";
 	private int faceLogRemainDays = 7;
-	
+	private String mongoDBAddress = "localhost";
+	private int mongoDBPort = 27017;
+
+	public String getMongoDBAddress() {
+		return mongoDBAddress;
+	}
+
+	public void setMongoDBAddress(String mongoDBAddress) {
+		this.mongoDBAddress = mongoDBAddress;
+	}
+
+	public int getMongoDBPort() {
+		return mongoDBPort;
+	}
+
+	public void setMongoDBPort(int mongoDBPort) {
+		this.mongoDBPort = mongoDBPort;
+	}
+
 	public int getFaceLogRemainDays() {
 		return faceLogRemainDays;
 	}
@@ -120,7 +132,6 @@ public class Config {
 		this.isCheckRealFace = isCheckRealFace;
 	}
 
-	
 	public String getMulticastAddress() {
 		return multicastAddress;
 	}
@@ -137,11 +148,10 @@ public class Config {
 		this.multicastPort = multicastPort;
 	}
 
-	private int multicastPort=8899;
+	private int multicastPort = 8899;
 
 	//
-	
-	
+
 	public int getVideoCaptureFrequency() {
 		return videoCaptureFrequency;
 	}
@@ -260,21 +270,24 @@ public class Config {
 			this.isCheckRealFace = Integer.valueOf(p.getProperty("IsCheckRealFace", "0"));
 			this.faceVerifyThreads = Integer.valueOf(p.getProperty("FaceVerifyThreads", "1"));
 			this.faceLogRemainDays = Integer.valueOf(p.getProperty("FaceLogRemainDays", "7"));
+			this.mongoDBPort = Integer.valueOf(p.getProperty("MongoDBPort", "27017"));
+			this.mongoDBAddress = p.getProperty("MongoDBAddress", "localhost");
+
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
-		}		
+		}
 	}
 
 	public static synchronized Config getInstance() {
 		if (_instance == null)
 			_instance = new Config();
 		return _instance;
-	}	
+	}
 
 	public static void main(String[] args) {
 		Config.getInstance();
-		System.out.println("getIsCheckRealFace=="+Config.getInstance().getIsCheckRealFace());
+		System.out.println("getIsCheckRealFace==" + Config.getInstance().getIsCheckRealFace());
 	}
 
 }

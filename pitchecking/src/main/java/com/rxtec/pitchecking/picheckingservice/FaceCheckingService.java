@@ -27,7 +27,7 @@ public class FaceCheckingService {
 	private LinkedBlockingQueue<PITData> detectedFaceDataQueue;
 
 	// 待验证的队列,独立进程比对
-	private LinkedBlockingQueue<FaceVerifyData> faceVerifyDataQueue;
+	private LinkedBlockingQueue<PITVerifyData> faceVerifyDataQueue;
 
 	// 比对验证通过的队列
 	private LinkedBlockingQueue<PITData> passFaceDataQueue;
@@ -57,7 +57,7 @@ public class FaceCheckingService {
 
 	private FaceCheckingService() {
 		detectedFaceDataQueue = new LinkedBlockingQueue<PITData>(Config.getInstance().getDetectededFaceQueueLen());
-		faceVerifyDataQueue = new LinkedBlockingQueue<FaceVerifyData>(Config.getInstance().getDetectededFaceQueueLen());
+		faceVerifyDataQueue = new LinkedBlockingQueue<PITVerifyData>(Config.getInstance().getDetectededFaceQueueLen());
 		passFaceDataQueue = new LinkedBlockingQueue<PITData>(1);
 	}
 
@@ -79,8 +79,8 @@ public class FaceCheckingService {
 		return p;
 	}
 
-	public FaceVerifyData takeFaceVerifyData() throws InterruptedException {
-		FaceVerifyData v = faceVerifyDataQueue.take();
+	public PITVerifyData takeFaceVerifyData() throws InterruptedException {
+		PITVerifyData v = faceVerifyDataQueue.take();
 		log.debug("detectedFaceDataQueue length=" + detectedFaceDataQueue.size());
 
 		return v;
@@ -97,7 +97,7 @@ public class FaceCheckingService {
 			detectedFaceDataQueue.offer(faceData);
 		}
 
-		FaceVerifyData vd = new FaceVerifyData(faceData);
+		PITVerifyData vd = new PITVerifyData(faceData);
 
 		if (!faceVerifyDataQueue.offer(vd)) {
 			faceVerifyDataQueue.poll();
@@ -106,7 +106,7 @@ public class FaceCheckingService {
 
 	}
 
-	public void offerFaceVerifyData(FaceVerifyData faceData) {
+	public void offerFaceVerifyData(PITVerifyData faceData) {
 		if (!faceVerifyDataQueue.offer(faceData)) {
 			faceVerifyDataQueue.poll();
 			faceVerifyDataQueue.offer(faceData);
@@ -139,8 +139,8 @@ public class FaceCheckingService {
 
 		PIVerifyResultSubscriber.getInstance().startSubscribing();
 		PTVerifyPublisher.getInstance();
-		//实例化mq发送端
-		this.setJmsSender(new JmsSender());
+//		//实例化mq发送端
+//		this.setJmsSender(new JmsSender());
 	}
 
 	/**

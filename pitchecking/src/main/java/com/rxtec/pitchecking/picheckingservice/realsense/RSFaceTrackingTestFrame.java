@@ -19,6 +19,7 @@ import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.PITStatusEnum;
 import com.rxtec.pitchecking.ScreenCmdEnum;
+import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.TicketCheckScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.SecondGateDevice;
@@ -70,7 +71,7 @@ public class RSFaceTrackingTestFrame {
 		TicketCheckScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
 
-		faceTrackService.beginCheckingFace(idCard);
+		faceTrackService.beginCheckingFace(idCard,new Ticket());
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 

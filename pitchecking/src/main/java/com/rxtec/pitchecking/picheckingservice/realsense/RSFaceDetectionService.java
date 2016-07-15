@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
@@ -43,6 +44,7 @@ public class RSFaceDetectionService implements IFaceTrackService{
 	
 	RSFaceTrackTask trackTask ;
 	private IDCard currentIDCard = null;
+	private Ticket currentTicket = null;
 
 
 	private int maxTrackedFaces = 4;
@@ -118,14 +120,16 @@ public class RSFaceDetectionService implements IFaceTrackService{
 	}
 	
 
-	public void beginCheckingFace(IDCard idCard) {
+	public void beginCheckingFace(IDCard idCard,Ticket t) {
 		FaceCheckingService.getInstance().resetFaceDataQueue();  //by zhao 20160705
 		currentIDCard = idCard;
-		trackTask.beginCheckingFace(idCard);
+		currentTicket = t;
+		trackTask.beginCheckingFace(idCard,currentTicket);
 
 	}
 	public void stopCheckingFace() {
 		currentIDCard = null;
+		currentTicket = null;
 		trackTask.stopCheckingFace();
 		FaceCheckingService.getInstance().resetFaceDataQueue();
 	}

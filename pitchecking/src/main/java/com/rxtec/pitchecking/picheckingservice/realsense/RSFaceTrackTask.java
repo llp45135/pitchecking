@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
@@ -59,6 +60,8 @@ public class RSFaceTrackTask implements Runnable {
 	private boolean startTrackFace = true;
 	private boolean enableExpression = true;
 	private boolean enableFaceLandmark = true;
+	private IDCard currentIDCard = null;
+	private Ticket currentTicket = null;
 
 	private static int LandmarkAlignment = 10;
 
@@ -467,19 +470,20 @@ public class RSFaceTrackTask implements Runnable {
 		return true;
 	}
 
-	public void beginCheckingFace(IDCard idCard) {
+	public void beginCheckingFace(IDCard idCard,Ticket ticket) {
 		currentIDCard = idCard;
+		currentTicket = ticket;
 		log.debug("beginCheckingFace......");
 
 	}
 
 	public void stopCheckingFace() {
 		currentIDCard = null;
+		currentTicket = null;
 		FaceCheckingService.getInstance().resetFaceDataQueue();
 		log.debug("stopCheckingFace......");
 	}
 
-	private IDCard currentIDCard = null;
 
 	public IDCard getCurrentIDCard() {
 		return currentIDCard;
@@ -584,8 +588,9 @@ public class RSFaceTrackTask implements Runnable {
 				if (detection != null && isRealFace) {
 					PITData fd = createFaceData(frameImage, detection);
 					if (fd != null) {
-						if (fd.isDetectedFace() && currentIDCard != null) {
+						if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {
 							fd.setIdCard(currentIDCard);
+							fd.setTicket(currentTicket);
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
 						}
 					}

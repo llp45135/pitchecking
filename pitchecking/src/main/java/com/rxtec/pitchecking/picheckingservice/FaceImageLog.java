@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.db.MongoDB;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class FaceImageLog {
@@ -37,12 +37,11 @@ public class FaceImageLog {
 				}
 			}
 		}
-		 
 	}
 	
 	
 	
-	public static void saveFaceDataToDsk(FaceVerifyData fd) {
+	public static void saveFaceDataToDsk(PITVerifyData fd) {
 		String dirName = Config.getInstance().getImagesLogDir();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 		dirName += formatter.format(new Date());
@@ -55,11 +54,15 @@ public class FaceImageLog {
 			saveFrameImage(passedDir, fd);
 			saveFaceImage(passedDir, fd);
 			saveIDCardImage(passedDir, fd);
+			MongoDB.getInstance().save(fd);
+
 
 		} else if (result < Config.getInstance().getFaceCheckThreshold() && result > 0) {
 			saveFrameImage(failedDir, fd);
 			saveFaceImage(failedDir, fd);
 			saveIDCardImage(failedDir, fd);
+			
+			MongoDB.getInstance().save(fd);
 
 		} else {
 			saveFrameImage(trackedDir, fd);
@@ -69,7 +72,7 @@ public class FaceImageLog {
 		}
 	}
 
-	private static void saveFrameImage(String dirName, FaceVerifyData fd) {
+	private static void saveFrameImage(String dirName, PITVerifyData fd) {
 		if (fd == null)
 			return;
 		int ret = CommUtil.createDir(dirName);
@@ -79,8 +82,8 @@ public class FaceImageLog {
 			StringBuffer sb = new StringBuffer();
 			sb.append(dirName);
 			sb.append("/VF");
-			if (fd.getFaceID() != null)
-				sb.append(fd.getFaceID().hashCode());
+			if (fd.getIdNo() != null)
+				sb.append(fd.getIdNo().hashCode());
 			else
 				sb.append("--");
 			sb.append("@");
@@ -98,11 +101,10 @@ public class FaceImageLog {
 					e.printStackTrace();
 				}
 			}
-
 		}
 	}
 
-	private static void saveFaceImage(String dirName, FaceVerifyData fd) {
+	private static void saveFaceImage(String dirName, PITVerifyData fd) {
 		if (fd == null)
 			return;
 		int ret = CommUtil.createDir(dirName);
@@ -113,8 +115,8 @@ public class FaceImageLog {
 			StringBuffer sb = new StringBuffer();
 			sb.append(dirName);
 			sb.append("/FI");
-			if (fd.getFaceID() != null)
-				sb.append(fd.getFaceID().hashCode());
+			if (fd.getIdNo() != null)
+				sb.append(fd.getIdNo().hashCode());
 			else
 				sb.append("--");
 			sb.append("@");
@@ -135,11 +137,10 @@ public class FaceImageLog {
 					e.printStackTrace();
 				}
 			}
-
 		}
 	}
 
-	private static void saveIDCardImage(String dirName, FaceVerifyData fd) {
+	private static void saveIDCardImage(String dirName, PITVerifyData fd) {
 		if (fd == null || fd.getIdCardImg() == null)
 			return;
 
@@ -148,7 +149,7 @@ public class FaceImageLog {
 			StringBuffer sb = new StringBuffer();
 			sb.append(dirName);
 			sb.append("/ID");
-			sb.append(fd.getFaceID().hashCode());
+			sb.append(fd.getIdNo().hashCode());
 			sb.append(".jpg");
 			String fn = sb.toString();
 			DataOutputStream out;
@@ -162,7 +163,6 @@ public class FaceImageLog {
 					e.printStackTrace();
 				}
 			}
-
 		}
 	}
 

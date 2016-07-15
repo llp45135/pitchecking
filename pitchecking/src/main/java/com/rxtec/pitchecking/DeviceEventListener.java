@@ -81,7 +81,7 @@ public class DeviceEventListener implements Runnable {
 					.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifySucc.getValue(),
 							ticketVerifier.getTicket(), ticketVerifier.getIdCard(), null));
 			// 开始进行人脸检测和比对
-			verifyFace(ticketVerifier.getIdCard());
+			verifyFace(ticketVerifier.getIdCard(),ticketVerifier.getTicket());
 
 			ticketVerifier.reset();
 
@@ -108,8 +108,8 @@ public class DeviceEventListener implements Runnable {
 		}
 	}
 
-	private void verifyFace(IDCard idCard) {
-		PITData picData = verifyFaceTask.beginCheckFace(idCard);
+	private void verifyFace(IDCard idCard,Ticket ticket) {
+		PITData picData = verifyFaceTask.beginCheckFace(idCard,ticket);
 	}
 
 	// 启动设备

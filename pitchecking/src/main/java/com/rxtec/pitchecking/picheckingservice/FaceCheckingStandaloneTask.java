@@ -26,7 +26,7 @@ public class FaceCheckingStandaloneTask implements Runnable {
 		while (true) {
 			try {
 				Thread.sleep(50);
-				FaceVerifyData fd = FaceCheckingService.getInstance().takeFaceVerifyData();//从待验证人脸队列中取出人脸对象
+				PITVerifyData fd = FaceCheckingService.getInstance().takeFaceVerifyData();//从待验证人脸队列中取出人脸对象
 				if (fd != null) {
 					if (fd.getIdCardImg() == null)
 						continue;

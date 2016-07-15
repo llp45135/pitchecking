@@ -1,9 +1,15 @@
 package com.rxtec.pitchecking;
 
+import java.io.Serializable;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class Ticket {
+public class Ticket implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6822588667513026022L;
 	private Log log = LogFactory.getLog("Ticket");
 	private String ticketNo;
 	private String fromStationCode;
@@ -26,6 +32,15 @@ public class Ticket {
 	private String cardNo;
 	private String passengerName;
 	private String specialStr;
+	private String inGateNo;			//进闸机编号
+
+	public String getInGateNo() {
+		return inGateNo;
+	}
+
+	public void setInGateNo(String inGateNo) {
+		this.inGateNo = inGateNo;
+	}
 
 	public String getTicketNo() {
 		return ticketNo;
@@ -195,30 +210,30 @@ public class Ticket {
 		this.specialStr = specialStr;
 	}
 	
-	public void printTicket(){
-		log.debug("getTicketNo=="+this.getTicketNo());
-		log.debug("getFromStationCode=="+this.getFromStationCode());
-		log.debug("getEndStationCode=="+this.getEndStationCode());
-		log.debug("getChangeStationCode=="+this.getChangeStationCode());
-		log.debug("getTrainCode=="+this.getTrainCode());
-		log.debug("getCoachNo=="+this.getCoachNo());
-		log.debug("getSeatCode=="+this.getSeatCode());
-		log.debug("getTicketType=="+this.getTicketType());
-		log.debug("getSeatNo=="+this.getSeatNo());
-		log.debug("getTicketPrice=="+this.getTicketPrice());
-		log.debug("getTrainDate=="+this.getTrainDate());
-		log.debug("getChangeFlag=="+this.getChangeFlag());
-		log.debug("getTicketSourceCenter=="+this.getTicketSourceCenter());
-		log.debug("getBzsFlag=="+this.getBzsFlag());
-		log.debug("getSaleOfficeNo=="+this.getSaleOfficeNo());
-		log.debug("getSaleWindowNo=="+this.getSaleWindowNo());
-		log.debug("getSaleDate=="+this.getSaleDate());
-		log.debug("getCardType=="+this.getCardType());
-		log.debug("getCardNo=="+this.getCardNo());
-		log.debug("getPassengerName=="+this.getPassengerName());
-		log.debug("getSpecialStr=="+this.getSpecialStr());
-//		if(this.getPassengerName().equals("韩翔宇")){
-//			log.debug("请通过!");
-//		}
-	}
+//	public void printTicket(){
+//		log.debug("getTicketNo=="+this.getTicketNo());
+//		log.debug("getFromStationCode=="+this.getFromStationCode());
+//		log.debug("getEndStationCode=="+this.getEndStationCode());
+//		log.debug("getChangeStationCode=="+this.getChangeStationCode());
+//		log.debug("getTrainCode=="+this.getTrainCode());
+//		log.debug("getCoachNo=="+this.getCoachNo());
+//		log.debug("getSeatCode=="+this.getSeatCode());
+//		log.debug("getTicketType=="+this.getTicketType());
+//		log.debug("getSeatNo=="+this.getSeatNo());
+//		log.debug("getTicketPrice=="+this.getTicketPrice());
+//		log.debug("getTrainDate=="+this.getTrainDate());
+//		log.debug("getChangeFlag=="+this.getChangeFlag());
+//		log.debug("getTicketSourceCenter=="+this.getTicketSourceCenter());
+//		log.debug("getBzsFlag=="+this.getBzsFlag());
+//		log.debug("getSaleOfficeNo=="+this.getSaleOfficeNo());
+//		log.debug("getSaleWindowNo=="+this.getSaleWindowNo());
+//		log.debug("getSaleDate=="+this.getSaleDate());
+//		log.debug("getCardType=="+this.getCardType());
+//		log.debug("getCardNo=="+this.getCardNo());
+//		log.debug("getPassengerName=="+this.getPassengerName());
+//		log.debug("getSpecialStr=="+this.getSpecialStr());
+////		if(this.getPassengerName().equals("韩翔宇")){
+////			log.debug("请通过!");
+////		}
+//	}
 }

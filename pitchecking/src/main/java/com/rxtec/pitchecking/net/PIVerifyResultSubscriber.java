@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
-import com.rxtec.pitchecking.picheckingservice.FaceVerifyData;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 
 import io.aeron.Aeron;
@@ -145,7 +145,7 @@ class ResultSubscriberUtils {
 
 			try {
 				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-				FaceVerifyData fd = (FaceVerifyData)ois.readObject();
+				PITVerifyData fd = (PITVerifyData)ois.readObject();
 				PITData pd = new PITData(null);
 				pd.setFaceCheckResult(fd.getVerifyResult());
 				FaceCheckingService.getInstance().offerPassFaceData(pd);
