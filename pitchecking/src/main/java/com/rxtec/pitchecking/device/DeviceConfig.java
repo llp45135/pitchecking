@@ -323,7 +323,7 @@ public class DeviceConfig {
 			this.setFirstGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtlPort"));
 			this.setSecondGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtlSecondPort"));
 			this.setGateCrtoRate(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtoRate")));
-//			 this.setMQURL(root.getChild("MQConfig").getAttributeValue("MQURL"));
+			 this.setMQURL(root.getChild("MQConfig").getAttributeValue("MQURL"));
 			this.setTOPIC(root.getChild("MQConfig").getAttributeValue("TOPIC"));
 			this.setTOPIC_RESULT(root.getChild("MQConfig").getAttributeValue("TOPIC_RESULT"));
 			this.setUSER(root.getChild("MQConfig").getAttributeValue("USER"));
@@ -347,7 +347,7 @@ public class DeviceConfig {
 			etcIP = ip.getHostAddress();
 			log.debug("gateConfig.getIpAddr==" + etcIP);
 			this.setIpAddress(etcIP);
-			this.setMQURL("failover://tcp://" + etcIP + ":61616");
+//			this.setMQURL("failover://tcp://" + etcIP + ":61616");
 		} catch (UnknownHostException ex) {
 			// TODO Auto-generated catch block
 			log.error("DeviceConfig getLocalIPAddress:" + ex);
