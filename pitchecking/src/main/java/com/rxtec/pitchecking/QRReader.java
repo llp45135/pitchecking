@@ -114,8 +114,12 @@ public class QRReader implements Runnable {
 			String ticketStr = new String(ticketArray, "gbk");
 
 			ticket.setTicketNo(ticketStr.substring(0, 7));
-			ticket.setFromStationCode(ticketStr.substring(7, 10));
-			ticket.setEndStationCode(ticketStr.substring(10, 13));
+			String fromStationCode = ticketStr.substring(7, 10);
+			ticket.setFromStationCode(fromStationCode);
+			ticket.setFromStationName(DeviceConfig.getInstance().getStationName(fromStationCode));
+			String endStationCode = ticketStr.substring(10, 13);
+			ticket.setEndStationCode(endStationCode);
+			ticket.setToStationName(DeviceConfig.getInstance().getStationName(endStationCode));
 			ticket.setChangeStationCode(ticketStr.substring(13, 16));
 			String trainCodeStr = ticketStr.substring(16, 24).trim();
 			if (trainCodeStr.length() > 5) {
@@ -154,6 +158,8 @@ public class QRReader implements Runnable {
 				specialArray[i] = ticketArray[i + 110];
 			}
 			ticket.setSpecialStr(new String(specialArray, "gbk"));
+			
+			ticket.setInGateNo(DeviceConfig.getInstance().getGateNo());
 
 			trainDateArray = null;
 			passengerNameArray = null;

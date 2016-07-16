@@ -14,8 +14,17 @@ public class IDCard {
 	private String idNo;
 	private String personName;
 	private int gender;
+	private String genderCH;
 	private int age;
 
+
+	public String getGenderCH() {
+		return genderCH;
+	}
+
+	public void setGenderCH(String genderCH) {
+		this.genderCH = genderCH;
+	}
 
 	public int getGender() {
 		return gender;

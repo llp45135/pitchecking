@@ -5,7 +5,6 @@ package com.rxtec.pitchecking.utils;
  *  日期
  */
 
-
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -49,7 +48,7 @@ public class DateUtils {
 		String dateString = formatter.format(currentTime);
 		return dateString;
 	}
-	
+
 	public static String getStringDateHaomiao() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -337,7 +336,7 @@ public class DateUtils {
 
 	/**
 	 * * 获得某一日期的前一天 * @param date * @return Date
-	 * */
+	 */
 	public static Date getPreviousDate(Date date) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
@@ -348,7 +347,7 @@ public class DateUtils {
 
 	/**
 	 * * 获得某年某月第一天的日期 * @param year * @param month * @return Date
-	 * */
+	 */
 	public static Date getFirstDayOfMonth(int year, int month) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.YEAR, year);
@@ -359,7 +358,7 @@ public class DateUtils {
 
 	/**
 	 * * 获得某年某月最后一天的日期 * @param year * @param month * @return Date
-	 * */
+	 */
 	public static Date getLastDayOfMonth(int year, int month) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.YEAR, year);
@@ -469,15 +468,48 @@ public class DateUtils {
 		return distance;
 	}
 
+	public static int getAge(String dateBegin, String dateEnd) {
+		int distance = 0; // 时间之间的天数
+		String db = dateBegin; // 开始日期
+		String de = dateEnd; // 结束日期
+
+		int strby = 0; // substring of begin date year 开始日期的年份
+		int strbm = 0; // 开始日期的月份
+		int strbd = 0; // 开始日期的日子
+		int strey = 0;
+		int strem = 0;
+		int stred = 0;
+		// 类型转换
+		strby = Integer.parseInt(db.substring(0, 4));
+		strbm = Integer.parseInt(db.substring(5, 7));
+		strbd = Integer.parseInt(db.substring(8, 10));
+		strey = Integer.parseInt(de.substring(0, 4));
+		strem = Integer.parseInt(de.substring(5, 7));
+		stred = Integer.parseInt(de.substring(8, 10));
+		if (stred < strbd) {
+			stred = stred + 30;
+			strem = strem - 1;
+		}
+
+		if (strem < strbm) {
+			strem = strem + 12;
+			strey = strey - 1;
+		}
+		distance = (strey - strby) * 365 + (strem - strbm) * 30 + stred - strbd;
+		int age = distance / 365;
+		return age;
+	}
+
 	/**
-	 * 计算时间差 (时间单位,开始时间,结束时间) 调用方法
-	 * howLong("h","2007-08-09 10:22:26","2007-08-09 20:21:30") ///9小时56分 返回9小时
-	 * */
+	 * 计算时间差 (时间单位,开始时间,结束时间) 调用方法 howLong("h","2007-08-09 10:22:26",
+	 * "2007-08-09 20:21:30") ///9小时56分 返回9小时
+	 */
 	public static long howLong(String unit, String time1, String time2) throws ParseException {
 		// 时间单位(如：不足1天(24小时) 则返回0)，开始时间，结束时间
 		Date date1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(time1);
 		Date date2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(time2);
-		long ltime = date1.getTime() - date2.getTime() < 0 ? date2.getTime() - date1.getTime() : date1.getTime() - date2.getTime();
+		long ltime = date1.getTime() - date2.getTime() < 0 ? date2.getTime() - date1.getTime()
+				: date1.getTime() - date2.getTime();
 		if (unit.equals("s")) {
 			return ltime / 1000;// 返回秒
 		} else if (unit.equals("m")) {
@@ -491,10 +523,14 @@ public class DateUtils {
 		}
 	}
 
+	/**
+	 * @param args
+	 * @throws ParseException
+	 */
 	public static void main(String[] args) throws ParseException {
 		System.out.println("nowMonthDays==" + getNowMonthDays("2008-02"));
 		System.out.println("nowYearDays==" + getNowYearDays("2009"));
-		System.out.println(getCalcDate("2009-01-01", "2009-01-02"));
+		System.out.println("getAge==" + getAge("1980-12-14", "2016-07-16"));
 		System.out.println(getPreSerivalDaysShort(getStringDateShort(), 1));
 		System.out.println("hhmm==" + getStringTime());
 	}

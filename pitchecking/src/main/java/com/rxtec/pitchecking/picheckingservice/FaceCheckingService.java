@@ -59,8 +59,6 @@ public class FaceCheckingService {
 		detectedFaceDataQueue = new LinkedBlockingQueue<PITData>(Config.getInstance().getDetectededFaceQueueLen());
 		faceVerifyDataQueue = new LinkedBlockingQueue<PITVerifyData>(Config.getInstance().getDetectededFaceQueueLen());
 		passFaceDataQueue = new LinkedBlockingQueue<PITData>(1);
-		// 实例化mq发送端
-		jmsSender = new JmsSender();
 	}
 
 	public static synchronized FaceCheckingService getInstance() {
@@ -141,6 +139,8 @@ public class FaceCheckingService {
 
 		PIVerifyResultSubscriber.getInstance().startSubscribing();
 		PTVerifyPublisher.getInstance();
+		// 实例化mq发送端
+		jmsSender = new JmsSender();
 	}
 
 	/**

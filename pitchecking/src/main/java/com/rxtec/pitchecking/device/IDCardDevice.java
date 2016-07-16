@@ -26,6 +26,7 @@ import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectByPixelJNIEntryClone;
 import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.utils.DateUtils;
 
 /**
  * Syn_OpenPort Syn_SetMaxRFByte(m_Port, 80, 0); Syn_StartFindIDCard(m_Port,* *
@@ -336,10 +337,14 @@ public class IDCardDevice {
 					// log.debug(Info[hh - 1]);
 				}
 				// log.debug("姓名：" + Info[0]);
-				synIDCard.setPersonName(Info[0]);
+				synIDCard.setPersonName(Info[0]);   //set personName
 				if (Info[1].charAt(0) == '1') {
+					synIDCard.setGender(1);
+					synIDCard.setGenderCH("男");//set gender
 					// log.debug("性别：" + "男");
 				} else if (Info[1].charAt(0) == '2') {
+					synIDCard.setGender(2);
+					synIDCard.setGenderCH("女");//set gender
 					// log.debug("性别：" + "女");
 				}
 				char[] nationChar = new char[2];
@@ -474,6 +479,9 @@ public class IDCardDevice {
 				char[] BirthdateChar = new char[2];
 				Info[1].getChars(9, 11, BirthdateChar, 0);
 				BirthdateStr = String.valueOf(BirthdateChar);
+				String birthday = BirthyearStr+"-"+BirthmonthStr+"-"+BirthdateStr;
+				String today = DateUtils.getStringDateShort();
+				synIDCard.setAge(DateUtils.getAge(birthday, today));  //set age
 				// log.debug("出生年月：" + BirthyearStr + "年" + BirthmonthStr + "月"
 				// + BirthdateStr + "日");
 				char[] addressChar = new char[Info[1].length() - 11];
@@ -549,7 +557,7 @@ public class IDCardDevice {
 
 				BufferedImage image = null;
 				image = ImageIO.read(new File("zp.jpg"));
-				synIDCard.setCardImage(image);
+				synIDCard.setCardImage(image);   //set cardImage
 
 				// log.debug("相片解码成功！");
 			} else {

@@ -1,9 +1,7 @@
 package com.rxtec.pitchecking;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -15,12 +13,9 @@ import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.DeviceException;
 import com.rxtec.pitchecking.device.FirstGateDevice;
 import com.rxtec.pitchecking.device.SecondGateDevice;
-import com.rxtec.pitchecking.device.IDCardDevice;
 import com.rxtec.pitchecking.device.LightControlBoard;
-import com.rxtec.pitchecking.device.QRDevice;
 import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
-import com.rxtec.pitchecking.mq.JmsReceiver;
 import com.rxtec.pitchecking.mq.JmsReceiverTask;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.utils.CommUtil;

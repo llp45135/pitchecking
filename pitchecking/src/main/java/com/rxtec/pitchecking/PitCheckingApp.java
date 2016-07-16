@@ -26,7 +26,6 @@ public class PitCheckingApp {
 	static TicketCheckScreen ticketCheckScreen = TicketCheckScreen.getInstance();
 
 	public static void main(String[] args) throws InterruptedException {
-		FaceImageLog.clearFaceLogs();
 		ticketCheckScreen.initUI();
 
 		Thread.sleep(1000);

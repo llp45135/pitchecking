@@ -43,7 +43,7 @@ public class FaceVerifyStandaloneTest implements Runnable {
 			faceData.setFaceImg(img1);
 			faceData.setIdCardImg(img2);
 			faceData.setIdNo("123456");
-			faceData.setPersonName("李立平");
+			faceData.setPersonName("XX");
 			faceData.setAge(12);
 			faceData.setGender(1);
 			Ticket t = new Ticket();

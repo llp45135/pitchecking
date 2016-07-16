@@ -16,9 +16,9 @@ import com.rxtec.pitchecking.utils.CommUtil;
 
 public class FaceVerifyJniEntryTest implements Runnable {
 
-	FaceVerifyJniEntry jni = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
+//	FaceVerifyJniEntry jni = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
 	
-//	FaceVerifyMicroPJNIEntry jni = new FaceVerifyMicroPJNIEntry("C:/maven/git/pitchecking/micropattern/MPALLibFaceRecFInf.dll");
+	FaceVerifyMicroPJNIEntry jni = new FaceVerifyMicroPJNIEntry("C:/maven/git/pitchecking/micropattern/MPALLibFaceRecFInf.dll");
 	
 	byte[] img1, img2;
 	DecimalFormat df = (DecimalFormat) NumberFormat.getInstance();
