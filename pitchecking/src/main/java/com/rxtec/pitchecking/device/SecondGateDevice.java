@@ -61,7 +61,7 @@ public class SecondGateDevice implements SerialPortEventListener {
 
 			if (commPort instanceof SerialPort) {
 				serialPort = (SerialPort) commPort;
-				serialPort.setSerialPortParams(DeviceConfig.getInstance().getGateCrtoRate(), SerialPort.DATABITS_8,
+				serialPort.setSerialPortParams(DeviceConfig.getInstance().getGateCrtlRate(), SerialPort.DATABITS_8,
 						SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 				serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
 

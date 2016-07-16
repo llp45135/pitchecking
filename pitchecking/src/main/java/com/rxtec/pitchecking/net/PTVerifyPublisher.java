@@ -98,7 +98,7 @@ public class PTVerifyPublisher implements Runnable {
 				byte[] buf = serialObjToBytes(data);
 				if (buf == null)
 					continue;
-				this.putFailedFace(data);  //每次将待验证的人脸放入FailedFace
+				this.putFailedFace(data);  //每次将待验证的人脸放入FailedFace 供active mq调用
 				log.debug("FaceVerifyData serial obj bytes = " + buf.length + " BUFFER.capacity = "+BUFFER.capacity());
 				BUFFER.putBytes(0, buf);
 				final long result = publication.offer(BUFFER, 0, buf.length);
@@ -132,7 +132,7 @@ public class PTVerifyPublisher implements Runnable {
 	 */
 	private void putFailedFace(PITVerifyData fd){
 		FailedFace failedFace = new FailedFace();
-		failedFace.setIdNo(CommUtil.getRandomUUID());
+		failedFace.setIdNo(fd.getIdNo());
 		failedFace.setIpAddress(DeviceConfig.getInstance().getIpAddress());
 		failedFace.setGateNo(DeviceConfig.getInstance().getGateNo());
 		failedFace.setCardImage(fd.getIdCardImg());

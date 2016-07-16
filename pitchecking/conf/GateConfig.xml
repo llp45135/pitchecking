@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PitCheckMsg>
 	<GateConfig gateNo="01" faceScreen="0" ticketScreen="1" />
-	<GateCrtlConfig cameraLEDPort="1" gateCrtlPort="COM2" gateCrtlSecondPort="COM3" gateCrtoRate="9600" />
-	<MQConfig MQURL="failover://tcp://192.168.1.219:61616" TOPIC="Pitchecking" TOPIC_RESULT="PitcheckingResult" USER="pitchecking" PASSWORD="pitchecking" />
+	<GateCrtlConfig cameraLEDPort="1" firstGateCrtlPort="COM2" secondGateCrtlPort="COM3" gateCrtlRate="9600" />
+	<MQConfig MQURL="failover://tcp://192.168.1.4:61616" TOPIC="Pitchecking" TOPIC_RESULT="PitcheckingResult" USER="pitchecking" PASSWORD="pitchecking" />
 </PitCheckMsg>
