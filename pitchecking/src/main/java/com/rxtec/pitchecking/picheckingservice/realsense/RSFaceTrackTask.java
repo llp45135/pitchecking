@@ -202,7 +202,7 @@ public class RSFaceTrackTask implements Runnable {
 			if (landmark == null)
 				continue;
 			point.x = (int) (landmark.image.x + LandmarkAlignment);
-			point.y = (int) (landmark.image.y + LandmarkAlignment);
+			point.y = ((int) (landmark.image.y + LandmarkAlignment))-10;
 
 			// log.debug("landmark.confidenceImage=" + landmark.confidenceImage
 			// +" landmark.confidenceWorld=" + landmark.confidenceWorld );
@@ -580,10 +580,11 @@ public class RSFaceTrackTask implements Runnable {
 				PXCMFaceData.DetectionData detection = face.QueryDetection();
 
 				drawLocation(detection);
+				drawLandmark(face);
+
 				boolean isRealFace = true;
 				if (Config.getInstance().getIsCheckRealFace() == 1) {
 					isRealFace = checkRealFace(sf);
-					drawLandmark(face);
 				}
 				if (detection != null && isRealFace) {
 					PITData fd = createFaceData(frameImage, detection);
@@ -617,7 +618,7 @@ public class RSFaceTrackTask implements Runnable {
 				detection.QueryFaceAverageDepth(averageDepth);
 				float distance = averageDepth[0];
 
-				if (distance > Config.MinAverageDepth && distance < Config.MaxAverageDepth) {
+				if (distance > Config.getInstance().getMinAverageDepth() && distance < Config.getInstance().getMaxAverageDepth()) {
 					SortFace sf = new SortFace(face, distance);
 					sortFaces.add(sf);
 

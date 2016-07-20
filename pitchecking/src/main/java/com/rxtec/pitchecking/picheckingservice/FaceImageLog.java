@@ -36,17 +36,17 @@ public class FaceImageLog {
 				}
 			}
 		}
-		
+
 		MongoDB.getInstance().clearExpirationData();
 	}
 
 	public static void saveFaceDataToDsk(PITVerifyData fd) {
-		if (!(Config.getInstance().getIsSaveFaceImageToLocaldisk() == 0)) {
+		if ((Config.getInstance().getIsSaveFaceImageToLocaldisk() == 0)) {
 			float result = fd.getVerifyResult();
 			if (result >= Config.getInstance().getFaceCheckThreshold()) {
 				MongoDB.getInstance().save(fd, true);
 
-			} else {
+			} else if (result < Config.getInstance().getFaceCheckThreshold() && result > 0) {
 				MongoDB.getInstance().save(fd, false);
 
 			}
@@ -63,16 +63,19 @@ public class FaceImageLog {
 				saveFrameImage(passedDir, fd);
 				saveFaceImage(passedDir, fd);
 				saveIDCardImage(passedDir, fd);
+				MongoDB.getInstance().save(fd, true);
 
 			} else if (result < Config.getInstance().getFaceCheckThreshold() && result > 0) {
 				saveFrameImage(failedDir, fd);
 				saveFaceImage(failedDir, fd);
 				saveIDCardImage(failedDir, fd);
+				MongoDB.getInstance().save(fd, false);
 
 			} else {
-				saveFrameImage(trackedDir, fd);
-				saveFaceImage(trackedDir, fd);
-				saveIDCardImage(trackedDir, fd);
+//				saveFrameImage(trackedDir, fd);
+//				saveFaceImage(trackedDir, fd);
+//				saveIDCardImage(trackedDir, fd);
+//				MongoDB.getInstance().save(fd, false);
 
 			}
 		}

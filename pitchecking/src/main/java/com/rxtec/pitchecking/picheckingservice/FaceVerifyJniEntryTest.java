@@ -18,14 +18,21 @@ public class FaceVerifyJniEntryTest implements Runnable {
 
 //	FaceVerifyJniEntry jni = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
 	
-	FaceVerifyMicroPJNIEntry jni = new FaceVerifyMicroPJNIEntry("C:/maven/git/pitchecking/micropattern/MPALLibFaceRecFInf.dll");
+	FaceVerifyInterface faceVerify = null;
 	
 	byte[] img1, img2;
 	DecimalFormat df = (DecimalFormat) NumberFormat.getInstance();
 
 	public FaceVerifyJniEntryTest() {
-		IDCard c1 = createIDCard("C:/pitchecking/B1.jpg");
-		IDCard c2 = createIDCard("C:/pitchecking/B2.jpg");
+		
+		if(Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyPIXEL)){
+			faceVerify = new PIXELFaceVerifyJniEntry(Config.PIXELFaceVerifyDLLName);
+		}else if(Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyMicro)){
+			faceVerify = new MICROPFaceVerifyJNIEntry("micropattern/MPALLibFaceRecFInf.dll");
+		}
+
+		IDCard c1 = createIDCard("C:/pitchecking/A1.jpg");
+		IDCard c2 = createIDCard("C:/pitchecking/A2.jpg");
 
 		img1 = c1.getImageBytes();
 		img2 = c2.getImageBytes();
@@ -39,7 +46,7 @@ public class FaceVerifyJniEntryTest implements Runnable {
 			CommUtil.sleep(500);
 			long nowMils = Calendar.getInstance().getTimeInMillis();
 
-			float result = jni.verify(img1, img2);
+			float result = faceVerify.verify(img1, img2);
 
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			System.out.println("Using " + usingTime + " ms, value=" + df.format(result));

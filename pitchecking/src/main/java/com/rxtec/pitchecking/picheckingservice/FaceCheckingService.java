@@ -31,17 +31,8 @@ public class FaceCheckingService {
 
 	// 比对验证通过的队列
 	private LinkedBlockingQueue<PITData> passFaceDataQueue;
-
-	private JmsSender jmsSender = null; // activemq
+	
 	private FailedFace failedFace = null;
-
-	public JmsSender getJmsSender() {
-		return jmsSender;
-	}
-
-	public void setJmsSender(JmsSender jmsSender) {
-		this.jmsSender = jmsSender;
-	}
 
 	public FailedFace getFailedFace() {
 		return failedFace;
@@ -138,9 +129,7 @@ public class FaceCheckingService {
 		// executer.execute(task2);
 
 		PIVerifyResultSubscriber.getInstance().startSubscribing();
-		PTVerifyPublisher.getInstance();
-		// 实例化mq发送端
-		jmsSender = new JmsSender();
+		PTVerifyPublisher.getInstance();		
 	}
 
 	/**
@@ -148,10 +137,10 @@ public class FaceCheckingService {
 	 */
 	public void beginFaceCheckerStandaloneTask() {
 		ExecutorService executer = Executors.newCachedThreadPool();
-		FaceCheckingStandaloneTask task1 = new FaceCheckingStandaloneTask(Config.FaceVerifyDLLName);
+		FaceCheckingStandaloneTask task1 = new FaceCheckingStandaloneTask();
 		executer.execute(task1);
 		if (Config.getInstance().getFaceVerifyThreads() == 2) {
-			FaceCheckingStandaloneTask task2 = new FaceCheckingStandaloneTask(Config.FaceVerifyCloneDLLName);
+			FaceCheckingStandaloneTask task2 = new FaceCheckingStandaloneTask();
 			executer.execute(task2);
 		}
 		log.info(".............Start " + Config.getInstance().getFaceVerifyThreads() + " FaceVerifyThreads");

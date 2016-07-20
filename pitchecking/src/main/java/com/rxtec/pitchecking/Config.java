@@ -29,8 +29,8 @@ public class Config {
 	public static int UVCVideo = 1;
 	public static String UVCCameraName = "Logitech HD Pro Webcam C920";
 
-	public static String FaceVerifyDLLName = "FaceVRISDK.dll";
-	public static String FaceVerifyCloneDLLName = "FaceVRISDK.dll";
+	public static String PIXELFaceVerifyDLLName = "FaceVRISDK.dll";
+	public static String MICROFaceVerifyCloneDLLName = "micropattern/MPALLibFaceRecFInf.dll";
 
 	public static int FrameWidth = 960;
 	public static int FrameHeigh = 540;
@@ -39,8 +39,6 @@ public class Config {
 
 	public static int frameRate = 30;
 
-	public static float MinAverageDepth = 400F;
-	public static float MaxAverageDepth = 1200F;
 
 	public static float DValueMaxDepth = 100F;
 	public static float DValueMinDepth = 20F;
@@ -73,6 +71,9 @@ public class Config {
 	public static String PassedMongoCollectionName = "passed_record";
 	public static String FailedMongoCollectionName = "failed_record";
 	
+	public static String FaceVerifyMicro="MICRO";
+	public static String FaceVerifyPIXEL="PIXEL";
+	
 
 	private int faceVerifyThreads = 2; // 人脸比对线程数
 
@@ -94,6 +95,36 @@ public class Config {
 	private String mongoDBAddress = "localhost";
 	private int mongoDBPort = 27017;
 	private int isSaveFaceImageToLocaldisk=1;
+	private String faceVerifyType="MICRO";
+	
+	private float minAverageDepth = 400F;
+	private float maxAverageDepth = 1000F;
+
+	public float getMinAverageDepth() {
+		return minAverageDepth;
+	}
+
+	public void setMinAverageDepth(float minAverageDepth) {
+		minAverageDepth = minAverageDepth;
+	}
+
+	public float getMaxAverageDepth() {
+		return maxAverageDepth;
+	}
+
+	public void setMaxAverageDepth(float maxAverageDepth) {
+		maxAverageDepth = maxAverageDepth;
+	}
+
+
+	
+	public String getFaceVerifyType() {
+		return faceVerifyType;
+	}
+
+	public void setFaceVerifyType(String faceVerifyType) {
+		this.faceVerifyType = faceVerifyType;
+	}
 
 	public String getMongoDBAddress() {
 		return mongoDBAddress;
@@ -285,6 +316,9 @@ public class Config {
 			this.mongoDBPort = Integer.valueOf(p.getProperty("MongoDBPort", "27017"));
 			this.mongoDBAddress = p.getProperty("MongoDBAddress", "localhost");
 			this.isSaveFaceImageToLocaldisk = Integer.valueOf(p.getProperty("IsSaveFaceImageToLocaldisk", "1"));
+			this.faceVerifyType = p.getProperty("FaceVerifyType", "PIXEL");
+			this.maxAverageDepth = Integer.valueOf(p.getProperty("MaxAverageDepth", "1000"));
+			this.minAverageDepth = Integer.valueOf(p.getProperty("MinAverageDepth", "400"));
 			
 
 			is.close(); // 关闭流

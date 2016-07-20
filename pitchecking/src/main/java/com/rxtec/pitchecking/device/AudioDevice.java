@@ -26,6 +26,7 @@ public class AudioDevice {
 	private Log log = LogFactory.getLog("AudioDevice");
 	private static AudioDevice _instance = new AudioDevice();
 	File audioFile = null;
+	File emerAudioFile = null; // 应急门离开语音
 
 	public static synchronized AudioDevice getInstance() {
 		if (_instance == null) {
@@ -36,6 +37,7 @@ public class AudioDevice {
 
 	private AudioDevice() {
 		audioFile = new File(DeviceConfig.cameraWav);
+		emerAudioFile = new File(DeviceConfig.emerDoorWav);
 	}
 
 	/**
@@ -43,14 +45,19 @@ public class AudioDevice {
 	 * 
 	 * @param filename
 	 */
-	public void play() {
+	public void play(int audioFlag) {
 		AudioInputStream audioStream = null;
 		AudioFormat audioFormat = null;
 		DataInputStream audioDis = null;
 		byte[] audioSamples = null;
 		try {
-			log.debug("载入声音文件:" + audioFile);
-			audioStream = AudioSystem.getAudioInputStream(audioFile);
+			if (audioFlag == DeviceConfig.cameraFlag) {
+				log.debug("载入声音文件:" + audioFile);
+				audioStream = AudioSystem.getAudioInputStream(audioFile);
+			} else if (audioFlag == DeviceConfig.emerDoorFlag) {
+				log.debug("载入声音文件:" + emerAudioFile);
+				audioStream = AudioSystem.getAudioInputStream(emerAudioFile);
+			}
 			audioFormat = audioStream.getFormat();
 
 			int length = (int) (audioStream.getFrameLength() * audioFormat.getFrameSize());
@@ -89,7 +96,7 @@ public class AudioDevice {
 		// start the line
 		dataLline.start();
 		// copy data to the line
-		InputStream audioInputStream= null;
+		InputStream audioInputStream = null;
 		try {
 			audioInputStream = new ByteArrayInputStream(audioSamples);
 			int numBytesRead = 0;
@@ -100,11 +107,11 @@ public class AudioDevice {
 				}
 			}
 			dataLline.drain();
-			dataLline.close();			
+			dataLline.close();
 			audioInputStream.close();
 			audioBuffer = null;
 			audioSamples = null;
-			log.debug("语音播放完毕..."+audioFile);
+			log.debug("语音播放完毕..." + audioFile);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
@@ -124,18 +131,18 @@ public class AudioDevice {
 	}
 
 	public static void main(String args[]) throws Exception {
-//		for (int i = 0; i < 3; i++) {
-////			AudioDevice.getInstance().play(DeviceConfig.idReaderWav);
-////			AudioDevice.getInstance().play(DeviceConfig.qrReaderWav);
-//			
-//			CommUtil.sleep(5000);
-//		}
-		
-//		AudioPlayTask audioTask = new AudioPlayTask();
-//		ExecutorService audioExecuter = Executors.newCachedThreadPool();
-//		audioExecuter.execute(audioTask);		
-//		audioExecuter.shutdown();		
+		// for (int i = 0; i < 3; i++) {
+		//// AudioDevice.getInstance().play(DeviceConfig.idReaderWav);
+		//// AudioDevice.getInstance().play(DeviceConfig.qrReaderWav);
+		//
+		// CommUtil.sleep(5000);
+		// }
+
+		// AudioPlayTask audioTask = new AudioPlayTask();
+		// ExecutorService audioExecuter = Executors.newCachedThreadPool();
+		// audioExecuter.execute(audioTask);
+		// audioExecuter.shutdown();
 		// exit
-//		 System.exit(0);
+		// System.exit(0);
 	}
 }

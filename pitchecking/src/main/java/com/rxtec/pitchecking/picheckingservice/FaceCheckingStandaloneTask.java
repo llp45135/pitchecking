@@ -13,11 +13,15 @@ public class FaceCheckingStandaloneTask implements Runnable {
 
 	
 	PTVerifyResultPublisher publisher = PTVerifyResultPublisher.getInstance();
-	FaceVerifyJniEntry faceVerify = null;
+	FaceVerifyInterface faceVerify = null;
 	private Logger log = LoggerFactory.getLogger("FaceCheckingStandaloneTask");
 
-	public FaceCheckingStandaloneTask(String DLLName){
-		faceVerify = new FaceVerifyJniEntry(DLLName);
+	public FaceCheckingStandaloneTask(){
+		if(Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyPIXEL)){
+			faceVerify = new PIXELFaceVerifyJniEntry(Config.PIXELFaceVerifyDLLName);
+		}else if(Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyMicro)){
+			faceVerify = new MICROPFaceVerifyJNIEntry(Config.MICROFaceVerifyCloneDLLName);
+		}
 	}
 
 	

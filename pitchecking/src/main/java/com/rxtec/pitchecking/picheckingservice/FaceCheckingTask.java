@@ -13,11 +13,16 @@ import com.rxtec.pitchecking.domain.FailedFace;
 
 public class FaceCheckingTask implements Runnable {
 
-	FaceVerifyJniEntry faceVerify = null;
+	FaceVerifyInterface faceVerify = null;
 	private Logger log = LoggerFactory.getLogger("FaceCheckingTask");
 
-	public FaceCheckingTask(String DLLName){
-		faceVerify = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
+	public FaceCheckingTask(){
+		if(Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyPIXEL)){
+			faceVerify = new PIXELFaceVerifyJniEntry(Config.PIXELFaceVerifyDLLName);
+		}else if(Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyMicro)){
+			faceVerify = new PIXELFaceVerifyJniEntry(Config.MICROFaceVerifyCloneDLLName);
+		}
+		
 	}
 	
 	

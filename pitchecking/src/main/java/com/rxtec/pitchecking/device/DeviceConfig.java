@@ -51,7 +51,12 @@ public class DeviceConfig {
 	public static String idReaderWav = "./wav/thanks.wav";
 	public static String qrReaderWav = "./wav/talkforever16.wav";
 	public static String cameraWav = "./wav/camera.wav";// "./wav/12-35.wav";
+	public static String emerDoorWav = "./wav/emerDoor.wav";
+	public static int cameraFlag = 1;
+	public static int emerDoorFlag = 2;
 
+	private int checkTicketFlag = 1;
+	private String belongStationCode = "IZQ";
 	private int faceScreen = 0;
 	private int ticketScreen = 1;
 	private String gateNo = "00";
@@ -61,12 +66,38 @@ public class DeviceConfig {
 	private String firstGateCrtlPort = "COM2";
 	private String secondGateCrtlPort = "COM3";
 	private int gateCrtlRate = 9600;
+
+	private int mqStartFlag = 0;
 	private String TOPIC = "Pitchecking";
 	private String TOPIC_RESULT = "PitcheckingResult";
 	private String MQURL = "failover://" + "tcp://127.0.0.1:61616";
 	private String USER = "pitchecking";
 	private String PASSWORD = "pitchecking";
 	private String ipAddress = "127.0.0.1";
+
+	public int getCheckTicketFlag() {
+		return checkTicketFlag;
+	}
+
+	public void setCheckTicketFlag(int checkTicketFlag) {
+		this.checkTicketFlag = checkTicketFlag;
+	}
+
+	public int getMqStartFlag() {
+		return mqStartFlag;
+	}
+
+	public void setMqStartFlag(int mqStartFlag) {
+		this.mqStartFlag = mqStartFlag;
+	}
+
+	public String getBelongStationCode() {
+		return belongStationCode;
+	}
+
+	public void setBelongStationCode(String belongStationCode) {
+		this.belongStationCode = belongStationCode;
+	}
 
 	public String getGateNo() {
 		return gateNo;
@@ -114,6 +145,7 @@ public class DeviceConfig {
 			_instance = new DeviceConfig();
 		return _instance;
 	}
+
 	public int getCameraLEDPort() {
 		return CameraLEDPort;
 	}
@@ -145,8 +177,6 @@ public class DeviceConfig {
 	public void setIpAddress(String ipAddress) {
 		this.ipAddress = ipAddress;
 	}
-
-	
 
 	public int getGateCrtlRate() {
 		return gateCrtlRate;
@@ -318,6 +348,8 @@ public class DeviceConfig {
 			Document deviceDoc;
 			deviceDoc = saxhandle.build(new FileInputStream("./conf/GateConfig.xml"));
 			org.jdom.Element root = deviceDoc.getRootElement();
+			this.setCheckTicketFlag(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("checkTicketFlag")));
+			this.setBelongStationCode(root.getChild("GateConfig").getAttributeValue("belongStationCode"));
 			this.setGateNo(root.getChild("GateConfig").getAttributeValue("gateNo"));
 			this.setFaceScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("faceScreen")));
 			this.setTicketScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("ticketScreen")));
@@ -325,7 +357,8 @@ public class DeviceConfig {
 			this.setFirstGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("firstGateCrtlPort"));
 			this.setSecondGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("secondGateCrtlPort"));
 			this.setGateCrtlRate(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtlRate")));
-			 this.setMQURL(root.getChild("MQConfig").getAttributeValue("MQURL"));
+			this.setMqStartFlag(Integer.parseInt(root.getChild("MQConfig").getAttributeValue("mqStartFlag")));
+			this.setMQURL(root.getChild("MQConfig").getAttributeValue("MQURL"));
 			this.setTOPIC(root.getChild("MQConfig").getAttributeValue("TOPIC"));
 			this.setTOPIC_RESULT(root.getChild("MQConfig").getAttributeValue("TOPIC_RESULT"));
 			this.setUSER(root.getChild("MQConfig").getAttributeValue("USER"));
@@ -349,7 +382,7 @@ public class DeviceConfig {
 			etcIP = ip.getHostAddress();
 			log.debug("gateConfig.getIpAddr==" + etcIP);
 			this.setIpAddress(etcIP);
-//			this.setMQURL("failover://tcp://" + etcIP + ":61616");
+			// this.setMQURL("failover://tcp://" + etcIP + ":61616");
 		} catch (UnknownHostException ex) {
 			// TODO Auto-generated catch block
 			log.error("DeviceConfig getLocalIPAddress:" + ex);
@@ -367,6 +400,9 @@ public class DeviceConfig {
 		System.out.println(DeviceConfig.getInstance().getSeatTypesMap().size());
 		System.out.println(DeviceConfig.getInstance().getSeatTypesMap().get("O"));
 
+		System.out.println("getBelongStationCode==" + dconfig.getBelongStationCode());
+		System.out.println(
+				"getStationName==" + DeviceConfig.getInstance().getStationName(dconfig.getBelongStationCode()));
 		System.out.println("getGateNo==" + dconfig.getGateNo());
 		System.out.println("getCameraLEDPort==" + dconfig.getCameraLEDPort());
 		System.out.println("getFirstGateCrtlPort==" + dconfig.getFirstGateCrtlPort());
