@@ -84,6 +84,8 @@ public class VerifyFaceTask {
 					JmsSenderTask.getInstance().offerFailedFace(failedFace);
 					FaceCheckingService.getInstance().setFailedFace(null);
 				}
+			} else {
+				FaceCheckingService.getInstance().setFailedFace(null);
 			}
 
 			TicketCheckScreen.getInstance().offerEvent(

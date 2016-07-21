@@ -9,6 +9,8 @@ import javax.imageio.ImageIO;
 
 import org.openimaj.image.ImageUtilities;
 import org.openimaj.image.MBFImage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IDCard {
 	private String idNo;
@@ -16,7 +18,17 @@ public class IDCard {
 	private int gender;
 	private String genderCH;
 	private int age;
+	private static Logger log = LoggerFactory.getLogger("IDCard");
+	private byte[] cardImageBytes = null;
 
+
+	public byte[] getCardImageBytes() {
+		return cardImageBytes;
+	}
+
+	public void setCardImageBytes(byte[] cardImageBytes) {
+		this.cardImageBytes = cardImageBytes;
+	}
 
 	public String getGenderCH() {
 		return genderCH;
@@ -69,14 +81,16 @@ public class IDCard {
 		this.cardImage = cardImage;
 	}
 	
-	public byte[] getImageBytes(){
+	public byte[] getManualImageBytes(){
 		ByteArrayOutputStream output = new ByteArrayOutputStream ();
+		byte[] buff = null;
 		try {
 			ImageIO.write(cardImage, "JPEG", ImageIO.createImageOutputStream(output));
-		} catch (IOException e) {
-			e.printStackTrace();
+			buff = output.toByteArray();
+		} catch (Exception e) {
+			log.error("ImageIO.write error!",e);
 		}
-		byte[] buff = output.toByteArray();
+		
 		return buff;
 	} 
 }

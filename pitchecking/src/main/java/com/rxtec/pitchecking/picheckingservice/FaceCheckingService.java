@@ -31,7 +31,7 @@ public class FaceCheckingService {
 
 	// 比对验证通过的队列
 	private LinkedBlockingQueue<PITData> passFaceDataQueue;
-	
+
 	private FailedFace failedFace = null;
 
 	public FailedFace getFailedFace() {
@@ -89,10 +89,14 @@ public class FaceCheckingService {
 		}
 
 		PITVerifyData vd = new PITVerifyData(faceData);
+		if (vd.getIdCardImg() != null && vd.getFrameImg() != null && vd.getFaceImg() != null) {
 
-		if (!faceVerifyDataQueue.offer(vd)) {
-			faceVerifyDataQueue.poll();
-			faceVerifyDataQueue.offer(vd);
+			if (!faceVerifyDataQueue.offer(vd)) {
+				faceVerifyDataQueue.poll();
+				faceVerifyDataQueue.offer(vd);
+			}
+		}else{
+			log.info("offerDetectedFaceData 输入数据不完整！ vd.getIdCardImg()="+vd.getIdCardImg() +" vd.getFrameImg()=" + vd.getFrameImg() + " vd.getFaceImg()=" + vd.getFaceImg() );
 		}
 
 	}
@@ -129,7 +133,7 @@ public class FaceCheckingService {
 		// executer.execute(task2);
 
 		PIVerifyResultSubscriber.getInstance().startSubscribing();
-		PTVerifyPublisher.getInstance();		
+		PTVerifyPublisher.getInstance();
 	}
 
 	/**

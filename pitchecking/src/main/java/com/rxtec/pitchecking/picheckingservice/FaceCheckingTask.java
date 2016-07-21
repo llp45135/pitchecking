@@ -42,7 +42,7 @@ public class FaceCheckingTask implements Runnable {
 					byte[] extractFaceImageBytes = fd.getExtractFaceImageBytes();
 					if (extractFaceImageBytes == null)
 						continue;
-					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCard().getImageBytes());//比对人脸
+					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCard().getCardImageBytes());//比对人脸
 					fd.setFaceCheckResult(resultValue);
 					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {

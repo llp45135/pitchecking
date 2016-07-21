@@ -9,6 +9,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.StringTokenizer;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -22,6 +25,7 @@ import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.IDReader;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectByPixelJNIEntryClone;
@@ -52,33 +56,43 @@ public class IDCardDevice {
 
 	public static void main(String[] args) {
 
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice[] gs = ge.getScreenDevices();
-		IDCardDevice device = IDCardDevice.getInstance();
-		if (device.getPort() != 0) {
-			TicketCheckFrame ticketFrame = new TicketCheckFrame();
-//			frame.setVisible(true);
-			gs[0].setFullScreenWindow(ticketFrame);
-			
-			while (true) {
-				device.Syn_OpenPort();
-				String findval = device.Syn_StartFindIDCard();
-				if (findval.equals("0")) {
-					String selectval = device.Syn_SelectIDCard();
-					if (selectval.equals("0")) {
-						IDCard idCard = new IDCard();
-						idCard = device.Syn_ReadBaseMsg();
-						if (idCard.getIdNo() != null) {
-							ticketFrame.showWaitInputContent(null, idCard, 1);
-							CommUtil.sleep(3000);
-						}
-					}
-				}
-				device.Syn_ClosePort();
+		// GraphicsEnvironment ge =
+		// GraphicsEnvironment.getLocalGraphicsEnvironment();
+		// GraphicsDevice[] gs = ge.getScreenDevices();
+		// IDCardDevice device = IDCardDevice.getInstance();
+		// if (device.getPort() != 0) {
+		// TicketCheckFrame ticketFrame = new TicketCheckFrame();
+		// // frame.setVisible(true);
+		// gs[0].setFullScreenWindow(ticketFrame);
+		// device.Syn_OpenPort();
+		// while (true) {
+		//
+		// String findval = device.Syn_StartFindIDCard();
+		// if (findval.equals("0")) {
+		// String selectval = device.Syn_SelectIDCard();
+		// if (selectval.equals("0")) {
+		// IDCard idCard = new IDCard();
+		// idCard = device.Syn_ReadBaseMsg();
+		// if (idCard.getIdNo() != null) {
+		// ticketFrame.showWaitInputContent(null, idCard, 1);
+		// CommUtil.sleep(3000);
+		// }
+		// }
+		// }
+		// // device.Syn_ClosePort();
+		//
+		// CommUtil.sleep(150);
+		// }
+		// }
 
-				CommUtil.sleep(150);
-			}
-		}
+		// TicketCheckFrame ticketFrame = new TicketCheckFrame();
+		// ticketFrame.setVisible(true);
+		// IDReader idReader = IDReader.getInstance();
+		// idReader.setTicketFrame(ticketFrame);
+		// ScheduledExecutorService scheduler =
+		// Executors.newScheduledThreadPool(1);
+		// scheduler.scheduleWithFixedDelay(idReader, 0, 150,
+		// TimeUnit.MILLISECONDS);
 	}
 
 	private IDCardDevice() {
@@ -93,7 +107,7 @@ public class IDCardDevice {
 			BmpJN = new JNative("WltRS.dll", "GetBmp");
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice:" + e);
 		}
 
 		this.port = Integer.parseInt(Syn_FindUSBReader());
@@ -144,10 +158,13 @@ public class IDCardDevice {
 			}
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_FindUSBReader:" + e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_FindUSBReader:" + e);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			log.error("IDCardDevice  Syn_FindUSBReader:" + e);
 		}
 		return retval;
 	}
@@ -164,10 +181,13 @@ public class IDCardDevice {
 				// log.debug("Syn_OpenPort:retval==" + retval);// 获取返回值
 			} catch (NativeException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("IDCardDevice  Syn_OpenPort:" + e);
 			} catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("IDCardDevice  Syn_OpenPort:" + e);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				log.error("IDCardDevice  Syn_OpenPort:" + e);
 			}
 		}
 		return retval;
@@ -184,10 +204,13 @@ public class IDCardDevice {
 			// log.debug("Syn_ClosePort:retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_ClosePort:" + e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_ClosePort:" + e);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			log.error("IDCardDevice  Syn_ClosePort:" + e);
 		}
 		return retval;
 	}
@@ -247,10 +270,12 @@ public class IDCardDevice {
 			}
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_ClosePort:" + e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_ClosePort:" + e);
+		} catch (Exception e) {
+			log.error("IDCardDevice  Syn_ClosePort:" + e);
 		}
 		return retval;
 	}
@@ -281,10 +306,12 @@ public class IDCardDevice {
 
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_SelectIDCard:" + e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_SelectIDCard:" + e);
+		} catch (Exception e) {
+			log.error("IDCardDevice  Syn_SelectIDCard:" + e);
 		}
 		return retval;
 	}
@@ -337,14 +364,14 @@ public class IDCardDevice {
 					// log.debug(Info[hh - 1]);
 				}
 				// log.debug("姓名：" + Info[0]);
-				synIDCard.setPersonName(Info[0]);   //set personName
+				synIDCard.setPersonName(Info[0]); // set personName
 				if (Info[1].charAt(0) == '1') {
 					synIDCard.setGender(1);
-					synIDCard.setGenderCH("男");//set gender
+					synIDCard.setGenderCH("男");// set gender
 					// log.debug("性别：" + "男");
 				} else if (Info[1].charAt(0) == '2') {
 					synIDCard.setGender(2);
-					synIDCard.setGenderCH("女");//set gender
+					synIDCard.setGenderCH("女");// set gender
 					// log.debug("性别：" + "女");
 				}
 				char[] nationChar = new char[2];
@@ -479,9 +506,10 @@ public class IDCardDevice {
 				char[] BirthdateChar = new char[2];
 				Info[1].getChars(9, 11, BirthdateChar, 0);
 				BirthdateStr = String.valueOf(BirthdateChar);
-				String birthday = BirthyearStr+"-"+BirthmonthStr+"-"+BirthdateStr;
+				String birthday = BirthyearStr + "-" + BirthmonthStr + "-" + BirthdateStr;
 				String today = DateUtils.getStringDateShort();
-				synIDCard.setAge(DateUtils.getAge(birthday, today));  //set age
+				log.debug("birthday==" + birthday);
+				synIDCard.setAge(DateUtils.getAge(birthday, today)); // set age
 				// log.debug("出生年月：" + BirthyearStr + "年" + BirthmonthStr + "月"
 				// + BirthdateStr + "日");
 				char[] addressChar = new char[Info[1].length() - 11];
@@ -555,13 +583,20 @@ public class IDCardDevice {
 
 				CommUtil.bmpTojpg("zp.bmp", "zp.jpg");
 
-				BufferedImage image = null;
-				image = ImageIO.read(new File("zp.jpg"));
-				synIDCard.setCardImage(image);   //set cardImage
+				File idcardFile = new File("zp.jpg");
+				BufferedImage idCardImage = null;
+				idCardImage = ImageIO.read(idcardFile);
+				if (idCardImage != null) {
+					synIDCard.setCardImage(idCardImage); // set cardImage
+					byte[] idCardImageBytes = null;
+					idCardImageBytes = CommUtil.getImageBytesFromImageBuffer(idCardImage);
+					if (idCardImageBytes != null)
+						synIDCard.setCardImageBytes(idCardImageBytes);
+				}
 
-				// log.debug("相片解码成功！");
+				log.debug("读取二代证信息成功！");
 			} else {
-				log.debug("相片解码不成功！请重试!!");
+				log.debug("读取二代证信息失败！请重试!!" + synIDCard.getCardImage());
 			}
 
 			chmsgPointer.dispose();
@@ -587,16 +622,19 @@ public class IDCardDevice {
 			// log.debug("相片解码不成功！请重试!!");
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_ReadBaseMsg:" + e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_ReadBaseMsg:" + e);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_ReadBaseMsg:" + e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  Syn_ReadBaseMsg:" + e);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			log.error("IDCardDevice  Syn_ReadBaseMsg:" + e);
 		} finally {
 			try {
 				if (chmsgPointer != null) {
@@ -648,12 +686,12 @@ public class IDCardDevice {
 			// }
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  GetBmp:" + e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("IDCardDevice  GetBmp:" + e);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("IDCardDevice  GetBmp:" + e);
 		}
 		return retval;
 	}

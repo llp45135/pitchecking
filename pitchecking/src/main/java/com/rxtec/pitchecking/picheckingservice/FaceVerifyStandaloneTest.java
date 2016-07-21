@@ -24,8 +24,8 @@ public class FaceVerifyStandaloneTest implements Runnable {
 		IDCard c1 = createIDCard("C:/pitchecking/B1.jpg");
 		IDCard c2 = createIDCard("C:/pitchecking/B2.jpg");
 
-		img1 = c1.getImageBytes();
-		img2 = c2.getImageBytes();
+		img1 = c1.getManualImageBytes();
+		img2 = c2.getManualImageBytes();
 
 		df.setMaximumFractionDigits(2);
 		

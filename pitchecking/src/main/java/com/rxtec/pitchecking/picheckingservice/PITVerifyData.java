@@ -15,7 +15,7 @@ public class PITVerifyData implements Serializable {
 	private byte[] faceImg;
 	private byte[] idCardImg;
 	private byte[] frameImg;
-	
+
 	private float verifyResult = 0f;
 
 	private String idNo;
@@ -24,6 +24,7 @@ public class PITVerifyData implements Serializable {
 	private int age;
 
 	private Ticket ticket;
+
 	public Ticket getTicket() {
 		return ticket;
 	}
@@ -64,8 +65,6 @@ public class PITVerifyData implements Serializable {
 		this.age = age;
 	}
 
-
-
 	public byte[] getFrameImg() {
 		return frameImg;
 	}
@@ -81,7 +80,6 @@ public class PITVerifyData implements Serializable {
 	public void setVerifyResult(float verifyResult) {
 		this.verifyResult = verifyResult;
 	}
-
 
 	public byte[] getFaceImg() {
 		return faceImg;
@@ -100,8 +98,8 @@ public class PITVerifyData implements Serializable {
 	}
 
 	public PITVerifyData(PITData pd) {
-		if (pd != null) {
-			this.idCardImg = pd.getIdCard().getImageBytes();
+		if (pd != null && pd.getIdCard() != null) {
+			this.idCardImg = pd.getIdCard().getCardImageBytes();
 			this.faceImg = ImageToolkit.getImageBytes(pd.getFaceImage(), "JPEG");
 			this.idNo = pd.getIdCard().getIdNo();
 			this.frameImg = ImageToolkit.getImageBytes(pd.getFrame(), "JPEG");
@@ -118,6 +116,11 @@ public class PITVerifyData implements Serializable {
 
 	@Override
 	public String toString() {
-		return idNo + "   idImg=" + idCardImg.length + " faceImg=" + faceImg.length + " verifyResult=" + verifyResult;
+		if (idCardImg != null && faceImg != null) {
+			return idNo + "   idImg=" + idCardImg.length + " faceImg=" + faceImg.length + " verifyResult="
+					+ verifyResult;
+		}else{
+			return idNo + " 图像数据缺失: idCardImg=" + idCardImg +" faceImg=" + faceImg;
+		}
 	}
 }

@@ -34,8 +34,8 @@ public class FaceVerifyJniEntryTest implements Runnable {
 		IDCard c1 = createIDCard("C:/pitchecking/A1.jpg");
 		IDCard c2 = createIDCard("C:/pitchecking/A2.jpg");
 
-		img1 = c1.getImageBytes();
-		img2 = c2.getImageBytes();
+		img1 = c1.getManualImageBytes();
+		img2 = c2.getManualImageBytes();
 
 		df.setMaximumFractionDigits(2);
 	}

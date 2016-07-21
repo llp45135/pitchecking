@@ -394,7 +394,7 @@ public class ImageToolkit {
 		try {
 			ImageIO.write(img, type, ImageIO.createImageOutputStream(output));
 			buff = output.toByteArray();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			buff = null;
 			e.printStackTrace();
 		}

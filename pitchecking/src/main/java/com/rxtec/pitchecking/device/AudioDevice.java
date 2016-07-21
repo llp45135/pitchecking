@@ -67,18 +67,20 @@ public class AudioDevice {
 			audioStream.close();
 			audioDis.close();
 		} catch (UnsupportedAudioFileException ex) {
-			ex.printStackTrace();
+			log.error("AudioDevice:" + ex);
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			log.error("AudioDevice:" + ex);
+		} catch (Exception ex) {
+			log.error("AudioDevice:" + ex);
 		} finally {
 			try {
 				if (audioStream != null)
 					audioStream.close();
 				if (audioDis != null)
 					audioDis.close();
-			} catch (IOException e) {
+			} catch (IOException ex) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("AudioDevice:" + ex);
 			}
 		}
 		int bufferSize = audioFormat.getFrameSize() * Math.round(audioFormat.getSampleRate() / 10);
@@ -113,7 +115,9 @@ public class AudioDevice {
 			audioSamples = null;
 			log.debug("语音播放完毕..." + audioFile);
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			log.error("AudioDevice:" + ex);
+		} catch (Exception ex) {
+			log.error("AudioDevice:" + ex);
 		} finally {
 			try {
 				if (dataLline != null) {
@@ -123,9 +127,9 @@ public class AudioDevice {
 				if (audioInputStream != null) {
 					audioInputStream.close();
 				}
-			} catch (IOException e) {
+			} catch (IOException ex) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("AudioDevice:" + ex);
 			}
 		}
 	}
