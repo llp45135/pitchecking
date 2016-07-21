@@ -639,6 +639,7 @@ public class RSFaceTrackTask implements Runnable {
 				if (detection != null && isRealFace) {
 
 					PITData fd = createFaceData(frameImage, detection);
+					fd.setFaceDistance(sf.distance);
 					if (fd != null) {
 						if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {
 							fd.setIdCard(currentIDCard);

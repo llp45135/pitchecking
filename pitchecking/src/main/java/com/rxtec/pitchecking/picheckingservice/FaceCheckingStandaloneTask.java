@@ -41,16 +41,19 @@ public class FaceCheckingStandaloneTask implements Runnable {
 						continue;
 					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCardImg());//比对人脸
 					fd.setVerifyResult(resultValue);
-					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+					int usingTime = (int) (Calendar.getInstance().getTimeInMillis() - nowMils);
 					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {  
 						publisher.publishResult(fd);  //比对结果公布
 						FaceCheckingService.getInstance().resetFaceDataQueue();
-					} 
+					}
+					
+					FaceVerifyServiceStatistics.getInstance().update(resultValue, usingTime, fd.getFaceDistance());
+					
 					FaceImageLog.saveFaceDataToDsk(fd);
 				}
 
-			} catch (InterruptedException e) {
-				log.error("InterruptedException",e);
+			} catch (Exception e) {
+				log.error("FaceCheckingStandaloneTask run loop",e);
 			}
 
 		}

@@ -24,6 +24,25 @@ public class PITVerifyData implements Serializable {
 	private int age;
 
 	private Ticket ticket;
+	
+	private float faceDistance;
+	private int useTime;
+
+	public int getUseTime() {
+		return useTime;
+	}
+
+	public void setUseTime(int useTime) {
+		this.useTime = useTime;
+	}
+
+	public float getFaceDistance() {
+		return faceDistance;
+	}
+
+	public void setFaceDistance(float faceDistance) {
+		this.faceDistance = faceDistance;
+	}
 
 	public Ticket getTicket() {
 		return ticket;
@@ -107,6 +126,7 @@ public class PITVerifyData implements Serializable {
 			this.age = pd.getIdCard().getAge();
 			this.gender = pd.getIdCard().getGender();
 			this.ticket = pd.getTicket();
+			this.faceDistance = pd.getFaceDistance();
 		}
 	}
 

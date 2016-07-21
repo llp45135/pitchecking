@@ -167,6 +167,16 @@ public class PITData implements Serializable{
 		this.faceCheckResult = faceCheckResult;
 
 	}
+	
+	private float faceDistance = 0;
+
+	public float getFaceDistance() {
+		return faceDistance;
+	}
+
+	public void setFaceDistance(float faceDistance) {
+		this.faceDistance = faceDistance;
+	}
 
 	private void extractFaceImage(BufferedImage fm) {
 		int x = (int) (faceLocation.getX() * 0.85);
