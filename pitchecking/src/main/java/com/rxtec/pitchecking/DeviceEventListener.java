@@ -17,6 +17,7 @@ import com.rxtec.pitchecking.device.LightControlBoard;
 import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.mq.JmsReceiverTask;
+import com.rxtec.pitchecking.mq.JmsSenderTask;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -77,7 +78,7 @@ public class DeviceEventListener implements Runnable {
 					.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifySucc.getValue(),
 							ticketVerifier.getTicket(), ticketVerifier.getIdCard(), null));
 			// 开始进行人脸检测和比对
-			verifyFace(ticketVerifier.getIdCard(),ticketVerifier.getTicket());
+			verifyFace(ticketVerifier.getIdCard(), ticketVerifier.getTicket());
 
 			ticketVerifier.reset();
 
@@ -104,8 +105,8 @@ public class DeviceEventListener implements Runnable {
 		}
 	}
 
-	private void verifyFace(IDCard idCard,Ticket ticket) {
-		PITData picData = verifyFaceTask.beginCheckFace(idCard,ticket);
+	private void verifyFace(IDCard idCard, Ticket ticket) {
+		PITData picData = verifyFaceTask.beginCheckFace(idCard, ticket);
 	}
 
 	// 启动设备
@@ -131,22 +132,34 @@ public class DeviceEventListener implements Runnable {
 		/**
 		 * 连接mq服务，启动mq receiver线程
 		 */
-		ExecutorService executer = Executors.newCachedThreadPool();
-		JmsReceiverTask jmsReceiverTask = new JmsReceiverTask();
-		executer.execute(jmsReceiverTask);
+		if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
+			ExecutorService executer = Executors.newCachedThreadPool();
+			JmsReceiverTask jmsReceiverTask = new JmsReceiverTask();
+			executer.execute(jmsReceiverTask);
+		}
 
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+		ScheduledExecutorService scheduler = null;
+		if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
+			scheduler = Executors.newScheduledThreadPool(5);
+		} else {
+			scheduler = Executors.newScheduledThreadPool(4);
+		}
 		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		scheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-		// 求助按钮事件处理
+		// 求助按钮事件处理线程
 		scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		// 语音调用线程
 		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		// mq sender线程
+		if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
+			scheduler.scheduleWithFixedDelay(JmsSenderTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		}
 		// 启动成功点亮绿色通行箭头
 		FirstGateDevice.getInstance().LightEntryArrow();
 	}
 
 	/**
+	 * 点亮摄像头补光灯
 	 * 
 	 * @return
 	 */

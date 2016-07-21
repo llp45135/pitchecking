@@ -33,6 +33,11 @@ public class JmsReceiver implements MessageListener {
 	private MessageConsumer consumer = null;
 
 	private boolean stop = false;
+	
+	public JmsReceiver() throws Exception{
+		initialize();
+		conn.start();
+	}
 
 	// 初始化
 	private void initialize() throws JMSException, Exception {
@@ -60,9 +65,7 @@ public class JmsReceiver implements MessageListener {
 	 * @throws JMSException
 	 * @throws Exception
 	 */
-	public void receiveMessage() throws JMSException, Exception {
-		initialize();
-		conn.start();
+	public void receiveMessage() throws JMSException, Exception {		
 		consumer.setMessageListener(this);
 		// 等待接收消息
 		while (!stop) {

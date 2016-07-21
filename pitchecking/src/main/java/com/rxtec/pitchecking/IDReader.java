@@ -11,11 +11,22 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.device.IDCardDevice;
 import com.rxtec.pitchecking.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.event.IDeviceEvent;
+import com.rxtec.pitchecking.gui.TicketCheckFrame;
 
 public class IDReader implements Runnable {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	IDCardDevice device = IDCardDevice.getInstance();
 	private int deviceStatus = Config.StartStatus;
+	//以下ticketFrame仅供测试用
+//	TicketCheckFrame ticketFrame;
+
+//	public TicketCheckFrame getTicketFrame() {
+//		return ticketFrame;
+//	}
+//
+//	public void setTicketFrame(TicketCheckFrame ticketFrame) {
+//		this.ticketFrame = ticketFrame;
+//	}
 
 	private static IDReader instance;
 
@@ -24,6 +35,10 @@ public class IDReader implements Runnable {
 			instance = new IDReader();
 		}
 		return instance;
+	}
+
+	private IDReader() {
+		device.Syn_OpenPort();
 	}
 
 	@Override
@@ -38,29 +53,33 @@ public class IDReader implements Runnable {
 		if (deviceStatus == Config.StartStatus) {
 
 			// log.debug("开始寻卡...");
-			String openPortResult = device.Syn_OpenPort();
-			if (openPortResult.equals("0")) {
-				String findval = device.Syn_StartFindIDCard();
-				if (findval.equals("0")) {
+//			 String openPortResult = device.Syn_OpenPort();
+//			 if (openPortResult.equals("0")) {
+			String findval = device.Syn_StartFindIDCard();
+			if (findval.equals("0")) {
 
-					// IDeviceEvent findedCardEvent = new IDCardReaderEvent();
-					// DeviceEventListener.getInstance().offerDeviceEvent(findedCardEvent);
-					String selectval = device.Syn_SelectIDCard();
-					if (selectval.equals("0")) {
-						IDCard idCard = device.Syn_ReadBaseMsg();
-						if (idCard != null && idCard.getIdNo() != null) {
-//							log.debug("########idCard==" + idCard.getPersonName());
-							IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
-							readCardEvent.setIdCard(idCard);
-							DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
-						}
+				// IDeviceEvent findedCardEvent = new IDCardReaderEvent();
+				// DeviceEventListener.getInstance().offerDeviceEvent(findedCardEvent);
+				String selectval = device.Syn_SelectIDCard();
+				if (selectval.equals("0")) {
+					IDCard idCard = device.Syn_ReadBaseMsg();
+					if (idCard != null && idCard.getIdNo() != null) {
+						// log.debug("########idCard==" +
+						// idCard.getPersonName());
+						
+//						ticketFrame.showWaitInputContent(null, idCard, 1);  //测试代码
+						
+						IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
+						readCardEvent.setIdCard(idCard);
+						DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
 					}
-				} else {
-					// log.debug("没有找到身份证");
 				}
-
-				device.Syn_ClosePort();
+			} else {
+				// log.debug("没有找到身份证");
 			}
+
+//			 device.Syn_ClosePort();
+//			 }
 		}
 	}
 

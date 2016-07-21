@@ -296,20 +296,26 @@ public class SecondGateDevice implements SerialPortEventListener {
 
 				String ss = readBuffer.toString();
 				log.debug("retData==" + ss);
-				
+
 				if (ss.length() >= 8) {
 					if (ss.indexOf("2A040023") == 0) {
 						log.debug("第二道闸门已经关闭");
 					} else if (ss.indexOf("2A040F23") == 0) {
 						log.debug("第二道闸门超时关闭");
-					}else if (ss.indexOf("2A510123") == 0) {
+					} else if (ss.indexOf("2A510123") == 0) {
 						log.debug("点亮入口绿色箭头");
-					}else if (ss.indexOf("2A510023") == 0) {
+					} else if (ss.indexOf("2A510023") == 0) {
 						log.debug("点亮入口红色叉叉");
-					}else if(ss.indexOf("2A550123")==0){
-						log.debug("求助按钮被按下");
+					} else if (ss.indexOf("2A550123") == 0) {
+						log.debug("旅客求助按钮被按下");
 						EmerButtonEvent embEvent = new EmerButtonEvent();
 						embEvent.setEventNo("01");
+						embEvent.setEventTime(DateUtils.getStringDateHaomiao());
+						EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
+					} else if (ss.indexOf("2A560123") == 0) {
+						log.debug("客运求助按钮被按下");
+						EmerButtonEvent embEvent = new EmerButtonEvent();
+						embEvent.setEventNo("02");
 						embEvent.setEventTime(DateUtils.getStringDateHaomiao());
 						EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
 					}
@@ -330,8 +336,8 @@ public class SecondGateDevice implements SerialPortEventListener {
 			gateDevice.openThirdDoor();
 			CommUtil.sleep(1000);
 			gateDevice.openSecondDoor();
-//			gateDevice.close();
-//			System.exit(0);
+			// gateDevice.close();
+			// System.exit(0);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

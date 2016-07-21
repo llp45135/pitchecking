@@ -29,18 +29,19 @@ public class Config {
 	public static int UVCVideo = 1;
 	public static String UVCCameraName = "Logitech HD Pro Webcam C920";
 
-	public static String FaceVerifyDLLName = "FaceVRISDK.dll";
-	public static String FaceVerifyCloneDLLName = "FaceVRISDK.dll";
+	public static String PIXELFaceVerifyDLLName = "FaceVRISDK.dll";
+	public static String MICROFaceVerifyCloneDLLName = "micropattern/MPALLibFaceRecFInf.dll";
 
 	public static int FrameWidth = 960;
 	public static int FrameHeigh = 540;
 	public static int IRFrameWidth = 640;
 	public static int IRFrameHeigh = 480;
+	public static int FACE_TRACK_IR = 1;
+	public static int FACE_TRACK_COLOR_DEPTH=2;
+			
 
 	public static int frameRate = 30;
 
-	public static float MinAverageDepth = 400F;
-	public static float MaxAverageDepth = 1200F;
 
 	public static float DValueMaxDepth = 100F;
 	public static float DValueMinDepth = 20F;
@@ -73,6 +74,9 @@ public class Config {
 	public static String PassedMongoCollectionName = "passed_record";
 	public static String FailedMongoCollectionName = "failed_record";
 	
+	public static String FaceVerifyMicro="MICRO";
+	public static String FaceVerifyPIXEL="PIXEL";
+	
 
 	private int faceVerifyThreads = 2; // 人脸比对线程数
 
@@ -94,6 +98,61 @@ public class Config {
 	private String mongoDBAddress = "localhost";
 	private int mongoDBPort = 27017;
 	private int isSaveFaceImageToLocaldisk=1;
+	private String faceVerifyType="MICRO";
+	
+	
+	private float minAverageDepth = 400F;
+	private float maxAverageDepth = 1000F;
+	
+	private int faceTrackMode = 1;								//人臉追蹤模式 1 紅外，2 顔色+景深
+	
+	private float faceDetectionScale = 1.5f;					//人臉放大倍數	
+	public float getFaceDetectionScale() {
+		return faceDetectionScale;
+	}
+
+	public void setFaceDetectionScale(float faceDetectionScale) {
+		this.faceDetectionScale = faceDetectionScale;
+	}
+
+
+
+	
+	
+
+	public int getFaceTrackMode() {
+		return faceTrackMode;
+	}
+
+	public void setFaceTrackMode(int faceTrackMode) {
+		this.faceTrackMode = faceTrackMode;
+	}
+
+	public float getMinAverageDepth() {
+		return minAverageDepth;
+	}
+
+	public void setMinAverageDepth(float minAverageDepth) {
+		this.minAverageDepth = minAverageDepth;
+	}
+
+	public float getMaxAverageDepth() {
+		return maxAverageDepth;
+	}
+
+	public void setMaxAverageDepth(float maxAverageDepth) {
+		this.maxAverageDepth = maxAverageDepth;
+	}
+
+
+	
+	public String getFaceVerifyType() {
+		return faceVerifyType;
+	}
+
+	public void setFaceVerifyType(String faceVerifyType) {
+		this.faceVerifyType = faceVerifyType;
+	}
 
 	public String getMongoDBAddress() {
 		return mongoDBAddress;
@@ -285,6 +344,13 @@ public class Config {
 			this.mongoDBPort = Integer.valueOf(p.getProperty("MongoDBPort", "27017"));
 			this.mongoDBAddress = p.getProperty("MongoDBAddress", "localhost");
 			this.isSaveFaceImageToLocaldisk = Integer.valueOf(p.getProperty("IsSaveFaceImageToLocaldisk", "1"));
+			this.faceVerifyType = p.getProperty("FaceVerifyType", "PIXEL");
+			this.maxAverageDepth = Integer.valueOf(p.getProperty("MaxAverageDepth", "1000"));
+			this.minAverageDepth = Integer.valueOf(p.getProperty("MinAverageDepth", "400"));
+			this.faceTrackMode = Integer.valueOf(p.getProperty("FaceTrackMode", "1"));
+			this.faceDetectionScale = Float.valueOf(p.getProperty("FaceDetectionScale", "1.3"));
+
+
 			
 
 			is.close(); // 关闭流

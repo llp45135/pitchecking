@@ -13,11 +13,16 @@ import com.rxtec.pitchecking.domain.FailedFace;
 
 public class FaceCheckingTask implements Runnable {
 
-	FaceVerifyJniEntry faceVerify = null;
+	FaceVerifyInterface faceVerify = null;
 	private Logger log = LoggerFactory.getLogger("FaceCheckingTask");
 
-	public FaceCheckingTask(String DLLName){
-		faceVerify = new FaceVerifyJniEntry(Config.FaceVerifyDLLName);
+	public FaceCheckingTask(){
+		if(Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyPIXEL)){
+			faceVerify = new PIXELFaceVerifyJniEntry(Config.PIXELFaceVerifyDLLName);
+		}else if(Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyMicro)){
+			faceVerify = new PIXELFaceVerifyJniEntry(Config.MICROFaceVerifyCloneDLLName);
+		}
+		
 	}
 	
 	
@@ -37,7 +42,7 @@ public class FaceCheckingTask implements Runnable {
 					byte[] extractFaceImageBytes = fd.getExtractFaceImageBytes();
 					if (extractFaceImageBytes == null)
 						continue;
-					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCard().getImageBytes());//比对人脸
+					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCard().getCardImageBytes());//比对人脸
 					fd.setFaceCheckResult(resultValue);
 					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {

@@ -32,16 +32,7 @@ public class FaceCheckingService {
 	// 比对验证通过的队列
 	private LinkedBlockingQueue<PITData> passFaceDataQueue;
 
-	private JmsSender jmsSender = null; // activemq
 	private FailedFace failedFace = null;
-
-	public JmsSender getJmsSender() {
-		return jmsSender;
-	}
-
-	public void setJmsSender(JmsSender jmsSender) {
-		this.jmsSender = jmsSender;
-	}
 
 	public FailedFace getFailedFace() {
 		return failedFace;
@@ -98,10 +89,14 @@ public class FaceCheckingService {
 		}
 
 		PITVerifyData vd = new PITVerifyData(faceData);
+		if (vd.getIdCardImg() != null && vd.getFrameImg() != null && vd.getFaceImg() != null) {
 
-		if (!faceVerifyDataQueue.offer(vd)) {
-			faceVerifyDataQueue.poll();
-			faceVerifyDataQueue.offer(vd);
+			if (!faceVerifyDataQueue.offer(vd)) {
+				faceVerifyDataQueue.poll();
+				faceVerifyDataQueue.offer(vd);
+			}
+		}else{
+			log.info("offerDetectedFaceData 输入数据不完整！ vd.getIdCardImg()="+vd.getIdCardImg() +" vd.getFrameImg()=" + vd.getFrameImg() + " vd.getFaceImg()=" + vd.getFaceImg() );
 		}
 
 	}
@@ -139,8 +134,6 @@ public class FaceCheckingService {
 
 		PIVerifyResultSubscriber.getInstance().startSubscribing();
 		PTVerifyPublisher.getInstance();
-		// 实例化mq发送端
-		jmsSender = new JmsSender();
 	}
 
 	/**
@@ -148,10 +141,10 @@ public class FaceCheckingService {
 	 */
 	public void beginFaceCheckerStandaloneTask() {
 		ExecutorService executer = Executors.newCachedThreadPool();
-		FaceCheckingStandaloneTask task1 = new FaceCheckingStandaloneTask(Config.FaceVerifyDLLName);
+		FaceCheckingStandaloneTask task1 = new FaceCheckingStandaloneTask();
 		executer.execute(task1);
 		if (Config.getInstance().getFaceVerifyThreads() == 2) {
-			FaceCheckingStandaloneTask task2 = new FaceCheckingStandaloneTask(Config.FaceVerifyCloneDLLName);
+			FaceCheckingStandaloneTask task2 = new FaceCheckingStandaloneTask();
 			executer.execute(task2);
 		}
 		log.info(".............Start " + Config.getInstance().getFaceVerifyThreads() + " FaceVerifyThreads");

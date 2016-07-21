@@ -11,8 +11,12 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -31,6 +35,8 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
  *
  */
 public class CommUtil {
+	private static Logger log = LoggerFactory.getLogger("CommUtil");
+
 	public static void main(String[] args) {
 		String srcfile = "D:/eclipse/workspace/IDCard.bmp";
 		String dstFile = "D:/eclipse/workspace/idcardtest.jpg";
@@ -49,9 +55,10 @@ public class CommUtil {
 			FileOutputStream out = new FileOutputStream(dstFile);
 			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
 			encoder.encode(tag);
+			in.close();
 			out.close();
 		} catch (Exception e) {
-			System.out.println(e);
+			log.error("bmpTojpg:",e);
 		}
 	}
 
@@ -133,7 +140,9 @@ public class CommUtil {
 			}
 			fs.close();
 		} catch (IOException e) {
-			System.out.println(e);
+			log.error("bmpTojpg:",e);
+		}catch (Exception e) {
+			log.error("bmpTojpg:",e);
 		}
 		return (null);
 	}
@@ -280,8 +289,7 @@ public class CommUtil {
 			return true;
 	}
 
-	
-	//递归删除目录
+	// 递归删除目录
 	public static boolean deleteDir(File dir) {
 		if (dir.isDirectory()) {
 			String[] children = dir.list();
@@ -483,9 +491,9 @@ public class CommUtil {
 			FileImageOutputStream imageOutput = new FileImageOutputStream(new File(path));
 			imageOutput.write(data, 0, data.length);
 			imageOutput.close();
-			System.out.println("Make Picture success,Please find image in " + path);
+			log.debug("Make Picture success,Please find image in " + path);
 		} catch (Exception ex) {
-			System.out.println("Exception: " + ex);
+			log.error("Exception: " + ex);
 			ex.printStackTrace();
 		}
 	}
@@ -509,10 +517,24 @@ public class CommUtil {
 			stream.close();
 			out.close();
 			return out.toByteArray();
-		} catch (IOException e) {
+		} catch (Exception e) {
+			log.error("CommUtil getBytesFromFile:",e);
 		}
 		return null;
 	}
+	
+	public static byte[] getImageBytesFromImageBuffer(BufferedImage cardImage){
+		ByteArrayOutputStream output = new ByteArrayOutputStream ();
+		byte[] buff = null;
+		try {
+			ImageIO.write(cardImage, "JPEG", ImageIO.createImageOutputStream(output));
+			buff = output.toByteArray();
+		} catch (Exception e) {
+			log.error("CommUtil ImageIO.write error!",e);
+		}
+		
+		return buff;
+	} 
 
 	/**
 	 * 

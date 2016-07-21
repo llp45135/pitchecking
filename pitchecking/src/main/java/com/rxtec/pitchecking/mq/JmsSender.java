@@ -33,15 +33,10 @@ public class JmsSender {
 	private Session session = null;
 	private MessageProducer producer = null;
 	
-	public JmsSender(){
-		try {
+	public JmsSender() throws Exception{
 			initialize();
 			// 连接到JMS提供者（服务器）
 			conn.start();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	// 初始化
@@ -76,11 +71,8 @@ public class JmsSender {
 		// 发送Map消息
 		if ("map".equals(msgType)) {
 			MapMessage mapMsg = session.createMapMessage();
-			// msg.setBoolean("boolean", true);
-			// msg.setShort("short", (short) 0);
-			// msg.setLong("long", 123456);
-			// msg.setString("MapMessage", "ActiveMQ Map Message!");
-			log.info("failedFace.getIdNo=="+failedFace.getIdNo());
+			log.debug("failedFace.getIdNo=="+failedFace.getIdNo());
+			log.debug("failedFace.getGateNo=="+failedFace.getGateNo());
 			mapMsg.setString("idCardNo", failedFace.getIdNo());
 			mapMsg.setString("ipAddress", failedFace.getIpAddress());
 			mapMsg.setString("gateNo", failedFace.getGateNo());

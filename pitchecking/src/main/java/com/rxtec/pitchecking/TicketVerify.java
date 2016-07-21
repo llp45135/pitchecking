@@ -3,6 +3,7 @@ package com.rxtec.pitchecking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.utils.DateUtils;
 
 public class TicketVerify {
@@ -15,15 +16,22 @@ public class TicketVerify {
 	 * 
 	 * @return
 	 */
-	public int verify() {		
-		
-//		log.debug("ticket==" + ticket + "||idcard==" + idCard);
+	public int verify() {
+
+		// log.debug("ticket==" + ticket + "||idcard==" + idCard);
 		if (ticket == null || idCard == null) {
 			if (ticket != null) {
-				if (ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {
-					log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
-					return Config.TicketVerifyStationRuleFail;
-				}else{
+				if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
+					if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、当日票
+						log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
+						return Config.TicketVerifyStationRuleFail;
+					} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、本站乘车
+						log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
+						return Config.TicketVerifyStationRuleFail;
+					} else {
+						return Config.TicketVerifyWaitInput;
+					}
+				} else {
 					return Config.TicketVerifyWaitInput;
 				}
 			} else
@@ -31,24 +39,20 @@ public class TicketVerify {
 		} else {
 			// TODO 执行比对
 			// 校验车站验票规则
-
-			// DeviceManager.getInstance().repaintStart();
-			if (ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {
-				log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
-
-				// timeIntevel = 0;
-				return Config.TicketVerifyStationRuleFail;
+			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
+				if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、当日票
+					log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
+					return Config.TicketVerifyStationRuleFail;
+				} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、本站乘车
+					log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
+					return Config.TicketVerifyStationRuleFail;
+				} else if (!ticket.getCardNo().equals(idCard.getIdNo())) {// 1、票证比对
+					log.debug("TicketVerifyIDFail==" + Config.TicketVerifyIDFail);
+					return Config.TicketVerifyIDFail;
+				}
 			}
-//			 票证比对
-//			if (!ticket.getCardNo().equals(idCard.getIdNo()) || !ticket.getPassengerName().equals(idCard.getPersonName())) {
-//				log.debug("TicketVerifyIDFail==" + Config.TicketVerifyIDFail);
-//
-//				// timeIntevel = 0;
-//				return Config.TicketVerifyIDFail;
-//			}
 			return Config.TicketVerifySucc;
 		}
-//		return Config.TicketVerifySucc;
 	}
 
 	public Ticket getTicket() {

@@ -164,8 +164,8 @@ public class PTVerifyPublisher implements Runnable {
 			PITVerifyData d = new PITVerifyData();
 			d.setIdNo("1234567890");
 			IDCard c1 = createIDCard("C:/pitchecking/B1.jpg");
-			d.setFaceImg(c1.getImageBytes());
-			d.setIdCardImg(c1.getImageBytes());
+			d.setFaceImg(c1.getManualImageBytes());
+			d.setIdCardImg(c1.getManualImageBytes());
 			d.setTicket(new Ticket());
 			FaceCheckingService.getInstance().offerFaceVerifyData(d);
 		}
