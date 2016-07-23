@@ -228,30 +228,30 @@ public class Ticket implements Serializable {
 		this.specialStr = specialStr;
 	}
 	
-//	public void printTicket(){
-//		log.debug("getTicketNo=="+this.getTicketNo());
-//		log.debug("getFromStationCode=="+this.getFromStationCode());
-//		log.debug("getEndStationCode=="+this.getEndStationCode());
-//		log.debug("getChangeStationCode=="+this.getChangeStationCode());
-//		log.debug("getTrainCode=="+this.getTrainCode());
-//		log.debug("getCoachNo=="+this.getCoachNo());
-//		log.debug("getSeatCode=="+this.getSeatCode());
-//		log.debug("getTicketType=="+this.getTicketType());
-//		log.debug("getSeatNo=="+this.getSeatNo());
-//		log.debug("getTicketPrice=="+this.getTicketPrice());
-//		log.debug("getTrainDate=="+this.getTrainDate());
-//		log.debug("getChangeFlag=="+this.getChangeFlag());
-//		log.debug("getTicketSourceCenter=="+this.getTicketSourceCenter());
-//		log.debug("getBzsFlag=="+this.getBzsFlag());
-//		log.debug("getSaleOfficeNo=="+this.getSaleOfficeNo());
-//		log.debug("getSaleWindowNo=="+this.getSaleWindowNo());
-//		log.debug("getSaleDate=="+this.getSaleDate());
-//		log.debug("getCardType=="+this.getCardType());
-//		log.debug("getCardNo=="+this.getCardNo());
-//		log.debug("getPassengerName=="+this.getPassengerName());
-//		log.debug("getSpecialStr=="+this.getSpecialStr());
-////		if(this.getPassengerName().equals("韩翔宇")){
-////			log.debug("请通过!");
-////		}
-//	}
+	public void printTicket(){
+		log.debug("getTicketNo=="+this.getTicketNo());
+		log.debug("getFromStationCode=="+this.getFromStationCode());
+		log.debug("getEndStationCode=="+this.getEndStationCode());
+		log.debug("getChangeStationCode=="+this.getChangeStationCode());
+		log.debug("getTrainCode=="+this.getTrainCode());
+		log.debug("getCoachNo=="+this.getCoachNo());
+		log.debug("getSeatCode=="+this.getSeatCode());
+		log.debug("getTicketType=="+this.getTicketType());
+		log.debug("getSeatNo=="+this.getSeatNo());
+		log.debug("getTicketPrice=="+this.getTicketPrice());
+		log.debug("getTrainDate=="+this.getTrainDate());
+		log.debug("getChangeFlag=="+this.getChangeFlag());
+		log.debug("getTicketSourceCenter=="+this.getTicketSourceCenter());
+		log.debug("getBzsFlag=="+this.getBzsFlag());
+		log.debug("getSaleOfficeNo=="+this.getSaleOfficeNo());
+		log.debug("getSaleWindowNo=="+this.getSaleWindowNo());
+		log.debug("getSaleDate=="+this.getSaleDate());
+		log.debug("getCardType=="+this.getCardType());
+		log.debug("getCardNo=="+this.getCardNo());
+		log.debug("getPassengerName=="+this.getPassengerName());
+		log.debug("getSpecialStr=="+this.getSpecialStr());
+//		if(this.getPassengerName().equals("韩翔宇")){
+//			log.debug("请通过!");
+//		}
+	}
 }

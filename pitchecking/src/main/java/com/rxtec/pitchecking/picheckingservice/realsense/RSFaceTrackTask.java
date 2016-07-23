@@ -22,6 +22,7 @@ import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.gui.VideoPanel;
+import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 
@@ -62,6 +63,7 @@ public class RSFaceTrackTask implements Runnable {
 	private boolean enableFaceLandmark = true;
 	private IDCard currentIDCard = null;
 	private Ticket currentTicket = null;
+	private String pid = "";
 
 	private static int LandmarkAlignment = 10;
 
@@ -552,6 +554,7 @@ public class RSFaceTrackTask implements Runnable {
 	}
 
 	private void doTracking() {
+		pid = ProcessUtil.getCurrentProcessID();
 		PXCMSession session = PXCMSession.CreateInstance();
 		PXCMPowerState ps = session.CreatePowerManager();
 		// Set the power state
@@ -610,6 +613,7 @@ public class RSFaceTrackTask implements Runnable {
 		PXCMCapture.Device dev = senseMgr.QueryCaptureManager().QueryDevice();
 		setupColorCameraDevice(dev);
 		while (startCapture) {
+			ProcessUtil.writeHeartbeat(pid);  //写心跳日志
 			sts = senseMgr.AcquireFrame(true);
 			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
 			if (sample == null) {

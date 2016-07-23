@@ -506,11 +506,13 @@ public class DateUtils {
 	 */
 	public static long howLong(String unit, String time1, String time2) throws ParseException {
 		// 时间单位(如：不足1天(24小时) 则返回0)，开始时间，结束时间
-		Date date1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(time1);
-		Date date2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(time2);
+		Date date1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(time1);
+		Date date2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(time2);
 		long ltime = date1.getTime() - date2.getTime() < 0 ? date2.getTime() - date1.getTime()
 				: date1.getTime() - date2.getTime();
-		if (unit.equals("s")) {
+		if (unit.equals("ms")) {
+			return ltime;
+		} else if (unit.equals("s")) {
 			return ltime / 1000;// 返回秒
 		} else if (unit.equals("m")) {
 			return ltime / 60000;// 返回分钟

@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.EmerButtonTask;
 import com.rxtec.pitchecking.domain.EmerButtonEvent;
 import com.rxtec.pitchecking.utils.CommUtil;
@@ -299,9 +300,13 @@ public class SecondGateDevice implements SerialPortEventListener {
 
 				if (ss.length() >= 8) {
 					if (ss.indexOf("2A040023") == 0) {
-						log.debug("第二道闸门已经关闭");
+						log.debug("第三道闸门已经关闭");
+						DeviceEventListener.getInstance().setDeviceReader(true);
+						log.debug("人证比对完成，开始寻卡");
 					} else if (ss.indexOf("2A040F23") == 0) {
-						log.debug("第二道闸门超时关闭");
+						log.debug("第三道闸门超时关闭");
+						DeviceEventListener.getInstance().setDeviceReader(true);
+						log.debug("人证比对完成，开始寻卡");
 					} else if (ss.indexOf("2A510123") == 0) {
 						log.debug("点亮入口绿色箭头");
 					} else if (ss.indexOf("2A510023") == 0) {

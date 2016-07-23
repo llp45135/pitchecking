@@ -43,6 +43,12 @@ public class VerifyFaceTask {
 			faceTrackService = FaceDetectionService.getInstance();
 	}
 
+	/**
+	 * 
+	 * @param idCard
+	 * @param ticket
+	 * @return
+	 */
 	public PITData beginCheckFace(IDCard idCard, Ticket ticket) {
 		TicketCheckScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
@@ -54,12 +60,12 @@ public class VerifyFaceTask {
 		// TicketCheckScreen.getInstance().offerEvent(semEvent);
 
 		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音
+		PITData fd = null;
 
 		faceTrackService.beginCheckingFace(idCard, ticket);
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
-		PITData fd = null;
 		try {
 			fd = FaceCheckingService.getInstance().pollPassFaceData();
 		} catch (InterruptedException e) {
@@ -71,7 +77,7 @@ public class VerifyFaceTask {
 			log.debug("pollPassFaceData, using " + usingTime + " value = null");
 			faceTrackService.stopCheckingFace();
 
-			AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急们开启语音
+			AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
 
 			log.debug("认证比对结果：picData==" + fd);
 			SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门
@@ -95,6 +101,8 @@ public class VerifyFaceTask {
 
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
 
+			DeviceEventListener.getInstance().setDeviceReader(true);
+			log.debug("人证比对完成，开始寻卡");
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());

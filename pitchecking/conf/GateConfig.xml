@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PitCheckMsg>
-	<GateConfig gateNo="01" belongStationCode="IZQ" faceScreen="0" ticketScreen="1" checkTicketFlag="0" />
-	<GateCrtlConfig cameraLEDPort="1" firstGateCrtlPort="COM2" secondGateCrtlPort="COM3" gateCrtlRate="9600" />
-	<MQConfig mqStartFlag="0" MQURL="tcp://192.168.1.101:61616" TOPIC="Pitchecking" TOPIC_RESULT="PitcheckingResult" USER="pitchecking" PASSWORD="pitchecking" />
+	<GateConfig gateNo="01" belongStationCode="IZQ" faceScreen="0" ticketScreen="1" checkTicketFlag="1" readerTimeDelay="10" qrDeviceType="V"/>
+	<GateCrtlConfig cameraLEDPort="1" firstGateCrtlPort="COM2" secondGateCrtlPort="COM3" honeywellQRPort="COM5" gateCrtlRate="9600" />
+	<MQConfig mqStartFlag="1" MQURL="failover://tcp://192.168.1.4:61616" TOPIC="Pitchecking" TOPIC_RESULT="PitcheckingResult" USER="pitchecking" PASSWORD="pitchecking" />
 </PitCheckMsg>

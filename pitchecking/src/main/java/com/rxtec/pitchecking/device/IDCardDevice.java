@@ -24,6 +24,7 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.IDReader;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
@@ -105,15 +106,25 @@ public class IDCardDevice {
 			selectIDCardJNative = new JNative("SynIDCardAPI.dll", "Syn_SelectIDCard");
 			readBaseMsgJNative = new JNative("SynIDCardAPI.dll", "Syn_ReadBaseMsg");
 			BmpJN = new JNative("WltRS.dll", "GetBmp");
-		} catch (NativeException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error("IDCardDevice:" + e);
+			try {
+				Runtime.getRuntime().exec(Config.AutoLogonCmd);
+				log.info("自动注销计算机...");
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
+		this.Syn_ClosePort();
+		CommUtil.sleep(1000);
 		this.port = Integer.parseInt(Syn_FindUSBReader());
 		this.setPort(port);
 		// if (this.port != 0) {
 		// String openResult = Syn_OpenPort();
+		// log.debug("openPortResult==" + openResult);
 		// }
 
 	}
@@ -365,6 +376,7 @@ public class IDCardDevice {
 				}
 				// log.debug("姓名：" + Info[0]);
 				synIDCard.setPersonName(Info[0]); // set personName
+				log.debug("性别+国籍+种族+生日字符串长度==" + Info[1].length());
 				if (Info[1].charAt(0) == '1') {
 					synIDCard.setGender(1);
 					synIDCard.setGenderCH("男");// set gender
@@ -508,54 +520,54 @@ public class IDCardDevice {
 				BirthdateStr = String.valueOf(BirthdateChar);
 				String birthday = BirthyearStr + "-" + BirthmonthStr + "-" + BirthdateStr;
 				String today = DateUtils.getStringDateShort();
-				log.debug("birthday==" + birthday);
-				synIDCard.setAge(DateUtils.getAge(birthday, today)); // set age
-				// log.debug("出生年月：" + BirthyearStr + "年" + BirthmonthStr + "月"
-				// + BirthdateStr + "日");
+				// log.debug("birthday==" + birthday);
+				int personAge = DateUtils.getAge(birthday, today);
+				synIDCard.setAge(personAge); // set age
+				log.debug("出生年月：" + BirthyearStr + "年" + BirthmonthStr + "月" + BirthdateStr + "日" + ",personAge=="
+						+ personAge);
 				char[] addressChar = new char[Info[1].length() - 11];
 				String addressStr = "";
 				Info[1].getChars(11, Info[1].length(), addressChar, 0);
 				addressStr = String.valueOf(addressChar);
 				// log.debug("住址：" + addressStr);
 				char[] INNChar = new char[18];
+				log.debug("身份证号字符串长度==" + Info[2].length());
 				Info[2].getChars(0, 18, INNChar, 0);
 				String IDCardNoStr = "";
 				IDCardNoStr = String.valueOf(INNChar);
-				// log.debug("身份证号：" + IDCardNoStr);
+				log.debug("身份证号：" + IDCardNoStr);
 				synIDCard.setIdNo(IDCardNoStr); // setIdNo
-				char[] issueChar = new char[Info[2].length() - 18];
-				Info[2].getChars(18, Info[2].length(), issueChar, 0);
-				String issueStr = "";
-				issueStr = String.valueOf(issueChar);
+
+				// 以下代码未使用，先屏蔽
+				// char[] issueChar = new char[Info[2].length() - 18];
+				// Info[2].getChars(18, Info[2].length(), issueChar, 0);
+				// String issueStr = "";
+				// issueStr = String.valueOf(issueChar);
 				// log.debug("签发机关：" + issueStr);
-				char[] startyearChar = new char[4];
-				Info[3].getChars(0, 4, startyearChar, 0);
-				String startyearStr = "";
-				startyearStr = String.valueOf(startyearChar);
-				char[] startmonthChar = new char[2];
-				Info[3].getChars(4, 6, startmonthChar, 0);
-				String startmonthStr = "";
-				startmonthStr = String.valueOf(startmonthChar);
-				char[] startdateChar = new char[2];
-				Info[3].getChars(6, 8, startdateChar, 0);
-				String startdateStr = "";
-				startdateStr = String.valueOf(startdateChar);
-				// log.debug(startyearStr + "年" + startmonthStr + "月" +
-				// startdateStr + "日");
-				char[] endyearChar = new char[4];
-				Info[3].getChars(8, 12, endyearChar, 0);
-				String endyearStr = "";
-				endyearStr = String.valueOf(endyearChar);
-				char[] endmonthChar = new char[2];
-				Info[3].getChars(12, 14, endmonthChar, 0);
-				String endmonthStr = "";
-				endmonthStr = String.valueOf(endmonthChar);
-				char[] enddateChar = new char[2];
-				Info[3].getChars(14, 16, enddateChar, 0);
-				String enddateStr = "";
-				enddateStr = String.valueOf(enddateChar);
-				// log.debug(endyearStr + "年" + endmonthStr + "月" + enddateStr +
-				// "日");
+				// char[] startyearChar = new char[4];
+				// Info[3].getChars(0, 4, startyearChar, 0);
+				// String startyearStr = "";
+				// startyearStr = String.valueOf(startyearChar);
+				// char[] startmonthChar = new char[2];
+				// Info[3].getChars(4, 6, startmonthChar, 0);
+				// String startmonthStr = "";
+				// startmonthStr = String.valueOf(startmonthChar);
+				// char[] startdateChar = new char[2];
+				// Info[3].getChars(6, 8, startdateChar, 0);
+				// String startdateStr = "";
+				// startdateStr = String.valueOf(startdateChar);
+				// char[] endyearChar = new char[4];
+				// Info[3].getChars(8, 12, endyearChar, 0);
+				// String endyearStr = "";
+				// endyearStr = String.valueOf(endyearChar);
+				// char[] endmonthChar = new char[2];
+				// Info[3].getChars(12, 14, endmonthChar, 0);
+				// String endmonthStr = "";
+				// endmonthStr = String.valueOf(endmonthChar);
+				// char[] enddateChar = new char[2];
+				// Info[3].getChars(14, 16, enddateChar, 0);
+				// String enddateStr = "";
+				// enddateStr = String.valueOf(enddateChar);
 
 				// 读相片数据
 				int count1 = phlenPointer.getSize();
@@ -587,14 +599,17 @@ public class IDCardDevice {
 				BufferedImage idCardImage = null;
 				idCardImage = ImageIO.read(idcardFile);
 				if (idCardImage != null) {
+					log.debug("完整读取二代证照片成功！");
 					synIDCard.setCardImage(idCardImage); // set cardImage
 					byte[] idCardImageBytes = null;
 					idCardImageBytes = CommUtil.getImageBytesFromImageBuffer(idCardImage);
 					if (idCardImageBytes != null)
 						synIDCard.setCardImageBytes(idCardImageBytes);
 				}
-
-				log.debug("读取二代证信息成功！");
+				boolean delFlag = idcardFile.delete();
+				log.debug("二代证jpg照片删除 flag=" + delFlag + ",二代证bmp照片删除 flag=" + (new File("zp.bmp")).delete());
+				if (synIDCard.getCardImage() != null && synIDCard.getCardImageBytes() != null)
+					log.debug("完整读取二代证全部信息成功！");
 			} else {
 				log.debug("读取二代证信息失败！请重试!!" + synIDCard.getCardImage());
 			}
@@ -603,38 +618,27 @@ public class IDCardDevice {
 			chlenPointer.dispose();
 			phmsgPointer.dispose();
 			phlenPointer.dispose();
-
-			// JNative BmpJN = null;
-			// String bmpretval = "";
-			//
-			// i = 0;
-			// BmpJN = new JNative("WltRS.dll", "GetBmp");
-			// BmpJN.setParameter(i++, "zp.wlt");
-			// BmpJN.setParameter(i++, 2);
-			// BmpJN.invoke();
-			// BmpJN.setRetVal(Type.INT);
-			// BmpJN.invoke();
-			// bmpretval = BmpJN.getRetVal();
-			// log.debug("GetBmp: bmpretval==" + bmpretval);// 获取返回值
-			// if (retval.equals("0"))
-			// log.debug("相片解码成功！");
-			// else
-			// log.debug("相片解码不成功！请重试!!");
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			log.error("IDCardDevice  Syn_ReadBaseMsg:" + e);
+			synIDCard = null;
+			log.error("IDCardDevice  Syn_ReadBaseMsg:", e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			log.error("IDCardDevice  Syn_ReadBaseMsg:" + e);
+			synIDCard = null;
+			log.error("IDCardDevice  Syn_ReadBaseMsg:", e);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
-			log.error("IDCardDevice  Syn_ReadBaseMsg:" + e);
+			synIDCard = null;
+			log.error("IDCardDevice  Syn_ReadBaseMsg:", e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			log.error("IDCardDevice  Syn_ReadBaseMsg:" + e);
+			synIDCard = null;
+			log.error("IDCardDevice  Syn_ReadBaseMsg:", e);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			log.error("IDCardDevice  Syn_ReadBaseMsg:" + e);
+			synIDCard = null;
+			log.error("IDCardDevice  Syn_ReadBaseMsg:", e);
+			e.printStackTrace();
 		} finally {
 			try {
 				if (chmsgPointer != null) {

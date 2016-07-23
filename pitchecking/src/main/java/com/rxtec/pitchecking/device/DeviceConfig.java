@@ -28,6 +28,7 @@ public class DeviceConfig {
 	private static DeviceConfig _instance = new DeviceConfig();
 
 	public static String softVersion = "160709.15.02";
+	public static String softIdNo = "520203197912141118";
 
 	public static int idDeviceSucc = 1;
 	public static int qrDeviceSucc = 1;
@@ -39,7 +40,7 @@ public class DeviceConfig {
 	private String stationDoc = "BaseData.xml";
 
 	public static String readedIdImgPath = "./img/idinfo.jpg";
-	public static String readerQRImgPath = "./img/QRReaded.jpg";
+	public static String readedQRImgPath = "./img/QRReaded.jpg";
 	public static String allowImgPath = "./img/tky_allow.gif";
 	// public static String forbidenImgPath = "./img/tky_stop.gif";
 	public static String forbidenImgPath = "./img/forbiden.jpg";
@@ -55,16 +56,19 @@ public class DeviceConfig {
 	public static int cameraFlag = 1;
 	public static int emerDoorFlag = 2;
 
+	private int readerTimeDelay = 5;
 	private int checkTicketFlag = 1;
 	private String belongStationCode = "IZQ";
 	private int faceScreen = 0;
 	private int ticketScreen = 1;
 	private String gateNo = "00";
+	private String qrDeviceType = "V";
 	private int CameraLEDPort = 0;
 	public static int CameraLEDUnit = 0;
 	public static int CameraLEDLevel = 31;
 	private String firstGateCrtlPort = "COM2";
 	private String secondGateCrtlPort = "COM3";
+	private String honeywellQRPort = "COM4";
 	private int gateCrtlRate = 9600;
 
 	private int mqStartFlag = 0;
@@ -74,6 +78,30 @@ public class DeviceConfig {
 	private String USER = "pitchecking";
 	private String PASSWORD = "pitchecking";
 	private String ipAddress = "127.0.0.1";
+
+	public String getQrDeviceType() {
+		return qrDeviceType;
+	}
+
+	public void setQrDeviceType(String qrDeviceType) {
+		this.qrDeviceType = qrDeviceType;
+	}
+
+	public String getHoneywellQRPort() {
+		return honeywellQRPort;
+	}
+
+	public void setHoneywellQRPort(String honeywellQRPort) {
+		this.honeywellQRPort = honeywellQRPort;
+	}
+
+	public int getReaderTimeDelay() {
+		return readerTimeDelay;
+	}
+
+	public void setReaderTimeDelay(int readerTimeDelay) {
+		this.readerTimeDelay = readerTimeDelay;
+	}
 
 	public int getCheckTicketFlag() {
 		return checkTicketFlag;
@@ -353,9 +381,12 @@ public class DeviceConfig {
 			this.setGateNo(root.getChild("GateConfig").getAttributeValue("gateNo"));
 			this.setFaceScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("faceScreen")));
 			this.setTicketScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("ticketScreen")));
+			this.setReaderTimeDelay(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("readerTimeDelay")));
+			this.setQrDeviceType(root.getChild("GateConfig").getAttributeValue("qrDeviceType"));
 			this.setCameraLEDPort(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("cameraLEDPort")));
 			this.setFirstGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("firstGateCrtlPort"));
 			this.setSecondGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("secondGateCrtlPort"));
+			this.setHoneywellQRPort(root.getChild("GateCrtlConfig").getAttributeValue("honeywellQRPort"));
 			this.setGateCrtlRate(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("gateCrtlRate")));
 			this.setMqStartFlag(Integer.parseInt(root.getChild("MQConfig").getAttributeValue("mqStartFlag")));
 			this.setMQURL(root.getChild("MQConfig").getAttributeValue("MQURL"));

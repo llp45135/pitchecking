@@ -37,13 +37,13 @@ public class TicketCheckScreen {
 	}
 
 	public void initUI() {
-		
-		 gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
-		 gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
+
+		gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
+		gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
 		// ticketFrame.setUndecorated(true);
 		// ticketFrame.setVisible(true);
 
-//		gs[1].setFullScreenWindow(faceFrame);
+		// gs[1].setFullScreenWindow(faceFrame);
 		// if(gs.length>1)
 		// gs[1].setFullScreenWindow(ticketFrame);
 		// else
@@ -101,33 +101,34 @@ public class TicketCheckScreen {
 	 * @param e
 	 */
 	private void processEventByTicketCmdType(ScreenElementModifyEvent e) {
-		if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue()) {
-			if (e.getTicket() == null) {
+		int cmdType = e.getElementCmd();
+		Ticket ticket = e.getTicket();
+		IDCard idCard = e.getIdCard();
+		if (cmdType == ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue()) {
+			if (ticket == null && idCard != null) {
 				// log.debug("等待旅客扫描车票！");
-				ticketFrame.showWaitInputContent(e.getTicket(), e.getIdCard(), 1);
-			} else if (e.getIdCard() == null) {
-				// log.debug("等待旅客刷身份证！");
-				ticketFrame.showWaitInputContent(e.getTicket(), e.getIdCard(), 2);
+				ticketFrame.showWaitInputContent(null, e.getIdCard(), 1);
 			}
-		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyStationRuleFail.getValue()) {
+			if (ticket != null && idCard == null) {
+				// log.debug("等待旅客刷身份证！");
+				ticketFrame.showWaitInputContent(e.getTicket(), null, 2);
+			}
+		} else if (cmdType == ScreenCmdEnum.ShowTicketVerifyStationRuleFail.getValue()) {
 			log.debug("收到ShowTicketVerifyStationRuleFail屏幕事件，重画屏幕");
 			String msg = "车票不符合乘车条件！";
-			Ticket ticket = e.getTicket();
 			ticketFrame.showFailedContent(DeviceConfig.getInstance(), ticket, 4, msg);
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifyIDFail.getValue()) {
 			log.debug("收到ShowTicketVerifyIDFail屏幕事件，重画屏幕");
 			String msg = "车票与身份证不相符！";
-			Ticket ticket = e.getTicket();
 			ticketFrame.showFailedContent(DeviceConfig.getInstance(), ticket, 4, msg);
-		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketVerifySucc.getValue()) {
-			Ticket ticket = e.getTicket();
+		} else if (cmdType == ScreenCmdEnum.ShowTicketVerifySucc.getValue()) {
 			ticketFrame.showTicketContent(DeviceConfig.getInstance(), ticket, 3);
-		} else if (e.getElementCmd() == ScreenCmdEnum.ShowTicketDefault.getValue()) {
+		} else if (cmdType == ScreenCmdEnum.ShowTicketDefault.getValue()) {
 			ticketFrame.showDefaultContent();
-		} else if (e.getElementCmd() == ScreenCmdEnum.ShowQRDeviceException.getValue()) {
+		} else if (cmdType == ScreenCmdEnum.ShowQRDeviceException.getValue()) {
 			String exMsg = "二维码扫描器故障，请联系维护人员!";
 			ticketFrame.showExceptionContent(DeviceConfig.getInstance(), -1, exMsg);
-		} else if (e.getElementCmd() == ScreenCmdEnum.ShowIDDeviceException.getValue()) {
+		} else if (cmdType == ScreenCmdEnum.ShowIDDeviceException.getValue()) {
 			String exMsg = "二代证读卡器故障，请联系维护人员!";
 			ticketFrame.showExceptionContent(DeviceConfig.getInstance(), -1, exMsg);
 		}

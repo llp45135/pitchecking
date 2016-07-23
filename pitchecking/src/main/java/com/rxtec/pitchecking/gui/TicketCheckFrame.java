@@ -23,6 +23,7 @@ import javax.swing.border.MatteBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.IDReader;
 import com.rxtec.pitchecking.QRReader;
@@ -63,7 +64,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	private JLabel lableWarnmsg;
 	private JLabel labelVersion;
 	private JLabel lblIp;
-	int timeIntevel = 5;
+	int timeIntevel = DeviceConfig.getInstance().getReaderTimeDelay();
 	private JLabel timelabel;
 	private int titleStrType = 0;
 
@@ -89,7 +90,8 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 					ticket.setTicketType("1");
 					ticket.setSeatCode("O");
 					frame.showTicketContent(deviceConfig, ticket, 3);
-//					frame.showFailedContent(deviceConfig, ticket, 4, "票证未通过核验，请重试!");
+					// frame.showFailedContent(deviceConfig, ticket, 4,
+					// "票证未通过核验，请重试!");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -121,8 +123,8 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		labelTitle = new JLabel("请刷二代证和车票二维码");
 		labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		labelTitle.setForeground(Color.BLUE);
-		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 48));
-		labelTitle.setBounds(10, 24, 1250, 64);
+		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 60));
+		labelTitle.setBounds(10, 24, 1250, 73);
 		topPanel.add(labelTitle);
 
 		timelabel = new JLabel("yyyyMMdd hh:mm:ss");
@@ -145,62 +147,74 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 
 		labelTrainCode = new JLabel("G6612");
 		labelTrainCode.setHorizontalAlignment(SwingConstants.CENTER);
-		labelTrainCode.setFont(new Font("微软雅黑", Font.PLAIN, 32));
-		labelTrainCode.setBounds(566, 70, 110, 54);
+		labelTrainCode.setFont(new Font("微软雅黑", Font.PLAIN, 56));
+		// labelTrainCode.setBorder(new LineBorder(new Color(0, 0, 0), 1,
+		// true));
+		labelTrainCode.setBounds(342, 67, 225, 72);
 		ticketPanel.add(labelTrainCode);
 
 		labelFz = new JLabel("广州南");
 		labelFz.setHorizontalAlignment(SwingConstants.CENTER);
-		labelFz.setFont(new Font("微软雅黑", Font.PLAIN, 32));
-		labelFz.setBounds(717, 70, 110, 54);
+		labelFz.setFont(new Font("微软雅黑", Font.PLAIN, 56));
+		// labelFz.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		labelFz.setBounds(593, 67, 245, 72);
 		ticketPanel.add(labelFz);
 
 		labelZhi = new JLabel("至");
 		labelZhi.setHorizontalAlignment(SwingConstants.CENTER);
-		labelZhi.setFont(new Font("微软雅黑", Font.PLAIN, 32));
-		labelZhi.setBounds(864, 70, 48, 54);
+		labelZhi.setFont(new Font("微软雅黑", Font.PLAIN, 56));
+		// labelZhi.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		labelZhi.setBounds(848, 67, 87, 72);
 		ticketPanel.add(labelZhi);
 
 		labelDz = new JLabel("长沙南");
 		labelDz.setHorizontalAlignment(SwingConstants.CENTER);
-		labelDz.setFont(new Font("微软雅黑", Font.PLAIN, 32));
-		labelDz.setBounds(947, 70, 110, 54);
+		labelDz.setFont(new Font("微软雅黑", Font.PLAIN, 56));
+		// labelDz.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		labelDz.setBounds(945, 67, 237, 72);
 		ticketPanel.add(labelDz);
 
 		label_rq = new JLabel("乘车日期");
 		label_rq.setHorizontalAlignment(SwingConstants.CENTER);
-		label_rq.setFont(new Font("微软雅黑", Font.PLAIN, 32));
-		label_rq.setBounds(566, 149, 198, 54);
+		label_rq.setFont(new Font("微软雅黑", Font.PLAIN, 56));
+		// label_rq.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		label_rq.setBounds(410, 190, 271, 72);
 		ticketPanel.add(label_rq);
 
 		labelTrainDate = new JLabel("2016年5月16日");
-		labelTrainDate.setFont(new Font("微软雅黑", Font.PLAIN, 32));
-		labelTrainDate.setBounds(795, 149, 262, 54);
+		labelTrainDate.setFont(new Font("微软雅黑", Font.PLAIN, 56));
+		// labelTrainDate.setBorder(new LineBorder(new Color(0, 0, 0), 1,
+		// true));
+		labelTrainDate.setBounds(742, 190, 440, 72);
 		ticketPanel.add(labelTrainDate);
 
 		labelSeatType = new JLabel("二等软座");
 		labelSeatType.setHorizontalAlignment(SwingConstants.CENTER);
-		labelSeatType.setFont(new Font("微软雅黑", Font.PLAIN, 32));
-		labelSeatType.setBounds(672, 223, 134, 54);
+		labelSeatType.setFont(new Font("微软雅黑", Font.PLAIN, 56));
+		// labelSeatType.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		labelSeatType.setBounds(410, 299, 351, 72);
 		ticketPanel.add(labelSeatType);
 
 		labelTicketType = new JLabel("全票");
 		labelTicketType.setHorizontalAlignment(SwingConstants.CENTER);
-		labelTicketType.setFont(new Font("微软雅黑", Font.PLAIN, 32));
-		labelTicketType.setBounds(854, 223, 110, 54);
+		labelTicketType.setFont(new Font("微软雅黑", Font.PLAIN, 56));
+		// labelTicketType.setBorder(new LineBorder(new Color(0, 0, 0), 1,
+		// true));
+		labelTicketType.setBounds(809, 299, 245, 72);
 		ticketPanel.add(labelTicketType);
 
 		lableImg = new JLabel("");
 		lableImg.setHorizontalAlignment(SwingConstants.CENTER);
 		lableImg.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		lableImg.setBounds(270, 149, 180, 215);
+		lableImg.setBounds(90, 172, 180, 215);
 		ticketPanel.add(lableImg);
 
 		lableWarnmsg = new JLabel("请通行！");
 		lableWarnmsg.setForeground(Color.RED);
-		lableWarnmsg.setFont(new Font("微软雅黑", Font.PLAIN, 40));
+		lableWarnmsg.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		lableWarnmsg.setHorizontalAlignment(SwingConstants.CENTER);
-		lableWarnmsg.setBounds(508, 322, 615, 65);
+		// lableWarnmsg.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		lableWarnmsg.setBounds(342, 418, 840, 82);
 		ticketPanel.add(lableWarnmsg);
 
 		bottomPanel = new JPanel();
@@ -208,25 +222,25 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		bottomPanel.setMinimumSize(new Dimension(1280, 60));
 		bottomPanel.setMaximumSize(new Dimension(1280, 60));
 		bottomPanel.setLayout(null);
-		
+
 		labelVersion = new JLabel("版本号：pitcheck160709.02");
 		labelVersion.setForeground(Color.BLACK);
-		labelVersion.setFont(new Font("微软雅黑", Font.PLAIN, 22));
+		labelVersion.setFont(new Font("微软雅黑", Font.PLAIN, 23));
 		labelVersion.setHorizontalAlignment(SwingConstants.CENTER);
 		labelVersion.setBounds(96, 10, 302, 42);
 		bottomPanel.add(labelVersion);
-		
+
 		lblIp = new JLabel("IP地址：192.168.1.5");
 		lblIp.setForeground(Color.BLACK);
 		lblIp.setHorizontalAlignment(SwingConstants.CENTER);
-		lblIp.setFont(new Font("微软雅黑", Font.PLAIN, 22));
+		lblIp.setFont(new Font("微软雅黑", Font.PLAIN, 23));
 		lblIp.setBounds(928, 10, 276, 42);
 		bottomPanel.add(lblIp);
 
 		setUndecorated(true);
 
 		showDefaultContent();
-		
+
 		setSoftVersion("软件版本号：" + DeviceConfig.softVersion);
 		setGateIP("IP地址：" + DeviceConfig.getInstance().getIpAddress());
 	}
@@ -239,16 +253,18 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		lableImg.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
 		lableImg.setIcon(icon);
 	}
-	
-	public void setSoftVersion(String verText){
+
+	public void setSoftVersion(String verText) {
 		labelVersion.setText(verText);
 	}
-	
-	public void setGateIP(String ipText){
+
+	public void setGateIP(String ipText) {
 		lblIp.setText(ipText);
 	}
 
 	public void showDefaultContent() {
+
+		DeviceEventListener.getInstance().resetTicketAndIDCard();// 正式代码时必须启用
 
 		this.labelTitle.setText("请刷二代证和车票二维码");
 		labelTitle.setForeground(Color.blue);
@@ -315,16 +331,20 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		contentPane.add(bottomPanel);
 
 		if (idCard != null) {
-//			initPanel.showIDCardImage(new ImageIcon(idCard.getCardImage()));
+			// initPanel.showIDCardImage(new ImageIcon(idCard.getCardImage()));
 			initPanel.showIDCardImage(new ImageIcon(DeviceConfig.readedIdImgPath));
+		} else {
+			initPanel.showIDCardImage(new ImageIcon(DeviceConfig.idReaderImgPath));
 		}
 		if (ticket != null) {
-			initPanel.showTicketInfo(new ImageIcon(DeviceConfig.readerQRImgPath));
+			initPanel.showTicketInfo(new ImageIcon(DeviceConfig.readedQRImgPath));
+		} else {
+			initPanel.showTicketInfo(new ImageIcon(DeviceConfig.qrReaderImgPath));
 		}
 
 		contentPane.repaint();
 
-		timeIntevel = 4;
+		timeIntevel = DeviceConfig.getInstance().getReaderTimeDelay();
 	}
 
 	/**
@@ -362,7 +382,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 			contentPane.add(bottomPanel);
 			contentPane.repaint();
 
-			timeIntevel = 4;
+			timeIntevel = DeviceConfig.getInstance().getReaderTimeDelay();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -401,7 +421,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 			contentPane.add(bottomPanel);
 			contentPane.repaint();
 
-			timeIntevel = 4;
+			timeIntevel = DeviceConfig.getInstance().getReaderTimeDelay();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

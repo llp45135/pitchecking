@@ -17,16 +17,16 @@ public class IDReader implements Runnable {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	IDCardDevice device = IDCardDevice.getInstance();
 	private int deviceStatus = Config.StartStatus;
-	//以下ticketFrame仅供测试用
-//	TicketCheckFrame ticketFrame;
+	// 以下ticketFrame仅供测试用
+	// TicketCheckFrame ticketFrame;
 
-//	public TicketCheckFrame getTicketFrame() {
-//		return ticketFrame;
-//	}
-//
-//	public void setTicketFrame(TicketCheckFrame ticketFrame) {
-//		this.ticketFrame = ticketFrame;
-//	}
+	// public TicketCheckFrame getTicketFrame() {
+	// return ticketFrame;
+	// }
+	//
+	// public void setTicketFrame(TicketCheckFrame ticketFrame) {
+	// this.ticketFrame = ticketFrame;
+	// }
 
 	private static IDReader instance;
 
@@ -35,6 +35,10 @@ public class IDReader implements Runnable {
 			instance = new IDReader();
 		}
 		return instance;
+	}
+
+	public int getDeviceStatus() {
+		return deviceStatus;
 	}
 
 	private IDReader() {
@@ -53,22 +57,18 @@ public class IDReader implements Runnable {
 		if (deviceStatus == Config.StartStatus) {
 
 			// log.debug("开始寻卡...");
-//			 String openPortResult = device.Syn_OpenPort();
-//			 if (openPortResult.equals("0")) {
+			// String openPortResult = device.Syn_OpenPort();
+			// if (openPortResult.equals("0")) {
 			String findval = device.Syn_StartFindIDCard();
 			if (findval.equals("0")) {
-
-				// IDeviceEvent findedCardEvent = new IDCardReaderEvent();
-				// DeviceEventListener.getInstance().offerDeviceEvent(findedCardEvent);
 				String selectval = device.Syn_SelectIDCard();
 				if (selectval.equals("0")) {
 					IDCard idCard = device.Syn_ReadBaseMsg();
-					if (idCard != null && idCard.getIdNo() != null) {
-						// log.debug("########idCard==" +
-						// idCard.getPersonName());
-						
-//						ticketFrame.showWaitInputContent(null, idCard, 1);  //测试代码
-						
+					if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null
+							&& idCard.getCardImageBytes() != null) {
+						this.stop();  //停止身份证寻卡
+						// ticketFrame.showWaitInputContent(null, idCard, 1);//测试代码
+
 						IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
 						readCardEvent.setIdCard(idCard);
 						DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
@@ -78,8 +78,8 @@ public class IDReader implements Runnable {
 				// log.debug("没有找到身份证");
 			}
 
-//			 device.Syn_ClosePort();
-//			 }
+			// device.Syn_ClosePort();
+			// }
 		}
 	}
 

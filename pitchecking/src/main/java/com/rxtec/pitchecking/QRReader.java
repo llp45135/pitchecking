@@ -16,8 +16,10 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.rxtec.pitchecking.device.AudioDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.device.HoneyWellQRDevice;
 import com.rxtec.pitchecking.event.QRCodeReaderEvent;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
+import com.rxtec.pitchecking.mq.JmsReceiverTask;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.vguang.VguangApi;
 
@@ -25,8 +27,8 @@ public class QRReader implements Runnable {
 	private Log log = LogFactory.getLog("QRReader");
 	private static QRReader instance = new QRReader();
 	private JNative qrDeviceJNative = null;
-	
-//	private TicketCheckFrame frame = new TicketCheckFrame();//仅供测试用
+
+//	private TicketCheckFrame frame = new TicketCheckFrame();// 仅供测试用
 
 	private int deviceStatus = Config.StartStatus;
 
@@ -34,13 +36,16 @@ public class QRReader implements Runnable {
 
 		ScheduledExecutorService qrReaderScheduler = Executors.newScheduledThreadPool(1);
 		qrReaderScheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+
+		// ExecutorService executer = Executors.newCachedThreadPool();
+		// executer.execute(QRReader.getInstance());
 	}
 
 	private QRReader() {
 		JNative.setLoggingEnabled(true);
 		initQRDevice();
-		
-//		frame.setVisible(true);//仅供测试用
+
+//		frame.setVisible(true);// 仅供测试用
 		try {
 			qrDeviceJNative = new JNative("BAR2unsecurity.dll", "uncompress");
 		} catch (NativeException e) {
@@ -61,13 +66,14 @@ public class QRReader implements Runnable {
 			try {
 				Ticket ticket = uncompressTicket(instr, year);
 				if (deviceStatus == Config.StartStatus && ticket != null) {
-					
-//					frame.showWaitInputContent(ticket, null, 2);  //仅供测试用
-					
-					//以下为正式使用代码
-					QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(DeviceEventTypeEnum.ReadIDCard.getValue());
-					qrEvent.setTicket(ticket);
-					DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+					this.stop();  //停止二维码处理数据
+//					frame.showWaitInputContent(ticket, null, 2); // 仅供测试用
+
+					// 以下为正式使用代码
+					 QRCodeReaderEvent qrEvent = new
+					 QRCodeReaderEvent(DeviceEventTypeEnum.ReadIDCard.getValue());
+					 qrEvent.setTicket(ticket);
+					 DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
 				}
 			} catch (NumberFormatException | UnsupportedEncodingException e) {
 				log.error("QRReader uncompressTicket", e);
@@ -89,13 +95,23 @@ public class QRReader implements Runnable {
 	 */
 	private void initQRDevice() {
 		log.debug("初始化二维码扫描器...");
-		
-		// 应用设置
-		VguangApi.applyDeviceSetting();
-		// 打开设备
-		VguangApi.openDevice();
-		// 开始循环扫描
-		// VguangApi.startScan();
+		if (DeviceConfig.getInstance().getQrDeviceType().equals("V")) {
+			log.debug("启用微光扫描器");
+			// 应用设置
+			VguangApi.applyDeviceSetting();
+			// 打开设备
+			VguangApi.openDevice();
+		} else if (DeviceConfig.getInstance().getQrDeviceType().equals("H")) {
+			log.debug("启用HoneyWell扫描器");
+			try {
+				HoneyWellQRDevice.getInstance().connect(DeviceConfig.getInstance().getHoneywellQRPort());
+				DeviceConfig.getInstance().setQrdeviceStatus(1);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				DeviceConfig.getInstance().setQrdeviceStatus(2);
+				log.error("initQRDevice:", e);
+			}
+		}
 
 	}
 
@@ -158,7 +174,7 @@ public class QRReader implements Runnable {
 				specialArray[i] = ticketArray[i + 110];
 			}
 			ticket.setSpecialStr(new String(specialArray, "gbk"));
-			
+
 			ticket.setInGateNo(DeviceConfig.getInstance().getGateNo());
 
 			trainDateArray = null;
@@ -201,7 +217,7 @@ public class QRReader implements Runnable {
 				// log.debug("uncompress：outStrArray.length==" +
 				// outStrArray.length);
 				String ticketStr = new String(outStrArray, "gbk");
-//				log.debug("uncompress: ticketArray==" + ticketStr + "##");
+				// log.debug("uncompress: ticketArray==" + ticketStr + "##");
 			}
 			ticketStrPointer.dispose();
 
@@ -233,10 +249,10 @@ public class QRReader implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-//		log.debug("QRReader running!");
-//		while(true){
-//			CommUtil.sleep(100);
-//		}
+		// log.debug("QRReader running!");
+		// while(true){
+		// CommUtil.sleep(100);
+		// }
 	}
 
 }

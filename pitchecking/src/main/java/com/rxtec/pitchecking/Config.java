@@ -77,6 +77,18 @@ public class Config {
 	public static String FaceVerifyMicro="MICRO";
 	public static String FaceVerifyPIXEL="PIXEL";
 	
+	public static int HEART_BEAT_DELAY = 10000;
+	
+	public static int ByPassMaxAge=65;
+	public static int ByPassMinAge=12;
+	
+	private String  heartBeatLogFile="C:/pitchecking/work/HEART.log";
+	private String startPITAppCmd = "C:/pitchecking/bin/start.bat";
+	public static String AutoRestartCmd= "C:/pitchecking/bin/restartPC.bat";
+	public static String AutoLogonCmd= "C:/pitchecking/bin/autoLogonPC.bat";
+
+
+
 
 	private int faceVerifyThreads = 2; // 人脸比对线程数
 
@@ -111,10 +123,24 @@ public class Config {
 		return faceDetectionScale;
 	}
 
+	public String getStartPITAppCmd() {
+		return startPITAppCmd;
+	}
+
+	public void setStartPITAppCmd(String startPITAppCmd) {
+		this.startPITAppCmd = startPITAppCmd;
+	}
 	public void setFaceDetectionScale(float faceDetectionScale) {
 		this.faceDetectionScale = faceDetectionScale;
 	}
 
+	public String getHeartBeatLogFile() {
+		return heartBeatLogFile;
+	}
+
+	public void setHeartBeatLogFile(String heartBeatLogFile) {
+		this.heartBeatLogFile = heartBeatLogFile;
+	}
 
 
 	
@@ -349,7 +375,8 @@ public class Config {
 			this.minAverageDepth = Integer.valueOf(p.getProperty("MinAverageDepth", "400"));
 			this.faceTrackMode = Integer.valueOf(p.getProperty("FaceTrackMode", "1"));
 			this.faceDetectionScale = Float.valueOf(p.getProperty("FaceDetectionScale", "1.3"));
-
+			this.heartBeatLogFile = p.getProperty("HeartBeatLogFile", "C:/pitchecking/work/HEART.log");
+			this.startPITAppCmd = p.getProperty("StartPITAppCmd", "C:/pitchecking/bin");
 
 			
 

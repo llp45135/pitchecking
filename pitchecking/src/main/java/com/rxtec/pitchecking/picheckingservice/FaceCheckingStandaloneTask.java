@@ -8,29 +8,28 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.net.PTVerifyResultPublisher;
+import com.rxtec.pitchecking.utils.CommUtil;
 
 public class FaceCheckingStandaloneTask implements Runnable {
 
-	
 	PTVerifyResultPublisher publisher = PTVerifyResultPublisher.getInstance();
 	FaceVerifyInterface faceVerify = null;
 	private Logger log = LoggerFactory.getLogger("FaceCheckingStandaloneTask");
 
-	public FaceCheckingStandaloneTask(){
-		if(Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyPIXEL)){
+	public FaceCheckingStandaloneTask() {
+		if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyPIXEL)) {
 			faceVerify = new PIXELFaceVerifyJniEntry(Config.PIXELFaceVerifyDLLName);
-		}else if(Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyMicro)){
+		} else if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyMicro)) {
 			faceVerify = new MICROPFaceVerifyJNIEntry(Config.MICROFaceVerifyCloneDLLName);
 		}
 	}
 
-	
 	@Override
 	public void run() {
 		while (true) {
 			try {
 				Thread.sleep(50);
-				PITVerifyData fd = FaceCheckingService.getInstance().takeFaceVerifyData();//从待验证人脸队列中取出人脸对象
+				PITVerifyData fd = FaceCheckingService.getInstance().takeFaceVerifyData();// 从待验证人脸队列中取出人脸对象
 				if (fd != null) {
 					if (fd.getIdCardImg() == null)
 						continue;
@@ -39,21 +38,29 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					byte[] extractFaceImageBytes = fd.getFaceImg();
 					if (extractFaceImageBytes == null)
 						continue;
-					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCardImg());//比对人脸
+					if (fd.getAge() <= Config.ByPassMinAge || fd.getAge() >= Config.ByPassMaxAge) {
+						CommUtil.sleep(2000);
+						fd.setVerifyResult(0.8f);
+						publisher.publishResult(fd); // 比对结果公布
+						FaceCheckingService.getInstance().resetFaceDataQueue();
+						continue;
+					}
+					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCardImg());// 比对人脸
 					fd.setVerifyResult(resultValue);
 					int usingTime = (int) (Calendar.getInstance().getTimeInMillis() - nowMils);
-					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {  
-						publisher.publishResult(fd);  //比对结果公布
+
+					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
+						publisher.publishResult(fd); // 比对结果公布
 						FaceCheckingService.getInstance().resetFaceDataQueue();
 					}
-					
+
 					FaceVerifyServiceStatistics.getInstance().update(resultValue, usingTime, fd.getFaceDistance());
-					
+
 					FaceImageLog.saveFaceDataToDsk(fd);
 				}
 
 			} catch (Exception e) {
-				log.error("FaceCheckingStandaloneTask run loop",e);
+				log.error("FaceCheckingStandaloneTask run loop", e);
 			}
 
 		}

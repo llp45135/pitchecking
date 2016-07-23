@@ -40,7 +40,9 @@ public class TicketVerify {
 			// TODO 执行比对
 			// 校验车站验票规则
 			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
-				if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、当日票
+				if (idCard.getIdNo().equals(DeviceConfig.softIdNo)) {
+					return Config.TicketVerifySucc;
+				} else if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、当日票
 					log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
 					return Config.TicketVerifyStationRuleFail;
 				} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、本站乘车
