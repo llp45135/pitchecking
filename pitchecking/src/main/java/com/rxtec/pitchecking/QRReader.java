@@ -66,7 +66,6 @@ public class QRReader implements Runnable {
 			try {
 				Ticket ticket = uncompressTicket(instr, year);
 				if (deviceStatus == Config.StartStatus && ticket != null) {
-					this.stop();  //停止二维码处理数据
 //					frame.showWaitInputContent(ticket, null, 2); // 仅供测试用
 
 					// 以下为正式使用代码

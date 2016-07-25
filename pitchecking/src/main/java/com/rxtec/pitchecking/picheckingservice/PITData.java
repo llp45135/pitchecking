@@ -330,8 +330,19 @@ public class PITData implements Serializable{
 	public void setDetectedFace(boolean isDetectedFace) {
 		this.isDetectedFace = isDetectedFace;
 	}
+	
+	
+	private String pitStation;
 
 	
+	public String getPitStation() {
+		return pitStation;
+	}
+
+	public void setPitStation(String pitStation) {
+		this.pitStation = pitStation;
+	}
+
 	@Override
 	public String toString(){
 		return "VerifyResult=" + this.faceCheckResult;

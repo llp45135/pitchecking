@@ -28,6 +28,15 @@ public class DeviceEventListener implements Runnable {
 	private static DeviceEventListener _instance = new DeviceEventListener();
 	private VerifyFaceTask verifyFaceTask = new VerifyFaceTask();
 	private TicketVerify ticketVerify = new TicketVerify();
+	private boolean dealFlag = true;
+
+	public boolean isDealFlag() {
+		return dealFlag;
+	}
+
+	public void setDealFlag(boolean dealFlag) {
+		this.dealFlag = dealFlag;
+	}
 
 	private DeviceEventListener() {
 		try {
@@ -67,14 +76,21 @@ public class DeviceEventListener implements Runnable {
 			 * 二维码读卡器读到数据
 			 */
 			ticketVerify.setTicket((Ticket) e.getData());
-
-			verifyTicket();
+			if (dealFlag) {
+				this.setDealFlag(false);
+				verifyTicket();
+				this.setDealFlag(true);
+			}
 		} else if (e.getEventType() == Config.IDReaderEvent && e.getData() != null) {
 			/**
 			 * 二代证读卡器读到了新数据
 			 */
 			ticketVerify.setIdCard((IDCard) e.getData());
-			verifyTicket();
+			if (dealFlag) {
+				this.setDealFlag(false);
+				verifyTicket();
+				this.setDealFlag(true);
+			}
 		}
 	}
 
@@ -87,47 +103,40 @@ public class DeviceEventListener implements Runnable {
 			log.debug("票证核验通过，停止寻卡，打开第一道闸门，开始人证比对");
 			// 打开第一道门
 			FirstGateDevice.getInstance().openFirstDoor();
-			
+
 			TicketCheckScreen.getInstance()
 					.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifySucc.getValue(),
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
-			
+
 			// 开始进行人脸检测和比对
 			verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket());
 
 			ticketVerify.reset();
-
+			this.setDealFlag(true);
 			// 开始寻卡
 			// this.setDeviceReader(true);
 			// log.debug("人证比对完成，开始寻卡");
-
 		} else if (ticketVerifyResult == Config.TicketVerifyWaitInput) { // 等待票证验证数据
 			if (ticketVerify.getTicket() == null || ticketVerify.getIdCard() == null) {
 				TicketCheckScreen.getInstance()
 						.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue(),
 								ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 			}
-			// 开始寻卡
-			this.setDeviceReader(true);
 		} else if (ticketVerifyResult == Config.TicketVerifyIDFail) { // 票证验证失败
 			TicketCheckScreen.getInstance()
 					.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifyIDFail.getValue(),
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 			ticketVerify.reset();
-			// 开始寻卡
-			this.setDeviceReader(true);
 		} else if (ticketVerifyResult == Config.TicketVerifyStationRuleFail) { // 车票未通过车站业务规则
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifyStationRuleFail.getValue(),
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
-			ticketVerify.reset();
-			// 开始寻卡
-			this.setDeviceReader(true);
 		}
 	}
 
 	/**
 	 * 人证比对
+	 * 
 	 * @param idCard
 	 * @param ticket
 	 */
@@ -170,7 +179,7 @@ public class DeviceEventListener implements Runnable {
 		} else {
 			scheduler = Executors.newScheduledThreadPool(4);
 		}
-		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 200, TimeUnit.MILLISECONDS);
 		scheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		// 求助按钮事件处理线程
 		scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);

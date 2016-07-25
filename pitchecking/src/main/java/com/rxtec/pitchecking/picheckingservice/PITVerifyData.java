@@ -1,6 +1,8 @@
 package com.rxtec.pitchecking.picheckingservice;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.utils.ImageToolkit;
@@ -22,11 +24,37 @@ public class PITVerifyData implements Serializable {
 	private String personName;
 	private int gender;
 	private int age;
-
 	private Ticket ticket;
-	
 	private float faceDistance;
 	private int useTime;
+	private String pitDate;
+	private String pitStation;
+	private String pitTime;
+
+	public String getPitStation() {
+		return pitStation;
+	}
+
+	public void setPitStation(String pitStation) {
+		this.pitStation = pitStation;
+	}
+
+	public String getPitDate() {
+		return pitDate;
+	}
+
+	public void setPitDate(String pitDate) {
+		this.pitDate = pitDate;
+	}
+
+	public String getPitTime() {
+		return pitTime;
+	}
+
+	public void setPitTime(String pitTime) {
+		this.pitTime = pitTime;
+	}
+
 
 	public int getUseTime() {
 		return useTime;
@@ -117,6 +145,9 @@ public class PITVerifyData implements Serializable {
 	}
 
 	public PITVerifyData(PITData pd) {
+		SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd");
+		SimpleDateFormat sf2 = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+		
 		if (pd != null && pd.getIdCard() != null) {
 			this.idCardImg = pd.getIdCard().getCardImageBytes();
 			this.faceImg = ImageToolkit.getImageBytes(pd.getFaceImage(), "JPEG");
@@ -127,6 +158,10 @@ public class PITVerifyData implements Serializable {
 			this.gender = pd.getIdCard().getGender();
 			this.ticket = pd.getTicket();
 			this.faceDistance = pd.getFaceDistance();
+			Date now = new Date();
+			this.pitDate = sf.format(now);
+			this.pitTime = sf.format(now);
+			this.pitStation = pd.getPitStation();
 		}
 	}
 

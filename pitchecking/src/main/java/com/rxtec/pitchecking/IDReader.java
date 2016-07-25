@@ -66,7 +66,6 @@ public class IDReader implements Runnable {
 					IDCard idCard = device.Syn_ReadBaseMsg();
 					if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null
 							&& idCard.getCardImageBytes() != null) {
-						this.stop();  //停止身份证寻卡
 						// ticketFrame.showWaitInputContent(null, idCard, 1);//测试代码
 
 						IDCardReaderEvent readCardEvent = new IDCardReaderEvent();

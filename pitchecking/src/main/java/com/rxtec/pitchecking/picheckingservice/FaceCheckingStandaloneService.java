@@ -14,6 +14,7 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
 import com.rxtec.pitchecking.db.MongoDB;
+import com.rxtec.pitchecking.db.PitRecordLoger;
 import com.rxtec.pitchecking.mbean.FaceVerifyServiceManager;
 import com.rxtec.pitchecking.mbean.PITProcessDetect;
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
@@ -30,7 +31,7 @@ public class FaceCheckingStandaloneService {
 	public static void main(String[] args) {
 //		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 //		scheduler.scheduleWithFixedDelay(new PITProcessDetect(), 0, 3000, TimeUnit.MILLISECONDS);
-		ExecutorService executer = Executors.newCachedThreadPool();
+		ExecutorService executer = Executors.newSingleThreadExecutor();
 		PITProcessDetect pitProcessDetect = new PITProcessDetect();
 		executer.execute(pitProcessDetect);
 
@@ -43,7 +44,8 @@ public class FaceCheckingStandaloneService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		MongoDB.getInstance().clearExpirationData();
+		PitRecordLoger.getInstance().clearExpirationData();
+		PitRecordLoger.getInstance().startThread();
 		FaceCheckingService.getInstance().beginFaceCheckerStandaloneTask();
 		CommUtil.sleep(3000);
 		PIVerifySubscriber s = new PIVerifySubscriber();

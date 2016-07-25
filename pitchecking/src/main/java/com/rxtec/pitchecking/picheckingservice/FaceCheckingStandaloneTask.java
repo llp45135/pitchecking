@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.db.PitRecordLoger;
 import com.rxtec.pitchecking.net.PTVerifyResultPublisher;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -43,6 +44,7 @@ public class FaceCheckingStandaloneTask implements Runnable {
 						fd.setVerifyResult(0.8f);
 						publisher.publishResult(fd); // 比对结果公布
 						FaceCheckingService.getInstance().resetFaceDataQueue();
+						FaceImageLog.saveFaceDataToDsk(fd);
 						continue;
 					}
 					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCardImg());// 比对人脸
@@ -53,9 +55,8 @@ public class FaceCheckingStandaloneTask implements Runnable {
 						publisher.publishResult(fd); // 比对结果公布
 						FaceCheckingService.getInstance().resetFaceDataQueue();
 					}
-
+					PitRecordLoger.getInstance().offer(fd);
 					FaceVerifyServiceStatistics.getInstance().update(resultValue, usingTime, fd.getFaceDistance());
-
 					FaceImageLog.saveFaceDataToDsk(fd);
 				}
 
