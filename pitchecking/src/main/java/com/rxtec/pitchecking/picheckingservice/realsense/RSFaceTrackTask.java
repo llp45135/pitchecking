@@ -503,19 +503,18 @@ public class RSFaceTrackTask implements Runnable {
 		return videoPanel.image;
 	}
 
-	private boolean checkFacePose(PXCMFaceData.PoseData poseData) {
+	private PXCMFaceData.PoseEulerAngles checkFacePose(PXCMFaceData.PoseData poseData) {
 		PXCMFaceData.PoseEulerAngles pea = new PXCMFaceData.PoseEulerAngles();
 		poseData.QueryPoseAngles(pea);
 		log.info("Confidence = " + poseData.QueryConfidence());
-		log.info("Roll=" + Math.abs(pea.roll) + "      Pitch="+Math.abs(pea.pitch) +"      Yaw" + Math.abs(pea.yaw));
-		if(poseData.QueryConfidence() == 0) 
-			return false;
-		if (Math.abs(pea.yaw) > Config.FACE_POSE_YAW 
-				|| Math.abs(pea.pitch) > Config.FACE_POSE_PITCH
+		log.info("Roll=" + Math.abs(pea.roll) + "      Pitch=" + Math.abs(pea.pitch) + "      Yaw" + Math.abs(pea.yaw));
+		if (poseData.QueryConfidence() == 0)
+			return null;
+		if (Math.abs(pea.yaw) > Config.FACE_POSE_YAW || Math.abs(pea.pitch) > Config.FACE_POSE_PITCH
 				|| Math.abs(pea.roll) > Config.FACE_POSE_ROLL)
-			return false;
+			return null;
 		else
-			return true;
+			return pea;
 	}
 
 	private boolean checkFaceExpression() {
@@ -642,13 +641,13 @@ public class RSFaceTrackTask implements Runnable {
 				PXCMFaceData.DetectionData detection = face.QueryDetection();
 
 				drawLocation(detection);
-				boolean isFrontalFace = checkFacePose(face.QueryPose());
+				PXCMFaceData.PoseEulerAngles pae = checkFacePose(face.QueryPose());
 
 				boolean isRealFace = true;
 				if (Config.getInstance().getIsCheckRealFace() == Config.Is_Check_RealFace) {
 					isRealFace = checkRealFace(sf);
 				}
-				if (detection != null && isRealFace && isFrontalFace) {
+				if (detection != null && isRealFace && pae != null) {
 					drawLandmark(face);
 					PITData fd = createFaceData(frameImage, detection);
 					fd.setFaceDistance(sf.distance);
@@ -656,6 +655,9 @@ public class RSFaceTrackTask implements Runnable {
 						if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {
 							fd.setIdCard(currentIDCard);
 							fd.setTicket(currentTicket);
+							fd.setFacePosePitch(pae.pitch);
+							fd.setFacePoseRoll(pae.roll);
+							fd.setFacePoseYaw(pae.yaw);
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
 						}
 					}
@@ -670,33 +672,24 @@ public class RSFaceTrackTask implements Runnable {
 		int faceCount = faceData.QueryNumberOfDetectedFaces();
 		for (int i = 0; i < faceCount; i++) {
 			PXCMFaceData.Face face = faceData.QueryFaceByIndex(i);
-
 			PXCMRectI32 rect = new PXCMRectI32();
 			PXCMFaceData.DetectionData detection = face.QueryDetection();
 			boolean ret = detection.QueryBoundingRect(rect);
 			if (ret) {
-
 				int w = rect.w;
 				// log.debug("face width = " + w);
 				float[] averageDepth = new float[1];
 				detection.QueryFaceAverageDepth(averageDepth);
 				float distance = averageDepth[0];
-
 				if (distance > Config.getInstance().getMinAverageDepth()
 						&& distance < Config.getInstance().getMaxAverageDepth()) {
 					SortFace sf = new SortFace(face, distance);
 					sortFaces.add(sf);
-
 				}
-
 			}
-
 		}
-
 		Collections.sort(sortFaces);
-
 		return sortFaces;
-
 	}
 
 }
