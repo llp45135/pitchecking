@@ -114,6 +114,7 @@ public class PitRecord {
 		fvr.setFrameImg(pd.getFrameImg());
 		fvr.setIdCardImg(pd.getIdCardImg());
 		fvr.setVerifyResult(pd.getVerifyResult());
+		fvr.setPitTime(pd.getPitTime());
 		this.getFaceVerifyRecords().add(fvr);
 	}
 	public PitRecord(){

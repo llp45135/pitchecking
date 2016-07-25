@@ -41,6 +41,13 @@ public class Config {
 			
 
 	public static int frameRate = 30;
+	
+	public static float FACE_POSE_YAW = 15;
+	public static float FACE_POSE_PITCH = 15;
+	public static float FACE_POSE_ROLL = 15;
+	
+	public static int Is_Check_RealFace = 1;
+	
 
 
 	public static float DValueMaxDepth = 100F;

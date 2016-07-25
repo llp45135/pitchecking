@@ -506,8 +506,16 @@ public class RSFaceTrackTask implements Runnable {
 	private boolean checkFacePose(PXCMFaceData.PoseData poseData) {
 		PXCMFaceData.PoseEulerAngles pea = new PXCMFaceData.PoseEulerAngles();
 		poseData.QueryPoseAngles(pea);
-		System.out.println("(Roll, Yaw, Pitch) = (" + pea.roll + "," + pea.yaw + "," + pea.pitch + ")");
-		return true;
+		log.info("Confidence = " + poseData.QueryConfidence());
+		log.info("Roll=" + Math.abs(pea.roll) + "      Pitch="+Math.abs(pea.pitch) +"      Yaw" + Math.abs(pea.yaw));
+		if(poseData.QueryConfidence() == 0) 
+			return false;
+		if (Math.abs(pea.yaw) > Config.FACE_POSE_YAW 
+				|| Math.abs(pea.pitch) > Config.FACE_POSE_PITCH
+				|| Math.abs(pea.roll) > Config.FACE_POSE_ROLL)
+			return false;
+		else
+			return true;
 	}
 
 	private boolean checkFaceExpression() {
@@ -591,7 +599,7 @@ public class RSFaceTrackTask implements Runnable {
 		faceConfig.landmarks.maxTrackedFaces = Config.MaxTrackedLandmark;
 		faceConfig.landmarks.numLandmarks = Config.NumOfLandmarks;
 		faceConfig.landmarks.isEnabled = true;
-		// faceConfig.pose.isEnabled = true;
+		faceConfig.pose.isEnabled = true;
 		faceConfig.pose.maxTrackedFaces = Config.MaxTrackedFaces;
 		// faceConfig.Update();
 		faceConfig.ApplyChanges();
@@ -613,7 +621,7 @@ public class RSFaceTrackTask implements Runnable {
 		PXCMCapture.Device dev = senseMgr.QueryCaptureManager().QueryDevice();
 		setupColorCameraDevice(dev);
 		while (startCapture) {
-			ProcessUtil.writeHeartbeat(pid);  //写心跳日志
+			ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 			sts = senseMgr.AcquireFrame(true);
 			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
 			if (sample == null) {
@@ -634,14 +642,14 @@ public class RSFaceTrackTask implements Runnable {
 				PXCMFaceData.DetectionData detection = face.QueryDetection();
 
 				drawLocation(detection);
-				drawLandmark(face);
+				boolean isFrontalFace = checkFacePose(face.QueryPose());
 
 				boolean isRealFace = true;
-				if (Config.getInstance().getIsCheckRealFace() == 1) {
+				if (Config.getInstance().getIsCheckRealFace() == Config.Is_Check_RealFace) {
 					isRealFace = checkRealFace(sf);
 				}
-				if (detection != null && isRealFace) {
-
+				if (detection != null && isRealFace && isFrontalFace) {
+					drawLandmark(face);
 					PITData fd = createFaceData(frameImage, detection);
 					fd.setFaceDistance(sf.distance);
 					if (fd != null) {

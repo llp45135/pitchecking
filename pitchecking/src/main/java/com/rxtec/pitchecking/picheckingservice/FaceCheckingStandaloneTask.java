@@ -55,6 +55,8 @@ public class FaceCheckingStandaloneTask implements Runnable {
 						publisher.publishResult(fd); // 比对结果公布
 						FaceCheckingService.getInstance().resetFaceDataQueue();
 					}
+					
+					log.info("Face verify result="+resultValue);
 					PitRecordLoger.getInstance().offer(fd);
 					FaceVerifyServiceStatistics.getInstance().update(resultValue, usingTime, fd.getFaceDistance());
 					FaceImageLog.saveFaceDataToDsk(fd);

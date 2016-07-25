@@ -28,6 +28,7 @@ import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.utils.ImageToolkit;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.IFaceTrackService;
 
@@ -40,7 +41,7 @@ public class RSFaceTrackingTestFrame {
 
 		
 		
-		TicketCheckScreen frame = TicketCheckScreen.getInstance();
+		TestFaceVerifyScreen frame = TestFaceVerifyScreen.getInstance();
 		frame.initUI();
 //		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 //		GraphicsDevice[] gs = ge.getScreenDevices();
@@ -68,7 +69,7 @@ public class RSFaceTrackingTestFrame {
 
 	public static PITData beginCheckFace(IDCard idCard) {
 
-		TicketCheckScreen.getInstance().offerEvent(
+		TestFaceVerifyScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
 
 		faceTrackService.beginCheckingFace(idCard,new Ticket());
@@ -89,9 +90,9 @@ public class RSFaceTrackingTestFrame {
 
 			log.debug("认证比对结果：picData==" + fd);
 
-			TicketCheckScreen.getInstance().offerEvent(
+			TestFaceVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
-			TicketCheckScreen.getInstance().offerEvent(
+			TestFaceVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
 
 		} else {
@@ -99,9 +100,9 @@ public class RSFaceTrackingTestFrame {
 			log.debug("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());
 			faceTrackService.stopCheckingFace();
 
-			TicketCheckScreen.getInstance().offerEvent(
+			TestFaceVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-			TicketCheckScreen.getInstance().offerEvent(
+			TestFaceVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
 		}
 		return fd;
@@ -116,8 +117,9 @@ public class RSFaceTrackingTestFrame {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		card.setCardImageBytes(ImageToolkit.getImageBytes(bi, "jpeg"));
 		card.setCardImage(bi);
+		card.setAge(44);
 		return card;
 	}
 }

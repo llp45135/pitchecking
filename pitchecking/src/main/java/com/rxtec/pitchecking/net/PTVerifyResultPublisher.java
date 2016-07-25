@@ -98,7 +98,7 @@ public class PTVerifyResultPublisher {
 			}
 			return false;
 		} else {
-			log.info("FaceVerifyResult has sended!");
+//			log.debug("FaceVerifyResult has sended!");
 			return true;
 		}
 	}

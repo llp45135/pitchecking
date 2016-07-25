@@ -11,7 +11,14 @@ public class FaceVerifyRecord {
 	private byte[] faceImg;
 	private byte[] frameImg;
 	private byte[] idCardImg;
+	private String pitTime;
 	
+	public String getPitTime() {
+		return pitTime;
+	}
+	public void setPitTime(String pitTime) {
+		this.pitTime = pitTime;
+	}
 	public String getFaceID() {
 		return faceId;
 	}

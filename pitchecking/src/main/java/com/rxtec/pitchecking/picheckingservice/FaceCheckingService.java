@@ -96,7 +96,7 @@ public class FaceCheckingService {
 				faceVerifyDataQueue.offer(vd);
 			}
 		}else{
-			log.info("offerDetectedFaceData 输入数据不完整！ vd.getIdCardImg()="+vd.getIdCardImg() +" vd.getFrameImg()=" + vd.getFrameImg() + " vd.getFaceImg()=" + vd.getFaceImg() );
+			log.error("offerDetectedFaceData 输入数据不完整！ vd.getIdCardImg()="+vd.getIdCardImg() +" vd.getFrameImg()=" + vd.getFrameImg() + " vd.getFaceImg()=" + vd.getFaceImg() );
 		}
 
 	}
