@@ -110,8 +110,8 @@ public class IDCardDevice {
 			// TODO Auto-generated catch block
 			log.error("IDCardDevice:" + e);
 			try {
-				Runtime.getRuntime().exec(Config.AutoLogonCmd);
 				log.info("自动注销计算机...");
+				Runtime.getRuntime().exec(Config.AutoLogonCmd);				
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

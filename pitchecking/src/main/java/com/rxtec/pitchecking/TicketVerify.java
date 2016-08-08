@@ -22,9 +22,11 @@ public class TicketVerify {
 		if (ticket == null || idCard == null) {
 			if (ticket != null) {
 				if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
-					if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、当日票
-						log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
-						return Config.TicketVerifyStationRuleFail;
+					if (DeviceConfig.softIdNo.indexOf(ticket.getCardNo()) != -1) {
+						return Config.TicketVerifyWaitInput;
+					} else if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、当日票
+						log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
+						return Config.TicketVerifyTrainDateRuleFail;
 					} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、本站乘车
 						log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
 						return Config.TicketVerifyStationRuleFail;
@@ -40,11 +42,11 @@ public class TicketVerify {
 			// TODO 执行比对
 			// 校验车站验票规则
 			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
-				if (idCard.getIdNo().equals(DeviceConfig.softIdNo)) {
+				if (DeviceConfig.softIdNo.indexOf(idCard.getIdNo()) != -1) {
 					return Config.TicketVerifySucc;
 				} else if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、当日票
-					log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
-					return Config.TicketVerifyStationRuleFail;
+					log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
+					return Config.TicketVerifyTrainDateRuleFail;
 				} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、本站乘车
 					log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
 					return Config.TicketVerifyStationRuleFail;

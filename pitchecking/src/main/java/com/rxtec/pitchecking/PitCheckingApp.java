@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -47,10 +48,11 @@ public class PitCheckingApp {
 
 		eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
 
-		// eventListener.startListenEvent();
+//		ExecutorService executorService = Executors.newCachedThreadPool();
+//		executorService.execute(eventListener);
 
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleWithFixedDelay(eventListener, 0, 100, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(eventListener, 0, 200, TimeUnit.MILLISECONDS);
 
 	}
 

@@ -20,6 +20,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.SecondGateDevice;
 import com.rxtec.pitchecking.domain.FailedFace;
@@ -33,8 +34,8 @@ public class JmsReceiver implements MessageListener {
 	private MessageConsumer consumer = null;
 
 	private boolean stop = false;
-	
-	public JmsReceiver() throws Exception{
+
+	public JmsReceiver() throws Exception {
 		initialize();
 		conn.start();
 	}
@@ -65,7 +66,7 @@ public class JmsReceiver implements MessageListener {
 	 * @throws JMSException
 	 * @throws Exception
 	 */
-	public void receiveMessage() throws JMSException, Exception {		
+	public void receiveMessage() throws JMSException, Exception {
 		consumer.setMessageListener(this);
 		// 等待接收消息
 		while (!stop) {
@@ -84,10 +85,26 @@ public class JmsReceiver implements MessageListener {
 				String backMsg = message.getText();
 				log.info("人工验证返回的结果：" + backMsg);
 				if (backMsg.indexOf(DeviceConfig.getInstance().getIpAddress()) != -1) {
-					if (backMsg.startsWith("Y")) {
-						SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
+					if (backMsg.startsWith("reboot")) {
+						try {
+							Runtime.getRuntime().exec(Config.AutoRestartCmd);
+							log.info("Resatrt Computer......");
+						} catch (Exception ex) {
+							log.error("Resatrt Computer:", ex);
+						}
+					} else if (backMsg.startsWith("relogon")) {
+						try {
+							Runtime.getRuntime().exec(Config.AutoLogonCmd);
+							log.info("ReLogon Computer......");
+						} catch (Exception ex) {
+							log.error("ReLogon Computer:", ex);
+						}
 					} else {
-						SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门
+						if (backMsg.startsWith("Y")) {
+							SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
+						} else {
+							SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门
+						}
 					}
 				}
 			} else if (msg instanceof MapMessage) {

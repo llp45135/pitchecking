@@ -110,11 +110,14 @@ public class PitRecord {
 		FaceVerifyRecord fvr = new FaceVerifyRecord();
 		fvr.setFaceDistance(pd.getFaceDistance());
 		fvr.setFaceId(Integer.toString(pd.getIdNo().hashCode()));
-		fvr.setFaceImg(pd.getFrameImg());
+		fvr.setFaceImg(pd.getFaceImg());
 		fvr.setFrameImg(pd.getFrameImg());
 		fvr.setIdCardImg(pd.getIdCardImg());
 		fvr.setVerifyResult(pd.getVerifyResult());
 		fvr.setPitTime(pd.getPitTime());
+		fvr.setFacePosePitch(pd.getFacePosePitch());
+		fvr.setFacePoseRoll(pd.getFacePoseRoll());
+		fvr.setFacePoseYaw(pd.getFacePoseYaw());
 		this.getFaceVerifyRecords().add(fvr);
 	}
 	public PitRecord(){

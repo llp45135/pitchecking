@@ -28,7 +28,7 @@ public class QRReader implements Runnable {
 	private static QRReader instance = new QRReader();
 	private JNative qrDeviceJNative = null;
 
-//	private TicketCheckFrame frame = new TicketCheckFrame();// 仅供测试用
+	// private TicketCheckFrame frame = new TicketCheckFrame();// 仅供测试用
 
 	private int deviceStatus = Config.StartStatus;
 
@@ -45,7 +45,7 @@ public class QRReader implements Runnable {
 		JNative.setLoggingEnabled(true);
 		initQRDevice();
 
-//		frame.setVisible(true);// 仅供测试用
+		// frame.setVisible(true);// 仅供测试用
 		try {
 			qrDeviceJNative = new JNative("BAR2unsecurity.dll", "uncompress");
 		} catch (NativeException e) {
@@ -66,13 +66,12 @@ public class QRReader implements Runnable {
 			try {
 				Ticket ticket = uncompressTicket(instr, year);
 				if (deviceStatus == Config.StartStatus && ticket != null) {
-//					frame.showWaitInputContent(ticket, null, 2); // 仅供测试用
+					// frame.showWaitInputContent(ticket, null, 2); // 仅供测试用
 
 					// 以下为正式使用代码
-					 QRCodeReaderEvent qrEvent = new
-					 QRCodeReaderEvent(DeviceEventTypeEnum.ReadIDCard.getValue());
-					 qrEvent.setTicket(ticket);
-					 DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+					QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(DeviceEventTypeEnum.ReadIDCard.getValue());
+					qrEvent.setTicket(ticket);
+					DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
 				}
 			} catch (NumberFormatException | UnsupportedEncodingException e) {
 				log.error("QRReader uncompressTicket", e);
@@ -95,13 +94,13 @@ public class QRReader implements Runnable {
 	private void initQRDevice() {
 		log.debug("初始化二维码扫描器...");
 		if (DeviceConfig.getInstance().getQrDeviceType().equals("V")) {
-			log.debug("启用微光扫描器");
+			log.info("启用微光扫描器");
 			// 应用设置
 			VguangApi.applyDeviceSetting();
 			// 打开设备
 			VguangApi.openDevice();
 		} else if (DeviceConfig.getInstance().getQrDeviceType().equals("H")) {
-			log.debug("启用HoneyWell扫描器");
+			log.info("启用HoneyWell扫描器");
 			try {
 				HoneyWellQRDevice.getInstance().connect(DeviceConfig.getInstance().getHoneywellQRPort());
 				DeviceConfig.getInstance().setQrdeviceStatus(1);

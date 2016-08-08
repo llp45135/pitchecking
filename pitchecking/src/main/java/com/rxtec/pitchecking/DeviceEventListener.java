@@ -28,14 +28,14 @@ public class DeviceEventListener implements Runnable {
 	private static DeviceEventListener _instance = new DeviceEventListener();
 	private VerifyFaceTask verifyFaceTask = new VerifyFaceTask();
 	private TicketVerify ticketVerify = new TicketVerify();
-	private boolean dealFlag = true;
+	private boolean isDealDeviceEvent = true;
 
-	public boolean isDealFlag() {
-		return dealFlag;
+	public boolean isDealDeviceEvent() {
+		return isDealDeviceEvent;
 	}
 
-	public void setDealFlag(boolean dealFlag) {
-		this.dealFlag = dealFlag;
+	public void setDealDeviceEvent(boolean isDealDeviceEvent) {
+		this.isDealDeviceEvent = isDealDeviceEvent;
 	}
 
 	private DeviceEventListener() {
@@ -51,7 +51,7 @@ public class DeviceEventListener implements Runnable {
 		return _instance;
 	}
 
-	private LinkedBlockingQueue<IDeviceEvent> deviceEventQueue = new LinkedBlockingQueue<IDeviceEvent>(20);
+	private LinkedBlockingQueue<IDeviceEvent> deviceEventQueue = new LinkedBlockingQueue<IDeviceEvent>(10);
 
 	public void offerDeviceEvent(IDeviceEvent e) {
 		// 队列满了需要处理Exception,注意！
@@ -60,7 +60,6 @@ public class DeviceEventListener implements Runnable {
 
 	@Override
 	public void run() {
-		// log.debug("消费者准备消费event");
 		IDeviceEvent e;
 		try {
 			e = deviceEventQueue.take();
@@ -71,26 +70,26 @@ public class DeviceEventListener implements Runnable {
 	}
 
 	private void processEvent(IDeviceEvent e) {
-		if (e.getEventType() == Config.QRReaderEvent && e.getData() != null) {
-			/**
-			 * 二维码读卡器读到数据
-			 */
-			ticketVerify.setTicket((Ticket) e.getData());
-			if (dealFlag) {
-				this.setDealFlag(false);
+		if (isDealDeviceEvent) {
+			this.setDealDeviceEvent(false);
+			log.debug("/*************Start*******************/");
+			if (e.getEventType() == Config.QRReaderEvent && e.getData() != null) {
+				/**
+				 * 二维码读卡器读到新数据
+				 */
+				ticketVerify.setTicket((Ticket) e.getData());
 				verifyTicket();
-				this.setDealFlag(true);
-			}
-		} else if (e.getEventType() == Config.IDReaderEvent && e.getData() != null) {
-			/**
-			 * 二代证读卡器读到了新数据
-			 */
-			ticketVerify.setIdCard((IDCard) e.getData());
-			if (dealFlag) {
-				this.setDealFlag(false);
+			} else if (e.getEventType() == Config.IDReaderEvent && e.getData() != null) {
+				/**
+				 * 二代证读卡器读到新数据
+				 */
+				ticketVerify.setIdCard((IDCard) e.getData());
 				verifyTicket();
-				this.setDealFlag(true);
 			}
+			log.debug("/################End######################/");
+			this.setDealDeviceEvent(true);
+		} else {
+			return;
 		}
 	}
 
@@ -112,7 +111,10 @@ public class DeviceEventListener implements Runnable {
 			verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket());
 
 			ticketVerify.reset();
-			this.setDealFlag(true);
+
+			// TicketCheckScreen.getInstance().offerEvent(
+			// new ScreenElementModifyEvent(0,
+			// ScreenCmdEnum.showDefaultContent.getValue(), null, null, null));
 			// 开始寻卡
 			// this.setDeviceReader(true);
 			// log.debug("人证比对完成，开始寻卡");
@@ -127,10 +129,16 @@ public class DeviceEventListener implements Runnable {
 					.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifyIDFail.getValue(),
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 			ticketVerify.reset();
-		} else if (ticketVerifyResult == Config.TicketVerifyStationRuleFail) { // 车票未通过车站业务规则
+		} else if (ticketVerifyResult == Config.TicketVerifyStationRuleFail) { // 车票未通过非本站规则
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifyStationRuleFail.getValue(),
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
+			ticketVerify.reset();
+		} else if (ticketVerifyResult == Config.TicketVerifyTrainDateRuleFail) { // 车票未通过非当日规则
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifyTrainDateRuleFail.getValue(),
+							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
+			ticketVerify.reset();
 		}
 	}
 
@@ -146,8 +154,14 @@ public class DeviceEventListener implements Runnable {
 
 	// 启动设备
 	private void startDevice() throws DeviceException {
-		log.debug("启动设备");
 		if (this.startGateDevice() != 1) {
+			return;
+		}
+		log.debug("核验软件版本");
+		if (DeviceConfig.getInstance().getVersionFlag() != 1) {
+			log.debug("软件版本错误:" + DeviceConfig.getInstance().getVersionFlag());
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowVersionFault.getValue(), null, null, null));
 			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 			return;
 		}
@@ -179,7 +193,7 @@ public class DeviceEventListener implements Runnable {
 		} else {
 			scheduler = Executors.newScheduledThreadPool(4);
 		}
-		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 200, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		scheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		// 求助按钮事件处理线程
 		scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
@@ -224,6 +238,7 @@ public class DeviceEventListener implements Runnable {
 	 * @return
 	 */
 	private int startGateDevice() {
+		log.debug("启动通行控制设备");
 		try {
 			FirstGateDevice.getInstance().connect(DeviceConfig.getInstance().getFirstGateCrtlPort());
 			SecondGateDevice.getInstance().connect(DeviceConfig.getInstance().getSecondGateCrtlPort());
@@ -236,27 +251,30 @@ public class DeviceEventListener implements Runnable {
 	}
 
 	private int startIDDevice() {
+		log.debug("启动二代证读卡器");
 		IDReader idReader = IDReader.getInstance();
 		// log.debug("getIdDeviceStatus=="+DeviceConfig.getInstance().getIdDeviceStatus());
 		if (DeviceConfig.getInstance().getIdDeviceStatus() != DeviceConfig.idDeviceSucc) {
 			log.debug("二代证读卡器异常,请联系维护人员!");
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowIDDeviceException.getValue(), null, null, null));
+			setDeviceReader(false);
+			CommUtil.sleep(5000);
 			try {
-				Runtime.getRuntime().exec(Config.AutoLogonCmd);
 				log.info("自动注销计算机...");
-			} catch (IOException e) {
+				 Runtime.getRuntime().exec(Config.AutoLogonCmd);
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
-			TicketCheckScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowIDDeviceException.getValue(), null, null, null));
-			setDeviceReader(false);
 			return 0;
 		}
 		return 1;
 	}
 
 	private int startQRDevice() {
+		log.debug("启动二维码读卡器");
 		QRReader qrReader = QRReader.getInstance();
 		CommUtil.sleep(1000);
 		log.debug("getQrdeviceStatus==" + DeviceConfig.getInstance().getQrdeviceStatus());
@@ -266,6 +284,14 @@ public class DeviceEventListener implements Runnable {
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowQRDeviceException.getValue(), null, null, null));
 
 			setDeviceReader(false);
+			CommUtil.sleep(5000);
+			try {
+				log.info("自动注销计算机...");
+				 Runtime.getRuntime().exec(Config.AutoLogonCmd);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			return 0;
 		}
 		return 1;

@@ -34,6 +34,8 @@ import javax.swing.border.LineBorder;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.picheckingservice.PITData;
+import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.utils.DateUtils;
 
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -49,7 +51,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	private JPanel panel_title = new JPanel();
 	private JPanel panel_bottom = new JPanel();
 	private VideoPanel videoPanel = new VideoPanel(Config.FrameWidth, Config.FrameHeigh);
+	int timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 	JLabel label_result = new JLabel("");
+	JLabel timelabel;
 
 	/**
 	 * Launch the application.
@@ -60,6 +64,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 				try {
 					FaceCheckFrame frame = new FaceCheckFrame();
 					frame.setVisible(true);
+//					frame.showBeginCheckFaceContent();
+//					frame.showFaceCheckPassContent();
+//					frame.showCheckFailedContent();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -92,20 +99,23 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		panel_center.setLayout(new BoxLayout(panel_center, BoxLayout.Y_AXIS));
 
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-//		panel_center.add(Box.createVerticalStrut(35));
+		// panel_center.add(Box.createVerticalStrut(35));
 		panel_center.add(Box.createVerticalStrut(0));
 		videoPanel.setBorder(new LineBorder(Color.GREEN));
 		videoPanel.setMinimumSize(new Dimension(Config.FrameWidth, Config.FrameHeigh));
 		videoPanel.setMaximumSize(new Dimension(Config.FrameWidth, Config.FrameHeigh));
 
-//		videoPanel.setBounds((screenSize.width - Config.FrameWidth) / 2, (screenSize.height - Config.FrameHeigh) / 2,
-//				Config.FrameWidth, Config.FrameHeigh);
+		// videoPanel.setBounds((screenSize.width - Config.FrameWidth) / 2,
+		// (screenSize.height - Config.FrameHeigh) / 2,
+		// Config.FrameWidth, Config.FrameHeigh);
 		panel_center.add(videoPanel);
 
 		JPanel panel_title = new JPanel();
 		panel_title.setBackground(Color.ORANGE);
 		panel_title.setMinimumSize(new Dimension(1024, 100));
 		panel_title.setMaximumSize(new Dimension(1024, 100));
+		panel_title.setLayout(null);
+		label_title.setBounds(248, 5, 528, 64);
 		// contentPane.add(panel_title);
 
 		// contentPane.add(showBmp);
@@ -113,7 +123,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_title.setHorizontalTextPosition(SwingConstants.CENTER);
 		label_title.setHorizontalAlignment(SwingConstants.CENTER);
 		label_title.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		panel_title.add(label_title, BorderLayout.CENTER);
+		panel_title.add(label_title);
 		label_title.setFont(new Font("微软雅黑", Font.PLAIN, 48));
 
 		label_result.setFont(new Font("微软雅黑", Font.PLAIN, 42));
@@ -123,6 +133,12 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		panel_bottom.add(label_result);
 
 		contentPane.add(panel_title);
+
+		timelabel = new JLabel("yyyyMMdd hh:mm:ss");
+		timelabel.setForeground(Color.BLUE);
+		timelabel.setFont(new Font("微软雅黑 Light", Font.PLAIN, 22));
+		timelabel.setBounds(797, 5, 227, 49);
+		panel_title.add(timelabel);
 		contentPane.add(panel_center);
 		contentPane.add(panel_bottom);
 
@@ -138,12 +154,15 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	// //panel_idCardImage.repaint();
 	// }
 
+	/**
+	 * 
+	 */
 	public void showFaceCheckPassContent() {
-
+		timeIntevel = 0;
 		label_title.setText("验证通过");
 		label_result.setText("");
-		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
-		timer.stop();
+//		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
+		// timer.stop();
 		panel_title.setBackground(Color.GREEN);
 		panel_bottom.setBackground(Color.GREEN);
 		;
@@ -151,9 +170,13 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		// panel_bottom.repaint();
 	}
 
+	/**
+	 * 
+	 */
 	public void showCheckFailedContent() {
-		timer.stop();
-		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
+		timeIntevel = 0;
+		// timer.stop();
+//		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 		panel_bottom.setVisible(true);
 		label_title.setText("验证失败");
 		label_result.setText("请从边门离开或按求助按钮");
@@ -164,8 +187,10 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 
 	}
 
+	/**
+	 * 
+	 */
 	public void showDefaultContent() {
-
 		try {
 			Thread.sleep(Config.getInstance().getDefaultFaceCheckScreenDeley());
 		} catch (InterruptedException e) {
@@ -177,20 +202,30 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_result.setText("");
 		panel_bottom.setBackground(Color.ORANGE);
 		// this.showIDCardImage(null);
-		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
+		// timeIntevel = Config.getInstance().getFaceCheckDelayTime();
+		timeIntevel = 0;
 		// panel_title.repaint();
 		// panel_bottom.repaint();
 
+		timer.start();
+
 	}
 
-	int timeIntevel = Config.getInstance().getFaceCheckDelayTime();
-
+	/**
+	 * 
+	 */
 	public void showBeginCheckFaceContent() {
 		panel_title.setBackground(Color.ORANGE);
 		panel_bottom.setBackground(Color.ORANGE);
 		label_title.setText("请平视摄像头    ");
 		label_result.setText("");
-		timer.start();
+		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
+		// timer.start();
+	}
+
+	private void timeRefresh() {
+		String now = DateUtils.getStringDate();
+		timelabel.setText(now);
 	}
 
 	/**
@@ -198,9 +233,13 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		timeRefresh();
+
+		if (timeIntevel > 0) {
+			label_title.setText("请平视摄像头     " + (timeIntevel - 1));
+		}
+		
 		if (timeIntevel-- < 0)
 			timeIntevel = 0;
-		label_title.setText("请平视摄像头     " + timeIntevel);
 	}
-
 }

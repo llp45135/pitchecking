@@ -48,7 +48,9 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	private JPanel contentPane;
 	private JPanel topPanel;
 	private JPanel ticketPanel;
-	private TicketInitPanel initPanel;
+	private TicketInitPanel ticketInitPanel;
+	private WaitPanel waitPanel;
+	private InitPanel secondInitPanel;
 	private JPanel bottomPanel;
 	//
 	private JLabel labelTitle;
@@ -67,6 +69,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	int timeIntevel = DeviceConfig.getInstance().getReaderTimeDelay();
 	private JLabel timelabel;
 	private int titleStrType = 0;
+	private int backPanelType = 0;
 
 	/**
 	 * Launch the application.
@@ -89,7 +92,9 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 					ticket.setTrainDate("20160405");
 					ticket.setTicketType("1");
 					ticket.setSeatCode("O");
-					frame.showTicketContent(deviceConfig, ticket, 3);
+
+					frame.showTicketContent(deviceConfig, ticket, 3, 1);
+
 					// frame.showFailedContent(deviceConfig, ticket, 4,
 					// "票证未通过核验，请重试!");
 				} catch (Exception e) {
@@ -97,6 +102,14 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 				}
 			}
 		});
+	}
+
+	public int getBackPanelType() {
+		return backPanelType;
+	}
+
+	public void setBackPanelType(int backPanelType) {
+		this.backPanelType = backPanelType;
 	}
 
 	/**
@@ -124,13 +137,13 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		labelTitle.setForeground(Color.BLUE);
 		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 60));
-		labelTitle.setBounds(10, 24, 1250, 73);
+		labelTitle.setBounds(10, 24, 1245, 73);
 		topPanel.add(labelTitle);
 
 		timelabel = new JLabel("yyyyMMdd hh:mm:ss");
 		timelabel.setForeground(Color.RED);
-		timelabel.setFont(new Font("微软雅黑", Font.PLAIN, 22));
-		timelabel.setBounds(958, 10, 285, 26);
+		timelabel.setFont(new Font("微软雅黑", Font.PLAIN, 24));
+		timelabel.setBounds(981, 15, 262, 45);
 		topPanel.add(timelabel);
 
 		ticketPanel = new JPanel();
@@ -143,7 +156,9 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		/**
 		 * 初始化启动界面
 		 */
-		initPanel = new TicketInitPanel();
+		ticketInitPanel = new TicketInitPanel();
+		secondInitPanel = new InitPanel();
+		waitPanel = new WaitPanel();
 
 		labelTrainCode = new JLabel("G6612");
 		labelTrainCode.setHorizontalAlignment(SwingConstants.CENTER);
@@ -234,7 +249,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		lblIp.setForeground(Color.BLACK);
 		lblIp.setHorizontalAlignment(SwingConstants.CENTER);
 		lblIp.setFont(new Font("微软雅黑", Font.PLAIN, 23));
-		lblIp.setBounds(928, 10, 276, 42);
+		lblIp.setBounds(903, 10, 276, 42);
 		bottomPanel.add(lblIp);
 
 		setUndecorated(true);
@@ -262,11 +277,11 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		lblIp.setText(ipText);
 	}
 
+	/**
+	 * 默认界面
+	 */
 	public void showDefaultContent() {
-
-		DeviceEventListener.getInstance().resetTicketAndIDCard();// 正式代码时必须启用
-
-		this.labelTitle.setText("请刷二代证和车票二维码");
+		this.labelTitle.setText("");
 		labelTitle.setForeground(Color.blue);
 		// this.labelFz.setText("");
 		// this.labelZhi.setText("");
@@ -280,14 +295,16 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		// this.lableImg.setIcon(null);
 		// this.lableImg.setBorder(null);
 
+		ticketInitPanel.setVisible(false);
 		ticketPanel.setVisible(false);
-		initPanel.setVisible(true);
-		initPanel.setBackground(Color.WHITE);
-		initPanel.showIDCardImage(new ImageIcon(DeviceConfig.idReaderImgPath));
-		initPanel.showTicketInfo(new ImageIcon(DeviceConfig.qrReaderImgPath));
+		waitPanel.setVisible(false);
+		secondInitPanel.setVisible(true);
+		secondInitPanel.setBackground(Color.black);
+		contentPane.remove(waitPanel);
 		contentPane.remove(ticketPanel);
 		contentPane.remove(bottomPanel);
-		contentPane.add(initPanel);
+		contentPane.remove(ticketInitPanel);
+		contentPane.add(secondInitPanel);
 		contentPane.add(bottomPanel);
 
 		contentPane.repaint();
@@ -297,14 +314,15 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	}
 
 	/**
-	 * 重画等待输入信息界面
+	 * 等待输入信息界面
 	 * 
 	 * @param ticket
 	 * @param idCard
 	 */
-	public void showWaitInputContent(Ticket ticket, IDCard idCard, int titleStrType) {
+	public void showWaitInputContent(Ticket ticket, IDCard idCard, int titleStrType, int backPanelType) {
 		// DeviceManager.getInstance().repaintStop();
 		this.titleStrType = titleStrType;
+		this.backPanelType = backPanelType;
 		// if (ticket == null) {
 		// this.labelTitle.setText("请在二维码扫描区扫描车票二维码");
 		// } else if (idCard == null) {
@@ -323,23 +341,34 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		// this.lableImg.setBorder(null);
 
 		ticketPanel.setVisible(false);
-		initPanel.setVisible(true);
-		initPanel.setBackground(Color.WHITE);
+		waitPanel.setVisible(false);
+		secondInitPanel.setVisible(false);
+		ticketInitPanel.setVisible(true);
+		ticketInitPanel.setBackground(Color.WHITE);
+		contentPane.remove(waitPanel);
 		contentPane.remove(ticketPanel);
+		contentPane.remove(secondInitPanel);
 		contentPane.remove(bottomPanel);
-		contentPane.add(initPanel);
+		contentPane.add(ticketInitPanel);
 		contentPane.add(bottomPanel);
 
 		if (idCard != null) {
-			// initPanel.showIDCardImage(new ImageIcon(idCard.getCardImage()));
-			initPanel.showIDCardImage(new ImageIcon(DeviceConfig.readedIdImgPath));
+			if (DeviceConfig.getInstance().getVersionFlag() == 1) {
+				ticketInitPanel.showIDCardImage(new ImageIcon(DeviceConfig.readedIdImgPath));
+			} else {
+				ticketInitPanel.showIDCardImage(new ImageIcon(idCard.getCardImage()));
+			}
 		} else {
-			initPanel.showIDCardImage(new ImageIcon(DeviceConfig.idReaderImgPath));
+			// ticketInitPanel.showIDCardImage(new
+			// ImageIcon(DeviceConfig.idReaderImgPath));
+			ticketInitPanel.showIDCardImage(null);
 		}
 		if (ticket != null) {
-			initPanel.showTicketInfo(new ImageIcon(DeviceConfig.readedQRImgPath));
+			ticketInitPanel.showTicketInfo(new ImageIcon(DeviceConfig.readedQRImgPath));
 		} else {
-			initPanel.showTicketInfo(new ImageIcon(DeviceConfig.qrReaderImgPath));
+			// ticketInitPanel.showTicketInfo(new
+			// ImageIcon(DeviceConfig.qrReaderImgPath));
+			ticketInitPanel.showTicketInfo(null);
 		}
 
 		contentPane.repaint();
@@ -348,41 +377,50 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	}
 
 	/**
-	 * 重画成功核验车票信息界面
+	 * 成功核验车票信息界面
 	 * 
 	 * @param ticket
 	 */
-	public void showTicketContent(DeviceConfig deviceConfig, Ticket ticket, int titleStrType) {
+	public void showTicketContent(DeviceConfig deviceConfig, Ticket ticket, int titleStrType, int backPanelType) {
 		this.titleStrType = titleStrType;
+		this.backPanelType = backPanelType;
 		try {
 			// ticket.printTicket();
-			if (ticket != null) {
-				labelFz.setText(deviceConfig.getStationName(ticket.getFromStationCode()));
-				this.labelZhi.setText("至");
-				this.labelDz.setText(deviceConfig.getStationName(ticket.getEndStationCode()));
-				this.labelTrainCode.setText(ticket.getTrainCode());
-				this.label_rq.setText("乘车日期:");
-				String strTrainDate = ticket.getTrainDate().substring(0, 4) + "年"
-						+ ticket.getTrainDate().substring(4, 6) + "月" + ticket.getTrainDate().substring(6, 8) + "日";
-				this.labelTrainDate.setText(strTrainDate);
-				this.labelTicketType
-						.setText(deviceConfig.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
-				this.labelSeatType.setText(deviceConfig.getSeatTypesMap().get(ticket.getSeatCode()));
-			}
-			ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
-			lableWarnmsg.setForeground(Color.GREEN);
-			this.lableWarnmsg.setText("请通行!");
-			showStatusImage(icon);
+			// if (ticket != null) {
+			// labelFz.setText(deviceConfig.getStationName(ticket.getFromStationCode()));
+			// this.labelZhi.setText("至");
+			// this.labelDz.setText(deviceConfig.getStationName(ticket.getEndStationCode()));
+			// this.labelTrainCode.setText(ticket.getTrainCode());
+			// this.label_rq.setText("乘车日期:");
+			// String strTrainDate = ticket.getTrainDate().substring(0, 4) + "年"
+			// + ticket.getTrainDate().substring(4, 6) + "月" +
+			// ticket.getTrainDate().substring(6, 8) + "日";
+			// this.labelTrainDate.setText(strTrainDate);
+			// this.labelTicketType
+			// .setText(deviceConfig.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType()))
+			// + "票");
+			// this.labelSeatType.setText(deviceConfig.getSeatTypesMap().get(ticket.getSeatCode()));
+			// }
+			// ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
+			// lableWarnmsg.setForeground(Color.GREEN);
+			// this.lableWarnmsg.setText("请通行!");
+			// showStatusImage(icon);
+			//
+			// ticketPanel.setVisible(true);
+			// secondInitPanel.setVisible(false);
+			// waitPanel.setVisible(false);
+			// ticketInitPanel.setVisible(false);
+			// contentPane.remove(secondInitPanel);
+			// contentPane.remove(ticketInitPanel);
+			// contentPane.remove(waitPanel);
+			// contentPane.remove(bottomPanel);
+			// contentPane.add(ticketPanel);
+			// contentPane.add(bottomPanel);
+			// contentPane.repaint();
 
-			ticketPanel.setVisible(true);
-			initPanel.setVisible(false);
-			contentPane.remove(initPanel);
-			contentPane.remove(bottomPanel);
-			contentPane.add(ticketPanel);
-			contentPane.add(bottomPanel);
-			contentPane.repaint();
+			this.showSuccWait("请取走车票和身份证！", "往前走进通道");
 
-			timeIntevel = DeviceConfig.getInstance().getReaderTimeDelay();
+			timeIntevel = DeviceConfig.getInstance().getSuccTimeDelay();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -390,10 +428,44 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	}
 
 	/**
-	 * 重画核验失败信息界面
+	 * 核验成功，等待前面旅客通过界面
+	 * 
+	 * @param deviceConfig
+	 * @param ticket
+	 * @param titleStrType
 	 */
-	public void showFailedContent(DeviceConfig deviceConfig, Ticket ticket, int titleStrType, String failedMsg) {
+	public void showSuccWait(String msg1, String msg2) {
+		try {
+			labelTitle.setText("");
+
+			waitPanel.showWaitMsg(msg1, msg2);
+
+			ticketPanel.setVisible(false);
+			waitPanel.setVisible(true);
+			ticketInitPanel.setVisible(false);
+			secondInitPanel.setVisible(false);
+			contentPane.remove(secondInitPanel);
+			contentPane.remove(ticketInitPanel);
+			contentPane.remove(ticketPanel);
+			contentPane.remove(bottomPanel);
+			contentPane.add(waitPanel);
+			contentPane.add(bottomPanel);
+			contentPane.repaint();
+
+			timeIntevel = -1;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * 核验失败信息界面
+	 */
+	public void showFailedContent(DeviceConfig deviceConfig, Ticket ticket, int titleStrType, int backPanelType,
+			String failedMsg) {
 		this.titleStrType = titleStrType;
+		this.backPanelType = backPanelType;
 		try {
 			// ticket.printTicket();
 
@@ -414,8 +486,12 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 			showStatusImage(icon);
 
 			ticketPanel.setVisible(true);
-			initPanel.setVisible(false);
-			contentPane.remove(initPanel);
+			waitPanel.setVisible(false);
+			ticketInitPanel.setVisible(false);
+			secondInitPanel.setVisible(false);
+			contentPane.remove(secondInitPanel);
+			contentPane.remove(ticketInitPanel);
+			contentPane.remove(waitPanel);
 			contentPane.remove(bottomPanel);
 			contentPane.add(ticketPanel);
 			contentPane.add(bottomPanel);
@@ -439,7 +515,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		this.titleStrType = titleStrType;
 		try {
 			// ticket.printTicket();
-			labelTitle.setText("设备异常!!");
+			labelTitle.setText("设备故障");
 			labelTitle.setForeground(Color.RED);
 			labelFz.setText("");
 			this.labelZhi.setText("");
@@ -455,8 +531,12 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 			showStatusImage(icon);
 
 			ticketPanel.setVisible(true);
-			initPanel.setVisible(false);
-			contentPane.remove(initPanel);
+			secondInitPanel.setVisible(false);
+			waitPanel.setVisible(false);
+			ticketInitPanel.setVisible(false);
+			contentPane.remove(secondInitPanel);
+			contentPane.remove(ticketInitPanel);
+			contentPane.remove(waitPanel);
 			contentPane.remove(bottomPanel);
 			contentPane.add(ticketPanel);
 			contentPane.add(bottomPanel);
@@ -480,10 +560,10 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		// log.debug("TicketCheckFrame 计时开始==" + (timeIntevel - 1));
 		if (timeIntevel >= 0) {
 			if (this.titleStrType == 1) {
-				labelTitle.setText("请扫描车票二维码   " + (timeIntevel - 1));
+				labelTitle.setText("还需扫火车票二维码   " + (timeIntevel - 1));
 				labelTitle.setForeground(Color.RED);
 			} else if (this.titleStrType == 2) {
-				labelTitle.setText("请刷第二代身份证   " + (timeIntevel - 1));
+				labelTitle.setText("还需刷第二代身份证   " + (timeIntevel - 1));
 				labelTitle.setForeground(Color.RED);
 			} else if (this.titleStrType == 3) {
 				labelTitle.setText("票证核验成功   " + (timeIntevel - 1));
@@ -495,8 +575,20 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		}
 
 		if (timeIntevel == 0) {
-			log.debug("等待结束，回到TicketFrame初始界面.. " + timeIntevel);
-			showDefaultContent();
+			if (this.backPanelType == 0) {
+				log.debug("等待结束，回到TicketFrame初始界面.. " + timeIntevel);
+				if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 正式代码时必须启用
+					try {
+						DeviceEventListener.getInstance().resetTicketAndIDCard();
+						log.debug("等待结束，clean 已刷的ticket and idCard!");
+					} catch (Exception ex) {
+						log.error("TicketCheckFrame showDefaultContent:", ex);
+					}
+				}
+				showDefaultContent();
+			} else {
+				this.showSuccWait("后面的旅客请稍候!", "");
+			}
 		}
 		if (timeIntevel-- < 0)
 			timeIntevel = -1;

@@ -93,7 +93,7 @@ public class RSFaceTrackingTestFrame {
 			TestFaceVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
 			TestFaceVerifyScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
@@ -103,7 +103,7 @@ public class RSFaceTrackingTestFrame {
 			TestFaceVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
 			TestFaceVerifyScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 		}
 		return fd;
 	}

@@ -104,7 +104,7 @@ public class TestFaceVerifyScreen {
 			faceFrame.showFaceCheckPassContent();
 			;
 
-		} else if (e.getElementCmd() == ScreenCmdEnum.showDefaultContent.getValue()) {
+		} else if (e.getElementCmd() == ScreenCmdEnum.showFaceDefaultContent.getValue()) {
 			faceFrame.showDefaultContent();
 
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckFailed.getValue()) {

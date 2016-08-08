@@ -127,6 +127,12 @@ public class RSFaceTrackTask implements Runnable {
 
 	}
 
+	/**
+	 * 
+	 * @param frame
+	 * @param detection
+	 * @return
+	 */
 	private PITData createFaceData(BufferedImage frame, PXCMFaceData.DetectionData detection) {
 		if (frame == null)
 			return null;
@@ -194,6 +200,10 @@ public class RSFaceTrackTask implements Runnable {
 		return fd;
 	}
 
+	/**
+	 * 画脸部框
+	 * @param detection
+	 */
 	private void drawLocation(PXCMFaceData.DetectionData detection) {
 		if (detection == null)
 			return;
@@ -218,6 +228,10 @@ public class RSFaceTrackTask implements Runnable {
 		}
 	}
 
+	/**
+	 * 画脸部特征点
+	 * @param face
+	 */
 	private void drawLandmark(PXCMFaceData.Face face) {
 		if (face == null)
 			return;
@@ -268,6 +282,11 @@ public class RSFaceTrackTask implements Runnable {
 		landmarks = null;
 	}
 
+	/**
+	 * 
+	 * @param sf
+	 * @return
+	 */
 	private boolean checkRealFace(SortFace sf) {
 
 		boolean isRealFace = false;
@@ -286,6 +305,10 @@ public class RSFaceTrackTask implements Runnable {
 		return checkFaceDepth(landmarks) & checkFaceWidth(landmarks);
 	}
 
+	/**
+	 * 
+	 * @param landmarks
+	 */
 	private void printFaceLandmarkZ(LandmarksData landmarks) {
 		int noseTipPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_NOSE_TIP);
 		int noseBottomPointIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_NOSE_BOTTOM);
@@ -387,6 +410,11 @@ public class RSFaceTrackTask implements Runnable {
 
 	}
 
+	/**
+	 * 
+	 * @param landmarks
+	 * @return
+	 */
 	private boolean checkFaceDepth(LandmarksData landmarks) {
 
 		int nJawPoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_JAW);
@@ -454,6 +482,11 @@ public class RSFaceTrackTask implements Runnable {
 		}
 	}
 
+	/**
+	 * 
+	 * @param landmarks
+	 * @return
+	 */
 	private boolean checkFaceWidth(LandmarksData landmarks) {
 		int faceBorderLeftIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_FACE_BORDER_TOP_LEFT);
 		int faceBorderRightIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_FACE_BORDER_TOP_RIGHT);
@@ -477,6 +510,11 @@ public class RSFaceTrackTask implements Runnable {
 		}
 	}
 
+	/**
+	 * 
+	 * @param sample
+	 * @return
+	 */
 	private BufferedImage drawFrameImage(PXCMCapture.Sample sample) {
 
 		PXCMImage.ImageData cData = new PXCMImage.ImageData();
@@ -503,6 +541,11 @@ public class RSFaceTrackTask implements Runnable {
 		return videoPanel.image;
 	}
 
+	/**
+	 * 
+	 * @param poseData
+	 * @return
+	 */
 	private PXCMFaceData.PoseEulerAngles checkFacePose(PXCMFaceData.PoseData poseData) {
 		PXCMFaceData.PoseEulerAngles pea = new PXCMFaceData.PoseEulerAngles();
 		poseData.QueryPoseAngles(pea);
@@ -539,6 +582,10 @@ public class RSFaceTrackTask implements Runnable {
 		return currentIDCard;
 	}
 
+	/**
+	 * 
+	 * @param currentIDCard
+	 */
 	public void setCurrentIDCard(IDCard currentIDCard) {
 		if (currentIDCard.getCardImageBytes() != null && currentIDCard.getCardImageBytes().length > 1024) {
 			this.currentIDCard = currentIDCard;
@@ -548,6 +595,10 @@ public class RSFaceTrackTask implements Runnable {
 		}
 	}
 
+	/**
+	 * 
+	 * @param dev
+	 */
 	private void setupColorCameraDevice(PXCMCapture.Device dev) {
 		if (dev == null)
 			return;
@@ -560,6 +611,9 @@ public class RSFaceTrackTask implements Runnable {
 		dev.SetColorBackLightCompensation(true);
 	}
 
+	/**
+	 * 检脸算法
+	 */
 	private void doTracking() {
 		pid = ProcessUtil.getCurrentProcessID();
 		PXCMSession session = PXCMSession.CreateInstance();
@@ -667,6 +721,11 @@ public class RSFaceTrackTask implements Runnable {
 		}
 	}
 
+	/**
+	 * 
+	 * @param faceData
+	 * @return
+	 */
 	private List<SortFace> sortFaceByDistence(PXCMFaceData faceData) {
 		List<SortFace> sortFaces = new ArrayList<SortFace>();
 		int faceCount = faceData.QueryNumberOfDetectedFaces();

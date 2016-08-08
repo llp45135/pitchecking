@@ -13,6 +13,35 @@ public class FaceVerifyRecord {
 	private byte[] idCardImg;
 	private String pitTime;
 	
+	
+	private float facePosePitch;
+	private float facePoseRoll;
+	private float facePoseYaw;
+
+	public float getFacePosePitch() {
+		return facePosePitch;
+	}
+
+	public void setFacePosePitch(float facePosePitch) {
+		this.facePosePitch = facePosePitch;
+	}
+
+	public float getFacePoseRoll() {
+		return facePoseRoll;
+	}
+
+	public void setFacePoseRoll(float facePoseRoll) {
+		this.facePoseRoll = facePoseRoll;
+	}
+
+	public float getFacePoseYaw() {
+		return facePoseYaw;
+	}
+
+	public void setFacePoseYaw(float facePoseYaw) {
+		this.facePoseYaw = facePoseYaw;
+	}
+
 	public String getPitTime() {
 		return pitTime;
 	}

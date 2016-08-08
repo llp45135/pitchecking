@@ -27,8 +27,8 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "160709.15.02";
-	public static String softIdNo = "520203197912141118";
+	public static String softVersion = "160726.13.01";
+	public static String softIdNo = "520203197912141118,440111197209283012";
 
 	public static int idDeviceSucc = 1;
 	public static int qrDeviceSucc = 1;
@@ -47,6 +47,8 @@ public class DeviceConfig {
 	public static String ticketImgPath = "./img/ticket.jpg";
 	public static String qrReaderImgPath = "./img/qrreader.gif";
 	public static String idReaderImgPath = "./img/idreader.gif";
+	
+	public static String initImgPath = "./img/init2.gif";
 
 	// 语音文件
 	public static String idReaderWav = "./wav/thanks.wav";
@@ -56,19 +58,22 @@ public class DeviceConfig {
 	public static int cameraFlag = 1;
 	public static int emerDoorFlag = 2;
 
-	private int readerTimeDelay = 5;
+	private int versionFlag = 0;
+	private int readerTimeDelay = 10;
+	private int succTimeDelay = 4;
 	private int checkTicketFlag = 1;
 	private String belongStationCode = "IZQ";
 	private int faceScreen = 0;
 	private int ticketScreen = 1;
 	private String gateNo = "00";
+	private String idDeviceType = "X";
 	private String qrDeviceType = "V";
 	private int CameraLEDPort = 0;
 	public static int CameraLEDUnit = 0;
 	public static int CameraLEDLevel = 31;
 	private String firstGateCrtlPort = "COM2";
 	private String secondGateCrtlPort = "COM3";
-	private String honeywellQRPort = "COM4";
+	private String honeywellQRPort = "COM7";
 	private int gateCrtlRate = 9600;
 
 	private int mqStartFlag = 0;
@@ -79,6 +84,30 @@ public class DeviceConfig {
 	private String PASSWORD = "pitchecking";
 	private String ipAddress = "127.0.0.1";
 
+	public String getIdDeviceType() {
+		return idDeviceType;
+	}
+
+	public void setIdDeviceType(String idDeviceType) {
+		this.idDeviceType = idDeviceType;
+	}
+
+	public int getVersionFlag() {
+		return versionFlag;
+	}
+
+	public void setVersionFlag(int versionFlag) {
+		this.versionFlag = versionFlag;
+	}
+
+	public int getSuccTimeDelay() {
+		return succTimeDelay;
+	}
+
+	public void setSuccTimeDelay(int succTimeDelay) {
+		this.succTimeDelay = succTimeDelay;
+	}
+	
 	public String getQrDeviceType() {
 		return qrDeviceType;
 	}
@@ -376,12 +405,15 @@ public class DeviceConfig {
 			Document deviceDoc;
 			deviceDoc = saxhandle.build(new FileInputStream("./conf/GateConfig.xml"));
 			org.jdom.Element root = deviceDoc.getRootElement();
+			this.setVersionFlag(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("versionFlag")));
 			this.setCheckTicketFlag(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("checkTicketFlag")));
 			this.setBelongStationCode(root.getChild("GateConfig").getAttributeValue("belongStationCode"));
 			this.setGateNo(root.getChild("GateConfig").getAttributeValue("gateNo"));
 			this.setFaceScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("faceScreen")));
 			this.setTicketScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("ticketScreen")));
 			this.setReaderTimeDelay(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("readerTimeDelay")));
+			this.setSuccTimeDelay(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("succTimeDelay")));
+			this.setIdDeviceType(root.getChild("GateConfig").getAttributeValue("idDeviceType"));
 			this.setQrDeviceType(root.getChild("GateConfig").getAttributeValue("qrDeviceType"));
 			this.setCameraLEDPort(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("cameraLEDPort")));
 			this.setFirstGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("firstGateCrtlPort"));

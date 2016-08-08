@@ -23,6 +23,7 @@ import com.rxtec.pitchecking.picheckingservice.IFaceTrackService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 import com.rxtec.pitchecking.task.RunningStatus;
+import com.rxtec.pitchecking.utils.CommUtil;
 
 /**
  * 事件处理任务
@@ -62,14 +63,29 @@ public class VerifyFaceTask {
 		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音
 		PITData fd = null;
 
+		if (idCard.getAge() <= Config.ByPassMinAge) {
+			log.debug("该旅客小于" + Config.ByPassMinAge + "岁：picData==" + fd);
+			CommUtil.sleep(2000);
+			SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
+
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
+			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
+			return fd;
+		}
+
 		faceTrackService.beginCheckingFace(idCard, ticket);
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
 		try {
-			fd = FaceCheckingService.getInstance().pollPassFaceData();
-		} catch (InterruptedException e) {
-			log.error("IDReaderEventTask call", e);
+			fd = FaceCheckingService.getInstance().pollPassFaceData();   //此处设置了超时等待时间
+		} catch (InterruptedException ex) {
+			log.error("pollPassFaceData call", ex);
+		} catch (Exception ex) {
+			log.error("pollPassFaceData call", ex);
 		}
 
 		if (fd == null) {
@@ -97,12 +113,14 @@ public class VerifyFaceTask {
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
 			TicketCheckScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
 
-			DeviceEventListener.getInstance().setDeviceReader(true);
-			log.debug("人证比对完成，开始寻卡");
+			TicketCheckScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+			DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+			log.debug("人证比对完成，验证超时失败，重新寻卡");
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());
@@ -115,7 +133,7 @@ public class VerifyFaceTask {
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
 			TicketCheckScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.showDefaultContent.getValue(), null, null, fd));
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
 		}
 		return fd;
