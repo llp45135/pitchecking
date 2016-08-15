@@ -92,7 +92,7 @@ public class Config {
 	
 	private String  heartBeatLogFile="C:/pitchecking/work/HEART.log";
 	private String startPITAppCmd = "C:/pitchecking/bin/start.bat";
-	public static String AutoRestartCmd= "C:/pitchecking/bin/restartPC.bat";
+	public static String AutoRestartCmd= "C:/pitchecking/bin/autoRestartPC.bat";
 	public static String AutoLogonCmd= "C:/pitchecking/bin/autoLogonPC.bat";
 
 

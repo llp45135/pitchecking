@@ -40,6 +40,10 @@ public class DateUtils {
 		return currentTime_2;
 	}
 
+	/**
+	 * yyyy-MM-dd HH:mm:ss
+	 * @return
+	 */
 	public static String getStringDate() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

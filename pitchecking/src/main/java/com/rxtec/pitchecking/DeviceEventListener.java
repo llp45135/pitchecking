@@ -1,12 +1,21 @@
 package com.rxtec.pitchecking;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerFactory;
+import org.quartz.TriggerBuilder;
+import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +30,7 @@ import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mq.JmsReceiverTask;
 import com.rxtec.pitchecking.mq.JmsSenderTask;
 import com.rxtec.pitchecking.picheckingservice.PITData;
+import com.rxtec.pitchecking.task.AutoLogonJob;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class DeviceEventListener implements Runnable {
@@ -33,10 +43,10 @@ public class DeviceEventListener implements Runnable {
 	public boolean isDealDeviceEvent() {
 		return isDealDeviceEvent;
 	}
-
-	public void setDealDeviceEvent(boolean isDealDeviceEvent) {
-		this.isDealDeviceEvent = isDealDeviceEvent;
-	}
+	//
+	// public void setDealDeviceEvent(boolean isDealDeviceEvent) {
+	// this.isDealDeviceEvent = isDealDeviceEvent;
+	// }
 
 	private DeviceEventListener() {
 		try {
@@ -70,27 +80,27 @@ public class DeviceEventListener implements Runnable {
 	}
 
 	private void processEvent(IDeviceEvent e) {
-		if (isDealDeviceEvent) {
-			this.setDealDeviceEvent(false);
-			log.debug("/*************Start*******************/");
-			if (e.getEventType() == Config.QRReaderEvent && e.getData() != null) {
-				/**
-				 * 二维码读卡器读到新数据
-				 */
-				ticketVerify.setTicket((Ticket) e.getData());
-				verifyTicket();
-			} else if (e.getEventType() == Config.IDReaderEvent && e.getData() != null) {
-				/**
-				 * 二代证读卡器读到新数据
-				 */
-				ticketVerify.setIdCard((IDCard) e.getData());
-				verifyTicket();
-			}
-			log.debug("/################End######################/");
-			this.setDealDeviceEvent(true);
-		} else {
-			return;
+		// if (isDealDeviceEvent) {
+		// this.setDealDeviceEvent(false);
+		log.debug("/*************Start*******************/");
+		if (e.getEventType() == Config.QRReaderEvent && e.getData() != null) {
+			/**
+			 * 二维码读卡器读到新数据
+			 */
+			ticketVerify.setTicket((Ticket) e.getData());
+			verifyTicket();
+		} else if (e.getEventType() == Config.IDReaderEvent && e.getData() != null) {
+			/**
+			 * 二代证读卡器读到新数据
+			 */
+			ticketVerify.setIdCard((IDCard) e.getData());
+			verifyTicket();
 		}
+		log.debug("/################End######################/");
+		// this.setDealDeviceEvent(true);
+		// } else {
+		// return;
+		// }
 	}
 
 	private void verifyTicket() {
@@ -177,6 +187,10 @@ public class DeviceEventListener implements Runnable {
 			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 			return;
 		}
+		if (this.addQuartzJobs() != 1) {
+			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+			return;
+		}
 
 		/**
 		 * 连接mq服务，启动mq receiver线程
@@ -205,6 +219,30 @@ public class DeviceEventListener implements Runnable {
 		}
 		// 启动成功点亮绿色通行箭头
 		FirstGateDevice.getInstance().LightEntryArrow();
+	}
+
+	/**
+	 * 定时启动任务
+	 */
+	private int addQuartzJobs() {
+		int retVal = 1;
+		try {
+			String cronStr = DeviceConfig.getInstance().getAutoLogonCron();
+			SchedulerFactory sf = new StdSchedulerFactory();
+			Scheduler sched = sf.getScheduler(); // 初始化调度器
+			JobDetail job = JobBuilder.newJob(AutoLogonJob.class).withIdentity("autoLogonJob", "pitcheckGroup").build();
+			CronTrigger trigger = (CronTrigger) TriggerBuilder.newTrigger().withIdentity("autoLogonTrigger", "pitcheckGroup")
+					.withSchedule(CronScheduleBuilder.cronSchedule(cronStr)).build(); // 设置触发器
+																								// 每20秒执行一次
+			Date ft = sched.scheduleJob(job, trigger); // 设置调度作业
+			log.debug(job.getKey() + " has been scheduled to run at: " + ft
+					+ " and repeat based on expression: " + trigger.getCronExpression());
+			sched.start(); // 开启调度任务，执行作业
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return retVal;
 	}
 
 	/**
@@ -262,7 +300,7 @@ public class DeviceEventListener implements Runnable {
 			CommUtil.sleep(5000);
 			try {
 				log.info("自动注销计算机...");
-				 Runtime.getRuntime().exec(Config.AutoLogonCmd);
+				Runtime.getRuntime().exec(Config.AutoLogonCmd);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -287,7 +325,7 @@ public class DeviceEventListener implements Runnable {
 			CommUtil.sleep(5000);
 			try {
 				log.info("自动注销计算机...");
-				 Runtime.getRuntime().exec(Config.AutoLogonCmd);
+				Runtime.getRuntime().exec(Config.AutoLogonCmd);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

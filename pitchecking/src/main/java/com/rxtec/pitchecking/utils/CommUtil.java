@@ -10,6 +10,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageInputStream;
@@ -29,7 +31,7 @@ import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 /**
- * 通用工具
+ * 通用工具类
  * 
  * @author ZhaoLin
  *
@@ -38,9 +40,52 @@ public class CommUtil {
 	private static Logger log = LoggerFactory.getLogger("CommUtil");
 
 	public static void main(String[] args) {
-		String srcfile = "D:/eclipse/workspace/IDCard.bmp";
-		String dstFile = "D:/eclipse/workspace/idcardtest.jpg";
-		bmpTojpg(srcfile, dstFile);
+		// String srcfile = "D:/eclipse/workspace/IDCard.bmp";
+		// String dstFile = "D:/eclipse/workspace/idcardtest.jpg";
+		// bmpTojpg(srcfile, dstFile);
+
+		String aa = "20119850326广东省茂名市电白县水东镇人民街175号之一时代名苑商住小区A幢1505440923198503264625电白县公安局";
+		String ss = "20119870101湖北省黄石市下陆区团城山街道杭州西路71号怡安花园3栋1单元2702室35042019630511002X黄石市公安局下陆分局";
+		String dd = "10119870408广州市海珠区南永安直街4号104房";
+		String cc = "35042019630511002X永安市公安局";
+		// String reg = "^.*\\d{18}.*$";
+		// if (ss.matches(reg)) {
+		// // TODO
+		// System.out.println(ss);
+		// }
+		System.out.println("idcardNo==" + CommUtil.getIdCardNoFromInfo(aa));
+	}
+
+	/**
+	 * 判断字符串中是否含有身份证号的前面17个连续数字
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static String getIdCardNoFromInfo(String str) {
+		String result = "";
+		try {
+			Pattern p = Pattern.compile("\\d{17}");
+			Matcher m = p.matcher(str);
+			if (m.find()) {
+				result = m.group();
+				int i = str.indexOf(result);
+				// System.out.println("i=="+i);
+				for (int k = i; k <= (i + 18); k++) {
+					result = str.substring(k, k + 18);
+					// System.out.println("数字起始位:" + k + " result==" + result);
+					if (IDCardUtil.isIDCard(result)) {
+						break;
+					} else
+						continue;
+				}
+			}
+		} catch (Exception ex) {
+			result = "";
+			log.error("getIdCardNoFromInfo:", ex);
+		}
+		return result;
+
 	}
 
 	@SuppressWarnings("restriction")
@@ -58,7 +103,7 @@ public class CommUtil {
 			in.close();
 			out.close();
 		} catch (Exception e) {
-			log.error("bmpTojpg:",e);
+			log.error("bmpTojpg:", e);
 		}
 	}
 
@@ -140,9 +185,9 @@ public class CommUtil {
 			}
 			fs.close();
 		} catch (IOException e) {
-			log.error("bmpTojpg:",e);
-		}catch (Exception e) {
-			log.error("bmpTojpg:",e);
+			log.error("bmpTojpg:", e);
+		} catch (Exception e) {
+			log.error("bmpTojpg:", e);
 		}
 		return (null);
 	}
@@ -518,23 +563,23 @@ public class CommUtil {
 			out.close();
 			return out.toByteArray();
 		} catch (Exception e) {
-			log.error("CommUtil getBytesFromFile:",e);
+			log.error("CommUtil getBytesFromFile:", e);
 		}
 		return null;
 	}
-	
-	public static byte[] getImageBytesFromImageBuffer(BufferedImage cardImage){
-		ByteArrayOutputStream output = new ByteArrayOutputStream ();
+
+	public static byte[] getImageBytesFromImageBuffer(BufferedImage cardImage) {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		byte[] buff = null;
 		try {
 			ImageIO.write(cardImage, "JPEG", ImageIO.createImageOutputStream(output));
 			buff = output.toByteArray();
 		} catch (Exception e) {
-			log.error("CommUtil ImageIO.write error!",e);
+			log.error("CommUtil ImageIO.write error!", e);
 		}
-		
+
 		return buff;
-	} 
+	}
 
 	/**
 	 * 

@@ -36,6 +36,22 @@ public class TicketVerify {
 				} else {
 					return Config.TicketVerifyWaitInput;
 				}
+			} else if (idCard!=null && DeviceConfig.softIdNo.indexOf(idCard.getIdNo()) != -1) {
+				Ticket virualTicket = new Ticket();
+				virualTicket.setCardNo(idCard.getIdNo());
+				virualTicket.setCardType("1");
+				virualTicket.setCoachNo("01");
+				virualTicket.setEndStationCode("SZQ");
+				virualTicket.setFromStationCode("IZQ");
+				virualTicket.setSeatCode("001F");
+				virualTicket.setTicketNo("T000006");
+				virualTicket.setTicketPrice(99);
+				virualTicket.setTicketType("1");
+				virualTicket.setTrainCode("G1001");
+				virualTicket.setTrainDate(DateUtils.getStringDateShort());
+				virualTicket.setSeatCode("8");
+				this.setTicket(virualTicket);
+				return Config.TicketVerifyWaitInput;
 			} else
 				return Config.TicketVerifyWaitInput;
 		} else {

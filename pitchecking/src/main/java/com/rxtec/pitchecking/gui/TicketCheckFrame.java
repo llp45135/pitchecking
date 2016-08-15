@@ -66,6 +66,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	private JLabel lableWarnmsg;
 	private JLabel labelVersion;
 	private JLabel lblIp;
+	private JLabel bootTime;
 	int timeIntevel = DeviceConfig.getInstance().getReaderTimeDelay();
 	private JLabel timelabel;
 	private int titleStrType = 0;
@@ -242,6 +243,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		labelVersion.setForeground(Color.BLACK);
 		labelVersion.setFont(new Font("微软雅黑", Font.PLAIN, 23));
 		labelVersion.setHorizontalAlignment(SwingConstants.CENTER);
+		labelVersion.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		labelVersion.setBounds(96, 10, 302, 42);
 		bottomPanel.add(labelVersion);
 
@@ -249,8 +251,17 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		lblIp.setForeground(Color.BLACK);
 		lblIp.setHorizontalAlignment(SwingConstants.CENTER);
 		lblIp.setFont(new Font("微软雅黑", Font.PLAIN, 23));
+		lblIp.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		lblIp.setBounds(903, 10, 276, 42);
 		bottomPanel.add(lblIp);
+
+		bootTime = new JLabel("启动时间：2016-08-13 17:45:45");
+		bootTime.setHorizontalAlignment(SwingConstants.CENTER);
+		bootTime.setForeground(Color.BLACK);
+		bootTime.setFont(new Font("微软雅黑", Font.PLAIN, 23));
+		bootTime.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		bootTime.setBounds(476, 10, 367, 42);
+		bottomPanel.add(bootTime);
 
 		setUndecorated(true);
 
@@ -258,6 +269,8 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 
 		setSoftVersion("软件版本号：" + DeviceConfig.softVersion);
 		setGateIP("IP地址：" + DeviceConfig.getInstance().getIpAddress());
+		this.bootTime.setText("启动时间:" + DateUtils.getStringDate());
+		this.bootTime.setBorder(null);
 	}
 
 	public JPanel getTicketPanel() {
@@ -270,10 +283,12 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	}
 
 	public void setSoftVersion(String verText) {
+		labelVersion.setBorder(null);
 		labelVersion.setText(verText);
 	}
 
 	public void setGateIP(String ipText) {
+		lblIp.setBorder(null);
 		lblIp.setText(ipText);
 	}
 

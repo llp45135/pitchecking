@@ -69,9 +69,11 @@ public class QRReader implements Runnable {
 					// frame.showWaitInputContent(ticket, null, 2); // 仅供测试用
 
 					// 以下为正式使用代码
-					QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(DeviceEventTypeEnum.ReadIDCard.getValue());
-					qrEvent.setTicket(ticket);
-					DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+					if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
+						QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(Config.QRReaderEvent);
+						qrEvent.setTicket(ticket);
+						DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+					}
 				}
 			} catch (NumberFormatException | UnsupportedEncodingException e) {
 				log.error("QRReader uncompressTicket", e);

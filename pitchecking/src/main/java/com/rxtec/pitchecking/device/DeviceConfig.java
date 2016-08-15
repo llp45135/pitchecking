@@ -27,7 +27,7 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "160726.13.01";
+	public static String softVersion = "160813.17.01";
 	public static String softIdNo = "520203197912141118,440111197209283012";
 
 	public static int idDeviceSucc = 1;
@@ -47,7 +47,7 @@ public class DeviceConfig {
 	public static String ticketImgPath = "./img/ticket.jpg";
 	public static String qrReaderImgPath = "./img/qrreader.gif";
 	public static String idReaderImgPath = "./img/idreader.gif";
-	
+
 	public static String initImgPath = "./img/init2.gif";
 
 	// 语音文件
@@ -83,6 +83,15 @@ public class DeviceConfig {
 	private String USER = "pitchecking";
 	private String PASSWORD = "pitchecking";
 	private String ipAddress = "127.0.0.1";
+	private String autoLogonCron = "0 0 5 * * ?";
+
+	public String getAutoLogonCron() {
+		return autoLogonCron;
+	}
+
+	public void setAutoLogonCron(String autoLogonCron) {
+		this.autoLogonCron = autoLogonCron;
+	}
 
 	public String getIdDeviceType() {
 		return idDeviceType;
@@ -107,7 +116,7 @@ public class DeviceConfig {
 	public void setSuccTimeDelay(int succTimeDelay) {
 		this.succTimeDelay = succTimeDelay;
 	}
-	
+
 	public String getQrDeviceType() {
 		return qrDeviceType;
 	}
@@ -415,6 +424,7 @@ public class DeviceConfig {
 			this.setSuccTimeDelay(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("succTimeDelay")));
 			this.setIdDeviceType(root.getChild("GateConfig").getAttributeValue("idDeviceType"));
 			this.setQrDeviceType(root.getChild("GateConfig").getAttributeValue("qrDeviceType"));
+			this.setAutoLogonCron(root.getChild("GateConfig").getAttributeValue("autoLogonCron"));
 			this.setCameraLEDPort(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("cameraLEDPort")));
 			this.setFirstGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("firstGateCrtlPort"));
 			this.setSecondGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("secondGateCrtlPort"));
@@ -456,12 +466,13 @@ public class DeviceConfig {
 	public static void main(String[] args) {
 		DeviceConfig dconfig = DeviceConfig.getInstance();
 
-		System.out.println(DeviceConfig.getInstance().getStationsMap().size());
-		System.out.println(DeviceConfig.getInstance().getStationsMap().get("GGQ").getStationName());
-		System.out.println(DeviceConfig.getInstance().getStationName("KQW"));
-		System.out.println(DeviceConfig.getInstance().getTicketTypesMap().size());
-		System.out.println(DeviceConfig.getInstance().getSeatTypesMap().size());
-		System.out.println(DeviceConfig.getInstance().getSeatTypesMap().get("O"));
+		System.out.println("getStationsMap.size==" + DeviceConfig.getInstance().getStationsMap().size());
+		System.out.println(
+				"GGQ's stationName==" + DeviceConfig.getInstance().getStationsMap().get("GGQ").getStationName());
+		System.out.println("KQW's stationName==" + DeviceConfig.getInstance().getStationName("KQW"));
+		System.out.println("getTicketTypesMap.size==" + DeviceConfig.getInstance().getTicketTypesMap().size());
+		System.out.println("getSeatTypesMap.size==" + DeviceConfig.getInstance().getSeatTypesMap().size());
+		System.out.println("seatType O is==" + DeviceConfig.getInstance().getSeatTypesMap().get("O"));
 
 		System.out.println("getBelongStationCode==" + dconfig.getBelongStationCode());
 		System.out.println(
@@ -477,5 +488,6 @@ public class DeviceConfig {
 		System.out.println("getUSER==" + dconfig.getUSER());
 		System.out.println("getPASSWORD==" + dconfig.getPASSWORD());
 		System.out.println("ipAddress==" + dconfig.getIpAddress());
+		System.out.println("autoLogonCron==" + dconfig.getAutoLogonCron());
 	}
 }
