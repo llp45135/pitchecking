@@ -675,7 +675,8 @@ public class RSFaceTrackTask implements Runnable {
 		setupColorCameraDevice(dev);
 		while (startCapture) {
 			sts = senseMgr.AcquireFrame(true);
-			if(sts.isSuccessful()) ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+			if (sts.isSuccessful())
+				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 
 			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
 			if (sample == null) {

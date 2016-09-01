@@ -19,9 +19,17 @@ public class SpringMongoConfig {
 	}
 
 	public Mongo mongo() throws Exception {
-		String uri = "mongodb://pitcheck_writer:PitcheckWriter61336956@" + Config.getInstance().getMongoDBAddress()
+		String uri = "mongodb://pitcheck_writer:PitcheckWriter61336956"+"@" + Config.getInstance().getMongoDBAddress()
 				+ ":" + Config.getInstance().getMongoDBPort() + "/?authSource=pitcheck";
+//		String uri = "mongodb://root:root"+"@"+ Config.getInstance().getMongoDBAddress()
+//				+ ":" + Config.getInstance().getMongoDBPort() + "/?authSource=admin";
 		return new Mongo(new MongoURI(uri));
+	}
+	
+	public static void main(String[] args) {
+//		PitRecordDAO dao = new PitRecordDAO();
+		PitRecordLoger.getInstance().clearExpirationData();
+		PitRecordLoger.getInstance().startThread();
 	}
 
 }

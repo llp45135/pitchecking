@@ -1,5 +1,7 @@
 package com.rxtec.pitchecking;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,18 +26,31 @@ import com.rxtec.pitchecking.utils.CommUtil;
 import com.vguang.VguangApi;
 
 public class QRReader implements Runnable {
-	private Log log = LogFactory.getLog("QRReader");
+	private Log log = LogFactory.getLog("DeviceEventListener");
 	private static QRReader instance = new QRReader();
 	private JNative qrDeviceJNative = null;
 
-	// private TicketCheckFrame frame = new TicketCheckFrame();// 仅供测试用
+	private TicketCheckFrame ticketFrame;
+
+	public TicketCheckFrame getTicketFrame() {
+		return ticketFrame;
+	}
+
+	public void setTicketFrame(TicketCheckFrame ticketFrame) {
+		this.ticketFrame = ticketFrame;
+	}
 
 	private int deviceStatus = Config.StartStatus;
 
 	public static void main(String[] args) {
-
+		TicketCheckFrame ticketFrame = new TicketCheckFrame();
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gs = ge.getScreenDevices();
+		gs[0].setFullScreenWindow(ticketFrame);
+		QRReader qrReader = QRReader.getInstance();
+		qrReader.setTicketFrame(ticketFrame);
 		ScheduledExecutorService qrReaderScheduler = Executors.newScheduledThreadPool(1);
-		qrReaderScheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		qrReaderScheduler.scheduleWithFixedDelay(qrReader, 0, 100, TimeUnit.MILLISECONDS);
 
 		// ExecutorService executer = Executors.newCachedThreadPool();
 		// executer.execute(QRReader.getInstance());
@@ -45,7 +60,6 @@ public class QRReader implements Runnable {
 		JNative.setLoggingEnabled(true);
 		initQRDevice();
 
-		// frame.setVisible(true);// 仅供测试用
 		try {
 			qrDeviceJNative = new JNative("BAR2unsecurity.dll", "uncompress");
 		} catch (NativeException e) {
@@ -66,13 +80,16 @@ public class QRReader implements Runnable {
 			try {
 				Ticket ticket = uncompressTicket(instr, year);
 				if (deviceStatus == Config.StartStatus && ticket != null) {
-					// frame.showWaitInputContent(ticket, null, 2); // 仅供测试用
 
-					// 以下为正式使用代码
-					if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
-						QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(Config.QRReaderEvent);
-						qrEvent.setTicket(ticket);
-						DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+					if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 以下为正式代码
+//						if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
+							QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(Config.QRReaderEvent);
+							qrEvent.setTicket(ticket);
+							log.debug("offerDeviceEvent ticket");
+							DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+//						}
+					} else {
+						ticketFrame.showWaitInputContent(ticket, null, 2, 0); // 仅供测试用
 					}
 				}
 			} catch (NumberFormatException | UnsupportedEncodingException e) {

@@ -307,12 +307,14 @@ public class SecondGateDevice implements SerialPortEventListener {
 						TicketCheckScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 								ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 						DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+						DeviceEventListener.getInstance().setDealDeviceEvent(true);  //允许处理新的事件
 						log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
 					} else if (ss.indexOf("2A040F23") == 0) {
 //						log.debug("第三道闸门超时关闭");
 						TicketCheckScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 								ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 						DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+						DeviceEventListener.getInstance().setDealDeviceEvent(true);  //允许处理新的事件
 						log.debug("人证比对完成，第三道闸门超时关闭，重新寻卡");
 					} else if (ss.indexOf("2A510123") == 0) {
 						log.debug("点亮入口绿色箭头");

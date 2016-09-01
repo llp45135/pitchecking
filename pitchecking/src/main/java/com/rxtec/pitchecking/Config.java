@@ -115,6 +115,7 @@ public class Config {
 	private int isCheckRealFace = 0;
 	private String multicastAddress = "234.5.6.7";
 	private int faceLogRemainDays = 14;
+	private int isUseMongoDB = 1;
 	private String mongoDBAddress = "localhost";
 	private int mongoDBPort = 27017;
 	private int isSaveFaceImageToLocaldisk=1;
@@ -126,6 +127,14 @@ public class Config {
 	
 	private int faceTrackMode = 1;								//人臉追蹤模式 1 紅外，2 顔色+景深
 	
+	public int getIsUseMongoDB() {
+		return isUseMongoDB;
+	}
+
+	public void setIsUseMongoDB(int isUseMongoDB) {
+		this.isUseMongoDB = isUseMongoDB;
+	}
+
 	private float faceDetectionScale = 1.5f;					//人臉放大倍數	
 	public float getFaceDetectionScale() {
 		return faceDetectionScale;
@@ -375,6 +384,7 @@ public class Config {
 			this.isCheckRealFace = Integer.valueOf(p.getProperty("IsCheckRealFace", "0"));
 			this.faceVerifyThreads = Integer.valueOf(p.getProperty("FaceVerifyThreads", "1"));
 			this.faceLogRemainDays = Integer.valueOf(p.getProperty("FaceLogRemainDays", "14"));
+			this.isUseMongoDB = Integer.valueOf(p.getProperty("isUseMongoDB", "1"));
 			this.mongoDBPort = Integer.valueOf(p.getProperty("MongoDBPort", "27017"));
 			this.mongoDBAddress = p.getProperty("MongoDBAddress", "localhost");
 			this.isSaveFaceImageToLocaldisk = Integer.valueOf(p.getProperty("IsSaveFaceImageToLocaldisk", "1"));

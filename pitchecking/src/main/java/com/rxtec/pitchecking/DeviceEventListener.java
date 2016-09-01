@@ -43,10 +43,10 @@ public class DeviceEventListener implements Runnable {
 	public boolean isDealDeviceEvent() {
 		return isDealDeviceEvent;
 	}
-	//
-	// public void setDealDeviceEvent(boolean isDealDeviceEvent) {
-	// this.isDealDeviceEvent = isDealDeviceEvent;
-	// }
+
+	public void setDealDeviceEvent(boolean isDealDeviceEvent) {
+		this.isDealDeviceEvent = isDealDeviceEvent;
+	}
 
 	private DeviceEventListener() {
 		try {
@@ -61,7 +61,7 @@ public class DeviceEventListener implements Runnable {
 		return _instance;
 	}
 
-	private LinkedBlockingQueue<IDeviceEvent> deviceEventQueue = new LinkedBlockingQueue<IDeviceEvent>(10);
+	private LinkedBlockingQueue<IDeviceEvent> deviceEventQueue = new LinkedBlockingQueue<IDeviceEvent>(3);
 
 	public void offerDeviceEvent(IDeviceEvent e) {
 		// 队列满了需要处理Exception,注意！
@@ -72,16 +72,26 @@ public class DeviceEventListener implements Runnable {
 	public void run() {
 		IDeviceEvent e;
 		try {
-			e = deviceEventQueue.take();
-			this.processEvent(e);
+			if (isDealDeviceEvent) {
+				e = deviceEventQueue.take();
+
+				this.setDealDeviceEvent(false);// 停止处理新的事件
+
+				this.processEvent(e);
+			}
 		} catch (InterruptedException ex) {
 			log.error("DeviceEventListener", ex);
 		}
 	}
 
+	/**
+	 * 票证事件处理
+	 * 
+	 * @param e
+	 */
 	private void processEvent(IDeviceEvent e) {
 		// if (isDealDeviceEvent) {
-		// this.setDealDeviceEvent(false);
+		// this.setDealDeviceEvent(false);//停止处理新的事件
 		log.debug("/*************Start*******************/");
 		if (e.getEventType() == Config.QRReaderEvent && e.getData() != null) {
 			/**
@@ -97,7 +107,7 @@ public class DeviceEventListener implements Runnable {
 			verifyTicket();
 		}
 		log.debug("/################End######################/");
-		// this.setDealDeviceEvent(true);
+		// this.setDealDeviceEvent(true);//允许处理新的事件
 		// } else {
 		// return;
 		// }
@@ -134,21 +144,25 @@ public class DeviceEventListener implements Runnable {
 						.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue(),
 								ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 			}
+			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyIDFail) { // 票证验证失败
 			TicketCheckScreen.getInstance()
 					.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifyIDFail.getValue(),
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 			ticketVerify.reset();
+			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyStationRuleFail) { // 车票未通过非本站规则
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifyStationRuleFail.getValue(),
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 			ticketVerify.reset();
+			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyTrainDateRuleFail) { // 车票未通过非当日规则
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifyTrainDateRuleFail.getValue(),
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 			ticketVerify.reset();
+			this.setDealDeviceEvent(true);// 允许处理新的事件
 		}
 	}
 
@@ -231,15 +245,17 @@ public class DeviceEventListener implements Runnable {
 			SchedulerFactory sf = new StdSchedulerFactory();
 			Scheduler sched = sf.getScheduler(); // 初始化调度器
 			JobDetail job = JobBuilder.newJob(AutoLogonJob.class).withIdentity("autoLogonJob", "pitcheckGroup").build();
-			CronTrigger trigger = (CronTrigger) TriggerBuilder.newTrigger().withIdentity("autoLogonTrigger", "pitcheckGroup")
+			CronTrigger trigger = (CronTrigger) TriggerBuilder.newTrigger()
+					.withIdentity("autoLogonTrigger", "pitcheckGroup")
 					.withSchedule(CronScheduleBuilder.cronSchedule(cronStr)).build(); // 设置触发器
-																								// 每20秒执行一次
+																						// 每20秒执行一次
 			Date ft = sched.scheduleJob(job, trigger); // 设置调度作业
-			log.debug(job.getKey() + " has been scheduled to run at: " + ft
-					+ " and repeat based on expression: " + trigger.getCronExpression());
+			log.debug(job.getKey() + " has been scheduled to run at: " + ft + " and repeat based on expression: "
+					+ trigger.getCronExpression());
 			sched.start(); // 开启调度任务，执行作业
 
 		} catch (Exception ex) {
+			retVal = 0;
 			ex.printStackTrace();
 		}
 		return retVal;
@@ -365,7 +381,7 @@ public class DeviceEventListener implements Runnable {
 		} else {
 			log.debug("读卡器停止寻卡");
 			IDReader.getInstance().stop();
-			QRReader.getInstance().stop();
+//			QRReader.getInstance().stop();
 		}
 	}
 }

@@ -118,6 +118,7 @@ public class PitRecord {
 		fvr.setFacePosePitch(pd.getFacePosePitch());
 		fvr.setFacePoseRoll(pd.getFacePoseRoll());
 		fvr.setFacePoseYaw(pd.getFacePoseYaw());
+		fvr.setUseTime(pd.getUseTime());
 		this.getFaceVerifyRecords().add(fvr);
 	}
 	public PitRecord(){

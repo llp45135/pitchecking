@@ -49,16 +49,19 @@ public class IDReader implements Runnable {
 		String openVal = "-1";
 		if (DeviceConfig.getInstance().getIdDeviceType().equals("X")) {
 			xzxcDevice = XZXCDevice.getInstance();
-			openVal = xzxcDevice.Syn_OpenPort();
+//			openVal = xzxcDevice.Syn_OpenPort();
 		} else {
 			hxgcDevice = HXGCDevice.getInstance();
-			openVal = hxgcDevice.Syn_OpenPort();
+//			openVal = hxgcDevice.Syn_OpenPort();
 		}
-		if (openVal.equals("0")) {
-			DeviceConfig.getInstance().setIdDeviceStatus(DeviceConfig.idDeviceSucc);
-		} else {
-			DeviceConfig.getInstance().setIdDeviceStatus(Integer.parseInt(openVal));
-		}
+//		if (openVal.equals("0")) {
+//			DeviceConfig.getInstance().setIdDeviceStatus(DeviceConfig.idDeviceSucc);
+//		} else {
+//			DeviceConfig.getInstance().setIdDeviceStatus(Integer.parseInt(openVal));
+//		}
+		
+		DeviceConfig.getInstance().setIdDeviceStatus(DeviceConfig.idDeviceSucc);
+		log.info("华旭金卡二代证读卡器初始化成功!");
 	}
 
 	@Override
@@ -72,15 +75,19 @@ public class IDReader implements Runnable {
 	private void readCard() {
 		if (deviceStatus == Config.StartStatus) {
 			if (DeviceConfig.getInstance().getIdDeviceType().equals("X")) {
+				xzxcDevice.Syn_OpenPort();
 				this.readUseXZXCDevice(xzxcDevice);
+				xzxcDevice.Syn_ClosePort();
 			} else {
+				hxgcDevice.Syn_OpenPort();
 				this.readUseHXGCDevice(hxgcDevice);
+				hxgcDevice.Syn_ClosePort();
 			}
 		}
 	}
 
 	/**
-	 * 
+	 * 新中新读卡
 	 * @param idDeviceType
 	 * @param device
 	 */
@@ -93,11 +100,11 @@ public class IDReader implements Runnable {
 				if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null
 						&& idCard.getCardImageBytes() != null) {
 					if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 以下为正式代码
-						if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
+//						if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
 							IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
 							readCardEvent.setIdCard(idCard);
 							DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
-						}
+//						}
 					} else {
 						ticketFrame.showWaitInputContent(null, idCard, 1, 0);// 测试代码
 					}
@@ -107,7 +114,7 @@ public class IDReader implements Runnable {
 	}
 
 	/**
-	 * 
+	 * 华旭金卡读卡
 	 * @param idDeviceType
 	 * @param device
 	 */
@@ -123,6 +130,7 @@ public class IDReader implements Runnable {
 						if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
 							IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
 							readCardEvent.setIdCard(idCard);
+							log.debug("offerDeviceEvent idCard");
 							DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
 						}
 					} else {

@@ -120,6 +120,7 @@ public class VerifyFaceTask {
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 			DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+			DeviceEventListener.getInstance().setDealDeviceEvent(true);  //允许处理新的事件
 			log.debug("人证比对完成，验证超时失败，重新寻卡");
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
