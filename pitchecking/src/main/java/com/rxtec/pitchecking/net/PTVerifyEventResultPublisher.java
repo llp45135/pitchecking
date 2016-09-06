@@ -16,38 +16,42 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
+import com.rxtec.pitchecking.net.event.EventHandler;
+import com.rxtec.pitchecking.net.event.PIVerifyResultBean;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import io.aeron.Aeron;
 import io.aeron.Publication;
 
 /**
- * 发布人脸比对结果
- * 此类用于睿新自有java主控闸机程序版本
+ * 发布人脸比对结果事件
+ * 此类用于铁科闸机主控程序版本
  *
  */
-public class PTVerifyResultPublisher {
+public class PTVerifyEventResultPublisher {
 	private Logger log = LoggerFactory.getLogger("PTVerifyResultPublisher");
 
-	private static final int STREAM_ID = Config.PIVerify_Result_STREAM_ID;
+	private static final int STREAM_ID = Config.PIVerifyResultEvent_STREAM_ID;
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
 	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 128, 32));
 
+	private EventHandler eventHandler = new EventHandler();
 	private Publication publication;
 
-	private static PTVerifyResultPublisher _instance = new PTVerifyResultPublisher();
+	private static PTVerifyEventResultPublisher _instance = new PTVerifyEventResultPublisher();
 
-	private PTVerifyResultPublisher() {
+	public PTVerifyEventResultPublisher() {
 		initAeron();
 	}
 
-	public static synchronized PTVerifyResultPublisher getInstance() {
+	public static synchronized PTVerifyEventResultPublisher getInstance() {
 		if (_instance == null)
-			_instance = new PTVerifyResultPublisher();
+			_instance = new PTVerifyEventResultPublisher();
 		return _instance;
 	}
 
@@ -78,11 +82,24 @@ public class PTVerifyResultPublisher {
 	public boolean publishResult(PITVerifyData data){
 		if (data == null)
 			return false;
-		byte[] buf = serialObjToBytes(data);
-		if (buf == null)
+		
+		PIVerifyResultBean resultBean = new PIVerifyResultBean();
+		resultBean.setPhotoLen1(data.getFaceImg().length);
+		resultBean.setPhotoLen2(data.getFrameImg().length);
+		resultBean.setPhoto1(data.getFaceImg());
+		resultBean.setPhoto2(data.getFrameImg());
+		String jsonString;
+		try {
+			jsonString = eventHandler.OutputEventToJson(resultBean);
+		} catch (JsonProcessingException e) {
+			log.error("PIVerifyResultBean to json failed!", e);
 			return false;
-		BUFFER.putBytes(0, buf);
-		final long result = publication.offer(BUFFER, 0, buf.length);
+		}
+		
+		if (jsonString == null)
+			return false;
+		BUFFER.putStringUtf8(0, jsonString);
+		final long result = publication.offer(BUFFER, 0, jsonString.length());
 
 		if (result < 0L) {
 			if (result == Publication.BACK_PRESSURED) {
@@ -104,22 +121,7 @@ public class PTVerifyResultPublisher {
 	}
 
 
-	private byte[] serialObjToBytes(Object o) {
-		byte[] buf = null;
-		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream oo = new ObjectOutputStream(bos);
-			oo.writeObject(o);
-			buf = bos.toByteArray();
-			oo.close();
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return buf;
-	}
 
 	public static void main(String[] args) {
 

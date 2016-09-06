@@ -30,13 +30,14 @@ import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mq.JmsReceiverTask;
 import com.rxtec.pitchecking.mq.JmsSenderTask;
 import com.rxtec.pitchecking.picheckingservice.PITData;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.task.AutoLogonJob;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class DeviceEventListener implements Runnable {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private static DeviceEventListener _instance = new DeviceEventListener();
-	private VerifyFaceTask verifyFaceTask = new VerifyFaceTask();
+	private IVerifyFaceTask verifyFaceTask ;
 	private TicketVerify ticketVerify = new TicketVerify();
 	private boolean isDealDeviceEvent = true;
 
@@ -49,6 +50,11 @@ public class DeviceEventListener implements Runnable {
 	}
 
 	private DeviceEventListener() {
+		if(Config.getInstance().getFaceVerifyTaskVersion().equals(Config.FaceVerifyTaskTKVersion))
+			verifyFaceTask = new VerifyFaceTaskForTKVersion();
+		else if(Config.getInstance().getFaceVerifyTaskVersion().equals(Config.FaceVerifyTaskRXVersion))
+			verifyFaceTask = new VerifyFaceTaskForRXVersion();
+			
 		try {
 			startDevice();
 		} catch (DeviceException e1) {
@@ -173,7 +179,7 @@ public class DeviceEventListener implements Runnable {
 	 * @param ticket
 	 */
 	private void verifyFace(IDCard idCard, Ticket ticket) {
-		PITData picData = verifyFaceTask.beginCheckFace(idCard, ticket);
+		verifyFaceTask.beginCheckFace(idCard, ticket, 0);
 	}
 
 	// 启动设备

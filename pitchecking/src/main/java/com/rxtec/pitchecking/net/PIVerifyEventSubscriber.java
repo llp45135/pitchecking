@@ -18,6 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.Ticket;
+import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.picheckingservice.PITData;
@@ -29,24 +32,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
- * 订阅由人脸检测进程发过来的人脸比对请求
- * 通过Aeron订阅比对请求，将比对请求插入独立人脸比对进程（FaceCheckingService）的等待比对队列
+ * 接收闸机主控程序送过来的人脸比对事件请求的订阅者
+ * 接受的消息是JSON
+ * 收到消息调用RSFaceTrackTask线程的 public void beginCheckingFace(IDCard idCard, Ticket ticket)
  * 
+ * @author lenovo
  *
  */
-public class PIVerifySubscriber {
-	private Logger log = LoggerFactory.getLogger("PIVerifyEventSubscriber");
 
-	private static final int STREAM_ID = Config.PIVerify_Begin_STREAM_ID;
+
+public class PIVerifyEventSubscriber {
+	private Logger log = LoggerFactory.getLogger("PIVerifyBeginEventSubscriber");
+
+	private static final int STREAM_ID = Config.PIVerifyEvent_Begin_STREAM_ID;
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
-	
 
-	public PIVerifySubscriber() {
+	public PIVerifyEventSubscriber() {
 		log.debug("Subscribing to " + CHANNEL + " on stream Id " + STREAM_ID);
-		final Aeron.Context ctx = new Aeron.Context().availableImageHandler(PIVerifySubscriberUtils::printAvailableImage)
-				.unavailableImageHandler(PIVerifySubscriberUtils::printUnavailableImage);
+		final Aeron.Context ctx = new Aeron.Context().availableImageHandler(PIVerifyEventSubscriberUtils::printAvailableImage)
+				.unavailableImageHandler(PIVerifyEventSubscriberUtils::printUnavailableImage);
 
-		final FragmentHandler fragmentHandler = PIVerifySubscriberUtils.processMessage(STREAM_ID);
+		final FragmentHandler fragmentHandler = PIVerifyEventSubscriberUtils.processMessage(STREAM_ID);
 		final AtomicBoolean running = new AtomicBoolean(true);
 
 		// Register a SIGINT handler for graceful shutdown.
@@ -60,7 +66,7 @@ public class PIVerifySubscriber {
 		// clean up resources when this try block is finished
 		try (final Aeron aeron = Aeron.connect(ctx);
 				final Subscription subscription = aeron.addSubscription(CHANNEL, STREAM_ID)) {
-			PIVerifySubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
+			PIVerifyEventSubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
 
 			log.info("PIVerifyEventSubscriber Shutting down...");
 		}
@@ -74,7 +80,13 @@ public class PIVerifySubscriber {
 
 }
 
-class PIVerifySubscriberUtils {
+class PIVerifyEventSubscriberUtils {
+	
+	
+	static EventHandler eventHandler = new EventHandler();
+
+	
+	
 	/**
 	 * Return a reusable, parameterised event loop that calls a default idler
 	 * when no messages are received
@@ -123,20 +135,18 @@ class PIVerifySubscriberUtils {
 
 	public static FragmentHandler processMessage(final int streamId) {
 		return (buffer, offset, length, header) -> {
-			final byte[] data = new byte[length];
-			buffer.getBytes(offset, data);
-
+			final String jsonStr = buffer.getStringUtf8(offset);
+			
 			try {
-				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-				PITVerifyData fd = (PITVerifyData)ois.readObject();
-				FaceCheckingService.getInstance().offerFaceVerifyData(fd);  //加入待验证队列
-				Log.info("Receive request message : " + fd);
-			} catch (IOException | ClassNotFoundException e) {
-				Log.error("processMessage",e);
+				eventHandler.InComeEventHandler(jsonStr);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				Log.error("EventHandler.InComeEventHandler", e);
 			}
+			
 
-			Log.debug(String.format("Message to stream %d from session %d (%d@%d) <<%s>>", streamId,
-					header.sessionId(), length, offset, new String(data)));
+//			Log.debug(String.format("Message to stream %d from session %d (%d@%d) <<%s>>", streamId,
+//					header.sessionId(), length, offset, jsonStr));
 		};
 	}
 

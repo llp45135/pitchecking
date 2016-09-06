@@ -27,6 +27,7 @@ import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
@@ -56,7 +57,7 @@ public class RSFaceTrackingTestFrame {
 
 		FaceCheckingService.getInstance().beginFaceCheckerTask();
 
-		IDCard idCard = createIDCard("C:/pitchecking/LLPID.jpg");
+		IDCard idCard = createIDCard("C:/pitchecking/llp.jpg");
 //		IDCard idCard = createIDCard("C:/pitchecking/zhaolin.jpg");
 		
 
@@ -67,7 +68,7 @@ public class RSFaceTrackingTestFrame {
 
 	}
 
-	public static PITData beginCheckFace(IDCard idCard) {
+	public static PITVerifyData beginCheckFace(IDCard idCard) {
 
 		TestFaceVerifyScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
@@ -76,7 +77,7 @@ public class RSFaceTrackingTestFrame {
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
-		PITData fd = null;
+		PITVerifyData fd = null;
 		try {
 			fd = FaceCheckingService.getInstance().pollPassFaceData();
 		} catch (InterruptedException e) {
@@ -97,7 +98,7 @@ public class RSFaceTrackingTestFrame {
 
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.debug("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());
+			log.debug("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getVerifyResult());
 			faceTrackService.stopCheckingFace();
 
 			TestFaceVerifyScreen.getInstance().offerEvent(

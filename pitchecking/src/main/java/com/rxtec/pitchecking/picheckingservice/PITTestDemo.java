@@ -71,7 +71,7 @@ public class PITTestDemo {
 				screen.offerEvent(
 						new ScreenElementModifyEvent(1,ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(),null,null,null));
 				faceTrackService.beginCheckingFace(createIDCard(),new Ticket());
-				PITData fd = FaceCheckingService.getInstance().pollPassFaceData();
+				PITVerifyData fd = FaceCheckingService.getInstance().pollPassFaceData();
 				if(fd == null){
 					TicketCheckScreen.getInstance().offerEvent(
 							new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(),null,null, fd));

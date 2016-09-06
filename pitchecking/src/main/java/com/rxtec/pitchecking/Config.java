@@ -60,8 +60,12 @@ public class Config {
 	public static int MaxTrackedLandmark = 4;
 	public static int NumOfLandmarks = 78;
 
-	public static int PIVerify_Send_STREAM_ID = 10;
-	public static int PIVerify_Receive_STREAM_ID = 11;
+	public static int PIVerify_Begin_STREAM_ID = 10;				//通知独立人脸比对进程开始人脸比对  用于睿新版本
+	public static int PIVerify_Result_STREAM_ID = 11;				//独立人脸比对进程发布比对结果  用于睿新版本
+	
+	public static int PIVerifyEvent_Begin_STREAM_ID = 12;			//通知独立人脸比对进程开始人脸比对  用于铁科版本
+	public static int PIVerifyResultEvent_STREAM_ID = 13;			//独立人脸比对进程发布比对结果  用于铁科版本
+	
 	public static String PIVerify_CHANNEL = "aeron:ipc";
 	// public static String PIVerify_CHANNEL =
 	// "aeron:udp?endpoint=192.168.1.21:40456";
@@ -96,6 +100,17 @@ public class Config {
 	public static String AutoLogonCmd= "C:/pitchecking/bin/autoLogonPC.bat";
 
 
+	
+	/************************************************************************************
+	 * 铁科主控程序通过Aeron MediaDriver 发过来的事件名称定义
+	 */
+	
+	public static String BeginVerifyFaceEvent = "CAM_Notify";
+	public static String GetVerifyFaceResultEvent = "CAM_GetPhotoInfo";
+	
+	
+	
+	/** ******************************************************************************* */
 
 
 	private int faceVerifyThreads = 2; // 人脸比对线程数
@@ -120,6 +135,29 @@ public class Config {
 	private int mongoDBPort = 27017;
 	private int isSaveFaceImageToLocaldisk=1;
 	private String faceVerifyType="MICRO";
+	
+	/************************************************************
+	 * 人脸检测-比对任务 版本
+	 * 人脸检测-比对任务有两个版本：
+	 * RX=睿新版本用于睿新自有java版本闸机主控程序
+	 * TK=铁科版本主控程序
+	 */
+	
+	
+	public static String FaceVerifyTaskTKVersion = "TK";
+	public static String FaceVerifyTaskRXVersion = "RX";
+	
+	private String faceVerifyTaskVersion = "TK";
+	
+	public String getFaceVerifyTaskVersion() {
+		return faceVerifyTaskVersion;
+	}
+
+	public void setFaceVerifyTaskVersion(String faceVerifyTaskVersion) {
+		faceVerifyTaskVersion = faceVerifyTaskVersion;
+	}
+
+	/***********************************************************/
 	
 	
 	private float minAverageDepth = 400F;
@@ -395,6 +433,7 @@ public class Config {
 			this.faceDetectionScale = Float.valueOf(p.getProperty("FaceDetectionScale", "1.3"));
 			this.heartBeatLogFile = p.getProperty("HeartBeatLogFile", "C:/pitchecking/work/HEART.log");
 			this.startPITAppCmd = p.getProperty("StartPITAppCmd", "C:/pitchecking/bin");
+			this.faceVerifyTaskVersion = p.getProperty("FaceVerifyTaskVersion", "TK");
 
 			
 

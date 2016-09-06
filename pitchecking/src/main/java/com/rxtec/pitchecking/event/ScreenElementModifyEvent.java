@@ -1,6 +1,7 @@
 package com.rxtec.pitchecking.event;
 
 import com.rxtec.pitchecking.picheckingservice.PITData;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
 
@@ -10,7 +11,7 @@ public class ScreenElementModifyEvent {
 	private int elementCmd;
 	private IDCard idCard;
 	
-	private PITData faceData;
+	private PITVerifyData faceData;
 	private Ticket ticket;
 
 	public Ticket getTicket() {
@@ -21,11 +22,11 @@ public class ScreenElementModifyEvent {
 		this.ticket = ticket;
 	}
 
-	public PITData getFaceData() {
+	public PITVerifyData getFaceData() {
 		return faceData;
 	}
 
-	public void setFaceData(PITData faceData) {
+	public void setFaceData(PITVerifyData faceData) {
 		this.faceData = faceData;
 	}
 
@@ -45,7 +46,7 @@ public class ScreenElementModifyEvent {
 		this.screenType = screenType;
 	}
 
-	public ScreenElementModifyEvent(int screenType, int elementCmd, Ticket ticket, IDCard idCard, PITData fd) {
+	public ScreenElementModifyEvent(int screenType, int elementCmd, Ticket ticket, IDCard idCard, PITVerifyData fd) {
 		this.screenType = screenType;
 		this.elementCmd = elementCmd;
 		this.ticket = ticket;

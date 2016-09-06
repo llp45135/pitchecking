@@ -46,7 +46,11 @@ public class FaceCheckingTask implements Runnable {
 					fd.setFaceCheckResult(resultValue);
 					long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
-						FaceCheckingService.getInstance().offerPassFaceData(fd);
+						PITVerifyData result = new PITVerifyData();
+						result.setVerifyResult(resultValue);
+						result.setFaceImg(extractFaceImageBytes);
+						result.setIdCardImg(fd.getIdCard().getCardImageBytes());
+						FaceCheckingService.getInstance().offerPassFaceData(result);
 					} 
 					//将人脸图像存盘
 					fd.saveFaceDataToDsk();

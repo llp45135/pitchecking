@@ -30,7 +30,7 @@ public class FaceCheckingService {
 	private LinkedBlockingQueue<PITVerifyData> faceVerifyDataQueue;
 
 	// 比对验证通过的队列
-	private LinkedBlockingQueue<PITData> passFaceDataQueue;
+	private LinkedBlockingQueue<PITVerifyData> passFaceDataQueue;
 
 	private FailedFace failedFace = null;
 
@@ -42,14 +42,14 @@ public class FaceCheckingService {
 		this.failedFace = failedFace;
 	}
 
-	public LinkedBlockingQueue<PITData> getPassFaceDataQueue() {
+	public LinkedBlockingQueue<PITVerifyData> getPassFaceDataQueue() {
 		return passFaceDataQueue;
 	}
 
 	private FaceCheckingService() {
 		detectedFaceDataQueue = new LinkedBlockingQueue<PITData>(Config.getInstance().getDetectededFaceQueueLen());
 		faceVerifyDataQueue = new LinkedBlockingQueue<PITVerifyData>(Config.getInstance().getDetectededFaceQueueLen());
-		passFaceDataQueue = new LinkedBlockingQueue<PITData>(1);
+		passFaceDataQueue = new LinkedBlockingQueue<PITVerifyData>(1);
 	}
 
 	public static synchronized FaceCheckingService getInstance() {
@@ -58,8 +58,8 @@ public class FaceCheckingService {
 		return _instance;
 	}
 
-	public PITData pollPassFaceData() throws InterruptedException {
-		PITData fd = passFaceDataQueue.poll(Config.getInstance().getFaceCheckDelayTime(), TimeUnit.SECONDS);
+	public PITVerifyData pollPassFaceData() throws InterruptedException {
+		PITVerifyData fd = passFaceDataQueue.poll(Config.getInstance().getFaceCheckDelayTime(), TimeUnit.SECONDS);
 		return fd;
 	}
 
@@ -77,7 +77,7 @@ public class FaceCheckingService {
 		return v;
 	}
 
-	public void offerPassFaceData(PITData fd) {
+	public void offerPassFaceData(PITVerifyData fd) {
 		isCheck = passFaceDataQueue.offer(fd);
 		log.debug("offerPassFaceData...... " + isCheck);
 	}

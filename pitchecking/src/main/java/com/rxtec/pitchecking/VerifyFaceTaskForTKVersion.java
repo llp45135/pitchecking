@@ -17,27 +17,31 @@ import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.mq.JmsSender;
 import com.rxtec.pitchecking.mq.JmsSenderTask;
+import com.rxtec.pitchecking.net.PTVerifyEventResultPublisher;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.IFaceTrackService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 import com.rxtec.pitchecking.task.RunningStatus;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 /**
- * 事件处理任务
+ * 铁科版人脸比对处理任务
+ * 用于铁科版本主控闸机程序
  * 
  * @author ZhaoLin
  *
  */
-public class VerifyFaceTask {
+public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 
 	IDCardReaderEvent event;
 	IFaceTrackService faceTrackService = null;
+	PTVerifyEventResultPublisher eventResultPublisher = new PTVerifyEventResultPublisher();
 
-	public VerifyFaceTask() {
+	public VerifyFaceTaskForTKVersion() {
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo)
 			faceTrackService = RSFaceDetectionService.getInstance();
 		else
@@ -50,18 +54,13 @@ public class VerifyFaceTask {
 	 * @param ticket
 	 * @return
 	 */
-	public PITData beginCheckFace(IDCard idCard, Ticket ticket) {
+	public PITVerifyData beginCheckFace(IDCard idCard, Ticket ticket,int delaySeconds) {
 		TicketCheckScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
 
-		// ScreenElementModifyEvent semEvent = new ScreenElementModifyEvent(1,
-		// ScreenCmdEnum.showIDCardImage.getValue(),
-		// null, null, null);
-		// semEvent.setIdCard(idCard);
-		// TicketCheckScreen.getInstance().offerEvent(semEvent);
 
 		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音
-		PITData fd = null;
+		PITVerifyData fd = null;
 
 		if (idCard.getAge() <= Config.ByPassMinAge) {
 			log.debug("该旅客小于" + Config.ByPassMinAge + "岁：picData==" + fd);
@@ -117,14 +116,10 @@ public class VerifyFaceTask {
 
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
 
-			TicketCheckScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
-			DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
-			DeviceEventListener.getInstance().setDealDeviceEvent(true);  //允许处理新的事件
 			log.debug("人证比对完成，验证超时失败，重新寻卡");
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getFaceCheckResult());
+			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getVerifyResult());
 			faceTrackService.stopCheckingFace();
 			FaceCheckingService.getInstance().setFailedFace(null);
 
@@ -137,6 +132,8 @@ public class VerifyFaceTask {
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
 		}
+		
+		eventResultPublisher.publishResult(fd);
 		return fd;
 	}
 

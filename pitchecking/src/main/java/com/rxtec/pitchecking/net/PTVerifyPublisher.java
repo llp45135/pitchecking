@@ -37,14 +37,15 @@ import io.aeron.Publication;
 import io.aeron.driver.MediaDriver;
 
 /**
- * 主程序-待验证人脸(公布者)
- * @author ZhaoLin
+ * 人脸比对请求发布者线程
+ * 由RSFaceTrackingTask 向FaceCheckingService中的《待比脸队列》中插入等待比对的对象
+ * 本线程读取等待比对的对象，通过Aeron 向独立比脸进程发布比对的请求
  *
  */
 public class PTVerifyPublisher implements Runnable {
 
 	private Logger log = LoggerFactory.getLogger("PTVerifyPublisher");
-	private static final int STREAM_ID = Config.PIVerify_Send_STREAM_ID;
+	private static final int STREAM_ID = Config.PIVerify_Begin_STREAM_ID;
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
 	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 128, 32));
