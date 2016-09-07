@@ -118,7 +118,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 
 			log.debug("人证比对完成，验证超时失败，重新寻卡");
 		} else {
-			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils; 
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getVerifyResult());
 			faceTrackService.stopCheckingFace();
 			FaceCheckingService.getInstance().setFailedFace(null);

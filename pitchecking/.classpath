@@ -17,15 +17,15 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/maven/shared_jars/JNative.jar"/>
-	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/libpxcclr.java.jar"/>
-	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/FaceDetect.jar"/>
-	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/jaxen-1.1.1.jar"/>
-	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/jdom.jar"/>
 	<classpathentry kind="lib" path="jgoodies-forms-1.8.0.jar" sourcepath="jgoodies-forms-1.8.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/RXTXcomm.jar"/>
-	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/aeron-all-0.9.9.jar"/>
-	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/activemq-all-5.9.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/activemq-all-5.9.0.jar"/>
+	<classpathentry kind="lib" path="lib/aeron-all-0.9.9.jar"/>
+	<classpathentry kind="lib" path="lib/FaceDetect.jar"/>
+	<classpathentry kind="lib" path="lib/jaxen-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jdom.jar"/>
+	<classpathentry kind="lib" path="lib/JNative.jar"/>
+	<classpathentry kind="lib" path="lib/libpxcclr.java.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
