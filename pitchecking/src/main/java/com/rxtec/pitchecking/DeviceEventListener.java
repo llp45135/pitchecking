@@ -138,6 +138,12 @@ public class DeviceEventListener implements Runnable {
 
 			ticketVerify.reset();
 
+			// TicketCheckScreen.getInstance().offerEvent(
+			// new ScreenElementModifyEvent(0,
+			// ScreenCmdEnum.showDefaultContent.getValue(), null, null, null));
+			// 开始寻卡
+			// this.setDeviceReader(true);
+			// log.debug("人证比对完成，开始寻卡");
 		} else if (ticketVerifyResult == Config.TicketVerifyWaitInput) { // 等待票证验证数据
 			if (ticketVerify.getTicket() == null || ticketVerify.getIdCard() == null) {
 				TicketCheckScreen.getInstance()

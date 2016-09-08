@@ -122,22 +122,24 @@ public class FaceCheckingService {
 
 	ExecutorService executor = Executors.newCachedThreadPool();
 
+	/**
+	 * 启动人脸比对
+	 * 本函数由独立人脸检测进程执行
+	 */
 	public void beginFaceCheckerTask() {
-		// ExecutorService executer = Executors.newCachedThreadPool();
-		// FaceCheckingTask task1 = new
-		// FaceCheckingTask(Config.FaceVerifyDLLName);
-		// executer.execute(task1);
-		//
-		// FaceCheckingTask task2 = new
-		// FaceCheckingTask(Config.FaceVerifyCloneDLLName);
-		// executer.execute(task2);
-
+		/**
+		 * 启动独立人脸比对进程的结果订阅
+		 */
 		PIVerifyResultSubscriber.getInstance().startSubscribing();
+		/**
+		 * 启动向独立人脸比对进程发布比对请求的发布者
+		 */
 		PTVerifyPublisher.getInstance();
 	}
 
 	/**
 	 * 单独比对人脸进程Task，通过共享内存通信
+	 * 此函数由独立人脸比对进程执行
 	 */
 	public void beginFaceCheckerStandaloneTask() {
 		ExecutorService executer = Executors.newCachedThreadPool();

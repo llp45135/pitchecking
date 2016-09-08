@@ -24,9 +24,8 @@ public class EventHandler {
 
 	private ObjectMapper mapper = new ObjectMapper();
 	private JsonFactory f = mapper.getFactory();
-	private Logger log = LoggerFactory.getLogger("JsonMessageTool");
+	private Logger log = LoggerFactory.getLogger("EventHandler");
 	private VerifyFaceTaskForTKVersion verifyFaceTask = new VerifyFaceTaskForTKVersion();
-
 	private String getEventName(String json) throws JsonParseException, IOException {
 		JsonParser p = f.createParser(json);
 		JsonToken t = p.nextToken(); // Should be JsonToken.START_OBJECT
@@ -59,7 +58,7 @@ public class EventHandler {
 			PIVerifyEventBean b = buildPIVerifyEventBean(jsonString);
 			Ticket ticket = new Ticket();
 			IDCard idCard = new IDCard();
-			idCard.setCardImageBytes(b.getIDPhoto());
+			idCard.setCardImageBytes(b.getIdPhoto());
 			verifyFaceTask.beginCheckFace(idCard, ticket,b.getDelaySeconds());
 		}
 	}

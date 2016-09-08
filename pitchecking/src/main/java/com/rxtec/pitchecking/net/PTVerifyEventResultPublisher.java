@@ -1,16 +1,9 @@
 package com.rxtec.pitchecking.net;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
 import javax.imageio.ImageIO;
-
 import org.agrona.BufferUtil;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.slf4j.Logger;
@@ -88,6 +81,7 @@ public class PTVerifyEventResultPublisher {
 		resultBean.setPhotoLen2(data.getFrameImg().length);
 		resultBean.setPhoto1(data.getFaceImg());
 		resultBean.setPhoto2(data.getFrameImg());
+		resultBean.setResult((int)data.getVerifyResult());
 		String jsonString;
 		try {
 			jsonString = eventHandler.OutputEventToJson(resultBean);

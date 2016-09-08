@@ -28,11 +28,12 @@ import com.rxtec.pitchecking.picheckingservice.PITData;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
- * 接收闸机主控程序送过来的人脸比对事件请求的订阅者
+ * 接收铁科闸机主控程序送过来的人脸比对事件请求的订阅者
  * 接受的消息是JSON
  * 收到消息调用RSFaceTrackTask线程的 public void beginCheckingFace(IDCard idCard, Ticket ticket)
  * 
@@ -67,26 +68,23 @@ public class PIVerifyEventSubscriber {
 		try (final Aeron aeron = Aeron.connect(ctx);
 				final Subscription subscription = aeron.addSubscription(CHANNEL, STREAM_ID)) {
 			PIVerifyEventSubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
-
-			log.info("PIVerifyEventSubscriber Shutting down...");
+			log.info("PIVerifyEventSubscriber connected,and begin Subscription...");
 		}
 
 	}
 
 	public static void main(String[] args) {
-		PIVerifySubscriber s = new PIVerifySubscriber();
+		PIVerifyEventSubscriber s = new PIVerifyEventSubscriber();
 
 	}
 
 }
 
 class PIVerifyEventSubscriberUtils {
-	
-	
+	/**
+	 * 闸机主控程序发送过来的事件处理器
+	 */
 	static EventHandler eventHandler = new EventHandler();
-
-	
-	
 	/**
 	 * Return a reusable, parameterised event loop that calls a default idler
 	 * when no messages are received
@@ -135,16 +133,26 @@ class PIVerifyEventSubscriberUtils {
 
 	public static FragmentHandler processMessage(final int streamId) {
 		return (buffer, offset, length, header) -> {
-			final String jsonStr = buffer.getStringUtf8(offset);
+//			final byte[] data = new byte[length];
+//			buffer.getBytes(offset, data);
+//			String jsonStr = "";
+//			try {
+//				jsonStr = new String(data,"UTF8");
+//			} catch (UnsupportedEncodingException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
+			
+			final String jsonStr = buffer.getStringWithoutLengthUtf8(offset, length);
 			
 			try {
+				/**
+				 * 处理闸机主控发送过来的事件
+				 */
 				eventHandler.InComeEventHandler(jsonStr);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				Log.error("EventHandler.InComeEventHandler", e);
 			}
-			
-
 //			Log.debug(String.format("Message to stream %d from session %d (%d@%d) <<%s>>", streamId,
 //					header.sessionId(), length, offset, jsonStr));
 		};
@@ -158,7 +166,7 @@ class PIVerifyEventSubscriberUtils {
 	 */
 	public static void printAvailableImage(final Image image) {
 		final Subscription subscription = image.subscription();
-		System.out.println(String.format("Available image on %s streamId=%d sessionId=%d from %s",
+		Log.debug(String.format("Available image on %s streamId=%d sessionId=%d from %s",
 				subscription.channel(), subscription.streamId(), image.sessionId(), image.sourceIdentity()));
 	}
 
@@ -170,7 +178,7 @@ class PIVerifyEventSubscriberUtils {
 	 */
 	public static void printUnavailableImage(final Image image) {
 		final Subscription subscription = image.subscription();
-		System.out.println(String.format("Unavailable image on %s streamId=%d sessionId=%d", subscription.channel(),
+		Log.debug(String.format("Unavailable image on %s streamId=%d sessionId=%d", subscription.channel(),
 				subscription.streamId(), image.sessionId()));
 	}
 

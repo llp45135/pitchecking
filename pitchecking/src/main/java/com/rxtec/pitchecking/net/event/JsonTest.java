@@ -34,7 +34,7 @@ public class JsonTest {
 		b.setEventName("CAM_Notify");
 		b.setGender(1);
         BufferedImage bi = ImageIO.read(new File("C:/pitchecking/llp.jpg"));
-		b.setIDPhoto(ImageToolkit.getImageBytes(bi, "jpeg"));
+		b.setIdPhoto(ImageToolkit.getImageBytes(bi, "jpeg"));
 		b.setPersonName("");
 //		b.setTicket(new Ticket());
 		b.setUuid("111");

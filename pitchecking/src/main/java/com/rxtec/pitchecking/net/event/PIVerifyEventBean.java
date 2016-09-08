@@ -6,7 +6,8 @@ public class PIVerifyEventBean {
 	private String eventName = "CAM_Notify";
 	private int eventDirection = 1;
 	private String uuid;
-	private byte[] idphoto;
+	private byte[] idPhoto;
+
 	private String personName;
 	private int age;
 	private int gender;
@@ -45,13 +46,14 @@ public class PIVerifyEventBean {
 		this.uuid = uuid;
 	}
 
-	public byte[] getIDPhoto() {
-		return idphoto;
+	public byte[] getIdPhoto() {
+		return idPhoto;
 	}
 
-	public void setIDPhoto(byte[] iDPhoto) {
-		idphoto = iDPhoto;
+	public void setIdPhoto(byte[] idPhoto) {
+		this.idPhoto = idPhoto;
 	}
+
 
 	public String getPersonName() {
 		return personName;

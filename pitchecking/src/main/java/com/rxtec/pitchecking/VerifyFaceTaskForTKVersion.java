@@ -62,31 +62,42 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音
 		PITVerifyData fd = null;
 
+		/**
+		 * 小孩及老人的特殊处理
+		 */
 		if (idCard.getAge() <= Config.ByPassMinAge) {
 			log.debug("该旅客小于" + Config.ByPassMinAge + "岁：picData==" + fd);
 			CommUtil.sleep(2000);
-			SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
 
-			TicketCheckScreen.getInstance().offerEvent(
+			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-			TicketCheckScreen.getInstance().offerEvent(
+			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
-			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
+
+			//向闸机主控程序发布比对结果
+			eventResultPublisher.publishResult(fd);
 			return fd;
 		}
 
+		//通知人脸检测线程开始人脸比对
 		faceTrackService.beginCheckingFace(idCard, ticket);
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
 		try {
-			fd = FaceCheckingService.getInstance().pollPassFaceData();   //此处设置了超时等待时间
+			/**
+			 * 阻塞等待人脸比对线程或独立进程完成人脸比对
+			 * 此处设置了超时等待时间
+			 */
+			fd = FaceCheckingService.getInstance().pollPassFaceData();   
 		} catch (InterruptedException ex) {
 			log.error("pollPassFaceData call", ex);
 		} catch (Exception ex) {
 			log.error("pollPassFaceData call", ex);
 		}
 
+		
+		//如果返回结果为空，则代表人脸比对失败
 		if (fd == null) {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.debug("pollPassFaceData, using " + usingTime + " value = null");
@@ -95,28 +106,25 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 			AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
 
 			log.debug("认证比对结果：picData==" + fd);
-			SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门
 
-			// mq发送人脸
-			if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
-				FailedFace failedFace = FaceCheckingService.getInstance().getFailedFace();
-				log.debug("验证失败,mq sender:" + failedFace);
-				if (failedFace != null) {
-					JmsSenderTask.getInstance().offerFailedFace(failedFace);
-					FaceCheckingService.getInstance().setFailedFace(null);
-				}
-			} else {
-				FaceCheckingService.getInstance().setFailedFace(null);
-			}
+//			// mq发送人脸
+//			if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
+//				FailedFace failedFace = FaceCheckingService.getInstance().getFailedFace();
+//				log.debug("验证失败,mq sender:" + failedFace);
+//				if (failedFace != null) {
+//					JmsSenderTask.getInstance().offerFailedFace(failedFace);
+//					FaceCheckingService.getInstance().setFailedFace(null);
+//				}
+//			} else {
+//				FaceCheckingService.getInstance().setFailedFace(null);
+//			}
 
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 
-			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceCheckedFailed.getValue());
 
-			log.debug("人证比对完成，验证超时失败，重新寻卡");
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils; 
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getVerifyResult());
@@ -124,15 +132,14 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 			FaceCheckingService.getInstance().setFailedFace(null);
 
 			log.debug("认证比对结果：picData==" + fd);
-			SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
 
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
-			DeviceEventListener.getInstance().setPitStatus(PITStatusEnum.FaceChecked.getValue());
 		}
 		
+		//向闸机主控程序发布比对结果
 		eventResultPublisher.publishResult(fd);
 		return fd;
 	}
