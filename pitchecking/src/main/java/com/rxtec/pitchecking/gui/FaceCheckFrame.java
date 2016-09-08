@@ -42,6 +42,7 @@ import java.awt.Toolkit;
 import java.awt.Frame;
 import java.awt.Dimension;
 import javax.swing.BoxLayout;
+import java.awt.CardLayout;
 
 public class FaceCheckFrame extends JFrame implements ActionListener {
 
@@ -51,6 +52,10 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	private JPanel panel_title = new JPanel();
 	private JPanel panel_bottom = new JPanel();
 	private VideoPanel videoPanel = new VideoPanel(Config.FrameWidth, Config.FrameHeigh);
+	
+	private JPanel cameraPanel;
+	private JPanel msgPanel;
+	
 	int timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 	JLabel label_result = new JLabel("");
 	JLabel timelabel;
@@ -67,6 +72,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 //					frame.showBeginCheckFaceContent();
 //					frame.showFaceCheckPassContent();
 //					frame.showCheckFailedContent();
+					frame.showDefaultContent();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -86,28 +92,42 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Rectangle bounds = new Rectangle(screenSize);
 
-		setBounds(bounds);
+		setBounds(new Rectangle(0, 0, 1024, 768));
 		setMinimumSize(new Dimension(1024, 768));
 		setMaximumSize(new Dimension(1024, 768));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		contentPane = new JPanel();
 		setContentPane(contentPane);
+		contentPane.setLayout(new CardLayout(0, 0));
+		
+		msgPanel = new JPanel();
+		contentPane.add(msgPanel, "name_1726792116426379");
+		msgPanel.setLayout(null);
+		
+		JLabel lblNewLabel = new JLabel("请通过!");
+		lblNewLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
+		lblNewLabel.setForeground(Color.RED);
+		lblNewLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel.setBounds(10, 235, 1004, 274);
+		msgPanel.add(lblNewLabel);
+		
+		cameraPanel = new JPanel();
+		contentPane.add(cameraPanel, "name_1726743998786655");
+		cameraPanel.setLayout(new BoxLayout(cameraPanel, BoxLayout.Y_AXIS));
 
 		JPanel panel_center = new JPanel();
 		panel_center.setMinimumSize(new Dimension(1024, 568));
 		panel_center.setMaximumSize(new Dimension(1024, 568));
 		panel_center.setLayout(new BoxLayout(panel_center, BoxLayout.Y_AXIS));
 
-		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+//		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		// panel_center.add(Box.createVerticalStrut(35));
 		panel_center.add(Box.createVerticalStrut(0));
 		videoPanel.setBorder(new LineBorder(Color.GREEN));
 		videoPanel.setMinimumSize(new Dimension(Config.FrameWidth, Config.FrameHeigh));
 		videoPanel.setMaximumSize(new Dimension(Config.FrameWidth, Config.FrameHeigh));
 
-		// videoPanel.setBounds((screenSize.width - Config.FrameWidth) / 2,
-		// (screenSize.height - Config.FrameHeigh) / 2,
-		// Config.FrameWidth, Config.FrameHeigh);
 		panel_center.add(videoPanel);
 
 		JPanel panel_title = new JPanel();
@@ -116,9 +136,6 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		panel_title.setMaximumSize(new Dimension(1024, 100));
 		panel_title.setLayout(null);
 		label_title.setBounds(248, 5, 528, 64);
-		// contentPane.add(panel_title);
-
-		// contentPane.add(showBmp);
 
 		label_title.setHorizontalTextPosition(SwingConstants.CENTER);
 		label_title.setHorizontalAlignment(SwingConstants.CENTER);
@@ -129,18 +146,19 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_result.setFont(new Font("微软雅黑", Font.PLAIN, 42));
 		panel_bottom.setMinimumSize(new Dimension(1024, 100));
 		panel_bottom.setMaximumSize(new Dimension(1024, 100));
-		// contentPane.add(panel_bottom);
 		panel_bottom.add(label_result);
 
-		contentPane.add(panel_title);
+		
 
 		timelabel = new JLabel("yyyyMMdd hh:mm:ss");
 		timelabel.setForeground(Color.BLUE);
 		timelabel.setFont(new Font("微软雅黑 Light", Font.PLAIN, 22));
 		timelabel.setBounds(797, 5, 227, 49);
 		panel_title.add(timelabel);
-		contentPane.add(panel_center);
-		contentPane.add(panel_bottom);
+		
+		cameraPanel.add(panel_title);
+		cameraPanel.add(panel_center);
+		cameraPanel.add(panel_bottom);
 
 		showDefaultContent();
 
@@ -203,6 +221,12 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		panel_bottom.setBackground(Color.ORANGE);
 		// this.showIDCardImage(null);
 		// timeIntevel = Config.getInstance().getFaceCheckDelayTime();
+		
+		msgPanel.setVisible(true);
+		msgPanel.setBackground(null); // 把背景设置为空
+		msgPanel.setOpaque(false);
+		this.cameraPanel.setVisible(true);
+		
 		timeIntevel = 0;
 		// panel_title.repaint();
 		// panel_bottom.repaint();
