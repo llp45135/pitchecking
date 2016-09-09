@@ -135,6 +135,7 @@ public class Config {
 	private int mongoDBPort = 27017;
 	private int isSaveFaceImageToLocaldisk=1;
 	private String faceVerifyType="MICRO";
+	private float faceFrameTransparency = (float)0.75;
 	
 	/************************************************************
 	 * 人脸检测-比对任务 版本
@@ -165,6 +166,14 @@ public class Config {
 	
 	private int faceTrackMode = 1;								//人臉追蹤模式 1 紅外，2 顔色+景深
 	
+	public float getFaceFrameTransparency() {
+		return faceFrameTransparency;
+	}
+
+	public void setFaceFrameTransparency(float faceFrameTransparency) {
+		this.faceFrameTransparency = faceFrameTransparency;
+	}
+
 	public int getIsUseMongoDB() {
 		return isUseMongoDB;
 	}
@@ -434,6 +443,7 @@ public class Config {
 			this.heartBeatLogFile = p.getProperty("HeartBeatLogFile", "C:/pitchecking/work/HEART.log");
 			this.startPITAppCmd = p.getProperty("StartPITAppCmd", "C:/pitchecking/bin");
 			this.faceVerifyTaskVersion = p.getProperty("FaceVerifyTaskVersion", "TK");
+			this.faceFrameTransparency = Float.valueOf(p.getProperty("faceFrameTransparency", "0.75"));
 
 			
 

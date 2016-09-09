@@ -49,6 +49,8 @@ public class DeviceConfig {
 	public static String idReaderImgPath = "./img/idreader.gif";
 
 	public static String initImgPath = "./img/init2.gif";
+	
+	public static String faceBgImgPath = "./img/bg.png";
 
 	// 语音文件
 	public static String idReaderWav = "./wav/thanks.wav";
