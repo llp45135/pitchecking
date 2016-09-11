@@ -80,8 +80,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					FaceCheckFrame frame = new FaceCheckFrame();
 					frame.setVisible(true);
 					 frame.showBeginCheckFaceContent();
-					// frame.showFaceCheckPassContent();
-					// frame.showCheckFailedContent();
+//					 frame.showFaceCheckPassContent();
+//					 frame.showCheckFailedContent();
 //					frame.showDefaultContent();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -230,11 +230,20 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	// }
 
 	/**
-	 * 
+	 * 验证通过处理
 	 */
 	public void showFaceCheckPassContent() {
 		timeIntevel = 0;
-		label_title.setText("验证通过");
+		
+		msgPanel.setVisible(true);
+		msgPanel.setBackground(null); // 把背景设置为空
+		msgPanel.setOpaque(false); // 设置为透明
+		this.cameraPanel.setVisible(true);
+		msgTopLabel.setBorder(null);
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 100));
+		this.msgTopLabel.setText("<html><div align='center'>验证通过!</div><div align='center'>" + "请尽快通过闸门进站!"+"</di></html>");
+		
+		label_title.setText("");
 		label_result.setText("");
 		// timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 		// timer.stop();
@@ -246,15 +255,24 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	}
 
 	/**
-	 * 
+	 * 检脸失败处理
 	 */
 	public void showCheckFailedContent() {
 		timeIntevel = 0;
 		// timer.stop();
 		// timeIntevel = Config.getInstance().getFaceCheckDelayTime();
+		
+		msgPanel.setVisible(true);
+		msgPanel.setBackground(null); // 把背景设置为空
+		msgPanel.setOpaque(false); // 设置为透明
+		this.cameraPanel.setVisible(true);
+		msgTopLabel.setBorder(null);
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 76));
+		this.msgTopLabel.setText("<html><div align='center'>验证失败!</div><div align='center'>" + "请从边门离开或按求助按钮!"+"</di></html>");
+		
 		panel_bottom.setVisible(true);
-		label_title.setText("验证失败");
-		label_result.setText("请从边门离开或按求助按钮");
+//		label_title.setText("验证失败");
+//		label_result.setText("请从边门离开或按求助按钮");
 		panel_bottom.setBackground(Color.RED);
 		panel_title.setBackground(Color.RED);
 		// panel_title.repaint();
@@ -272,6 +290,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		this.msgPanel.setVisible(false);
+		this.cameraPanel.setVisible(true);
 		panel_title.setBackground(Color.orange);
 		label_title.setText("请摘下眼镜后平视摄像头");
 		label_result.setText("");
@@ -316,11 +336,18 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		timeRefresh();
+//		timeRefresh();
 
 		if (timeIntevel > 0) {
 //			label_title.setText("请平视摄像头     " + (timeIntevel - 1));
-			msgTopLabel.setText("<html>请平视摄像头!<br><div align='center'>" + (timeIntevel - 1)+"</di></html>");
+			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+			msgTopLabel.setText("<html><div align='center'>请平视摄像头!</div><div align='center'>" + (timeIntevel - 1)+"</di></html>");
+		}
+		if(timeIntevel==0){
+//			this.showDefaultContent();
+//			this.showCheckFailedContent();
+			this.showFaceCheckPassContent();
+			this.showDefaultContent();
 		}
 
 		if (timeIntevel-- < 0)
