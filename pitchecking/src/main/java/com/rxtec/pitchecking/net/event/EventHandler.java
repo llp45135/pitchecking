@@ -50,7 +50,6 @@ public class EventHandler {
 
 
 	public void InComeEventHandler(String jsonString) throws JsonParseException, IOException {
-
 		String eventName = getEventName(jsonString);
 		if (Config.BeginVerifyFaceEvent.equals(eventName)) {
 			PIVerifyEventBean b = buildPIVerifyEventBean(jsonString);

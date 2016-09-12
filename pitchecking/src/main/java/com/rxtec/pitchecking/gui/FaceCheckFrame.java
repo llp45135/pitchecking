@@ -79,7 +79,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 				try {
 					FaceCheckFrame frame = new FaceCheckFrame();
 					frame.setVisible(true);
-					 frame.showBeginCheckFaceContent();
+					frame.showBeginCheckFaceContent();
 //					 frame.showFaceCheckPassContent();
 //					 frame.showCheckFailedContent();
 //					frame.showDefaultContent();
