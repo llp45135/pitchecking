@@ -32,11 +32,9 @@ public class EventHandler {
 			jParser.nextToken();
 			String fieldname=jParser.getCurrentName();
 			if ("eventName".equals(fieldname)) {
-				// current token is "name",
-				// move to next, which is "name"'s value
 				jParser.nextToken();
 				eventName=jParser.getText();
-				log.debug("getEventName" + jParser.getText()); // display mkyong
+				log.debug("getEventName" + jParser.getText()); 
 				break;
 			}
 		}
