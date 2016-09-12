@@ -145,7 +145,6 @@ class PIVerifyEventSubscriberUtils {
 //				e1.printStackTrace();
 //			}
 			final String jsonStr = buffer.getStringWithoutLengthUtf8(offset, length);
-			System.out.println(jsonStr);
 			try {
 				/**
 				 * 处理闸机主控发送过来的事件

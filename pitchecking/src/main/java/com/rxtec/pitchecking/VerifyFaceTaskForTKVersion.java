@@ -55,11 +55,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 	 * @return
 	 */
 	public PITVerifyData beginCheckFace(IDCard idCard, Ticket ticket,int delaySeconds) {
-//		TicketCheckScreen.getInstance().offerEvent(
-//				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
-//
-//
-//		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音
+
+		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音
 		PITVerifyData fd = null;
 
 		/**
@@ -73,10 +70,10 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 			log.debug("该旅客小于" + Config.ByPassMinAge + "岁：picData==" + fd);
 			CommUtil.sleep(2000);
 
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
+			FaceTrackingScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
+			FaceTrackingScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 
 			//向闸机主控程序发布比对结果
 			eventResultPublisher.publishResult(fd);
@@ -123,9 +120,9 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 //				FaceCheckingService.getInstance().setFailedFace(null);
 //			}
 
-			TicketCheckScreen.getInstance().offerEvent(
+			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
-			TicketCheckScreen.getInstance().offerEvent(
+			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 
 
@@ -137,9 +134,9 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 
 			log.debug("认证比对结果：picData==" + fd);
 
-			TicketCheckScreen.getInstance().offerEvent(
+			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-			TicketCheckScreen.getInstance().offerEvent(
+			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 		}
 		
