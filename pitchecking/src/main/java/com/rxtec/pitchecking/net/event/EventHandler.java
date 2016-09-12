@@ -57,14 +57,11 @@ public class EventHandler {
 			Ticket ticket = new Ticket();
 			IDCard idCard = new IDCard();
 			idCard.setCardImageBytes(b.getIdPhoto());
-
 			verifyFaceTask.beginCheckFace(idCard, ticket, b.getDelaySeconds());
-
 		}
 	}
 
 	public String OutputEventToJson(Object outputEvent) throws JsonProcessingException {
 		return mapper.writeValueAsString(outputEvent);
 	}
-
 }
