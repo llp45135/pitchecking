@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
@@ -32,8 +33,8 @@ public class PTVerifyEventResultPublisher {
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
 	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 128, 32));
+	private ObjectMapper mapper = new ObjectMapper();
 
-	private EventHandler eventHandler = new EventHandler();
 	private Publication publication;
 
 	private static PTVerifyEventResultPublisher _instance = new PTVerifyEventResultPublisher();
@@ -84,7 +85,7 @@ public class PTVerifyEventResultPublisher {
 		resultBean.setResult((int)data.getVerifyResult());
 		String jsonString;
 		try {
-			jsonString = eventHandler.OutputEventToJson(resultBean);
+			jsonString = OutputEventToJson(resultBean);
 		} catch (JsonProcessingException e) {
 			log.error("PIVerifyResultBean to json failed!", e);
 			return false;
@@ -143,5 +144,10 @@ public class PTVerifyEventResultPublisher {
 		card.setCardImage(bi);
 		return card;
 	}
+	
+	private String OutputEventToJson(Object outputEvent) throws JsonProcessingException{
+		return mapper.writeValueAsString(outputEvent);
+	}
+
 
 }

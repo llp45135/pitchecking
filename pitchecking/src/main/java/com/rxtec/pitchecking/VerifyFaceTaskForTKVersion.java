@@ -55,24 +55,28 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 	 * @return
 	 */
 	public PITVerifyData beginCheckFace(IDCard idCard, Ticket ticket,int delaySeconds) {
-		TicketCheckScreen.getInstance().offerEvent(
-				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
-
-
-		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音
+//		TicketCheckScreen.getInstance().offerEvent(
+//				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
+//
+//
+//		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音
 		PITVerifyData fd = null;
 
 		/**
 		 * 小孩及老人的特殊处理
 		 */
 		if (idCard.getAge() <= Config.ByPassMinAge) {
+			fd = new PITVerifyData();
+			fd.setFaceImg(idCard.getCardImageBytes());
+			fd.setFrameImg(idCard.getCardImageBytes());
+			fd.setVerifyResult(1);
 			log.debug("该旅客小于" + Config.ByPassMinAge + "岁：picData==" + fd);
 			CommUtil.sleep(2000);
 
-			FaceTrackingScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-			FaceTrackingScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
+//			FaceTrackingScreen.getInstance().offerEvent(
+//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
+//			FaceTrackingScreen.getInstance().offerEvent(
+//					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 
 			//向闸机主控程序发布比对结果
 			eventResultPublisher.publishResult(fd);

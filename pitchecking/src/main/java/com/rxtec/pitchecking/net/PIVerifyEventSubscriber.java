@@ -67,8 +67,9 @@ public class PIVerifyEventSubscriber {
 		// clean up resources when this try block is finished
 		try (final Aeron aeron = Aeron.connect(ctx);
 				final Subscription subscription = aeron.addSubscription(CHANNEL, STREAM_ID)) {
-			PIVerifyEventSubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
 			log.info("PIVerifyEventSubscriber connected,and begin Subscription...");
+			log.debug("registrationId = " + subscription.registrationId());
+			PIVerifyEventSubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
 		}
 
 	}
@@ -121,6 +122,7 @@ class PIVerifyEventSubscriberUtils {
 	public static Consumer<Subscription> subscriberLoop(final FragmentHandler fragmentHandler, final int limit,
 			final AtomicBoolean running, final IdleStrategy idleStrategy) {
 		return (subscription) -> {
+			Log.debug("running "+running.get());
 			try {
 				while (running.get()) {
 					idleStrategy.idle(subscription.poll(fragmentHandler, limit));
@@ -142,9 +144,8 @@ class PIVerifyEventSubscriberUtils {
 //				// TODO Auto-generated catch block
 //				e1.printStackTrace();
 //			}
-			
 			final String jsonStr = buffer.getStringWithoutLengthUtf8(offset, length);
-			
+			System.out.println(jsonStr);
 			try {
 				/**
 				 * 处理闸机主控发送过来的事件

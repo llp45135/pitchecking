@@ -16,9 +16,6 @@ import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.VerifyFaceTaskForTKVersion;
-import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
-import com.rxtec.pitchecking.picheckingservice.PITData;
-import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 
 public class EventHandler {
 
@@ -26,47 +23,51 @@ public class EventHandler {
 	private JsonFactory f = mapper.getFactory();
 	private Logger log = LoggerFactory.getLogger("EventHandler");
 	private VerifyFaceTaskForTKVersion verifyFaceTask = new VerifyFaceTaskForTKVersion();
+
 	private String getEventName(String json) throws JsonParseException, IOException {
-		JsonParser p = f.createParser(json);
-		JsonToken t = p.nextToken(); // Should be JsonToken.START_OBJECT
-		t = p.nextToken(); // JsonToken.FIELD_NAME
-		if ((t != JsonToken.FIELD_NAME) || !"message".equals(p.getCurrentName())) {
-			// handle error
+		String eventName = "";
+		JsonParser jParser = f.createParser(json);
+		while (jParser.nextToken() != JsonToken.END_OBJECT) {
+			
+			jParser.nextToken();
+			String fieldname=jParser.getCurrentName();
+			if ("eventName".equals(fieldname)) {
+				// current token is "name",
+				// move to next, which is "name"'s value
+				jParser.nextToken();
+				eventName=jParser.getText();
+				log.debug("getEventName" + jParser.getText()); // display mkyong
+				break;
+			}
 		}
-		t = p.nextToken();
-		if (t != JsonToken.VALUE_STRING) {
-			// similarly
-		}
-		String eventName = p.getText();
-		p.close();
 		return eventName;
 	}
-
-
 
 	private PIVerifyEventBean buildPIVerifyEventBean(String jsonString)
 			throws JsonParseException, JsonMappingException, IOException {
 		PIVerifyEventBean b = mapper.readValue(jsonString, PIVerifyEventBean.class);
 		return b;
 	}
-	
+
 
 
 	public void InComeEventHandler(String jsonString) throws JsonParseException, IOException {
+
+		//EventNameBean bn = getEventName(jsonString);
 		String eventName = getEventName(jsonString);
-		if(Config.BeginVerifyFaceEvent.equals(eventName)){
+		if (Config.BeginVerifyFaceEvent.equals(eventName)) {
 			PIVerifyEventBean b = buildPIVerifyEventBean(jsonString);
 			Ticket ticket = new Ticket();
 			IDCard idCard = new IDCard();
 			idCard.setCardImageBytes(b.getIdPhoto());
-			verifyFaceTask.beginCheckFace(idCard, ticket,b.getDelaySeconds());
+
+			verifyFaceTask.beginCheckFace(idCard, ticket, b.getDelaySeconds());
+
 		}
 	}
 
-	
-	public String OutputEventToJson(Object outputEvent) throws JsonProcessingException{
+	public String OutputEventToJson(Object outputEvent) throws JsonProcessingException {
 		return mapper.writeValueAsString(outputEvent);
 	}
-	
-	
+
 }
