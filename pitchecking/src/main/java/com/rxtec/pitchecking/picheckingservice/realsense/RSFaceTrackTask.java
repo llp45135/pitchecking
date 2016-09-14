@@ -549,8 +549,8 @@ public class RSFaceTrackTask implements Runnable {
 	private PXCMFaceData.PoseEulerAngles checkFacePose(PXCMFaceData.PoseData poseData) {
 		PXCMFaceData.PoseEulerAngles pea = new PXCMFaceData.PoseEulerAngles();
 		poseData.QueryPoseAngles(pea);
-		log.info("Confidence = " + poseData.QueryConfidence());
-		log.info("Roll=" + Math.abs(pea.roll) + "      Pitch=" + Math.abs(pea.pitch) + "      Yaw" + Math.abs(pea.yaw));
+		log.debug("Confidence = " + poseData.QueryConfidence());
+		log.debug("Roll=" + Math.abs(pea.roll) + "      Pitch=" + Math.abs(pea.pitch) + "      Yaw" + Math.abs(pea.yaw));
 		if (poseData.QueryConfidence() == 0)
 			return null;
 		if (Math.abs(pea.yaw) > Config.FACE_POSE_YAW || Math.abs(pea.pitch) > Config.FACE_POSE_PITCH
@@ -604,7 +604,7 @@ public class RSFaceTrackTask implements Runnable {
 			return;
 		PXCMCapture.DeviceInfo info = new PXCMCapture.DeviceInfo();
 		dev.QueryDeviceInfo(info);
-		log.debug("Using Camera: " + info.name);
+		log.info("Using Camera: " + info.name);
 
 		dev.SetColorAutoExposure(true);
 		dev.SetColorAutoWhiteBalance(true);
@@ -614,7 +614,7 @@ public class RSFaceTrackTask implements Runnable {
 	/**
 	 * 检脸算法
 	 */
-	private void doTracking() {
+	public void doTracking() {
 		pid = ProcessUtil.getCurrentProcessID();
 		PXCMSession session = PXCMSession.CreateInstance();
 		PXCMPowerState ps = session.CreatePowerManager();
@@ -675,8 +675,10 @@ public class RSFaceTrackTask implements Runnable {
 		setupColorCameraDevice(dev);
 		while (startCapture) {
 			sts = senseMgr.AcquireFrame(true);
-			if (sts.isSuccessful())
+			if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0)
 				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+			else 
+				log.error("senseMgr failed! sts=" + sts);
 
 			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
 			if (sample == null) {
@@ -689,6 +691,10 @@ public class RSFaceTrackTask implements Runnable {
 			BufferedImage frameImage = null;
 			if (sample.color != null) {
 				frameImage = drawFrameImage(sample);
+				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+			}else{
+				senseMgr.ReleaseFrame();
+				continue;
 			}
 
 			faceData.Update();
@@ -716,6 +722,7 @@ public class RSFaceTrackTask implements Runnable {
 							fd.setFacePosePitch(pae.pitch);
 							fd.setFacePoseRoll(pae.roll);
 							fd.setFacePoseYaw(pae.yaw);
+							log.info("Begin to verify face.........");
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
 						}
 					}

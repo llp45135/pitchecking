@@ -69,7 +69,7 @@ public class PITProcessDetect implements Runnable {
 								log.info("Resatrt PITCheckApp......");
 								this.setStartStatus(true);
 							} catch (Exception ex) {
-								log.error("Resatrt:", ex);
+								log.error("Restart:", ex);
 							}
 						}
 					}

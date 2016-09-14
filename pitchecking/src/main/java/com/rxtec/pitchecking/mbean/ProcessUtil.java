@@ -46,7 +46,7 @@ public class ProcessUtil {
 			}
 			FileWriter fw = new FileWriter(logFile);
 			String pidStr = pid + "@" + nowTime;
-			log.debug("pidStr==" + pidStr);
+//			log.debug("pidStr==" + pidStr);
 			fw.write(pidStr);
 			fw.flush();
 			fw.close();

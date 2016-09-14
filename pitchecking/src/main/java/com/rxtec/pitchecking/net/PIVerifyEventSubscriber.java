@@ -5,9 +5,11 @@ import io.aeron.Image;
 import io.aeron.Subscription;
 import io.aeron.driver.MediaDriver;
 import io.aeron.logbuffer.FragmentHandler;
+import io.aeron.logbuffer.Header;
 import io.aeron.protocol.HeaderFlyweight;
 
 import org.agrona.CloseHelper;
+import org.agrona.DirectBuffer;
 import org.agrona.LangUtil;
 import org.agrona.concurrent.BackoffIdleStrategy;
 import org.agrona.concurrent.BusySpinIdleStrategy;
@@ -29,6 +31,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -42,14 +46,31 @@ import java.util.function.Consumer;
  */
 
 
-public class PIVerifyEventSubscriber {
+public class PIVerifyEventSubscriber implements Runnable{
 	private Logger log = LoggerFactory.getLogger("PIVerifyBeginEventSubscriber");
 
-	private static final int STREAM_ID = Config.PIVerifyEvent_Begin_STREAM_ID;
+	private static final int STREAM_ID = Config.PIVerifyEvent_STREAM_ID;
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 
-	public PIVerifyEventSubscriber() {
-		log.debug("Subscribing to " + CHANNEL + " on stream Id " + STREAM_ID);
+	
+	private static PIVerifyEventSubscriber _instance = new PIVerifyEventSubscriber();
+	public static synchronized PIVerifyEventSubscriber getInstance() {
+		if (_instance == null)
+			_instance = new PIVerifyEventSubscriber();
+		return _instance;
+	}
+
+	private PIVerifyEventSubscriber(){
+		
+	}
+	
+	public void startSubscribing(){
+		ExecutorService executer = Executors.newSingleThreadExecutor();
+		executer.execute(this);
+	}
+
+	
+	public void initAeron(){
 		final Aeron.Context ctx = new Aeron.Context().availableImageHandler(PIVerifyEventSubscriberUtils::printAvailableImage)
 				.unavailableImageHandler(PIVerifyEventSubscriberUtils::printUnavailableImage);
 
@@ -67,15 +88,21 @@ public class PIVerifyEventSubscriber {
 		// clean up resources when this try block is finished
 		try (final Aeron aeron = Aeron.connect(ctx);
 				final Subscription subscription = aeron.addSubscription(CHANNEL, STREAM_ID)) {
-			log.info("PIVerifyEventSubscriber connected,and begin Subscription...");
-			log.debug("registrationId = " + subscription.registrationId());
+			log.info("CHANNEL=" + CHANNEL +" STREAM_ID="+STREAM_ID + "  PIVerifyEventSubscriber connected,and begin Subscription!");
+//			log.debug("registrationId = " + subscription.registrationId());
 			PIVerifyEventSubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
 		}
 
 	}
+	
+	
+	@Override
+	public void run() {
+		initAeron();
+	}
 
 	public static void main(String[] args) {
-		PIVerifyEventSubscriber s = new PIVerifyEventSubscriber();
+		PIVerifyEventSubscriber.getInstance().startSubscribing();
 
 	}
 
@@ -100,11 +127,9 @@ class PIVerifyEventSubscriberUtils {
 	 */
 	public static Consumer<Subscription> subscriberLoop(final FragmentHandler fragmentHandler, final int limit,
 			final AtomicBoolean running) {
-//		final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
-		final IdleStrategy idleStrategy = new BackoffIdleStrategy(1, 1, 1, 1);
+		final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
 		return subscriberLoop(fragmentHandler, limit, running, idleStrategy);
 	}
-
 	/**
 	 * Return a reusable, parameterized event loop that calls and idler when no
 	 * messages are received
@@ -135,28 +160,20 @@ class PIVerifyEventSubscriberUtils {
 
 	public static FragmentHandler processMessage(final int streamId) {
 		return (buffer, offset, length, header) -> {
-//			final byte[] data = new byte[length];
-//			buffer.getBytes(offset, data);
-//			String jsonStr = "";
-//			try {
-//				jsonStr = new String(data,"UTF8");
-//			} catch (UnsupportedEncodingException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
 			final String jsonStr = buffer.getStringWithoutLengthUtf8(offset, length);
 			try {
-				/**
-				 * 处理闸机主控发送过来的事件
-				 */
 				eventHandler.InComeEventHandler(jsonStr);
 			} catch (IOException e) {
 				Log.error("EventHandler.InComeEventHandler", e);
 			}
-//			Log.debug(String.format("Message to stream %d from session %d (%d@%d) <<%s>>", streamId,
-//					header.sessionId(), length, offset, jsonStr));
+
+		
 		};
 	}
+	
+	
+	
+
 
 	/**
 	 * Print the information for an available image to stdout.

@@ -39,7 +39,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 
 	IDCardReaderEvent event;
 	IFaceTrackService faceTrackService = null;
-	PTVerifyEventResultPublisher eventResultPublisher = new PTVerifyEventResultPublisher();
+	PTVerifyEventResultPublisher eventResultPublisher = PTVerifyEventResultPublisher.getInstance();
 
 	public VerifyFaceTaskForTKVersion() {
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo)
@@ -62,12 +62,13 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 		/**
 		 * 小孩及老人的特殊处理
 		 */
-		if (idCard.getAge() <= Config.ByPassMinAge) {
+		if (idCard.getAge() <= Config.ByPassMinAge || idCard.getAge() >= Config.ByPassMaxAge) {
 			fd = new PITVerifyData();
+			fd.setIdCardImg(idCard.getCardImageBytes());
 			fd.setFaceImg(idCard.getCardImageBytes());
 			fd.setFrameImg(idCard.getCardImageBytes());
 			fd.setVerifyResult(1);
-			log.debug("该旅客小于" + Config.ByPassMinAge + "岁：picData==" + fd);
+			log.debug("老人或小孩：PITVerifyData==" + fd);
 			CommUtil.sleep(2000);
 
 			FaceTrackingScreen.getInstance().offerEvent(
@@ -106,7 +107,6 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 
 			AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
 
-			log.debug("认证比对结果：picData==" + fd);
 
 //			// mq发送人脸
 //			if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
@@ -132,7 +132,6 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 			faceTrackService.stopCheckingFace();
 			FaceCheckingService.getInstance().setFailedFace(null);
 
-			log.debug("认证比对结果：picData==" + fd);
 
 			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));

@@ -16,6 +16,8 @@ import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.VerifyFaceTaskForTKVersion;
+import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 
 public class EventHandler {
 
@@ -47,6 +49,11 @@ public class EventHandler {
 		return b;
 	}
 
+	private PITVerifyData buildPITVerifyData(String jsonString)
+			throws JsonParseException, JsonMappingException, IOException {
+		PITVerifyData b = mapper.readValue(jsonString, PITVerifyData.class);
+		return b;
+	}
 
 
 	public void InComeEventHandler(String jsonString) throws JsonParseException, IOException {
@@ -57,6 +64,9 @@ public class EventHandler {
 			IDCard idCard = new IDCard();
 			idCard.setCardImageBytes(b.getIdPhoto());
 			verifyFaceTask.beginCheckFace(idCard, ticket, b.getDelaySeconds());
+		}else if(Config.GetVerifyFaceResultInnerEvent.equals(eventName)) {
+			PITVerifyData fd = buildPITVerifyData(jsonString);
+			FaceCheckingService.getInstance().offerPassFaceData(fd);
 		}
 	}
 

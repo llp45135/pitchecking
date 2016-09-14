@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.picheckingservice.PITData;
@@ -51,7 +52,7 @@ public class PIVerifyResultSubscriber implements Runnable{
 	public void startSubscribing(){
 		ExecutorService executer = Executors.newCachedThreadPool();
 		executer.execute(this);
-
+		executer.shutdown();
 	}
 
 	public static void main(String[] args) {
@@ -61,8 +62,6 @@ public class PIVerifyResultSubscriber implements Runnable{
 
 	@Override
 	public void run() {
-		log.debug("Subscribing to " + CHANNEL + " on stream Id " + STREAM_ID);
-
 		final Aeron.Context ctx = new Aeron.Context().availableImageHandler(ResultSubscriberUtils::printAvailableImage)
 				.unavailableImageHandler(ResultSubscriberUtils::printUnavailableImage);
 
@@ -80,8 +79,8 @@ public class PIVerifyResultSubscriber implements Runnable{
 		// clean up resources when this try block is finished
 		try (final Aeron aeron = Aeron.connect(ctx);
 				final Subscription subscription = aeron.addSubscription(CHANNEL, STREAM_ID)) {
+			log.info("CHANNEL=" + CHANNEL +" STREAM_ID="+STREAM_ID + "  PIVerifyResultSubscriber connected,and begin Subscription!");
 			ResultSubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
-
 			log.info("PIVerifyEventSubscriber Shutting down...");
 		}
 		
@@ -90,6 +89,8 @@ public class PIVerifyResultSubscriber implements Runnable{
 }
 
 class ResultSubscriberUtils {
+	static EventHandler eventHandler = new EventHandler();
+
 	/**
 	 * Return a reusable, parameterised event loop that calls a default idler
 	 * when no messages are received
@@ -105,7 +106,6 @@ class ResultSubscriberUtils {
 	public static Consumer<Subscription> subscriberLoop(final FragmentHandler fragmentHandler, final int limit,
 			final AtomicBoolean running) {
 		final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
-
 		return subscriberLoop(fragmentHandler, limit, running, idleStrategy);
 	}
 
@@ -143,19 +143,24 @@ class ResultSubscriberUtils {
 	 */
 	public static FragmentHandler processMessage(final int streamId) {
 		return (buffer, offset, length, header) -> {
-			final byte[] data = new byte[length];
-			buffer.getBytes(offset, data);
-
+//			final byte[] data = new byte[length];
+//			buffer.getBytes(offset, data);
+//			try {
+//				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+//				PITVerifyData fd = (PITVerifyData)ois.readObject();
+//				FaceCheckingService.getInstance().offerPassFaceData(fd);
+//			} catch (IOException | ClassNotFoundException e) {
+//				Log.error("processMessage",e);
+//			}
+			
+			final String jsonStr = buffer.getStringWithoutLengthUtf8(offset, length);
 			try {
-				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-				PITVerifyData fd = (PITVerifyData)ois.readObject();
-				FaceCheckingService.getInstance().offerPassFaceData(fd);
-			} catch (IOException | ClassNotFoundException e) {
-				Log.error("processMessage",e);
+				eventHandler.InComeEventHandler(jsonStr);
+			} catch (IOException e) {
+				Log.error("EventHandler.InComeEventHandler", e);
 			}
 
-			Log.debug(String.format("Message to stream %d from session %d (%d@%d) <<%s>>", streamId,
-					header.sessionId(), length, offset, new String(data)));
+
 		};
 	}
 

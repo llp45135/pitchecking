@@ -63,7 +63,7 @@ public class FaceImageLog {
 	}
 
 	private static void saveFrameImage(String dirName, PITVerifyData fd) {
-		if (fd == null)
+		if (fd == null || fd.getFrameImg() == null)
 			return;
 		int ret = CommUtil.createDir(dirName);
 		if (ret == 0 || ret == 1) {
@@ -95,7 +95,7 @@ public class FaceImageLog {
 	}
 
 	private static void saveFaceImage(String dirName, PITVerifyData fd) {
-		if (fd == null)
+		if (fd == null || fd.getFaceImg() == null)
 			return;
 		int ret = CommUtil.createDir(dirName);
 		if (ret == 0 || ret == 1) {

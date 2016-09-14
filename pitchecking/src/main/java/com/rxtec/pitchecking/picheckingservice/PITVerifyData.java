@@ -14,6 +14,11 @@ public class PITVerifyData implements Serializable {
 	 */
 	private static final long serialVersionUID = -1318465620096874506L;
 
+	private String eventName = "CAM_GetVerifyResult";
+
+	private int eventDirection = 1;
+
+	
 	private byte[] faceImg;
 	private byte[] idCardImg;
 	private byte[] frameImg;
@@ -34,6 +39,25 @@ public class PITVerifyData implements Serializable {
 	private float facePosePitch;
 	private float facePoseRoll;
 	private float facePoseYaw;
+	
+	
+	
+	public String getEventName() {
+		return eventName;
+	}
+
+	public void setEventName(String eventName) {
+		this.eventName = eventName;
+	}
+
+	public int getEventDirection() {
+		return eventDirection;
+	}
+
+	public void setEventDirection(int eventDirection) {
+		this.eventDirection = eventDirection;
+	}
+
 
 	public float getFacePosePitch() {
 		return facePosePitch;
@@ -204,10 +228,10 @@ public class PITVerifyData implements Serializable {
 	@Override
 	public String toString() {
 		if (idCardImg != null && faceImg != null) {
-			return idNo + "   idImg=" + idCardImg.length + " faceImg=" + faceImg.length + " verifyResult="
+			return "idNo=" + idNo + "   idImg length=" + idCardImg.length + " faceImg length=" + faceImg.length + " verifyResult="
 					+ verifyResult;
 		}else{
-			return idNo + " 图像数据缺失: idCardImg=" + idCardImg +" faceImg=" + faceImg;
+			return "idNo=" + idNo + " 图像数据缺失: idCardImg=" + idCardImg +" faceImg=" + faceImg;
 		}
 	}
 }

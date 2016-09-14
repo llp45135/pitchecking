@@ -5,9 +5,11 @@ import io.aeron.Image;
 import io.aeron.Subscription;
 import io.aeron.driver.MediaDriver;
 import io.aeron.logbuffer.FragmentHandler;
+import io.aeron.logbuffer.Header;
 import io.aeron.protocol.HeaderFlyweight;
 
 import org.agrona.CloseHelper;
+import org.agrona.DirectBuffer;
 import org.agrona.LangUtil;
 import org.agrona.concurrent.BackoffIdleStrategy;
 import org.agrona.concurrent.BusySpinIdleStrategy;
@@ -18,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.picheckingservice.PITData;
@@ -75,6 +78,7 @@ public class PIVerifySubscriber {
 }
 
 class PIVerifySubscriberUtils {
+	
 	/**
 	 * Return a reusable, parameterised event loop that calls a default idler
 	 * when no messages are received
@@ -135,10 +139,9 @@ class PIVerifySubscriberUtils {
 				Log.error("processMessage",e);
 			}
 
-			Log.debug(String.format("Message to stream %d from session %d (%d@%d) <<%s>>", streamId,
-					header.sessionId(), length, offset, new String(data)));
 		};
 	}
+	
 
 	/**
 	 * Print the information for an available image to stdout.

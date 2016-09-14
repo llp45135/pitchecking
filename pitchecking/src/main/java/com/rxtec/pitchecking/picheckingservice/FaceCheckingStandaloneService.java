@@ -34,15 +34,15 @@ public class FaceCheckingStandaloneService {
 		PITProcessDetect pitProcessDetect = new PITProcessDetect();
 		executer.execute(pitProcessDetect);
 
-		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-		FaceVerifyServiceManager mbean = new FaceVerifyServiceManager();
-		try {
-			server.registerMBean(mbean, new ObjectName("PITCheck:type=FaceCheckingService,name=FaceCheckingService"));
-		} catch (InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException
-				| MalformedObjectNameException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+//		FaceVerifyServiceManager mbean = new FaceVerifyServiceManager();
+//		try {
+//			server.registerMBean(mbean, new ObjectName("PITCheck:type=FaceCheckingService,name=FaceCheckingService"));
+//		} catch (InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException
+//				| MalformedObjectNameException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		if (Config.getInstance().getIsUseMongoDB() == 1) {
 			PitRecordLoger.getInstance().clearExpirationData();
 			PitRecordLoger.getInstance().startThread();

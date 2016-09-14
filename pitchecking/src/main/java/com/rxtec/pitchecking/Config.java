@@ -63,7 +63,7 @@ public class Config {
 	public static int PIVerify_Begin_STREAM_ID = 10;				//通知独立人脸比对进程开始人脸比对  用于睿新版本
 	public static int PIVerify_Result_STREAM_ID = 11;				//独立人脸比对进程发布比对结果  用于睿新版本
 	
-	public static int PIVerifyEvent_Begin_STREAM_ID = 12;			//通知独立人脸比对进程开始人脸比对  用于铁科版本
+	public static int PIVerifyEvent_STREAM_ID = 12;					//通知独立人脸比对进程开始人脸比对  用于铁科版本
 	public static int PIVerifyResultEvent_STREAM_ID = 13;			//独立人脸比对进程发布比对结果  用于铁科版本
 	
 	public static String PIVerify_CHANNEL = "aeron:ipc";
@@ -107,6 +107,7 @@ public class Config {
 	
 	public static String BeginVerifyFaceEvent = "CAM_Notify";
 	public static String GetVerifyFaceResultEvent = "CAM_GetPhotoInfo";
+	public static String GetVerifyFaceResultInnerEvent = "CAM_GetVerifyResult";
 	
 	
 	

@@ -35,7 +35,7 @@ import io.aeron.Publication;
 public class PIVerifyEventPublisher {
 
 	private Logger log = LoggerFactory.getLogger("PTVerifyPublisher");
-	private static final int STREAM_ID = Config.PIVerifyEvent_Begin_STREAM_ID;
+	private static final int STREAM_ID = Config.PIVerifyEvent_STREAM_ID;
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
 	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 128, 32));
@@ -111,7 +111,8 @@ public class PIVerifyEventPublisher {
 	public static void main(String[] args) throws IOException {
 
 		PIVerifyEventPublisher p = PIVerifyEventPublisher.getInstance();
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < 1000; i++) {
+			CommUtil.sleep(1000);
 			PIVerifyEventBean b = buildPIVerifyEventBean();
 			p.publish(b);
 		}

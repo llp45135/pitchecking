@@ -39,7 +39,7 @@ public class PTVerifyEventResultPublisher {
 
 	private static PTVerifyEventResultPublisher _instance = new PTVerifyEventResultPublisher();
 
-	public PTVerifyEventResultPublisher() {
+	private PTVerifyEventResultPublisher() {
 		initAeron();
 	}
 
@@ -85,7 +85,7 @@ public class PTVerifyEventResultPublisher {
 		resultBean.setResult((int)data.getVerifyResult());
 		String jsonString;
 		try {
-			jsonString = OutputEventToJson(resultBean);
+			jsonString = mapper.writeValueAsString(resultBean);
 		} catch (JsonProcessingException e) {
 			log.error("PIVerifyResultBean to json failed!", e);
 			return false;
@@ -145,9 +145,6 @@ public class PTVerifyEventResultPublisher {
 		return card;
 	}
 	
-	private String OutputEventToJson(Object outputEvent) throws JsonProcessingException{
-		return mapper.writeValueAsString(outputEvent);
-	}
 
 
 }

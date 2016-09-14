@@ -16,6 +16,9 @@ import org.agrona.concurrent.UnsafeBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
@@ -32,10 +35,12 @@ import io.aeron.Publication;
 public class PTVerifyResultPublisher {
 	private Logger log = LoggerFactory.getLogger("PTVerifyResultPublisher");
 
-	private static final int STREAM_ID = Config.PIVerify_Result_STREAM_ID;
+	private static final int STREAM_ID = Config.PIVerifyEvent_STREAM_ID;
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
 	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 128, 32));
+	private ObjectMapper mapper = new ObjectMapper();
+	private JsonFactory f = mapper.getFactory();
 
 	private Publication publication;
 
@@ -78,12 +83,19 @@ public class PTVerifyResultPublisher {
 	public boolean publishResult(PITVerifyData data){
 		if (data == null)
 			return false;
-		byte[] buf = serialObjToBytes(data);
-		if (buf == null)
+		String jsonStr = null;
+		try {
+			jsonStr = mapper.writeValueAsString(data);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			log.error("mapper.writeValueAsString PITVerifyData error!" ,e);
 			return false;
-		BUFFER.putBytes(0, buf);
-		final long result = publication.offer(BUFFER, 0, buf.length);
-
+		}
+		if(jsonStr == null) return false;
+		
+		BUFFER.putStringWithoutLengthUtf8(0, jsonStr);
+		final long result = publication.offer(BUFFER, 0, jsonStr.length());
+		
 		if (result < 0L) {
 			if (result == Publication.BACK_PRESSURED) {
 				log.error("  Offer failed due to back pressure");
@@ -119,6 +131,10 @@ public class PTVerifyResultPublisher {
 		}
 
 		return buf;
+	}
+	
+	private String OutputEventToJson(Object outputEvent) throws JsonProcessingException {
+		return mapper.writeValueAsString(outputEvent);
 	}
 
 	public static void main(String[] args) {

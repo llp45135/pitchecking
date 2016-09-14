@@ -81,6 +81,7 @@ public class PTVerifyPublisher implements Runnable {
 
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 			executor.execute(this);
+			log.info("PTVerifyPublisher connected! CHANNEL = " + CHANNEL +" STREAM_ID = "+STREAM_ID);
 
 		} catch (Exception ex) {
 			log.error("initAeronContext",ex);

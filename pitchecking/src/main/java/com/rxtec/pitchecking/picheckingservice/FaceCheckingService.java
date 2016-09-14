@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.mq.JmsSender;
+import com.rxtec.pitchecking.net.PIVerifyEventSubscriber;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
 import com.rxtec.pitchecking.net.PTVerifyPublisher;
 
