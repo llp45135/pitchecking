@@ -8,8 +8,10 @@ import javax.imageio.ImageIO;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jogamp.opengl.util.awt.ImageUtil;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.Ticket;
+import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
 public class JsonTest {
@@ -17,7 +19,7 @@ public class JsonTest {
 	public static void main(String[] args) {
 
 		try {
-			testPIVerifyEventBean();
+//			testPIVerifyEventBean();
 			testPIVerifyResultBean();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -33,7 +35,7 @@ public class JsonTest {
 		b.setEventDirection(1);
 		b.setEventName("CAM_Notify");
 		b.setGender(1);
-        BufferedImage bi = ImageIO.read(new File("C:/pitchecking/llp.jpg"));
+        BufferedImage bi = ImageIO.read(new File("D:/maven/git/zp.jpg"));
 		b.setIdPhoto(ImageToolkit.getImageBytes(bi, "jpeg"));
 		b.setPersonName("");
 //		b.setTicket(new Ticket());
@@ -46,30 +48,49 @@ public class JsonTest {
 		PIVerifyEventBean b1 = mapper.readValue(jsonString,PIVerifyEventBean.class);
 		System.out.println(b1);
 		
-		
+		byte[] ss = b1.getIdPhoto();
+		CommUtil.byte2image(ss, "D:/maven/git/test.jpg");
 	}
 
 	
 	public static void testPIVerifyResultBean() throws IOException{
 		ObjectMapper mapper = new ObjectMapper(); 
 		PIVerifyResultBean b = new PIVerifyResultBean();
+		b.setResult(100);
+		b.setUuid("520203199612169998");
 		b.setEventDirection(2);
 		b.setEventName("CAM_GetPhotoInfo");
-		b.setUuid("111");
-        BufferedImage bi = ImageIO.read(new File("C:/pitchecking/llp.jpg"));
-		b.setPhoto1(ImageToolkit.getImageBytes(bi, "jpeg"));
-		b.setPhoto2(ImageToolkit.getImageBytes(bi, "jpeg"));
-		b.setPhotoLen1(100);
-		b.setPhotoLen2(100);
-		b.setResult(100);
+
+		BufferedImage bi;
+
+		bi = ImageIO.read(new File("D:/maven/git/zl.jpg"));
+		
+		byte[] bb = CommUtil.image2byte("D:/maven/git/zp.jpg");
+		
+		byte[] biArray = ImageToolkit.getImageBytes(bi, "jpeg");
+		
+		b.setPhotoLen1(biArray.length);
+		b.setPhoto1(biArray);
+		b.setPhotoLen2(biArray.length);
+		b.setPhoto2(biArray);
+		b.setPhotoLen3(biArray.length);
+		b.setPhoto3(biArray);
 		
 		String jsonString = mapper.writeValueAsString(b);
-		System.out.println(jsonString);
+//		System.out.println(jsonString);
 
+		PIVerifyResultBean b1 = mapper.readValue(jsonString,PIVerifyResultBean.class);
+		System.out.println(b1);
+		byte[] a1 = b1.getPhoto1();
+		CommUtil.byte2image(a1, "D:/maven/git/a1.jpg");
 		
+		byte[] a2 = b1.getPhoto1();
+		CommUtil.byte2image(a2, "D:/maven/git/a2.jpg");
 		
+		byte[] a3 = b1.getPhoto1();
+		CommUtil.byte2image(a3, "D:/maven/git/a3.jpg");
 		
-		EventHandler tool = new EventHandler();
+//		EventHandler tool = new EventHandler();
 		
 
 		

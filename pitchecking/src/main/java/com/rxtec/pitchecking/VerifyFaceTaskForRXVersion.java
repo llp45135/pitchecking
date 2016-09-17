@@ -82,8 +82,8 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask{
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
-		try {
-			fd = FaceCheckingService.getInstance().pollPassFaceData();   //此处设置了超时等待时间
+		try {			
+			fd = FaceCheckingService.getInstance().pollPassFaceData(delaySeconds);   //此处设置了超时等待时间
 		} catch (InterruptedException ex) {
 			log.error("pollPassFaceData call", ex);
 		} catch (Exception ex) {

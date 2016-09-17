@@ -27,5 +27,7 @@
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
 	<classpathentry kind="lib" path="lib/JNative.jar"/>
 	<classpathentry kind="lib" path="lib/libpxcclr.java.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.paho.client.mqttv3-1.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/wmqtt.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

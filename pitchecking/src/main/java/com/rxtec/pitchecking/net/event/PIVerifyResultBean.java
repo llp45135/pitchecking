@@ -7,8 +7,23 @@ public class PIVerifyResultBean {
 	private String uuid;
 	private int photoLen1;
 	private int photoLen2;
+	private int photoLen3;
 	private byte[] photo1;
 	private byte[] photo2;
+	private byte[] photo3;
+	
+	public int getPhotoLen3() {
+		return photoLen3;
+	}
+	public void setPhotoLen3(int photoLen3) {
+		this.photoLen3 = photoLen3;
+	}
+	public byte[] getPhoto3() {
+		return photo3;
+	}
+	public void setPhoto3(byte[] photo3) {
+		this.photo3 = photo3;
+	}
 	public String getEventName() {
 		return eventName;
 	}

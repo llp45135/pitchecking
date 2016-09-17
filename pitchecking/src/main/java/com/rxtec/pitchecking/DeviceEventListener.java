@@ -19,6 +19,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.device.CAMDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.DeviceException;
 import com.rxtec.pitchecking.device.FirstGateDevice;
@@ -134,7 +135,11 @@ public class DeviceEventListener implements Runnable {
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 
 			// 开始进行人脸检测和比对
-			verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket());
+			if(verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket())==0){
+				//人脸比对通过
+			}else{
+				//人脸比对失败
+			}
 
 			ticketVerify.reset();
 
@@ -173,13 +178,22 @@ public class DeviceEventListener implements Runnable {
 	}
 
 	/**
-	 * 人证比对
+	 * 通知开始检脸 同时等待比对结果
 	 * 
 	 * @param idCard
 	 * @param ticket
 	 */
-	private void verifyFace(IDCard idCard, Ticket ticket) {
-		verifyFaceTask.beginCheckFace(idCard, ticket, 0);
+	private int verifyFace(IDCard idCard, Ticket ticket) {
+//		int delaySeconds = Config.getInstance().getFaceCheckDelayTime();
+//		verifyFaceTask.beginCheckFace(idCard, ticket, delaySeconds);
+		
+		String uuidStr = idCard.getIdNo();
+		String IDPhoto_str = "D:/maven/git/zp.jpg";
+		CAMDevice.getInstance().CAM_Notify(1, uuidStr, IDPhoto_str);
+		
+		int iDelay = 15;
+		int getPhotoRet = CAMDevice.getInstance().CAM_GetPhotoInfo(uuidStr, iDelay);
+		return getPhotoRet;
 	}
 
 	// 启动设备

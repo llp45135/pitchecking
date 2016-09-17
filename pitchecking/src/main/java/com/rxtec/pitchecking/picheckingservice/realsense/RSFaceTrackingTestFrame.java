@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.AudioPlayTask;
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.PITStatusEnum;
@@ -79,7 +80,8 @@ public class RSFaceTrackingTestFrame {
 
 		PITVerifyData fd = null;
 		try {
-			fd = FaceCheckingService.getInstance().pollPassFaceData();
+			int delaySeconds = Config.getInstance().getFaceCheckDelayTime();
+			fd = FaceCheckingService.getInstance().pollPassFaceData(delaySeconds);
 		} catch (InterruptedException e) {
 			log.error("IDReaderEventTask call", e);
 		}

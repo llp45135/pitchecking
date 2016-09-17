@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.device.CAMDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.SecondGateDevice;
 import com.rxtec.pitchecking.domain.FailedFace;
@@ -17,6 +18,7 @@ import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.mq.JmsSender;
 import com.rxtec.pitchecking.mq.JmsSenderTask;
+import com.rxtec.pitchecking.mqtt.MqttServerPaho;
 import com.rxtec.pitchecking.net.PTVerifyEventResultPublisher;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
@@ -39,7 +41,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 
 	IDCardReaderEvent event;
 	IFaceTrackService faceTrackService = null;
-	PTVerifyEventResultPublisher eventResultPublisher = PTVerifyEventResultPublisher.getInstance();
+//	PTVerifyEventResultPublisher eventResultPublisher = PTVerifyEventResultPublisher.getInstance();
+	MqttServerPaho mqttServerPaho = MqttServerPaho.getInstance();
 
 	public VerifyFaceTaskForTKVersion() {
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo)
@@ -56,7 +59,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 	 */
 	public PITVerifyData beginCheckFace(IDCard idCard, Ticket ticket,int delaySeconds) {
 
-		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音
+		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音“请平视摄像头”
 		PITVerifyData fd = null;
 
 		/**
@@ -77,12 +80,13 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 
 			//向闸机主控程序发布比对结果
-			eventResultPublisher.publishResult(fd);
+//			eventResultPublisher.publishResult(fd);  //Aeron版本 比对结果发布
+			mqttServerPaho.publishResult(fd); //MQTT版本 比对结果发布
 			return fd;
 		}
 
 		//通知人脸检测线程开始人脸比对
-		faceTrackService.beginCheckingFace(idCard, ticket);
+		faceTrackService.beginCheckingFace(idCard, ticket);		
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
@@ -91,7 +95,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 			 * 阻塞等待人脸比对线程或独立进程完成人脸比对
 			 * 此处设置了超时等待时间
 			 */
-			fd = FaceCheckingService.getInstance().pollPassFaceData();   
+			fd = FaceCheckingService.getInstance().pollPassFaceData(delaySeconds);   
 		} catch (InterruptedException ex) {
 			log.error("pollPassFaceData call", ex);
 		} catch (Exception ex) {
@@ -140,7 +144,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask{
 		}
 		
 		//向闸机主控程序发布比对结果
-		eventResultPublisher.publishResult(fd);
+//		eventResultPublisher.publishResult(fd);  //Aeron版本 比对结果发布
+		mqttServerPaho.publishResult(fd);  //MQTT版本 比对结果发布
 		return fd;
 	}
 

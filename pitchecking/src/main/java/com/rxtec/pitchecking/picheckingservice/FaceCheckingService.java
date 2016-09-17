@@ -59,8 +59,9 @@ public class FaceCheckingService {
 		return _instance;
 	}
 
-	public PITVerifyData pollPassFaceData() throws InterruptedException {
-		PITVerifyData fd = passFaceDataQueue.poll(Config.getInstance().getFaceCheckDelayTime(), TimeUnit.SECONDS);
+	public PITVerifyData pollPassFaceData(int delaySeconds) throws InterruptedException {
+		
+		PITVerifyData fd = passFaceDataQueue.poll(delaySeconds, TimeUnit.SECONDS);
 		return fd;
 	}
 
