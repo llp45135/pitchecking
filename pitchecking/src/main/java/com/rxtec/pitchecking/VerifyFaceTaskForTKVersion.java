@@ -75,12 +75,12 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			fd.setVerifyResult(1);
 			log.debug("老人或小孩Age=" + idCard.getAge() + "：PITVerifyData==" + fd);
 //			CommUtil.sleep(2000);
-//			log.debug("准备发布faceframe事件");
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
-//			log.debug("faceframe事件已经发布");
+			log.debug("准备发布faceframe事件");
+			FaceTrackingScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
+			FaceTrackingScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
+			log.debug("faceframe事件已经发布");
 			// 向闸机主控程序发布比对结果
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
 			mqttSenderBroker.publishResult(fd); // MQTT版本 比对结果发布
@@ -124,10 +124,10 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// FaceCheckingService.getInstance().setFailedFace(null);
 			// }
 
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
+			FaceTrackingScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
+			FaceTrackingScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
@@ -135,10 +135,10 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			faceTrackService.stopCheckingFace();
 			FaceCheckingService.getInstance().setFailedFace(null);
 
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
+			FaceTrackingScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
+			FaceTrackingScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 		}
 
 		// 向闸机主控程序发布比对结果

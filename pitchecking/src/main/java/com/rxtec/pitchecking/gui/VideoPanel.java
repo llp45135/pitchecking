@@ -35,14 +35,14 @@ public class VideoPanel extends JPanel{
 	/**
 	 * 仅供测试用
 	 */
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		try {
-			g.drawImage(new ImageIcon("./img/aa.jpg").getImage(), 0, 0, null);// 画窗口背景图
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-	}
+//	public void paintComponent(Graphics g) {
+//		super.paintComponent(g);
+//		try {
+//			g.drawImage(new ImageIcon("./img/aa.jpg").getImage(), 0, 0, null);// 画窗口背景图
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} 
+//	}
 
 }

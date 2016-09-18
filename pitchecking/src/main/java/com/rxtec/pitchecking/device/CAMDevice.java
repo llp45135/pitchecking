@@ -68,7 +68,7 @@ public class CAMDevice {
 			jnativeCAM_Open.invoke();
 
 			retval = jnativeCAM_Open.getRetVal();
-			log.debug("CAM_Open retval==" + retval);
+			log.info("CAM_Open retval==" + retval);
 			pointerIn.dispose();
 			pointerOut.dispose();
 		} catch (NativeException e) {
@@ -157,7 +157,7 @@ public class CAMDevice {
 			jnativeCAM_Notify.invoke();
 
 			retval = jnativeCAM_Notify.getRetVal();
-			log.debug("CAM_Notify retval==" + retval);
+			log.info("CAM_Notify retval==" + retval);
 			pointerIn.dispose();
 			pointerOut.dispose();
 		} catch (NativeException e) {
@@ -184,7 +184,7 @@ public class CAMDevice {
 		int retval = -1;
 		Pointer pointerUUID = null;
 		Pointer pointerOut = null;
-
+		log.info("CAM_GetPhotoInfo 开始等待==");
 		try {
 			pointerUUID = new Pointer(MemoryBlockFactory.createMemoryBlock(36));
 
@@ -207,7 +207,7 @@ public class CAMDevice {
 			jnativeCAM_GetPhotoInfo.invoke();
 
 			retval = jnativeCAM_GetPhotoInfo.getRetValAsInt();
-			log.debug("CAM_GetPhotoInfo retval==" + retval);
+			log.info("CAM_GetPhotoInfo retval==" + retval);
 
 			if (retval == 0) {
 				byte[] iResult = new byte[4];
@@ -293,7 +293,7 @@ public class CAMDevice {
 		cam.CAM_Open(region);
 
 		String uuidStr = "520203199612169998";
-		String IDPhoto_str = "D:\\maven\\git\\zp.jpg";
+		String IDPhoto_str = "C:\\maven\\git\\pitchecking\\zp.jpg";
 		cam.CAM_Notify(1, uuidStr, IDPhoto_str);
 
 		cam.CAM_GetPhotoInfo("520203199612169998", 20 * 1000);

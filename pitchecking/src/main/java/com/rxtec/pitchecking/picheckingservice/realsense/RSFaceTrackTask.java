@@ -722,7 +722,7 @@ public class RSFaceTrackTask implements Runnable {
 							fd.setFacePosePitch(pae.pitch);
 							fd.setFacePoseRoll(pae.roll);
 							fd.setFacePoseYaw(pae.yaw);
-							log.info("Begin to verify face.........");
+							log.debug("Begin to verify face.........");
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
 						}
 					}

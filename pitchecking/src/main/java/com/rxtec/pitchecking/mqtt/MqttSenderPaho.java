@@ -133,10 +133,10 @@ public class MqttSenderPaho {
 
 			BufferedImage bi;
 
-			bi = ImageIO.read(new File("D:/maven/git/zl.jpg"));
+			bi = ImageIO.read(new File("C:/maven/git/pitchecking/zp.jpg"));
 			byte[] biArray = ImageToolkit.getImageBytes(bi, "jpeg");
 			
-			byte[] bb = CommUtil.image2byte("D:/maven/git/zl.jpg");
+			byte[] bb = CommUtil.image2byte("C:/maven/git/pitchecking/zp.jpg");
 			
 //			b.setPhotoLen1(bb.length);
 //			b.setPhoto1(bb);

@@ -23,7 +23,7 @@ public class FaceTrackingScreen {
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	GraphicsDevice[] gs = ge.getScreenDevices();
 
-	TicketCheckFrame ticketFrame = new TicketCheckFrame();
+//	TicketCheckFrame ticketFrame = new TicketCheckFrame();
 	FaceCheckFrame faceFrame = new FaceCheckFrame();
 
 	private FaceTrackingScreen() {
@@ -32,7 +32,9 @@ public class FaceTrackingScreen {
 
 	public void initUI() {
 
-		gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
+//		gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
+//		faceFrame.setUndecorated(true);
+		faceFrame.setVisible(true);
 	}
 
 	public VideoPanel getVideoPanel() {

@@ -139,10 +139,10 @@ public class MqttReceiverBroker {
 		@Override
 		public void publishArrived(String topicName, byte[] payload, int Qos, boolean retained) throws Exception {
 			// TODO Auto-generated method stub
-			// log.debug("订阅主题: " + topicName);
-			// log.debug("消息数据: " + new String(payload));
-			// log.debug("消息级别(0,1,2): " + Qos);
-			// log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
+			 log.info("订阅主题: " + topicName);
+			 log.info("消息数据: " + new String(payload));
+			 log.info("消息级别(0,1,2): " + Qos);
+			 log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String mqttMessage = new String(payload);
 

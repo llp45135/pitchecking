@@ -15,6 +15,7 @@ import com.rxtec.pitchecking.gui.VideoPanel;
 
 /**
  * 单独管理第一块屏的屏幕事件
+ * 
  * @author ZhaoLin
  *
  */
@@ -32,7 +33,9 @@ public class TicketVerifyScreen {
 	}
 
 	public void initUI() {
-		gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
+		// gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
+		ticketFrame.setUndecorated(true);
+		ticketFrame.setVisible(true);
 
 	}
 

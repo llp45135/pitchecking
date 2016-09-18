@@ -3,9 +3,9 @@ package com.rxtec.pitchecking.picheckingservice;
 import com.rxtec.pitchecking.Config;
 
 public class FaceVerifyServiceStatistics {
-	private int totalTimes;
-	private int totalFailed;
-	private int totalPass;
+	private int totalTimes=1;
+	private int totalFailed=1;
+	private int totalPass=1;
 	private int totalDetectFaceFailed;
 	private int averageUseTime;
 	private int maxUseTime;

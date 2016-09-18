@@ -4,6 +4,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
@@ -21,7 +22,7 @@ public class PITVerifyApp {
 		ticketVerifyScreen.initUI();
 
 		Thread.sleep(1000);
-
+//		MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
 		// TODO Auto-generated method stub
 		// 启动事件监听
 

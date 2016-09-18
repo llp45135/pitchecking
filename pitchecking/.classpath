@@ -21,7 +21,6 @@
 	<classpathentry kind="lib" path="lib/RXTXcomm.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/activemq-all-5.9.0.jar"/>
-	<classpathentry kind="lib" path="lib/aeron-all-0.9.9.jar"/>
 	<classpathentry kind="lib" path="lib/FaceDetect.jar"/>
 	<classpathentry kind="lib" path="lib/jaxen-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
@@ -29,5 +28,6 @@
 	<classpathentry kind="lib" path="lib/libpxcclr.java.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.paho.client.mqttv3-1.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/wmqtt.jar"/>
+	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/aeron-all-1.0.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

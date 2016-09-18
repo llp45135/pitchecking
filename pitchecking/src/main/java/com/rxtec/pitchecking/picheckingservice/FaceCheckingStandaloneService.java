@@ -43,10 +43,10 @@ public class FaceCheckingStandaloneService {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-		if (Config.getInstance().getIsUseMongoDB() == 1) {
-			PitRecordLoger.getInstance().clearExpirationData();
-			PitRecordLoger.getInstance().startThread();
-		}
+//		if (Config.getInstance().getIsUseMongoDB() == 1) {
+//			PitRecordLoger.getInstance().clearExpirationData();
+//			PitRecordLoger.getInstance().startThread();
+//		}
 		FaceCheckingService.getInstance().beginFaceCheckerStandaloneTask();
 		CommUtil.sleep(3000);
 		PIVerifySubscriber s = new PIVerifySubscriber();
