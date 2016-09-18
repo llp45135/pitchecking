@@ -3,7 +3,6 @@ package com.rxtec.pitchecking;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.rxtec.pitchecking.mqtt.MqttServerPaho;
 import com.rxtec.pitchecking.net.PIVerifyEventSubscriber;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
 import com.rxtec.pitchecking.net.PTVerifyPublisher;
@@ -28,7 +27,6 @@ public class PITrackingApp {
 
 
 //		FaceCheckingService.getInstance().beginFaceCheckerTask();  	//启动人脸比对
-//		MqttServerPaho.getInstance();  //启动mqtt服务端
 
 		Thread.sleep(1000);
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {

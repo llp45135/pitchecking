@@ -10,8 +10,7 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
-import com.rxtec.pitchecking.mqtt.MqttBroker;
-import com.rxtec.pitchecking.mqtt.MqttServerPaho;
+import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class CAMDevice {
@@ -69,7 +68,6 @@ public class CAMDevice {
 			jnativeCAM_Open.invoke();
 
 			retval = jnativeCAM_Open.getRetVal();
-			log.debug("CAM_Open pointerOut==" + pointerOut.getAsString());
 			log.debug("CAM_Open retval==" + retval);
 			pointerIn.dispose();
 			pointerOut.dispose();
@@ -77,6 +75,9 @@ public class CAMDevice {
 			// TODO Auto-generated catch block
 			log.error("CAMDevice CAM_Open:", e);
 		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			log.error("CAMDevice CAM_Open:", e);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error("CAMDevice CAM_Open:", e);
 		}
@@ -104,7 +105,6 @@ public class CAMDevice {
 			jnativeCAM_Close.invoke();
 
 			retval = jnativeCAM_Close.getRetVal();
-			log.debug("CAM_Close pointerOut==" + pointerOut.getAsString());
 			log.debug("CAM_Close retval==" + retval);
 			pointerIn.dispose();
 			pointerOut.dispose();
@@ -112,6 +112,9 @@ public class CAMDevice {
 			// TODO Auto-generated catch block
 			log.error("CAMDevice CAM_Close:", e);
 		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			log.error("CAMDevice CAM_Close:", e);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error("CAMDevice CAM_Close:", e);
 		}
@@ -154,7 +157,6 @@ public class CAMDevice {
 			jnativeCAM_Notify.invoke();
 
 			retval = jnativeCAM_Notify.getRetVal();
-			log.debug("CAM_Notify pointerOut==" + pointerOut.getAsString());
 			log.debug("CAM_Notify retval==" + retval);
 			pointerIn.dispose();
 			pointerOut.dispose();
@@ -162,6 +164,9 @@ public class CAMDevice {
 			// TODO Auto-generated catch block
 			log.error("CAMDevice CAM_Notify:", e);
 		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			log.error("CAMDevice CAM_Notify:", e);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error("CAMDevice CAM_Notify:", e);
 		}
@@ -202,10 +207,9 @@ public class CAMDevice {
 			jnativeCAM_GetPhotoInfo.invoke();
 
 			retval = jnativeCAM_GetPhotoInfo.getRetValAsInt();
-			log.debug("CAM_GetPhotoInfo pointerOut==" + pointerOut.getAsString());
 			log.debug("CAM_GetPhotoInfo retval==" + retval);
 
-			if (retval==0) {
+			if (retval == 0) {
 				byte[] iResult = new byte[4];
 				for (int k = 0; k < 4; k++) {
 					iResult[k] = pointerOut.getAsByte(k);
@@ -229,7 +233,7 @@ public class CAMDevice {
 				for (int k = 0; k < len1; k++) {
 					Photo1[k] = pointerOut.getAsByte(k + 4 + 36 + 4);
 				}
-//				CommUtil.byte2image(Photo1, "D:/maven/git/a1.jpg");
+				// CommUtil.byte2image(Photo1, "D:/maven/git/a1.jpg");
 				Photo1 = null;
 				// log.debug("Photo1==" + new String(Photo1));
 				byte[] iPhotoLen2 = new byte[4];
@@ -243,7 +247,7 @@ public class CAMDevice {
 				for (int k = 0; k < len2; k++) {
 					Photo2[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4);
 				}
-//				CommUtil.byte2image(Photo2, "D:/maven/git/a2.jpg");
+				// CommUtil.byte2image(Photo2, "D:/maven/git/a2.jpg");
 				Photo2 = null;
 
 				byte[] iPhotoLen3 = new byte[4];
@@ -257,7 +261,7 @@ public class CAMDevice {
 				for (int k = 0; k < len3; k++) {
 					Photo3[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4 + 100000 + 4);
 				}
-//				CommUtil.byte2image(Photo3, "D:/maven/git/a3.jpg");
+				// CommUtil.byte2image(Photo3, "D:/maven/git/a3.jpg");
 				Photo3 = null;
 			}
 
@@ -269,7 +273,7 @@ public class CAMDevice {
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			log.error("CAMDevice CAM_GetPhotoInfo:", e);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error("CAMDevice CAM_GetPhotoInfo:", e);
 		}
@@ -281,7 +285,7 @@ public class CAMDevice {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		MqttBroker mqtt = MqttBroker.getInstance();
+		MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
 
 		CAMDevice cam = CAMDevice.getInstance();
 
@@ -292,6 +296,6 @@ public class CAMDevice {
 		String IDPhoto_str = "D:\\maven\\git\\zp.jpg";
 		cam.CAM_Notify(1, uuidStr, IDPhoto_str);
 
-		cam.CAM_GetPhotoInfo("520203199612169998", 10 * 1000);
+		cam.CAM_GetPhotoInfo("520203199612169998", 20 * 1000);
 	}
 }

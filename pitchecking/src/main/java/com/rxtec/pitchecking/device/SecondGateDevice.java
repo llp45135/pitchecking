@@ -11,6 +11,7 @@ import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.EmerButtonTask;
 import com.rxtec.pitchecking.ScreenCmdEnum;
 import com.rxtec.pitchecking.TicketCheckScreen;
+import com.rxtec.pitchecking.TicketVerifyScreen;
 import com.rxtec.pitchecking.domain.EmerButtonEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.utils.CommUtil;
@@ -304,14 +305,14 @@ public class SecondGateDevice implements SerialPortEventListener {
 				if (ss.length() >= 8) {
 					if (ss.indexOf("2A040023") == 0) {
 //						log.debug("第三道闸门已经关闭");
-						TicketCheckScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+						TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 								ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 						DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
 						DeviceEventListener.getInstance().setDealDeviceEvent(true);  //允许处理新的事件
 						log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
 					} else if (ss.indexOf("2A040F23") == 0) {
 //						log.debug("第三道闸门超时关闭");
-						TicketCheckScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+						TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 								ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 						DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
 						DeviceEventListener.getInstance().setDealDeviceEvent(true);  //允许处理新的事件

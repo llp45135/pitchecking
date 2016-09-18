@@ -38,7 +38,7 @@ import com.rxtec.pitchecking.utils.CommUtil;
 public class DeviceEventListener implements Runnable {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private static DeviceEventListener _instance = new DeviceEventListener();
-	private IVerifyFaceTask verifyFaceTask ;
+//	private IVerifyFaceTask verifyFaceTask ;
 	private TicketVerify ticketVerify = new TicketVerify();
 	private boolean isDealDeviceEvent = true;
 
@@ -51,10 +51,10 @@ public class DeviceEventListener implements Runnable {
 	}
 
 	private DeviceEventListener() {
-		if(Config.getInstance().getFaceVerifyTaskVersion().equals(Config.FaceVerifyTaskTKVersion))
-			verifyFaceTask = new VerifyFaceTaskForTKVersion();
-		else if(Config.getInstance().getFaceVerifyTaskVersion().equals(Config.FaceVerifyTaskRXVersion))
-			verifyFaceTask = new VerifyFaceTaskForRXVersion();
+//		if(Config.getInstance().getFaceVerifyTaskVersion().equals(Config.FaceVerifyTaskTKVersion))
+//			verifyFaceTask = new VerifyFaceTaskForTKVersion();
+//		else if(Config.getInstance().getFaceVerifyTaskVersion().equals(Config.FaceVerifyTaskRXVersion))
+//			verifyFaceTask = new VerifyFaceTaskForRXVersion();
 			
 		try {
 			startDevice();
@@ -137,8 +137,22 @@ public class DeviceEventListener implements Runnable {
 			// 开始进行人脸检测和比对
 			if(verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket())==0){
 				//人脸比对通过
+				SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
+				log.debug("准备发布faceframe事件");
+				FaceTrackingScreen.getInstance().offerEvent(
+						new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, null));
+				FaceTrackingScreen.getInstance().offerEvent(
+						new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, null));
+				log.debug("faceframe事件已经发布");
 			}else{
 				//人脸比对失败
+				AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
+				SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门
+				FaceTrackingScreen.getInstance().offerEvent(
+						new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, null));
+				FaceTrackingScreen.getInstance().offerEvent(
+						new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, null));
+
 			}
 
 			ticketVerify.reset();

@@ -13,6 +13,11 @@ import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.gui.VideoPanel;
 
+/**
+ * 单独管理第一块屏的屏幕事件
+ * @author ZhaoLin
+ *
+ */
 public class TicketVerifyScreen {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private static TicketVerifyScreen _instance = new TicketVerifyScreen();

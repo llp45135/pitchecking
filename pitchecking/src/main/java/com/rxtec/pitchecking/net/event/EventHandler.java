@@ -26,6 +26,13 @@ public class EventHandler {
 	private Logger log = LoggerFactory.getLogger("EventHandler");
 	private VerifyFaceTaskForTKVersion verifyFaceTask = new VerifyFaceTaskForTKVersion();
 
+	/**
+	 * 
+	 * @param json
+	 * @return
+	 * @throws JsonParseException
+	 * @throws IOException
+	 */
 	private String getEventName(String json) throws JsonParseException, IOException {
 		String eventName = "";
 		JsonParser jParser = f.createParser(json);
@@ -36,19 +43,35 @@ public class EventHandler {
 			if ("eventName".equals(fieldname)) {
 				jParser.nextToken();
 				eventName=jParser.getText();
-				log.debug("getEventName" + jParser.getText()); 
+				log.debug("getEventName==" + jParser.getText()); 
 				break;
 			}
 		}
 		return eventName;
 	}
 
+	/**
+	 * 
+	 * @param jsonString
+	 * @return
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	private PIVerifyEventBean buildPIVerifyEventBean(String jsonString)
 			throws JsonParseException, JsonMappingException, IOException {
 		PIVerifyEventBean b = mapper.readValue(jsonString, PIVerifyEventBean.class);
 		return b;
 	}
 
+	/**
+	 * 
+	 * @param jsonString
+	 * @return
+	 * @throws JsonParseException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	private PITVerifyData buildPITVerifyData(String jsonString)
 			throws JsonParseException, JsonMappingException, IOException {
 		PITVerifyData b = mapper.readValue(jsonString, PITVerifyData.class);
@@ -56,12 +79,19 @@ public class EventHandler {
 	}
 
 
+	/**
+	 * 
+	 * @param jsonString
+	 * @throws JsonParseException
+	 * @throws IOException
+	 */
 	public void InComeEventHandler(String jsonString) throws JsonParseException, IOException {
 		String eventName = getEventName(jsonString);
 		if (Config.BeginVerifyFaceEvent.equals(eventName)) {
 			PIVerifyEventBean b = buildPIVerifyEventBean(jsonString);
 			Ticket ticket = new Ticket();
 			IDCard idCard = new IDCard();
+			idCard.setIdNo(b.getUuid());
 			idCard.setCardImageBytes(b.getIdPhoto());
 			verifyFaceTask.beginCheckFace(idCard, ticket, b.getDelaySeconds());
 		}else if(Config.GetVerifyFaceResultInnerEvent.equals(eventName)) {
@@ -70,6 +100,12 @@ public class EventHandler {
 		}
 	}
 
+	/**
+	 * 
+	 * @param outputEvent
+	 * @return
+	 * @throws JsonProcessingException
+	 */
 	public String OutputEventToJson(Object outputEvent) throws JsonProcessingException {
 		return mapper.writeValueAsString(outputEvent);
 	}

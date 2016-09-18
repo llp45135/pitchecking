@@ -284,12 +284,12 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	 * 
 	 */
 	public void showDefaultContent() {
-//		try {
-//			Thread.sleep(Config.getInstance().getDefaultFaceCheckScreenDeley());
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		try {
+			Thread.sleep(Config.getInstance().getDefaultFaceCheckScreenDeley());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.msgPanel.setVisible(false);
 		this.cameraPanel.setVisible(true);
 		panel_title.setBackground(Color.orange);

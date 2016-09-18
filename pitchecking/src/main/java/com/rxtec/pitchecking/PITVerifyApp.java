@@ -9,7 +9,7 @@ import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 
 /**
- * 单票证核验版本主入口，从该入口启动主程序，不管第二块屏和不做人脸检测
+ * 单票证核验版本主入口，从该入口启动主程序，该进程不用管理第二块屏、不做人脸检测
  * @author ZhaoLin
  *
  */
