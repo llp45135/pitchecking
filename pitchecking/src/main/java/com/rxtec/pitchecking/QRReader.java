@@ -57,7 +57,7 @@ public class QRReader implements Runnable {
 	}
 
 	private QRReader() {
-		JNative.setLoggingEnabled(true);
+		JNative.setLoggingEnabled(false);
 		initQRDevice();
 
 		try {

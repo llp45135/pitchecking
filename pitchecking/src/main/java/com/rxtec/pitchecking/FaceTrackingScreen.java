@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking;
 
+import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import org.slf4j.Logger;
@@ -32,9 +33,21 @@ public class FaceTrackingScreen {
 
 	public void initUI() {
 
-//		gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
+		GraphicsDevice gd = gs[DeviceConfig.getInstance().getFaceScreen()];
+		GraphicsConfiguration gc = gd.getDefaultConfiguration();
+		if(gd != null){
+			int xOff = gc.getBounds().x;
+			int yOff = gc.getBounds().y;
+			faceFrame.setVisible(true);
+			faceFrame.setLocation(xOff, yOff);
+			
+	
+		}
+		
+//		 gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
 //		faceFrame.setUndecorated(true);
-		faceFrame.setVisible(true);
+//		faceFrame.setVisible(true);
+//		faceFrame.setAlwaysOnTop(true);
 	}
 
 	public VideoPanel getVideoPanel() {

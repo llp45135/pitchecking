@@ -16,7 +16,7 @@ public class TKICCDevcie {
 	JNative jnativeICCGetVersInfo = null;
 
 	public TKICCDevcie() {
-		JNative.setLoggingEnabled(true);
+		JNative.setLoggingEnabled(false);
 		this.initJnative();
 	}
 

@@ -28,7 +28,8 @@ import io.aeron.Subscription;
 import io.aeron.logbuffer.FragmentHandler;
 
 /**
- * 人脸比对结果-订阅者
+ * 本类由人脸检测进程使用
+ * 人脸比对结果-订阅者(接收者)  
  * 用于睿新版本闸机主控程序
  * 收到独立人脸比对进程发回来的比对结果后，插入比对结果队列
  * 比对结果通过PITVerifyData进行封装，序列化-反序列化得出
@@ -143,24 +144,15 @@ class ResultSubscriberUtils {
 	 */
 	public static FragmentHandler processMessage(final int streamId) {
 		return (buffer, offset, length, header) -> {
-//			final byte[] data = new byte[length];
-//			buffer.getBytes(offset, data);
-//			try {
-//				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-//				PITVerifyData fd = (PITVerifyData)ois.readObject();
-//				FaceCheckingService.getInstance().offerPassFaceData(fd);
-//			} catch (IOException | ClassNotFoundException e) {
-//				Log.error("processMessage",e);
-//			}
-			
-			final String jsonStr = buffer.getStringWithoutLengthUtf8(offset, length);
+			final byte[] data = new byte[length];
+			buffer.getBytes(offset, data);
 			try {
-				eventHandler.InComeEventHandler(jsonStr);
-			} catch (IOException e) {
-				Log.error("EventHandler.InComeEventHandler", e);
+				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+				PITVerifyData fd = (PITVerifyData)ois.readObject();
+				FaceCheckingService.getInstance().offerPassFaceData(fd);
+			} catch (IOException | ClassNotFoundException e) {
+				Log.error("processMessage",e);
 			}
-
-
 		};
 	}
 

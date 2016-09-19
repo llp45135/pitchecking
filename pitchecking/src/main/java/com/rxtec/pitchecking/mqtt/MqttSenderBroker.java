@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.net.event.CAMOpenBean;
 import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
@@ -26,9 +27,6 @@ import com.rxtec.pitchecking.utils.ImageToolkit;
 public class MqttSenderBroker {
 	// 连接参数
 	Logger log = LoggerFactory.getLogger("MqttSenderBroker");
-	private final static String CONNECTION_STRING = "tcp://localhost:1883";
-	// private final static String CONNECTION_STRING =
-	// "tcp://222.51.4.186:5001";
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
 	private final static String CLIENT_ID = "ResultSubcriber";// 客户端标识
@@ -79,8 +77,9 @@ public class MqttSenderBroker {
 	 */
 	private void connect() throws MqttException {
 		log.debug("connect to MqttSenderBroker.");
-		mqttClient = new MqttClient(CONNECTION_STRING);
-		log.debug("***********register Simple Handler***********");
+		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
+		log.debug(
+				"***********register Simple Handler " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "***********");
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
 		mqttClient.registerSimpleHandler(simpleCallbackHandler);// 注册接收消息方法
@@ -121,36 +120,39 @@ public class MqttSenderBroker {
 	 * 
 	 */
 	public void testPublishFace() {
+		log.info("testPublishFace###############");
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			PIVerifyResultBean b = new PIVerifyResultBean();
-			b.setResult(86);
-			b.setUuid("520203199612169998");
-			b.setEventDirection(2);
-			b.setEventName("CAM_GetPhotoInfo");
+			PIVerifyResultBean PIVBean = new PIVerifyResultBean();
+			PIVBean.setResult(86);
+			PIVBean.setUuid("520203199612169998");
+			PIVBean.setEventDirection(2);
+			PIVBean.setEventName("CAM_GetPhotoInfo");
 
 			BufferedImage bi;
 
 			bi = ImageIO.read(new File("C:/maven/git/pitchecking/zp.jpg"));
-			byte[] biArray = ImageToolkit.getImageBytes(bi, "jpeg");
+			byte[] biArray = ImageToolkit.getImageBytes(bi, "jpg");
 
 			byte[] bb = CommUtil.image2byte("C:/maven/git/pitchecking/zp.jpg");
 
-			// b.setPhotoLen1(bb.length);
-			// b.setPhoto1(bb);
-			// b.setPhotoLen2(bb.length);
-			// b.setPhoto2(bb);
-			// b.setPhotoLen3(bb.length);
-			// b.setPhoto3(bb);
+			// PIVBean.setPhotoLen1(bb.length);
+			// PIVBean.setPhoto1(bb);
+			// PIVBean.setPhotoLen2(bb.length);
+			// PIVBean.setPhoto2(bb);
+			// PIVBean.setPhotoLen3(bb.length);
+			// PIVBean.setPhoto3(bb);
+			// log.debug("length=="+bb.length);
 
-			b.setPhotoLen1(biArray.length);
-			b.setPhoto1(biArray);
-			b.setPhotoLen2(biArray.length);
-			b.setPhoto2(biArray);
-			b.setPhotoLen3(biArray.length);
-			b.setPhoto3(biArray);
+			PIVBean.setPhotoLen1(biArray.length);
+			PIVBean.setPhoto1(biArray);
+			PIVBean.setPhotoLen2(biArray.length);
+			PIVBean.setPhoto2(biArray);
+			PIVBean.setPhotoLen3(biArray.length);
+			PIVBean.setPhoto3(biArray);
+			log.debug("length==" + biArray.length);
 
-			String jsonString = mapper.writeValueAsString(b);
+			String jsonString = mapper.writeValueAsString(PIVBean);
 			// log.debug("jsonString=="+jsonString);
 
 			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
@@ -167,18 +169,32 @@ public class MqttSenderBroker {
 	 * @param data
 	 */
 	public boolean publishResult(PITVerifyData data) {
+		log.info("$$$$$$$$$$$$$$$准备发送人脸比对结果到CAM.dll by MQTT$$$$$$$$$$$$$$$$$$");
 		if (data == null)
 			return false;
 		PIVerifyResultBean resultBean = new PIVerifyResultBean();
-		resultBean.setResult((int) data.getVerifyResult());
+
+//		log.info("data.getFaceImg().length==" + data.getFaceImg().length);
+//		log.info("data.getFrameImg().length==" + data.getFrameImg().length);
+//		log.info("data.getIdCardImg().length==" + data.getIdCardImg().length);
+//		log.info("getVerifyResult==" + String.valueOf(data.getVerifyResult()));
+		float faceResult = 1f;
+		try {
+			faceResult = CommUtil.round(2, data.getVerifyResult());
+//			log.info("faceResult==" + (int) (faceResult * 100));
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			log.error("faceResult round:",e1);
+		}
+		resultBean.setResult((int) (faceResult * 100));
 		resultBean.setUuid(data.getIdNo());
 		resultBean.setEventDirection(2);
 		resultBean.setEventName("CAM_GetPhotoInfo");
 		resultBean.setPhotoLen1(data.getFaceImg().length);
-		resultBean.setPhotoLen2(data.getFrameImg().length);
-		resultBean.setPhotoLen3(data.getIdCardImg().length);
+		resultBean.setPhotoLen2(data.getFaceImg().length);
+		resultBean.setPhotoLen3(data.getFaceImg().length);
 		resultBean.setPhoto1(data.getFaceImg());
-		resultBean.setPhoto2(data.getFrameImg());
+		resultBean.setPhoto2(data.getFaceImg());
 		resultBean.setPhoto3(data.getFaceImg());
 
 		String jsonString;
@@ -192,7 +208,9 @@ public class MqttSenderBroker {
 		if (jsonString == null)
 			return false;
 		try {
+//			log.info("jsonString==" + jsonString);
 			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
+			log.info("##########人脸比对结果发送结束##########");
 		} catch (MqttException e) {
 			log.error("publish json failed!", e);
 			return false;
@@ -233,12 +251,12 @@ public class MqttSenderBroker {
 		@Override
 		public void publishArrived(String topicName, byte[] payload, int Qos, boolean retained) throws Exception {
 			// TODO Auto-generated method stub
-			 log.debug("订阅主题: " + topicName);
-			 log.debug("消息数据: " + new String(payload));
-			 log.debug("消息级别(0,1,2): " + Qos);
-			 log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
+			log.debug("订阅主题: " + topicName);
+			log.debug("消息数据: " + new String(payload));
+			log.debug("消息级别(0,1,2): " + Qos);
+			log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
-//			String mqttMessage = new String(payload);
+			// String mqttMessage = new String(payload);
 			payload = null;
 		}
 

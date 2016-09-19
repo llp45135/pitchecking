@@ -43,7 +43,6 @@ public class EventHandler {
 			if ("eventName".equals(fieldname)) {
 				jParser.nextToken();
 				eventName=jParser.getText();
-				log.debug("getEventName==" + jParser.getText()); 
 				break;
 			}
 		}
@@ -88,16 +87,18 @@ public class EventHandler {
 	public void InComeEventHandler(String jsonString) throws JsonParseException, IOException {
 		String eventName = getEventName(jsonString);
 		if (Config.BeginVerifyFaceEvent.equals(eventName)) {
+			log.info("收到调用CAM_Notify方式的请求开始人脸检测的event");
 			PIVerifyEventBean b = buildPIVerifyEventBean(jsonString);
 			Ticket ticket = new Ticket();
 			IDCard idCard = new IDCard();
 			idCard.setIdNo(b.getUuid());
-			idCard.setAge(40);
+			idCard.setAge(30);
 			idCard.setCardImageBytes(b.getIdPhoto());
 			b.setDelaySeconds(25);
 			log.info("getDelaySeconds=="+b.getDelaySeconds());
 			verifyFaceTask.beginCheckFace(idCard, ticket, b.getDelaySeconds());
 		}else if(Config.GetVerifyFaceResultInnerEvent.equals(eventName)) {
+//			log.debug("fd json=="+jsonString);
 			PITVerifyData fd = buildPITVerifyData(jsonString);
 			FaceCheckingService.getInstance().offerPassFaceData(fd);
 		}

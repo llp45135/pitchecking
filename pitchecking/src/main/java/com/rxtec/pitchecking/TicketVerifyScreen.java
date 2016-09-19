@@ -33,9 +33,9 @@ public class TicketVerifyScreen {
 	}
 
 	public void initUI() {
-		// gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
-		ticketFrame.setUndecorated(true);
-		ticketFrame.setVisible(true);
+		 gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
+//		ticketFrame.setUndecorated(true);
+//		ticketFrame.setVisible(true);
 
 	}
 

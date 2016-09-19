@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -142,11 +144,18 @@ public class AudioDevice {
 		// CommUtil.sleep(5000);
 		// }
 
-		// AudioPlayTask audioTask = new AudioPlayTask();
-		// ExecutorService audioExecuter = Executors.newCachedThreadPool();
-		// audioExecuter.execute(audioTask);
+//		 AudioPlayTask audioTask = new AudioPlayTask();
+//		 ExecutorService audioExecuter = Executors.newCachedThreadPool();
+//		 audioExecuter.execute(audioTask);
 		// audioExecuter.shutdown();
 		// exit
 		// System.exit(0);
+		
+		ScheduledExecutorService scheduler  = Executors.newScheduledThreadPool(1);
+		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		
+		CommUtil.sleep(1000);
+		
+		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音“请平视摄像头”
 	}
 }

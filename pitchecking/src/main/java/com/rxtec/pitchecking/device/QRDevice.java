@@ -38,7 +38,7 @@ public class QRDevice implements Runnable {
 	}
 
 	private QRDevice() {
-		JNative.setLoggingEnabled(true);
+		JNative.setLoggingEnabled(false);
 		initQRDevice();
 	}
 

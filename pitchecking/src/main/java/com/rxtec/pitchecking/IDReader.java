@@ -65,7 +65,7 @@ public class IDReader implements Runnable {
 		// }
 
 		DeviceConfig.getInstance().setIdDeviceStatus(DeviceConfig.idDeviceSucc);
-		log.info("华旭金卡二代证读卡器初始化成功!");
+		log.info("二代证读卡器" + DeviceConfig.getInstance().getIdDeviceType() + "初始化成功!");
 	}
 
 	@Override

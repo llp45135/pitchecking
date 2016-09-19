@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -54,6 +55,22 @@ public class CommUtil {
 		// System.out.println(ss);
 		// }
 		System.out.println("idcardNo==" + CommUtil.getIdCardNoFromInfo(aa));
+		try {
+			System.out.println(""+CommUtil.round(2, (float)0.685325));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public static float round(int scale, float pIn) throws Exception {
+		float retval = 0f;
+		BigDecimal b = new BigDecimal(pIn);
+		retval = b.setScale(scale, BigDecimal.ROUND_HALF_UP).floatValue();
+		return retval;
 	}
 
 	/**
@@ -608,23 +625,21 @@ public class CommUtil {
 		}
 		return file;
 	}
-	
-	/**  
-	    * 将int数值转换为占四个字节的byte数组，本方法适用于(低位在前，高位在后)的顺序。 和bytesToInt（）配套使用 
-	    * @param value  
-	    *            要转换的int值 
-	    * @return byte数组 
-	    */    
-	public static byte[] intToBytes( int value )   
-	{   
-	    byte[] src = new byte[4];  
-	    src[3] =  (byte) ((value>>24) & 0xFF);  
-	    src[2] =  (byte) ((value>>16) & 0xFF);  
-	    src[1] =  (byte) ((value>>8) & 0xFF);    
-	    src[0] =  (byte) (value & 0xFF);                  
-	    return src;   
-	}  
-	
-	
+
+	/**
+	 * 将int数值转换为占四个字节的byte数组，本方法适用于(低位在前，高位在后)的顺序。 和bytesToInt（）配套使用
+	 * 
+	 * @param value
+	 *            要转换的int值
+	 * @return byte数组
+	 */
+	public static byte[] intToBytes(int value) {
+		byte[] src = new byte[4];
+		src[3] = (byte) ((value >> 24) & 0xFF);
+		src[2] = (byte) ((value >> 16) & 0xFF);
+		src[1] = (byte) ((value >> 8) & 0xFF);
+		src[0] = (byte) (value & 0xFF);
+		return src;
+	}
 
 }

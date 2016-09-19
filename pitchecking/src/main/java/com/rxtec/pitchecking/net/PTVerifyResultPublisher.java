@@ -28,17 +28,17 @@ import io.aeron.Aeron;
 import io.aeron.Publication;
 
 /**
- * 发布人脸比对结果
+ * 发布人脸比对结果（比对进程使用） 由人脸比对进程  -->  人脸录像检测进程
  * 此类用于睿新自有java主控闸机程序版本
  *
  */
 public class PTVerifyResultPublisher {
 	private Logger log = LoggerFactory.getLogger("PTVerifyResultPublisher");
 
-	private static final int STREAM_ID = Config.PIVerifyEvent_STREAM_ID;
+	private static final int STREAM_ID = Config.PIVerify_Result_STREAM_ID;
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
-	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 128, 32));
+	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 256, 32));
 	private ObjectMapper mapper = new ObjectMapper();
 	private JsonFactory f = mapper.getFactory();
 
@@ -70,6 +70,7 @@ public class PTVerifyResultPublisher {
 		try {
 			final Aeron aeron = Aeron.connect(ctx);
 			publication = aeron.addPublication(CHANNEL, STREAM_ID);
+			log.info("PTVerifyResultPublisher connected! CHANNEL = " + CHANNEL +" STREAM_ID = "+STREAM_ID);
 
 
 		} catch (Exception ex) {
@@ -83,18 +84,13 @@ public class PTVerifyResultPublisher {
 	public boolean publishResult(PITVerifyData data){
 		if (data == null)
 			return false;
-		String jsonStr = null;
-		try {
-			jsonStr = mapper.writeValueAsString(data);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			log.error("mapper.writeValueAsString PITVerifyData error!" ,e);
-			return false;
-		}
-		if(jsonStr == null) return false;
 		
-		BUFFER.putStringWithoutLengthUtf8(0, jsonStr);
-		final long result = publication.offer(BUFFER, 0, jsonStr.length());
+		byte[] buf = serialObjToBytes(data);
+		if (buf == null)
+			return false;
+		
+		BUFFER.putBytes(0, buf);
+		final long result = publication.offer(BUFFER, 0, buf.length);
 		
 		if (result < 0L) {
 			if (result == Publication.BACK_PRESSURED) {
@@ -110,7 +106,7 @@ public class PTVerifyResultPublisher {
 			}
 			return false;
 		} else {
-//			log.debug("FaceVerifyResult has sended!");
+			log.debug("FaceVerifyResult has sended! data length=" + buf.length);
 			return true;
 		}
 	}
@@ -139,14 +135,14 @@ public class PTVerifyResultPublisher {
 
 	public static void main(String[] args) {
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 1; i++) {
 			PITVerifyData d = new PITVerifyData();
 			d.setIdNo("1234567890");
 			IDCard c1 = createIDCard("C:/pitchecking/B1.jpg");
 			d.setFaceImg(c1.getManualImageBytes());
 			d.setIdCardImg(c1.getManualImageBytes());
 			d.setTicket(new Ticket());
-			FaceCheckingService.getInstance().offerFaceVerifyData(d);
+			PTVerifyResultPublisher.getInstance().publishResult(d);
 		}
 
 	}

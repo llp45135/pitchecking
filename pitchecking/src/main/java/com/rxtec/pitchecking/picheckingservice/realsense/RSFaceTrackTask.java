@@ -549,8 +549,8 @@ public class RSFaceTrackTask implements Runnable {
 	private PXCMFaceData.PoseEulerAngles checkFacePose(PXCMFaceData.PoseData poseData) {
 		PXCMFaceData.PoseEulerAngles pea = new PXCMFaceData.PoseEulerAngles();
 		poseData.QueryPoseAngles(pea);
-		log.debug("Confidence = " + poseData.QueryConfidence());
-		log.debug("Roll=" + Math.abs(pea.roll) + "      Pitch=" + Math.abs(pea.pitch) + "      Yaw" + Math.abs(pea.yaw));
+//		log.debug("Confidence = " + poseData.QueryConfidence());
+//		log.debug("Roll=" + Math.abs(pea.roll) + "      Pitch=" + Math.abs(pea.pitch) + "      Yaw" + Math.abs(pea.yaw));
 		if (poseData.QueryConfidence() == 0)
 			return null;
 		if (Math.abs(pea.yaw) > Config.FACE_POSE_YAW || Math.abs(pea.pitch) > Config.FACE_POSE_PITCH

@@ -32,7 +32,7 @@ public class TKIDCDevice {
 	}
 
 	private TKIDCDevice() {
-		JNative.setLoggingEnabled(true);
+		JNative.setLoggingEnabled(false);
 		this.initJnative();
 		this.IDC_Init();
 	}
@@ -46,6 +46,9 @@ public class TKIDCDevice {
 			jnativeIDC_ReadIDCardInfo = new JNative(dllName, "IDC_ReadIDCardInfo");
 
 		} catch (NativeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -64,7 +67,7 @@ public class TKIDCDevice {
 			jnativeIDC_Init.invoke();
 
 			retval = jnativeIDC_Init.getRetVal();
-			log.debug("IDC_Init retval==" + retval);
+			log.info("IDC_Init retval==" + retval);
 			if (retval.equals("0")) {
 				byte[] iLogicCode = new byte[4];
 				for (int k = 0; k < 4; k++) {
@@ -167,7 +170,7 @@ public class TKIDCDevice {
 			jnativeIDC_FetchCard.invoke();
 
 			retval = jnativeIDC_FetchCard.getRetVal();
-			log.debug("IDC_FetchCard retval==" + retval);
+			log.info("IDC_FetchCard retval==" + retval);
 			if (retval.equals("0")) {
 				byte[] iCardType = new byte[4];
 				for (int k = 0; k < 4; k++) {
@@ -243,10 +246,10 @@ public class TKIDCDevice {
 			jnativeIDC_ReadIDCardInfo.invoke();
 
 			retval = jnativeIDC_ReadIDCardInfo.getRetVal();
-			log.debug("IDC_ReadIDCardInfo retval==" + retval);
+			log.info("IDC_ReadIDCardInfo retval==" + retval);
 			if (retval.equals("0")) {
 				synIDCard = new IDCard();
-				
+
 				byte[] IDName = new byte[30];
 				for (int k = 0; k < 30; k++) {
 					IDName[k] = pointerCardInfo.getAsByte(k);
@@ -281,13 +284,14 @@ public class TKIDCDevice {
 				}
 				String birthstr = new String(IDBirth, "GBK");
 				log.debug("IDBirth==" + birthstr);
-				String birthday = birthstr.substring(0,4) + "-" + birthstr.substring(4,6) + "-" + birthstr.substring(6,8);
+				String birthday = birthstr.substring(0, 4) + "-" + birthstr.substring(4, 6) + "-"
+						+ birthstr.substring(6, 8);
 				String today = DateUtils.getStringDateShort();
 				// log.debug("birthday==" + birthday);
 				int personAge = DateUtils.getAge(birthday, today);
 				synIDCard.setAge(personAge); // set age
-				log.debug("出生年月：" + birthstr.substring(0,4) + "年" + birthstr.substring(4,6) + "月" + birthstr.substring(6,8) + "日" + ",personAge=="
-						+ personAge);
+				log.debug("出生年月：" + birthstr.substring(0, 4) + "年" + birthstr.substring(4, 6) + "月"
+						+ birthstr.substring(6, 8) + "日" + ",personAge==" + personAge);
 
 				byte[] IDDwelling = new byte[70];
 				for (int k = 0; k < IDDwelling.length; k++) {
@@ -333,7 +337,7 @@ public class TKIDCDevice {
 				}
 				// log.debug("IDPhoto==" + new String(IDPhoto,"utf-16"));
 				CommUtil.byte2image(IDPhoto, "tkzp.jpg");
-				File idcardFile = new File("tkzp.jpg");
+				File idcardFile = new File("zp.jpg");
 				BufferedImage idCardImage = null;
 				idCardImage = ImageIO.read(idcardFile);
 				if (idCardImage != null) {
@@ -344,7 +348,7 @@ public class TKIDCDevice {
 					if (idCardImageBytes != null)
 						synIDCard.setCardImageBytes(idCardImageBytes);
 				}
-				boolean delFlag = idcardFile.delete();
+//				boolean delFlag = idcardFile.delete();
 				//
 
 				byte[] iLogicCode = new byte[4];
@@ -405,7 +409,8 @@ public class TKIDCDevice {
 		TKIDCDevice idc = TKIDCDevice.getInstance();
 		// idc.IDC_Init();
 		// idc.IDC_GetSerial();
-		for (int i = 0; i < 1; i++) {
+		while(true) {
+			CommUtil.sleep(200);
 			idc.IDC_FetchCard(3000);
 			idc.IDC_ReadIDCardInfo(2);
 		}

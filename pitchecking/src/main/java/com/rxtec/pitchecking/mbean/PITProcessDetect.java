@@ -13,6 +13,12 @@ import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.DateUtils;
 
+/**
+ * 由人脸比对进程启动
+ * 检脸进程保护
+ * @author llp_l
+ *
+ */
 public class PITProcessDetect implements Runnable {
 
 	private String pid = "";

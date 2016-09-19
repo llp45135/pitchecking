@@ -41,8 +41,8 @@ public class CAMDevice {
 	/**
 	 * 打开摄像头设备
 	 */
-	public void CAM_Open(int[] pIn) {
-		String retval = "";
+	public int CAM_Open(int[] pIn) {
+		int retval = -1;
 		Pointer pointerIn = null;
 		Pointer pointerOut = null;
 
@@ -67,7 +67,7 @@ public class CAMDevice {
 			jnativeCAM_Open.setParameter(i++, pointerOut);
 			jnativeCAM_Open.invoke();
 
-			retval = jnativeCAM_Open.getRetVal();
+			retval = jnativeCAM_Open.getRetValAsInt();
 			log.info("CAM_Open retval==" + retval);
 			pointerIn.dispose();
 			pointerOut.dispose();
@@ -81,6 +81,7 @@ public class CAMDevice {
 			// TODO Auto-generated catch block
 			log.error("CAMDevice CAM_Open:", e);
 		}
+		return retval;
 	}
 
 	/**
@@ -127,8 +128,8 @@ public class CAMDevice {
 	 * @param uuidStr
 	 * @param photoDir
 	 */
-	public void CAM_Notify(int iFlag, String uuidStr, String photoDir) {
-		String retval = "";
+	public int CAM_Notify(int iFlag, String uuidStr, String photoDir) {
+		int retval = -1;
 		Pointer pointerIn = null;
 		Pointer pointerOut = null;
 
@@ -156,7 +157,7 @@ public class CAMDevice {
 			jnativeCAM_Notify.setParameter(i++, pointerOut);
 			jnativeCAM_Notify.invoke();
 
-			retval = jnativeCAM_Notify.getRetVal();
+			retval = jnativeCAM_Notify.getRetValAsInt();
 			log.info("CAM_Notify retval==" + retval);
 			pointerIn.dispose();
 			pointerOut.dispose();
@@ -170,6 +171,7 @@ public class CAMDevice {
 			// TODO Auto-generated catch block
 			log.error("CAMDevice CAM_Notify:", e);
 		}
+		return retval;
 	}
 
 	/**
@@ -196,7 +198,11 @@ public class CAMDevice {
 			pointerUUID.setMemory(uuidArray);
 
 			pointerOut = new Pointer(
-					MemoryBlockFactory.createMemoryBlock(4 + 36 + 4 + 100000 + 4 + 100000 + 4 + 100000));
+					MemoryBlockFactory.createMemoryBlock(4 + 36 + 4 + 100000 + 4 + 100000 + 4 + 300000));
+			
+			pointerOut.zeroMemory();
+			
+			log.info("size=="+pointerOut.getSize());
 
 			int i = 0;
 
@@ -261,10 +267,10 @@ public class CAMDevice {
 				for (int k = 0; k < len3; k++) {
 					Photo3[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4 + 100000 + 4);
 				}
-				// CommUtil.byte2image(Photo3, "D:/maven/git/a3.jpg");
+				// CommUtil.byte2image(Photo3,
+				// "C:/maven/git/pitchecking/a3.jpg");
 				Photo3 = null;
 			}
-
 			pointerUUID.dispose();
 			pointerOut.dispose();
 		} catch (NativeException e) {
@@ -290,12 +296,16 @@ public class CAMDevice {
 		CAMDevice cam = CAMDevice.getInstance();
 
 		int[] region = { 0, 0, 640, 480, 77, 1, 3000 };
-		cam.CAM_Open(region);
+		int openRet = cam.CAM_Open(region);
+		if (openRet == 0) {
+			String uuidStr = "520203199612169998";
+			String IDPhoto_str = "C:/maven/git/pitchecking/zp.jpg";
+			int notify = cam.CAM_Notify(1, uuidStr, IDPhoto_str);
+			if (notify == 0) {
+				int getPhotoRet = cam.CAM_GetPhotoInfo("520203199612169998", 20 * 1000);
+				System.out.println("getPhotoRet==" + getPhotoRet);
+			}
+		}
 
-		String uuidStr = "520203199612169998";
-		String IDPhoto_str = "C:\\maven\\git\\pitchecking\\zp.jpg";
-		cam.CAM_Notify(1, uuidStr, IDPhoto_str);
-
-		cam.CAM_GetPhotoInfo("520203199612169998", 20 * 1000);
 	}
 }

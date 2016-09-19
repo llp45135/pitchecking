@@ -32,7 +32,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
- * 订阅由人脸检测进程发过来的人脸比对请求
+ * 本类由 - 人脸比对进程使用
+ * 订阅由人脸检测进程发过来的人脸比对请求   
  * 通过Aeron订阅比对请求，将比对请求插入独立人脸比对进程（FaceCheckingService）的等待比对队列
  * 
  *

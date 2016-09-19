@@ -30,9 +30,10 @@ import com.rxtec.pitchecking.utils.CommUtil;
 public class FaceCheckingStandaloneService {
 
 	public static void main(String[] args) {
-		ExecutorService executer = Executors.newSingleThreadExecutor();
-		PITProcessDetect pitProcessDetect = new PITProcessDetect();
-		executer.execute(pitProcessDetect);
+		//启动检脸进程保护的线程
+//		ExecutorService executer = Executors.newSingleThreadExecutor();
+//		PITProcessDetect pitProcessDetect = new PITProcessDetect();
+//		executer.execute(pitProcessDetect);
 
 //		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 //		FaceVerifyServiceManager mbean = new FaceVerifyServiceManager();

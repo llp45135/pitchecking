@@ -37,6 +37,10 @@ public class TicketVerify {
 					return Config.TicketVerifyWaitInput;
 				}
 			}
+			else if(idCard!=null){
+				log.info("getIdNo=="+idCard.getIdNo());
+				return Config.TicketVerifySucc;
+			}
 //			else if (idCard!=null && DeviceConfig.softIdNo.indexOf(idCard.getIdNo()) != -1) {
 //				Ticket virualTicket = new Ticket();
 //				virualTicket.setCardNo(idCard.getIdNo());
@@ -52,7 +56,7 @@ public class TicketVerify {
 //				virualTicket.setTrainDate(DateUtils.getStringDateShort());
 //				virualTicket.setSeatCode("8");
 //				this.setTicket(virualTicket);
-//				return Config.TicketVerifyWaitInput;
+//				return Config.TicketVerifySucc;
 //			} 
 			else
 				return Config.TicketVerifyWaitInput;

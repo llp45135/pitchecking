@@ -86,6 +86,15 @@ public class DeviceConfig {
 	private String PASSWORD = "pitchecking";
 	private String ipAddress = "127.0.0.1";
 	private String autoLogonCron = "0 0 5 * * ?";
+	private String MQTT_CONN_STR = "tcp://localhost:1883";
+
+	public String getMQTT_CONN_STR() {
+		return MQTT_CONN_STR;
+	}
+
+	public void setMQTT_CONN_STR(String mQTT_CONN_STR) {
+		MQTT_CONN_STR = mQTT_CONN_STR;
+	}
 
 	public String getAutoLogonCron() {
 		return autoLogonCron;

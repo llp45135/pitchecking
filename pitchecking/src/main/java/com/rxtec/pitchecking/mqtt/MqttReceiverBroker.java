@@ -7,21 +7,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.net.event.CAMOpenBean;
 import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
 import com.rxtec.pitchecking.utils.CommUtil;
 
+/**
+ * 本类由人脸检测进程使用 目的是接收主控进程的检脸请求，同时发布检脸命令开始检脸 还可以接收主控进程的其他指令
+ * 
+ * @author ZhaoLin
+ *
+ */
 public class MqttReceiverBroker {
 	// 连接参数
 	Logger log = LoggerFactory.getLogger("MqttReceiverBroker");
-	private final static String CONNECTION_STRING = "tcp://localhost:1883";
-	// private final static String CONNECTION_STRING =
-	// "tcp://222.51.4.186:5001";
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
 	private final static String CLIENT_ID = "PitcheckSubcriber";// 客户端标识
-	private final static int[] QOS_VALUES = { 2 };// 对应主题的消息级别
+	private final static int[] QOS_VALUES = { 0 };// 对应主题的消息级别
 	private final static String[] TOPICS = { "pub_topic" };
 	private String[] unsubscribeTopics = { "sub_topic" };
 	private final static String SEND_TOPIC = "sub_topic";
@@ -36,6 +40,8 @@ public class MqttReceiverBroker {
 	 * @return
 	 */
 	public static synchronized MqttReceiverBroker getInstance() {
+		if (_instance == null)
+			_instance = new MqttReceiverBroker();
 		return _instance;
 	}
 
@@ -67,18 +73,19 @@ public class MqttReceiverBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.debug("connect to MqttReceiverBroker.");
-		mqttClient = new MqttClient(CONNECTION_STRING);
-		log.debug("***********register Simple Handler***********");
+		log.info("connect to MqttReceiverBroker.");
+		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
+		log.info(
+				"***********register Simple Handler " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "***********");
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
 		mqttClient.registerSimpleHandler(simpleCallbackHandler);// 注册接收消息方法
 		mqttClient.connect(CLIENT_ID, CLEAN_START, KEEP_ALIVE);
-		log.debug("***********subscribe receiver topics***********");
+		log.info("***********subscribe receiver topics***********");
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		mqttClient.unsubscribe(unsubscribeTopics);
 
-		log.debug("***********CLIENT_ID:" + CLIENT_ID);
+		log.info("***********CLIENT_ID:" + CLIENT_ID);
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息
@@ -139,10 +146,10 @@ public class MqttReceiverBroker {
 		@Override
 		public void publishArrived(String topicName, byte[] payload, int Qos, boolean retained) throws Exception {
 			// TODO Auto-generated method stub
-			 log.info("订阅主题: " + topicName);
-			 log.info("消息数据: " + new String(payload));
-			 log.info("消息级别(0,1,2): " + Qos);
-			 log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
+//			log.info("订阅主题: " + topicName);
+//			log.info("消息数据: " + new String(payload));
+//			log.info("消息级别(0,1,2): " + Qos);
+//			log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String mqttMessage = new String(payload);
 
@@ -167,13 +174,17 @@ public class MqttReceiverBroker {
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, notifyResultJson);
 
 					// 收到调用CAM_Notify方式的请求开始人脸检测的event
-					eventHandler.InComeEventHandler(mqttMessage.toString());
+					if (DeviceConfig.getInstance().getVersionFlag() == 1) {
+						eventHandler.InComeEventHandler(mqttMessage.toString());
+					}
 				} else if (mqttMessage.toString().indexOf("CAM_GetPhotoInfo") != -1) {
 					// System.out.println("^^^^^^^^^^^^^^^^^^^");
 
 					// CommUtil.sleep(1000);
-//					 MqttSenderBroker.getInstance().testPublishFace();
-					
+					if (DeviceConfig.getInstance().getVersionFlag() == 0) {
+						MqttSenderBroker.getInstance().testPublishFace();
+					}
+
 				}
 			}
 			payload = null;
