@@ -216,60 +216,60 @@ public class CAMDevice {
 			log.info("CAM_GetPhotoInfo retval==" + retval);
 
 			if (retval == 0) {
-				byte[] iResult = new byte[4];
-				for (int k = 0; k < 4; k++) {
-					iResult[k] = pointerOut.getAsByte(k);
-				}
-				log.debug("iResult==" + CommUtil.bytesToInt(iResult, 0));
-
-				byte[] uuid = new byte[36];
-				for (int k = 0; k < 36; k++) {
-					uuid[k] = pointerOut.getAsByte(k + 4);
-				}
-				log.debug("uuid==" + new String(uuid));
-
-				byte[] iPhotoLen1 = new byte[4];
-				for (int k = 0; k < 4; k++) {
-					iPhotoLen1[k] = pointerOut.getAsByte(k + 4 + 36);
-				}
-				int len1 = CommUtil.bytesToInt(iPhotoLen1, 0);
-				log.debug("iPhotoLen1==" + len1);
-
-				byte[] Photo1 = new byte[len1];
-				for (int k = 0; k < len1; k++) {
-					Photo1[k] = pointerOut.getAsByte(k + 4 + 36 + 4);
-				}
-				// CommUtil.byte2image(Photo1, "D:/maven/git/a1.jpg");
-				Photo1 = null;
-				// log.debug("Photo1==" + new String(Photo1));
-				byte[] iPhotoLen2 = new byte[4];
-				for (int k = 0; k < 4; k++) {
-					iPhotoLen2[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000);
-				}
-				int len2 = CommUtil.bytesToInt(iPhotoLen2, 0);
-				log.debug("iPhotoLen2==" + len2);
-
-				byte[] Photo2 = new byte[len2];
-				for (int k = 0; k < len2; k++) {
-					Photo2[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4);
-				}
-				// CommUtil.byte2image(Photo2, "D:/maven/git/a2.jpg");
-				Photo2 = null;
-
-				byte[] iPhotoLen3 = new byte[4];
-				for (int k = 0; k < 4; k++) {
-					iPhotoLen3[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4 + 100000);
-				}
-				int len3 = CommUtil.bytesToInt(iPhotoLen3, 0);
-				log.debug("iPhotoLen3==" + len3);
-
-				byte[] Photo3 = new byte[len3];
-				for (int k = 0; k < len3; k++) {
-					Photo3[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4 + 100000 + 4);
-				}
+//				byte[] iResult = new byte[4];
+//				for (int k = 0; k < 4; k++) {
+//					iResult[k] = pointerOut.getAsByte(k);
+//				}
+//				log.debug("iResult==" + CommUtil.bytesToInt(iResult, 0));
+//
+//				byte[] uuid = new byte[36];
+//				for (int k = 0; k < 36; k++) {
+//					uuid[k] = pointerOut.getAsByte(k + 4);
+//				}
+//				log.debug("uuid==" + new String(uuid));
+//
+//				byte[] iPhotoLen1 = new byte[4];
+//				for (int k = 0; k < 4; k++) {
+//					iPhotoLen1[k] = pointerOut.getAsByte(k + 4 + 36);
+//				}
+//				int len1 = CommUtil.bytesToInt(iPhotoLen1, 0);
+//				log.debug("iPhotoLen1==" + len1);
+//
+//				byte[] Photo1 = new byte[len1];
+//				for (int k = 0; k < len1; k++) {
+//					Photo1[k] = pointerOut.getAsByte(k + 4 + 36 + 4);
+//				}
+//				// CommUtil.byte2image(Photo1, "D:/maven/git/a1.jpg");
+//				Photo1 = null;
+//				// log.debug("Photo1==" + new String(Photo1));
+//				byte[] iPhotoLen2 = new byte[4];
+//				for (int k = 0; k < 4; k++) {
+//					iPhotoLen2[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000);
+//				}
+//				int len2 = CommUtil.bytesToInt(iPhotoLen2, 0);
+//				log.debug("iPhotoLen2==" + len2);
+//
+//				byte[] Photo2 = new byte[len2];
+//				for (int k = 0; k < len2; k++) {
+//					Photo2[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4);
+//				}
+//				// CommUtil.byte2image(Photo2, "D:/maven/git/a2.jpg");
+//				Photo2 = null;
+//
+//				byte[] iPhotoLen3 = new byte[4];
+//				for (int k = 0; k < 4; k++) {
+//					iPhotoLen3[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4 + 100000);
+//				}
+//				int len3 = CommUtil.bytesToInt(iPhotoLen3, 0);
+//				log.debug("iPhotoLen3==" + len3);
+//
+//				byte[] Photo3 = new byte[len3];
+//				for (int k = 0; k < len3; k++) {
+//					Photo3[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4 + 100000 + 4);
+//				}
 				// CommUtil.byte2image(Photo3,
 				// "C:/maven/git/pitchecking/a3.jpg");
-				Photo3 = null;
+//				Photo3 = null;
 			}
 			pointerUUID.dispose();
 			pointerOut.dispose();

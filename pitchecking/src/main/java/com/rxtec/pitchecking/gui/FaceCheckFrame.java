@@ -290,12 +290,12 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	 * 初始界面
 	 */
 	public void showDefaultContent() {
-		try {
-			Thread.sleep(Config.getInstance().getDefaultFaceCheckScreenDeley());
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(Config.getInstance().getDefaultFaceCheckScreenDeley());
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		panel_title.setBackground(Color.ORANGE);
 		label_title.setText("请摘下眼镜后平视摄像头");
 		label_result.setText("");
@@ -356,9 +356,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 				label_title.setText("请平视摄像头     " + (timeIntevel - 1));
 			}
 
-			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-			msgTopLabel.setText(
-					"<html><div align='center'>请平视摄像头!</div><div align='center'>" + (timeIntevel - 1) + "</di></html>");
+//			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+//			msgTopLabel.setText(
+//					"<html><div align='center'>请平视摄像头!</div><div align='center'>" + (timeIntevel - 1) + "</di></html>");
 		}
 		if (timeIntevel == 0) {
 			this.showDefaultContent();

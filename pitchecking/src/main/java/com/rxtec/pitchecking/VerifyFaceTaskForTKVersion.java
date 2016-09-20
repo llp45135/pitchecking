@@ -146,7 +146,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// mqttSenderBroker.testPublishFace();
 
 			faceTrackService.stopCheckingFace();
-			FaceCheckingService.getInstance().setFailedFace(null);
+//			FaceCheckingService.getInstance().setFailedFace(null);
 
 			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));

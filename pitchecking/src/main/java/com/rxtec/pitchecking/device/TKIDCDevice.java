@@ -13,6 +13,8 @@ import org.xvolks.jnative.Type;
 import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
+
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 
 import com.rxtec.pitchecking.utils.CommUtil;
@@ -305,7 +307,7 @@ public class TKIDCDevice {
 				}
 				String IDCardNoStr = new String(IDCode, "GBK");
 				log.debug("IDCode==" + IDCardNoStr);
-				synIDCard.setIdNo(IDCardNoStr);
+				synIDCard.setIdNo(IDCardNoStr.trim());
 
 				byte[] IDIssue = new byte[30];
 				for (int k = 0; k < IDIssue.length; k++) {
@@ -336,8 +338,15 @@ public class TKIDCDevice {
 					IDPhoto[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30 + 16 + 16 + 70);
 				}
 				// log.debug("IDPhoto==" + new String(IDPhoto,"utf-16"));
-				CommUtil.byte2image(IDPhoto, "tkzp.jpg");
-				File idcardFile = new File("zp.jpg");
+				// CommUtil.byte2image(IDPhoto, "tkzp.jpg");
+				String photoFile = "llp.jpg";
+				if (IDCardNoStr.trim().equals("520203197912141118")) {
+					photoFile = "zhao.jpg";
+				}else if (IDCardNoStr.trim().equals("350322198301224317")) {
+					photoFile = "cjw.jpg";
+				}
+				log.info("photoFile=="+photoFile);
+				File idcardFile = new File(photoFile);
 				BufferedImage idCardImage = null;
 				idCardImage = ImageIO.read(idcardFile);
 				if (idCardImage != null) {
@@ -348,7 +357,7 @@ public class TKIDCDevice {
 					if (idCardImageBytes != null)
 						synIDCard.setCardImageBytes(idCardImageBytes);
 				}
-//				boolean delFlag = idcardFile.delete();
+				// boolean delFlag = idcardFile.delete();
 				//
 
 				byte[] iLogicCode = new byte[4];
@@ -409,7 +418,7 @@ public class TKIDCDevice {
 		TKIDCDevice idc = TKIDCDevice.getInstance();
 		// idc.IDC_Init();
 		// idc.IDC_GetSerial();
-		while(true) {
+		while (true) {
 			CommUtil.sleep(200);
 			idc.IDC_FetchCard(3000);
 			idc.IDC_ReadIDCardInfo(2);

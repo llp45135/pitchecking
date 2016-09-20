@@ -87,6 +87,8 @@ public class DeviceConfig {
 	private String ipAddress = "127.0.0.1";
 	private String autoLogonCron = "0 0 5 * * ?";
 	private String MQTT_CONN_STR = "tcp://localhost:1883";
+	
+	
 
 	public String getMQTT_CONN_STR() {
 		return MQTT_CONN_STR;

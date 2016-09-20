@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.IDCard;
-import com.rxtec.pitchecking.IDReader;
-import com.rxtec.pitchecking.QRReader;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.utils.DateUtils;

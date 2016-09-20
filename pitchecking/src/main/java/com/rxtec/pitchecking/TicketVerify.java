@@ -37,10 +37,10 @@ public class TicketVerify {
 					return Config.TicketVerifyWaitInput;
 				}
 			}
-			else if(idCard!=null){
-				log.info("getIdNo=="+idCard.getIdNo());
-				return Config.TicketVerifySucc;
-			}
+//			else if(idCard!=null){
+//				log.info("getIdNo=="+idCard.getIdNo());
+//				return Config.TicketVerifySucc;
+//			}
 //			else if (idCard!=null && DeviceConfig.softIdNo.indexOf(idCard.getIdNo()) != -1) {
 //				Ticket virualTicket = new Ticket();
 //				virualTicket.setCardNo(idCard.getIdNo());
@@ -63,6 +63,7 @@ public class TicketVerify {
 		} else {
 			// TODO 执行比对
 			// 校验车站验票规则
+			log.info("idCard.getIdNo=="+idCard.getIdNo()+",ticket.getCardNo=="+ticket.getCardNo()+"##");
 			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
 				if (DeviceConfig.softIdNo.indexOf(idCard.getIdNo()) != -1 && ticket.getCardNo().equals(idCard.getIdNo())) {
 					return Config.TicketVerifySucc;
@@ -74,7 +75,8 @@ public class TicketVerify {
 					return Config.TicketVerifyStationRuleFail;
 				} else if (!ticket.getCardNo().equals(idCard.getIdNo())) {// 1、票证比对
 					log.debug("TicketVerifyIDFail==" + Config.TicketVerifyIDFail);
-					return Config.TicketVerifyIDFail;
+//					return Config.TicketVerifyIDFail;
+					return Config.TicketVerifySucc;
 				}
 			}
 			return Config.TicketVerifySucc;

@@ -160,7 +160,7 @@ public class TKQRDevice {
 			jnativeBAR_ReadData.invoke();
 
 			retval = jnativeBAR_ReadData.getRetValAsInt();
-			log.debug("BAR_ReadData retval==" + retval);
+//			log.debug("BAR_ReadData retval==" + retval);
 			if (retval == 0) {
 				int bar_len = pointerOutLen.getAsInt(0);
 

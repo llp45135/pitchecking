@@ -27,7 +27,7 @@ public class GateDevice {
 
 	private GateDevice() {
 		// TODO Auto-generated constructor stub
-		JNative.setLoggingEnabled(false);
+		JNative.setLoggingEnabled(true);
 		this.initJnative();
 	}
 
@@ -70,7 +70,7 @@ public class GateDevice {
 			int i = 0;
 
 			jnativeGAT_Init.setRetVal(Type.INT);
-			jnativeGAT_Init.setParameter(i++, pIn);
+			jnativeGAT_Init.setParameter(i++, pointerIn);
 			jnativeGAT_Init.setParameter(i++, pointerOut);
 			jnativeGAT_Init.invoke();
 
@@ -116,7 +116,7 @@ public class GateDevice {
 			int i = 0;
 
 			jnativeGAT_Uninit.setRetVal(Type.INT);
-			jnativeGAT_Uninit.setParameter(i++, pIn);
+			jnativeGAT_Uninit.setParameter(i++, pointerIn);
 			jnativeGAT_Uninit.setParameter(i++, pointerOut);
 			jnativeGAT_Uninit.invoke();
 
@@ -162,7 +162,7 @@ public class GateDevice {
 			int i = 0;
 
 			jnativeGAT_SetMode.setRetVal(Type.INT);
-			jnativeGAT_SetMode.setParameter(i++, pIn);
+			jnativeGAT_SetMode.setParameter(i++, pointerIn);
 			jnativeGAT_SetMode.setParameter(i++, pointerOut);
 			jnativeGAT_SetMode.invoke();
 
@@ -208,7 +208,7 @@ public class GateDevice {
 			int i = 0;
 
 			jnativeGAT_Control.setRetVal(Type.INT);
-			jnativeGAT_Control.setParameter(i++, pIn);
+			jnativeGAT_Control.setParameter(i++, pointerIn);
 			jnativeGAT_Control.setParameter(i++, pointerOut);
 			jnativeGAT_Control.invoke();
 
@@ -249,7 +249,7 @@ public class GateDevice {
 			int i = 0;
 
 			jnativeGAT_GetStatus.setRetVal(Type.INT);
-			jnativeGAT_GetStatus.setParameter(i++, pIn);
+			jnativeGAT_GetStatus.setParameter(i++, pointerIn);
 			jnativeGAT_GetStatus.setParameter(i++, pointerOut);
 			jnativeGAT_GetStatus.invoke();
 
@@ -274,7 +274,21 @@ public class GateDevice {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+		GateDevice gate = GateDevice.getInstance();
+		int initRet = gate.GAT_Init("");
+		if(initRet ==0){
+			int setMode = gate.GAT_SetMode("2");
+			if(setMode==0){
+				int first = gate.GAT_Control("21");
+				if(first==0){
+					int third = gate.GAT_Control("23");
+					if(third==0){
+						int second = gate.GAT_Control("22");
+					}
+				}
+				
+			}
+		}
 	}
 
 }

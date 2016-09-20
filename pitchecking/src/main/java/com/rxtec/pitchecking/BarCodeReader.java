@@ -67,6 +67,8 @@ public class BarCodeReader implements Runnable {
 			Ticket ticket = null;
 			try {
 				ticket = barUnsecurity.buildTicket(barUnsecurity.uncompress(barCode, year));
+				// 仅供测试用例
+				ticket.setTrainDate(DateUtils.getStringDateShort2());
 			} catch (NumberFormatException | UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				log.error("BarCodeReader buildBarCode:", e);
@@ -107,8 +109,6 @@ public class BarCodeReader implements Runnable {
 			ScheduledExecutorService qrReaderScheduler = Executors.newScheduledThreadPool(1);
 			qrReaderScheduler.scheduleWithFixedDelay(barCodeReader, 0, 100, TimeUnit.MILLISECONDS);
 		}
-		// ExecutorService executer = Executors.newCachedThreadPool();
-		// executer.execute(QRReader.getInstance());
 	}
 
 }

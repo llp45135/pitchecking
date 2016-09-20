@@ -675,8 +675,9 @@ public class RSFaceTrackTask implements Runnable {
 		setupColorCameraDevice(dev);
 		while (startCapture) {
 			sts = senseMgr.AcquireFrame(true);
-			if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0)
-				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+			if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0){
+//				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+			}
 			else 
 				log.error("senseMgr failed! sts=" + sts);
 
@@ -685,13 +686,13 @@ public class RSFaceTrackTask implements Runnable {
 				senseMgr.ReleaseFrame();
 				continue;
 			}else{
-				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+//				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 			}
 
 			BufferedImage frameImage = null;
 			if (sample.color != null) {
 				frameImage = drawFrameImage(sample);
-				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+//				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 			}else{
 				senseMgr.ReleaseFrame();
 				continue;

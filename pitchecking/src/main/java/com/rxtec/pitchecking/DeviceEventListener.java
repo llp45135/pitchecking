@@ -250,7 +250,13 @@ public class DeviceEventListener implements Runnable {
 		// verifyFaceTask.beginCheckFace(idCard, ticket, delaySeconds);
 
 		String uuidStr = idCard.getIdNo();
-		String IDPhoto_str = "zp.jpg";
+		String IDPhoto_str = "llp.jpg";
+		if (idCard.getIdNo().equals("520203197912141118")) {
+			IDPhoto_str = "zhao.jpg";
+		}else if (idCard.getIdNo().trim().equals("350322198301224317")) {
+			IDPhoto_str = "cjw.jpg";
+		}
+		log.debug("IDPhoto_str=="+IDPhoto_str);
 		log.debug("CAM_Notify begin");
 		int notifyRet = CAMDevice.getInstance().CAM_Notify(1, uuidStr, IDPhoto_str);
 		int getPhotoRet = -1;
@@ -311,7 +317,7 @@ public class DeviceEventListener implements Runnable {
 		}
 
 		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
-		scheduler.scheduleWithFixedDelay(QRReader.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(BarCodeReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		// 求助按钮事件处理线程
 		scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		// 语音调用线程
@@ -487,11 +493,13 @@ public class DeviceEventListener implements Runnable {
 		if (isRead) {
 			log.debug("读卡器开始寻卡");
 			IDReader.getInstance().start();
-			QRReader.getInstance().start();
+//			QRReader.getInstance().start();
+			BarCodeReader.getInstance().start();
 		} else {
 			log.debug("读卡器停止寻卡");
 			IDReader.getInstance().stop();
-			QRReader.getInstance().stop();
+//			QRReader.getInstance().stop();
+			BarCodeReader.getInstance().stop();
 		}
 	}
 }
