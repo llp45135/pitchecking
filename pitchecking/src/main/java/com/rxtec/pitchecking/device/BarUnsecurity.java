@@ -100,7 +100,7 @@ public class BarUnsecurity {
 			passengerNameArray = null;
 			specialArray = null;
 			
-//			printTicketInfo(ticket);
+			printTicketInfo(ticket);
 		}
 
 		return ticket;

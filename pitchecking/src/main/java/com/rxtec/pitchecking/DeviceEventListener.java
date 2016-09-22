@@ -255,6 +255,8 @@ public class DeviceEventListener implements Runnable {
 			IDPhoto_str = "zhao.jpg";
 		}else if (idCard.getIdNo().trim().equals("350322198301224317")) {
 			IDPhoto_str = "cjw.jpg";
+		}else if (idCard.getIdNo().trim().equals("452502198305034618")) {
+			IDPhoto_str = "lwm.jpg";
 		}
 		log.debug("IDPhoto_str=="+IDPhoto_str);
 		log.debug("CAM_Notify begin");

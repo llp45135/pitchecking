@@ -48,8 +48,9 @@ public class DeviceConfig {
 	public static String qrReaderImgPath = "./img/qrreader.gif";
 	public static String idReaderImgPath = "./img/idreader.gif";
 
-	public static String initImgPath = "./img/init2.gif";
-	
+//	public static String initImgPath = "./img/init2.gif";
+	public static String initImgPath = "./img/initNew.gif";
+
 	public static String faceBgImgPath = "./img/bg.png";
 
 	// 语音文件
@@ -87,8 +88,14 @@ public class DeviceConfig {
 	private String ipAddress = "127.0.0.1";
 	private String autoLogonCron = "0 0 5 * * ?";
 	private String MQTT_CONN_STR = "tcp://localhost:1883";
+
+//	public static int TICKET_FRAME_TOPHEIGHT = 62;
+//	public static int TICKET_FRAME_HEIGHT = 720;
+//	public static int TICKET_FRAME_BOTTOMHEIGHT = 40;
 	
-	
+	public static int TICKET_FRAME_TOPHEIGHT = 100;
+	public static int TICKET_FRAME_HEIGHT = 768;
+	public static int TICKET_FRAME_BOTTOMHEIGHT = 60;
 
 	public String getMQTT_CONN_STR() {
 		return MQTT_CONN_STR;

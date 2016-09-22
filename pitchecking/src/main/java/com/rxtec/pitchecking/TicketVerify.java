@@ -63,14 +63,14 @@ public class TicketVerify {
 		} else {
 			// TODO 执行比对
 			// 校验车站验票规则
-			log.info("idCard.getIdNo=="+idCard.getIdNo()+",ticket.getCardNo=="+ticket.getCardNo()+"##");
+//			log.info("idCard.getIdNo=="+idCard.getIdNo()+",ticket.getCardNo=="+ticket.getCardNo()+"##");
 			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
 				if (DeviceConfig.softIdNo.indexOf(idCard.getIdNo()) != -1 && ticket.getCardNo().equals(idCard.getIdNo())) {
 					return Config.TicketVerifySucc;
-				} else if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、当日票
+				} else if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、非当日票
 					log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
 					return Config.TicketVerifyTrainDateRuleFail;
-				} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、本站乘车
+				} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、非本站乘车
 					log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
 					return Config.TicketVerifyStationRuleFail;
 				} else if (!ticket.getCardNo().equals(idCard.getIdNo())) {// 1、票证比对

@@ -131,10 +131,10 @@ public class MqttSenderBroker {
 
 			BufferedImage bi;
 
-			bi = ImageIO.read(new File("C:/maven/git/pitchecking/zp.jpg"));
+			bi = ImageIO.read(new File("wxs.jpg"));
 			byte[] biArray = ImageToolkit.getImageBytes(bi, "jpg");
 
-			byte[] bb = CommUtil.image2byte("C:/maven/git/pitchecking/zp.jpg");
+			byte[] bb = CommUtil.image2byte("face1.jpg");
 
 			// PIVBean.setPhotoLen1(bb.length);
 			// PIVBean.setPhoto1(bb);
@@ -153,7 +153,7 @@ public class MqttSenderBroker {
 			log.debug("length==" + biArray.length);
 
 			String jsonString = mapper.writeValueAsString(PIVBean);
-			// log.debug("jsonString=="+jsonString);
+			 log.debug("jsonString=="+jsonString);
 
 			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
 

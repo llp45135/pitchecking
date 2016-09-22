@@ -92,7 +92,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 					ticket.setTicketType("1");
 					ticket.setSeatCode("O");
 
-					frame.showTicketContent(deviceConfig, ticket, 3, 1);
+					frame.showTicketContent(deviceConfig, ticket, 3, 0);
 
 					// frame.showFailedContent(deviceConfig, ticket, 4,
 					// "票证未通过核验，请重试!");
@@ -115,9 +115,9 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public TicketCheckFrame() {
-		setBounds(new Rectangle(0, 0, 1920, 1080));
-		setMinimumSize(new Dimension(1280, 768));
-		setMaximumSize(new Dimension(1280, 768));
+		setBounds(new Rectangle(0, 0, 1280, DeviceConfig.TICKET_FRAME_HEIGHT));
+		setMinimumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_HEIGHT));
+		setMaximumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_HEIGHT));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -127,16 +127,16 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 
 		topPanel = new JPanel();
 		topPanel.setBackground(Color.CYAN);
-		topPanel.setMinimumSize(new Dimension(1280, 100));
-		topPanel.setMaximumSize(new Dimension(1280, 100));
+		topPanel.setMinimumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
+		topPanel.setMaximumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
 		contentPane.add(topPanel);
 		topPanel.setLayout(null);
 
 		labelTitle = new JLabel("请刷二代证和车票二维码");
 		labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		labelTitle.setForeground(Color.BLUE);
-		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 60));
-		labelTitle.setBounds(10, 24, 1245, 73);
+		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 55));
+		labelTitle.setBounds(318, 0, 644, 62);
 		topPanel.add(labelTitle);
 
 		timelabel = new JLabel("yyyyMMdd hh:mm:ss");
@@ -233,8 +233,8 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 
 		bottomPanel = new JPanel();
 		bottomPanel.setBackground(Color.CYAN);
-		bottomPanel.setMinimumSize(new Dimension(1280, 60));
-		bottomPanel.setMaximumSize(new Dimension(1280, 60));
+		bottomPanel.setMinimumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT));
+		bottomPanel.setMaximumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT));
 		bottomPanel.setLayout(null);
 
 		labelVersion = new JLabel("版本号：pitcheck160709.02");
@@ -242,7 +242,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		labelVersion.setFont(new Font("微软雅黑", Font.PLAIN, 23));
 		labelVersion.setHorizontalAlignment(SwingConstants.CENTER);
 		labelVersion.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		labelVersion.setBounds(96, 10, 302, 42);
+		labelVersion.setBounds(99, 0, 302, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
 		bottomPanel.add(labelVersion);
 
 		lblIp = new JLabel("IP地址：192.168.1.5");
@@ -250,7 +250,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		lblIp.setHorizontalAlignment(SwingConstants.CENTER);
 		lblIp.setFont(new Font("微软雅黑", Font.PLAIN, 23));
 		lblIp.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		lblIp.setBounds(903, 10, 276, 42);
+		lblIp.setBounds(902, 0, 276, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
 		bottomPanel.add(lblIp);
 
 		bootTime = new JLabel("启动时间：2016-08-13 17:45:45");
@@ -258,7 +258,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		bootTime.setForeground(Color.BLACK);
 		bootTime.setFont(new Font("微软雅黑", Font.PLAIN, 23));
 		bootTime.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		bootTime.setBounds(476, 10, 367, 42);
+		bootTime.setBounds(474, 0, 367, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
 		bottomPanel.add(bootTime);
 
 		setUndecorated(true);

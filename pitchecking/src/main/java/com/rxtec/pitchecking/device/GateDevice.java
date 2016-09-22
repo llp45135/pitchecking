@@ -275,7 +275,7 @@ public class GateDevice {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		GateDevice gate = GateDevice.getInstance();
-		int initRet = gate.GAT_Init("");
+		int initRet = gate.GAT_Init("2");
 		if(initRet ==0){
 			int setMode = gate.GAT_SetMode("2");
 			if(setMode==0){
@@ -285,8 +285,7 @@ public class GateDevice {
 					if(third==0){
 						int second = gate.GAT_Control("22");
 					}
-				}
-				
+				}				
 			}
 		}
 	}

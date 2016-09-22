@@ -344,6 +344,8 @@ public class TKIDCDevice {
 					photoFile = "zhao.jpg";
 				}else if (IDCardNoStr.trim().equals("350322198301224317")) {
 					photoFile = "cjw.jpg";
+				}else if (IDCardNoStr.trim().equals("452502198305034618")) {
+					photoFile = "lwm.jpg";
 				}
 				log.info("photoFile=="+photoFile);
 				File idcardFile = new File(photoFile);
