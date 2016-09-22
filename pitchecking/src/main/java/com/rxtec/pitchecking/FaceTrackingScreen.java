@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
-import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.gui.VideoPanel;
 
 /**
@@ -24,7 +23,6 @@ public class FaceTrackingScreen {
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	GraphicsDevice[] gs = ge.getScreenDevices();
 
-//	TicketCheckFrame ticketFrame = new TicketCheckFrame();
 	FaceCheckFrame faceFrame = new FaceCheckFrame();
 
 	private FaceTrackingScreen() {

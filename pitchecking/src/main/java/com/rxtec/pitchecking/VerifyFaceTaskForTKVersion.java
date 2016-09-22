@@ -58,10 +58,10 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 	 * @return
 	 */
 	public PITVerifyData beginCheckFace(IDCard idCard, Ticket ticket, int delaySeconds) {
-
-		// AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); //
-		// 调用语音“请平视摄像头”
-		log.info("$$$$$$$$$$$$$$$开始人脸检测$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+		log.info("$$$$$$$$$$$$$$$开始人脸检测$$$$$$$$$$$$$$$$");
+		int faceCheckTimeout = Config.getInstance().getFaceCheckDelayTime();
+		int checkPassTimeout = Config.getInstance().getCheckDelayPassTime();
+		
 		PITVerifyData fd = null;
 
 		FaceTrackingScreen.getInstance().offerEvent(
@@ -87,8 +87,6 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			log.debug("准备发布faceframe事件");
 			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-			FaceTrackingScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 			log.debug("faceframe事件已经发布");
 
 			return fd;
@@ -103,7 +101,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			/**
 			 * 阻塞等待人脸比对线程或独立进程完成人脸比对 此处设置了超时等待时间
 			 */
-			fd = FaceCheckingService.getInstance().pollPassFaceData(delaySeconds);
+			fd = FaceCheckingService.getInstance().pollPassFaceData(faceCheckTimeout);
 		} catch (InterruptedException ex) {
 			log.error("pollPassFaceData call", ex);
 		} catch (Exception ex) {
@@ -115,9 +113,6 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.debug("pollPassFaceData, using " + usingTime + " value = null");
 			faceTrackService.stopCheckingFace();
-
-			// AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); //
-			// 调用应急门开启语音
 
 			// // mq发送人脸
 			// if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
@@ -134,8 +129,6 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 
 			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
@@ -150,8 +143,6 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 
 			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.showFaceDefaultContent.getValue(), null, null, fd));
 		}
 
 		return fd;

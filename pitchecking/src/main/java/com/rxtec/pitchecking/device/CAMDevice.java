@@ -16,7 +16,7 @@ import com.rxtec.pitchecking.utils.CommUtil;
 public class CAMDevice {
 	private Logger log = LoggerFactory.getLogger("CAMDevice");
 	private static CAMDevice _instance = new CAMDevice();
-	private String dllName = "CAM_RXTEX.dll";
+	private String dllName = "CAM_RXTa.dll";
 	private JNative jnativeCAM_Open = null;
 	private JNative jnativeCAM_Close = null;
 	private JNative jnativeCAM_Notify = null;
@@ -202,7 +202,7 @@ public class CAMDevice {
 			
 			pointerOut.zeroMemory();
 			
-			log.info("size=="+pointerOut.getSize());
+//			log.info("size=="+pointerOut.getSize());
 
 			int i = 0;
 
@@ -298,11 +298,11 @@ public class CAMDevice {
 		int[] region = { 0, 0, 640, 480, 77, 1, 3000 };
 		int openRet = cam.CAM_Open(region);
 		if (openRet == 0) {
-			String uuidStr = "520203199612169998";
+			String uuidStr = "520203197912141118";
 			String IDPhoto_str = "C:/maven/git/pitchecking/zp.jpg";
 			int notify = cam.CAM_Notify(1, uuidStr, IDPhoto_str);
 			if (notify == 0) {
-				int getPhotoRet = cam.CAM_GetPhotoInfo("520203199612169998", 20 * 1000);
+				int getPhotoRet = cam.CAM_GetPhotoInfo("520203197912141118", 20 * 1000);
 				System.out.println("getPhotoRet==" + getPhotoRet);
 			}
 		}

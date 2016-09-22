@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.gui;
+package com.rxtec.pitchecking.gui.ticketgui;
 
 import java.awt.EventQueue;
 
@@ -39,16 +39,16 @@ import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.BevelBorder;
 
 @SuppressWarnings("serial")
-public class TicketCheckFrame extends JFrame implements ActionListener {
+public class TicketVerifyFrame extends JFrame implements ActionListener {
 
-	private Logger log = LoggerFactory.getLogger("TicketCheckFrame");
+	private Logger log = LoggerFactory.getLogger("TicketVerifyFrame");
 	private Timer timer = new Timer(1000, this);
 	private JPanel contentPane;
 	private JPanel topPanel;
 	private JPanel ticketPanel;
-	private TicketInitPanel ticketInitPanel;
-	private WaitPanel waitPanel;
-	private InitPanel secondInitPanel;
+	private VerifyInitPanel verifyInitPanel;
+	private VerifyWaitPanel verifyWaitPanel;
+	private ReadedPanel readedPanel;
 	private JPanel bottomPanel;
 	//
 	private JLabel labelTitle;
@@ -80,7 +80,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 					DeviceConfig deviceConfig = DeviceConfig.getInstance();
 					GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 					GraphicsDevice[] gs = ge.getScreenDevices();
-					TicketCheckFrame frame = new TicketCheckFrame();
+					TicketVerifyFrame frame = new TicketVerifyFrame();
 					frame.setVisible(true);
 					gs[0].setFullScreenWindow(frame);
 
@@ -114,10 +114,10 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	/**
 	 * Create the frame.
 	 */
-	public TicketCheckFrame() {
-		setBounds(new Rectangle(0, 0, 1280, DeviceConfig.TICKET_FRAME_HEIGHT));
-		setMinimumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_HEIGHT));
-		setMaximumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_HEIGHT));
+	public TicketVerifyFrame() {
+		setBounds(new Rectangle(0, 0, 1024, DeviceConfig.TICKET_FRAME_HEIGHT));
+		setMinimumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_HEIGHT));
+		setMaximumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_HEIGHT));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -127,86 +127,86 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 
 		topPanel = new JPanel();
 		topPanel.setBackground(Color.CYAN);
-		topPanel.setMinimumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
-		topPanel.setMaximumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
+		topPanel.setMinimumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
+		topPanel.setMaximumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
 		contentPane.add(topPanel);
 		topPanel.setLayout(null);
 
-		labelTitle = new JLabel("请刷二代证和车票二维码");
+		labelTitle = new JLabel("");
 		labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		labelTitle.setForeground(Color.BLUE);
-		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 55));
-		labelTitle.setBounds(318, 0, 644, 62);
+		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 50));
+		labelTitle.setBounds(225, 26, 551, 62);
 		topPanel.add(labelTitle);
 
 		timelabel = new JLabel("yyyyMMdd hh:mm:ss");
 		timelabel.setForeground(Color.RED);
-		timelabel.setFont(new Font("微软雅黑", Font.PLAIN, 24));
-		timelabel.setBounds(981, 15, 262, 45);
+		timelabel.setFont(new Font("微软雅黑", Font.PLAIN, 20));
+		timelabel.setBounds(786, 26, 218, 45);
 		topPanel.add(timelabel);
 
 		ticketPanel = new JPanel();
 		ticketPanel.setBackground(Color.WHITE);
-		ticketPanel.setMinimumSize(new Dimension(1280, 608));
-		ticketPanel.setMaximumSize(new Dimension(1280, 608));
+		ticketPanel.setMinimumSize(new Dimension(1024, 608));
+		ticketPanel.setMaximumSize(new Dimension(1024, 608));
 		contentPane.add(ticketPanel);
 		ticketPanel.setLayout(null);
 
 		/**
 		 * 初始化启动界面
 		 */
-//		ticketInitPanel = new TicketInitPanel();
-//		secondInitPanel = new InitPanel();
-//		waitPanel = new WaitPanel();
+		readedPanel = new ReadedPanel();
+		verifyInitPanel = new VerifyInitPanel();
+		verifyWaitPanel = new VerifyWaitPanel();
 
 		labelTrainCode = new JLabel("G6612");
 		labelTrainCode.setHorizontalAlignment(SwingConstants.CENTER);
 		labelTrainCode.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		// labelTrainCode.setBorder(new LineBorder(new Color(0, 0, 0), 1,
 		// true));
-		labelTrainCode.setBounds(342, 67, 225, 72);
+		labelTrainCode.setBounds(215, 67, 200, 72);
 		ticketPanel.add(labelTrainCode);
 
 		labelFz = new JLabel("广州南");
 		labelFz.setHorizontalAlignment(SwingConstants.CENTER);
 		labelFz.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		// labelFz.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		labelFz.setBounds(593, 67, 245, 72);
+		labelFz.setBounds(425, 67, 245, 72);
 		ticketPanel.add(labelFz);
 
 		labelZhi = new JLabel("至");
 		labelZhi.setHorizontalAlignment(SwingConstants.CENTER);
 		labelZhi.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		// labelZhi.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		labelZhi.setBounds(848, 67, 87, 72);
+		labelZhi.setBounds(680, 67, 87, 72);
 		ticketPanel.add(labelZhi);
 
 		labelDz = new JLabel("长沙南");
 		labelDz.setHorizontalAlignment(SwingConstants.CENTER);
 		labelDz.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		// labelDz.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		labelDz.setBounds(945, 67, 237, 72);
+		labelDz.setBounds(777, 67, 237, 72);
 		ticketPanel.add(labelDz);
 
 		label_rq = new JLabel("乘车日期");
 		label_rq.setHorizontalAlignment(SwingConstants.CENTER);
 		label_rq.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		// label_rq.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		label_rq.setBounds(410, 190, 271, 72);
+		label_rq.setBounds(268, 190, 271, 72);
 		ticketPanel.add(label_rq);
 
 		labelTrainDate = new JLabel("2016年5月16日");
 		labelTrainDate.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		// labelTrainDate.setBorder(new LineBorder(new Color(0, 0, 0), 1,
 		// true));
-		labelTrainDate.setBounds(742, 190, 440, 72);
+		labelTrainDate.setBounds(600, 190, 404, 72);
 		ticketPanel.add(labelTrainDate);
 
 		labelSeatType = new JLabel("二等软座");
 		labelSeatType.setHorizontalAlignment(SwingConstants.CENTER);
 		labelSeatType.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		// labelSeatType.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		labelSeatType.setBounds(410, 299, 351, 72);
+		labelSeatType.setBounds(268, 299, 351, 72);
 		ticketPanel.add(labelSeatType);
 
 		labelTicketType = new JLabel("全票");
@@ -214,13 +214,13 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		labelTicketType.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		// labelTicketType.setBorder(new LineBorder(new Color(0, 0, 0), 1,
 		// true));
-		labelTicketType.setBounds(809, 299, 245, 72);
+		labelTicketType.setBounds(667, 299, 245, 72);
 		ticketPanel.add(labelTicketType);
 
 		lableImg = new JLabel("");
 		lableImg.setHorizontalAlignment(SwingConstants.CENTER);
 		lableImg.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		lableImg.setBounds(90, 172, 180, 215);
+		lableImg.setBounds(31, 172, 180, 215);
 		ticketPanel.add(lableImg);
 
 		lableWarnmsg = new JLabel("请通行！");
@@ -228,37 +228,37 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		lableWarnmsg.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		lableWarnmsg.setHorizontalAlignment(SwingConstants.CENTER);
 		// lableWarnmsg.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		lableWarnmsg.setBounds(342, 418, 840, 82);
+		lableWarnmsg.setBounds(231, 418, 783, 82);
 		ticketPanel.add(lableWarnmsg);
 
 		bottomPanel = new JPanel();
 		bottomPanel.setBackground(Color.CYAN);
-		bottomPanel.setMinimumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT));
-		bottomPanel.setMaximumSize(new Dimension(1280, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT));
+		bottomPanel.setMinimumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT));
+		bottomPanel.setMaximumSize(new Dimension(1024, 60));
 		bottomPanel.setLayout(null);
 
 		labelVersion = new JLabel("版本号：pitcheck160709.02");
 		labelVersion.setForeground(Color.BLACK);
-		labelVersion.setFont(new Font("微软雅黑", Font.PLAIN, 23));
+		labelVersion.setFont(new Font("微软雅黑", Font.PLAIN, 20));
 		labelVersion.setHorizontalAlignment(SwingConstants.CENTER);
 		labelVersion.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		labelVersion.setBounds(99, 0, 302, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
+		labelVersion.setBounds(31, 0, 302, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
 		bottomPanel.add(labelVersion);
 
 		lblIp = new JLabel("IP地址：192.168.1.5");
 		lblIp.setForeground(Color.BLACK);
 		lblIp.setHorizontalAlignment(SwingConstants.CENTER);
-		lblIp.setFont(new Font("微软雅黑", Font.PLAIN, 23));
+		lblIp.setFont(new Font("微软雅黑", Font.PLAIN, 20));
 		lblIp.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		lblIp.setBounds(902, 0, 276, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
+		lblIp.setBounds(734, 0, 276, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
 		bottomPanel.add(lblIp);
 
 		bootTime = new JLabel("启动时间：2016-08-13 17:45:45");
 		bootTime.setHorizontalAlignment(SwingConstants.CENTER);
 		bootTime.setForeground(Color.BLACK);
-		bootTime.setFont(new Font("微软雅黑", Font.PLAIN, 23));
+		bootTime.setFont(new Font("微软雅黑", Font.PLAIN, 20));
 		bootTime.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		bootTime.setBounds(474, 0, 367, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
+		bootTime.setBounds(357, 0, 367, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
 		bottomPanel.add(bootTime);
 
 		setUndecorated(true);
@@ -294,7 +294,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	 * 默认界面
 	 */
 	public void showDefaultContent() {
-		this.labelTitle.setText("");
+		labelTitle.setText("");
 		labelTitle.setForeground(Color.blue);
 		// this.labelFz.setText("");
 		// this.labelZhi.setText("");
@@ -308,16 +308,16 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		// this.lableImg.setIcon(null);
 		// this.lableImg.setBorder(null);
 
-		ticketInitPanel.setVisible(false);
+		readedPanel.setVisible(false);
 		ticketPanel.setVisible(false);
-		waitPanel.setVisible(false);
-		secondInitPanel.setVisible(true);
-		secondInitPanel.setBackground(Color.black);
-		contentPane.remove(waitPanel);
+		verifyWaitPanel.setVisible(false);
+		verifyInitPanel.setVisible(true);
+		verifyInitPanel.setBackground(Color.black);
+		contentPane.remove(verifyWaitPanel);
 		contentPane.remove(ticketPanel);
 		contentPane.remove(bottomPanel);
-		contentPane.remove(ticketInitPanel);
-		contentPane.add(secondInitPanel);
+		contentPane.remove(readedPanel);
+		contentPane.add(verifyInitPanel);
 		contentPane.add(bottomPanel);
 
 		contentPane.repaint();
@@ -354,34 +354,34 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		// this.lableImg.setBorder(null);
 
 		ticketPanel.setVisible(false);
-		waitPanel.setVisible(false);
-		secondInitPanel.setVisible(false);
-		ticketInitPanel.setVisible(true);
-		ticketInitPanel.setBackground(Color.WHITE);
-		contentPane.remove(waitPanel);
+		verifyWaitPanel.setVisible(false);
+		verifyInitPanel.setVisible(false);
+		readedPanel.setVisible(true);
+		readedPanel.setBackground(Color.WHITE);
+		contentPane.remove(verifyWaitPanel);
 		contentPane.remove(ticketPanel);
-		contentPane.remove(secondInitPanel);
+		contentPane.remove(verifyInitPanel);
 		contentPane.remove(bottomPanel);
-		contentPane.add(ticketInitPanel);
+		contentPane.add(readedPanel);
 		contentPane.add(bottomPanel);
 
 		if (idCard != null) {
 			if (DeviceConfig.getInstance().getVersionFlag() == 1) {
-				ticketInitPanel.showIDCardImage(new ImageIcon(DeviceConfig.readedIdImgPath));
+				readedPanel.showIDCardImage(new ImageIcon(DeviceConfig.readedIdImgPath));
 			} else {
-				ticketInitPanel.showIDCardImage(new ImageIcon(idCard.getCardImage()));
+				readedPanel.showIDCardImage(new ImageIcon(idCard.getCardImage()));
 			}
 		} else {
-			// ticketInitPanel.showIDCardImage(new
+			// readedPanel.showIDCardImage(new
 			// ImageIcon(DeviceConfig.idReaderImgPath));
-			ticketInitPanel.showIDCardImage(null);
+			readedPanel.showIDCardImage(null);
 		}
 		if (ticket != null) {
-			ticketInitPanel.showTicketInfo(new ImageIcon(DeviceConfig.readedQRImgPath));
+			readedPanel.showTicketInfo(new ImageIcon(DeviceConfig.readedQRImgPath));
 		} else {
-			// ticketInitPanel.showTicketInfo(new
+			// readedPanel.showTicketInfo(new
 			// ImageIcon(DeviceConfig.qrReaderImgPath));
-			ticketInitPanel.showTicketInfo(null);
+			readedPanel.showTicketInfo(null);
 		}
 
 		contentPane.repaint();
@@ -420,12 +420,12 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 			// showStatusImage(icon);
 			//
 			// ticketPanel.setVisible(true);
-			// secondInitPanel.setVisible(false);
-			// waitPanel.setVisible(false);
-			// ticketInitPanel.setVisible(false);
-			// contentPane.remove(secondInitPanel);
-			// contentPane.remove(ticketInitPanel);
-			// contentPane.remove(waitPanel);
+			// verifyInitPanel.setVisible(false);
+			// verifyWaitPanel.setVisible(false);
+			// readedPanel.setVisible(false);
+			// contentPane.remove(verifyInitPanel);
+			// contentPane.remove(readedPanel);
+			// contentPane.remove(verifyWaitPanel);
 			// contentPane.remove(bottomPanel);
 			// contentPane.add(ticketPanel);
 			// contentPane.add(bottomPanel);
@@ -451,17 +451,17 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		try {
 			labelTitle.setText("");
 
-			waitPanel.showWaitMsg(msg1, msg2);
+			verifyWaitPanel.showWaitMsg(msg1, msg2);
 
 			ticketPanel.setVisible(false);
-			waitPanel.setVisible(true);
-			ticketInitPanel.setVisible(false);
-			secondInitPanel.setVisible(false);
-			contentPane.remove(secondInitPanel);
-			contentPane.remove(ticketInitPanel);
+			verifyWaitPanel.setVisible(true);
+			readedPanel.setVisible(false);
+			verifyInitPanel.setVisible(false);
+			contentPane.remove(verifyInitPanel);
+			contentPane.remove(readedPanel);
 			contentPane.remove(ticketPanel);
 			contentPane.remove(bottomPanel);
-			contentPane.add(waitPanel);
+			contentPane.add(verifyWaitPanel);
 			contentPane.add(bottomPanel);
 			contentPane.repaint();
 
@@ -499,12 +499,12 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 			showStatusImage(icon);
 
 			ticketPanel.setVisible(true);
-			waitPanel.setVisible(false);
-			ticketInitPanel.setVisible(false);
-			secondInitPanel.setVisible(false);
-			contentPane.remove(secondInitPanel);
-			contentPane.remove(ticketInitPanel);
-			contentPane.remove(waitPanel);
+			verifyWaitPanel.setVisible(false);
+			readedPanel.setVisible(false);
+			verifyInitPanel.setVisible(false);
+			contentPane.remove(verifyInitPanel);
+			contentPane.remove(readedPanel);
+			contentPane.remove(verifyWaitPanel);
 			contentPane.remove(bottomPanel);
 			contentPane.add(ticketPanel);
 			contentPane.add(bottomPanel);
@@ -544,12 +544,12 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 			showStatusImage(icon);
 
 			ticketPanel.setVisible(true);
-			secondInitPanel.setVisible(false);
-			waitPanel.setVisible(false);
-			ticketInitPanel.setVisible(false);
-			contentPane.remove(secondInitPanel);
-			contentPane.remove(ticketInitPanel);
-			contentPane.remove(waitPanel);
+			verifyInitPanel.setVisible(false);
+			verifyWaitPanel.setVisible(false);
+			readedPanel.setVisible(false);
+			contentPane.remove(verifyInitPanel);
+			contentPane.remove(readedPanel);
+			contentPane.remove(verifyWaitPanel);
 			contentPane.remove(bottomPanel);
 			contentPane.add(ticketPanel);
 			contentPane.add(bottomPanel);
@@ -570,8 +570,8 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		timeRefresh();
-		// log.debug("TicketCheckFrame 计时开始==" + (timeIntevel - 1));
-		if (timeIntevel >= 0) {
+		// log.debug("TicketVerifyFrame 计时开始==" + (timeIntevel - 1));
+		if (timeIntevel > 0) {
 			if (this.titleStrType == 1) {
 				labelTitle.setText("还需扫火车票二维码   " + (timeIntevel - 1));
 				labelTitle.setForeground(Color.RED);
@@ -595,7 +595,7 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 						DeviceEventListener.getInstance().resetTicketAndIDCard();
 						log.debug("等待结束，clean 已刷的ticket and idCard!");
 					} catch (Exception ex) {
-						log.error("TicketCheckFrame showDefaultContent:", ex);
+						log.error("TicketVerifyFrame showDefaultContent:", ex);
 					}
 				}
 				showDefaultContent();

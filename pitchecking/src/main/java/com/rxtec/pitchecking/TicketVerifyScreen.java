@@ -12,6 +12,7 @@ import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.gui.VideoPanel;
+import com.rxtec.pitchecking.gui.ticketgui.TicketVerifyFrame;
 
 /**
  * 单独管理第一块屏的屏幕事件
@@ -26,7 +27,7 @@ public class TicketVerifyScreen {
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	GraphicsDevice[] gs = ge.getScreenDevices();
 
-	TicketCheckFrame ticketFrame = new TicketCheckFrame();
+	TicketVerifyFrame ticketFrame = new TicketVerifyFrame();
 
 	private TicketVerifyScreen() {
 

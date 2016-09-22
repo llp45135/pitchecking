@@ -14,7 +14,6 @@ import com.rxtec.pitchecking.TicketCheckScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
-import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.gui.VideoPanel;
 
 public class TestFaceVerifyScreen {

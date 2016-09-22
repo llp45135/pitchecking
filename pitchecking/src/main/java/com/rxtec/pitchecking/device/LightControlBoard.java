@@ -7,6 +7,7 @@ import org.xvolks.jnative.Type;
 import org.xvolks.jnative.exceptions.NativeException;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.utils.CommUtil;
 
 /**
  * 错误码 错误值 标识符 错误描述 0 _CB_SUCCESS 函数执行成功;
@@ -20,6 +21,8 @@ import com.rxtec.pitchecking.Config;
 public class LightControlBoard {
 	private static Logger log = LoggerFactory.getLogger("LightControlBoard");
 
+	private static LightControlBoard _instance = new LightControlBoard();
+
 	private JNative Cb_InitJnative = null;
 	private JNative Cb_ExitJnative = null;
 	private JNative Cb_OpenComJnative = null;
@@ -30,7 +33,11 @@ public class LightControlBoard {
 	private JNative Cb_LightUnitOffJnative = null;
 	private JNative Cb_EnableShortPressJnative = null;
 
-	public LightControlBoard() {
+	public static LightControlBoard getInstance() {
+		return _instance;
+	}
+
+	private LightControlBoard() {
 		try {
 			Cb_InitJnative = new JNative("ControlBoardSDK.dll", "Cb_InitSDK");
 			Cb_ExitJnative = new JNative("ControlBoardSDK.dll", "Cb_ExitSDK");
@@ -45,6 +52,31 @@ public class LightControlBoard {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * 点亮摄像头补光灯
+	 * 
+	 * @return
+	 */
+	public int startLED() {
+		// LightControlBoard cb = LightControlBoard.getInstance();
+		if (this.Cb_InitSDK() == 0) {
+			if (this.Cb_OpenCom(DeviceConfig.getInstance().getCameraLEDPort()) == 0) {
+				if (this.Cb_LightUnitOff(DeviceConfig.CameraLEDUnit, DeviceConfig.CameraLEDLevel) != 0) {
+					return 0;
+				}
+				CommUtil.sleep(1000);
+				if (this.Cb_LightUnitOn(DeviceConfig.CameraLEDUnit, DeviceConfig.CameraLEDLevel) != 0) {
+					return 0;
+				}
+			} else {
+				return 0;
+			}
+		} else {
+			return 0;
+		}
+		return 1;
 	}
 
 	/**
@@ -238,7 +270,7 @@ public class LightControlBoard {
 			Cb_EnableShortPressJnative.setRetVal(Type.INT);
 			Cb_EnableShortPressJnative.invoke();
 			retval = Cb_EnableShortPressJnative.getRetValAsInt();
-			log.info("Cb_EnableShortPressJnative : retval==" + retval);//获取返回值
+			log.info("Cb_EnableShortPressJnative : retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -253,11 +285,11 @@ public class LightControlBoard {
 		LightControlBoard cb = new LightControlBoard();
 		if (cb.Cb_InitSDK() == 0) {
 			if (cb.Cb_OpenCom(DeviceConfig.getInstance().getCameraLEDPort()) == 0) {
-//				cb.Cb_LightUnitOn(0, 30);
-				cb.Cb_LightUnitOff(0,30);
+				// cb.Cb_LightUnitOn(0, 30);
+				cb.Cb_LightUnitOff(0, 30);
 			}
 		}
-		
+
 	}
 
 }

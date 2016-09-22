@@ -92,9 +92,9 @@ public class EventHandler {
 			Ticket ticket = new Ticket();
 			IDCard idCard = new IDCard();
 			idCard.setIdNo(b.getUuid());
-			idCard.setAge(30);
+			idCard.setAge(b.getAge());
 			idCard.setCardImageBytes(b.getIdPhoto());
-			b.setDelaySeconds(25);
+			b.setDelaySeconds(Config.getInstance().getFaceCheckDelayTime());
 			log.info("getDelaySeconds=="+b.getDelaySeconds());
 			verifyFaceTask.beginCheckFace(idCard, ticket, b.getDelaySeconds());
 		}else if(Config.GetVerifyFaceResultInnerEvent.equals(eventName)) {

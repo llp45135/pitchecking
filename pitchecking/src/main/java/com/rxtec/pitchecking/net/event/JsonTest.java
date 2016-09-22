@@ -6,7 +6,9 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jogamp.opengl.util.awt.ImageUtil;
 import com.rxtec.pitchecking.Config;
@@ -20,8 +22,9 @@ public class JsonTest {
 
 		try {
 //			testPIVerifyEventBean();
-			testPIVerifyResultBean();
-		} catch (IOException e) {
+//			testPIVerifyResultBean();
+			testPIVerifyRequestBean();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -50,6 +53,16 @@ public class JsonTest {
 		
 		byte[] ss = b1.getIdPhoto();
 		CommUtil.byte2image(ss, "D:/maven/git/test.jpg");
+	}
+	
+	public static void testPIVerifyRequestBean() throws IOException, JsonMappingException, Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonStr = "{  \"eventDirection\" : 1,  \"eventName\" : \"CAM_GetPhotoInfo\",   \"uuid\":\"520203199612169998\",   \"iDelay\":10 }";
+		PIVerifyRequestBean bean = mapper.readValue(jsonStr, PIVerifyRequestBean.class);
+		System.out.println("getEventName=="+bean.getEventName());
+		System.out.println("getUuid=="+bean.getUuid());
+		System.out.println("getiDelay=="+bean.getiDelay());
+		System.out.println("getEventDirection=="+bean.getEventDirection());
 	}
 
 	

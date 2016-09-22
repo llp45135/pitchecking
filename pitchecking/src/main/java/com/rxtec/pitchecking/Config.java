@@ -120,7 +120,14 @@ public class Config {
 
 	private float faceCheckThreshold = (float) 0.68;
 	private float glassFaceCheckThreshold = (float) 0.65;
-	private int faceCheckDelayTime = 10;
+	/**
+	 * 总超时时间
+	 */
+	private int faceCheckDelayTime = 20;   //总超时时间
+	/**
+	 * 延时通过时间
+	 */
+	private int checkDelayPassTime = 8;   //延时通过时间
 	private int fastFaceDetect = 1;
 	private int faceCheckingInteval = 100;
 	private int defaultFaceCheckScreenDeley = 1000;
@@ -355,6 +362,14 @@ public class Config {
 		this.faceCheckDelayTime = faceCheckDelayTime;
 	}
 
+	public int getCheckDelayPassTime() {
+		return checkDelayPassTime;
+	}
+
+	public void setCheckDelayPassTime(int checkDelayPassTime) {
+		this.checkDelayPassTime = checkDelayPassTime;
+	}
+
 	public int getDefaultFaceCheckScreenDeley() {
 		return defaultFaceCheckScreenDeley;
 	}
@@ -421,7 +436,8 @@ public class Config {
 			p.load(is);
 			this.faceCheckThreshold = Float.valueOf(p.getProperty("FaceCheckThreshold", "0.7"));
 			this.glassFaceCheckThreshold = Float.valueOf(p.getProperty("GlassFaceCheckThreshold", "0.68"));
-			this.faceCheckDelayTime = Integer.valueOf(p.getProperty("FaceCheckDelayTime", "10"));
+			this.faceCheckDelayTime = Integer.valueOf(p.getProperty("FaceCheckDelayTime", "20"));
+			this.checkDelayPassTime = Integer.valueOf(p.getProperty("CheckDelayPassTime","10"));
 			this.fastFaceDetect = Integer.valueOf(p.getProperty("FastFaceDetect", "1"));
 			this.faceCheckingInteval = Integer.valueOf(p.getProperty("faceCheckingInteval", "100"));
 			this.defaultFaceCheckScreenDeley = Integer.valueOf(p.getProperty("DefaultFaceCheckScreenDeley", "1000"));

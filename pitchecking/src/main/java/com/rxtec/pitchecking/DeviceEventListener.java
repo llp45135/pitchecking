@@ -258,15 +258,15 @@ public class DeviceEventListener implements Runnable {
 		}else if (idCard.getIdNo().trim().equals("452502198305034618")) {
 			IDPhoto_str = "lwm.jpg";
 		}
-		log.debug("IDPhoto_str=="+IDPhoto_str);
+		log.debug("身份证路径=="+IDPhoto_str);
 		log.debug("CAM_Notify begin");
 		int notifyRet = CAMDevice.getInstance().CAM_Notify(1, uuidStr, IDPhoto_str);
 		int getPhotoRet = -1;
 		if (notifyRet == 0) {
 			AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音“请平视摄像头”
 																		// 需要语音线程已启动
-			int delaySeconds = Config.getInstance().getFaceCheckDelayTime();
-			getPhotoRet = CAMDevice.getInstance().CAM_GetPhotoInfo(uuidStr, delaySeconds * 1000);
+			int delaySeconds = 10;
+			getPhotoRet = CAMDevice.getInstance().CAM_GetPhotoInfo(uuidStr, delaySeconds * 1000);  //此处传入的delaySeconds是为了控制检脸通过速率而设置
 		}
 		log.debug("getphotoRet==" + getPhotoRet);
 		return getPhotoRet;
@@ -293,10 +293,10 @@ public class DeviceEventListener implements Runnable {
 			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 			return;
 		}
-		if (this.startLED() != 1) {
-			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
-			return;
-		}
+//		if (this.startLED() != 1) {
+//			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+//			return;
+//		}
 		if (this.addQuartzJobs() != 1) {
 			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 			return;
@@ -347,7 +347,8 @@ public class DeviceEventListener implements Runnable {
 	 * @return
 	 */
 	private int OpenCAM() {
-		int[] region = { 0, 0, 640, 480, 65, 1, 3000 };
+		int faceTimeout = Config.getInstance().getFaceCheckDelayTime();//总超时时间
+		int[] region = { 0, 0, 640, 480, 65, 1, faceTimeout };
 		int retVal = CAMDevice.getInstance().CAM_Open(region);
 		return retVal;
 	}
@@ -384,7 +385,7 @@ public class DeviceEventListener implements Runnable {
 	 * @return
 	 */
 	private int startLED() {
-		LightControlBoard cb = new LightControlBoard();
+		LightControlBoard cb = LightControlBoard.getInstance();
 		if (cb.Cb_InitSDK() == 0) {
 			if (cb.Cb_OpenCom(DeviceConfig.getInstance().getCameraLEDPort()) == 0) {
 				if (cb.Cb_LightUnitOff(DeviceConfig.CameraLEDUnit, DeviceConfig.CameraLEDLevel) != 0) {

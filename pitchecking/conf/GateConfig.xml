@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PitCheckMsg>
-	<GateConfig versionFlag="1" gateNo="01" belongStationCode="IZQ"
+	<GateConfig versionFlag="0" gateNo="01" belongStationCode="IZQ"
 		faceScreen="0" ticketScreen="0" checkTicketFlag="1" readerTimeDelay="10"
 		succTimeDelay="4" idDeviceType="H" qrDeviceType="H" autoLogonCron="0 0 5 * * ?" />
 	<GateCrtlConfig cameraLEDPort="1" firstGateCrtlPort="COM2"
