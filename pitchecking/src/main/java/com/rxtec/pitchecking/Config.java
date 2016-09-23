@@ -99,6 +99,9 @@ public class Config {
 	public static String AutoRestartCmd= "C:/pitchecking/bin/autoRestartPC.bat";
 	public static String AutoLogonCmd= "C:/pitchecking/bin/autoLogonPC.bat";
 	
+	//人脸比对结果状态
+	public static int VerifyPassedStatus = 0;
+	public static int VerifyFailedStatus = 1;
 	
 
 

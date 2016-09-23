@@ -151,7 +151,13 @@ class ResultSubscriberUtils {
 			try {
 				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
 				PITVerifyData fd = (PITVerifyData)ois.readObject();
-				FaceCheckingService.getInstance().offerPassFaceData(fd);
+				
+				if(fd.getVerifyResult() >= Config.getInstance().getFaceCheckThreshold())
+					//比对成功的offer到成功队列
+					FaceCheckingService.getInstance().offerPassFaceData(fd);
+				else 
+					//比对失败的offer到失败队列
+					FaceCheckingService.getInstance().offerFailedFaceData(fd);
 			} catch (IOException | ClassNotFoundException e) {
 				Log.error("processMessage",e);
 			}

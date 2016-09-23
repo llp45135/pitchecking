@@ -51,14 +51,15 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					fd.setVerifyResult(resultValue);
 					int usingTime = (int) (Calendar.getInstance().getTimeInMillis() - nowMils);
 
-					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
-						publisher.publishResult(fd); // 比对结果公布
-						FaceCheckingService.getInstance().resetFaceDataQueue();
-					}
-					
-					
+//					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
+//						publisher.publishResult(fd); // 比对结果公布
+//						FaceCheckingService.getInstance().resetFaceDataQueue();
+//					}
 					
 					log.info("Face verify result="+resultValue);
+					publisher.publishResult(fd); // 比对结果公布
+					FaceCheckingService.getInstance().resetFaceDataQueue();
+					
 //					PitRecordLoger.getInstance().offer(fd);
 //					FaceVerifyServiceStatistics.getInstance().update(resultValue, usingTime, fd.getFaceDistance());
 					FaceImageLog.saveFaceDataToDsk(fd);

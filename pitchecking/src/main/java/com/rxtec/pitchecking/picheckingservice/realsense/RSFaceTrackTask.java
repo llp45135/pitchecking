@@ -574,7 +574,6 @@ public class RSFaceTrackTask implements Runnable {
 	public void stopCheckingFace() {
 		currentIDCard = null;
 		currentTicket = null;
-		FaceCheckingService.getInstance().resetFaceDataQueue();
 		log.debug("stopCheckingFace......");
 	}
 

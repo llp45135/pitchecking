@@ -1,6 +1,7 @@
 package com.rxtec.pitchecking.picheckingservice;
 
-import java.util.Calendar;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,8 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.domain.FailedFace;
-import com.rxtec.pitchecking.mq.JmsSender;
-import com.rxtec.pitchecking.net.PIVerifyEventSubscriber;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
 import com.rxtec.pitchecking.net.PTVerifyPublisher;
 
@@ -32,6 +31,9 @@ public class FaceCheckingService {
 
 	// 比对验证通过的队列
 	private LinkedBlockingQueue<PITVerifyData> passFaceDataQueue;
+	
+	// 比对未通过验证的List，按照分值排序，分值高的在前
+	private List<PITVerifyData> failedFaceDataList;
 
 	private FailedFace failedFace = null;
 
@@ -51,6 +53,7 @@ public class FaceCheckingService {
 		detectedFaceDataQueue = new LinkedBlockingQueue<PITData>(Config.getInstance().getDetectededFaceQueueLen());
 		faceVerifyDataQueue = new LinkedBlockingQueue<PITVerifyData>(Config.getInstance().getDetectededFaceQueueLen());
 		passFaceDataQueue = new LinkedBlockingQueue<PITVerifyData>(1);
+		failedFaceDataList = new LinkedList<PITVerifyData>();
 	}
 
 	public static synchronized FaceCheckingService getInstance() {
@@ -59,10 +62,16 @@ public class FaceCheckingService {
 		return _instance;
 	}
 
+	//从阻塞队列中返回比对成功的人脸
 	public PITVerifyData pollPassFaceData(int delaySeconds) throws InterruptedException {
-		
 		PITVerifyData fd = passFaceDataQueue.poll(delaySeconds, TimeUnit.SECONDS);
 		return fd;
+	}
+	
+	//返回人脸比对分值最高的,比对未通过的人脸数据
+	public PITVerifyData pollFailedFaceData(){
+		if(failedFaceDataList.size()>0) return failedFaceDataList.get(0);
+		return null;
 	}
 
 	public PITData takeDetectedFaceData() throws InterruptedException {
@@ -75,15 +84,23 @@ public class FaceCheckingService {
 	public PITVerifyData takeFaceVerifyData() throws InterruptedException {
 		PITVerifyData v = faceVerifyDataQueue.take();
 		log.debug("detectedFaceDataQueue length=" + detectedFaceDataQueue.size());
-
 		return v;
 	}
 
+	//Offer 比对成功的人脸到阻塞队列
 	public void offerPassFaceData(PITVerifyData fd) {
 		isCheck = passFaceDataQueue.offer(fd);
 		log.debug("offerPassFaceData...... " + isCheck);
 	}
 
+	//添加比对失败的人脸到队列，按照比对比对结果分值排序
+	public void offerFailedFaceData(PITVerifyData fd) {
+		log.debug("offerFailedFaceData list length= " + failedFaceDataList.size());
+		failedFaceDataList.add(fd);
+		Collections.sort(failedFaceDataList);
+	}
+
+	
 	public void offerDetectedFaceData(PITData faceData) {
 		if (!detectedFaceDataQueue.offer(faceData)) {
 			detectedFaceDataQueue.poll();
@@ -120,6 +137,7 @@ public class FaceCheckingService {
 		detectedFaceDataQueue.clear();
 		faceVerifyDataQueue.clear();
 		passFaceDataQueue.clear();
+		failedFaceDataList.clear();
 	}
 
 	ExecutorService executor = Executors.newCachedThreadPool();

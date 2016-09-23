@@ -7,7 +7,7 @@ import java.util.Date;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
-public class PITVerifyData implements Serializable {
+public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 
 	/**
 	 * 
@@ -233,5 +233,11 @@ public class PITVerifyData implements Serializable {
 		}else{
 			return "idNo=" + idNo + " 图像数据缺失: idCardImg=" + idCardImg +" faceImg=" + faceImg;
 		}
+	}
+
+	@Override
+	public int compareTo(PITVerifyData o) {
+		if(this.verifyResult > o.getVerifyResult()) return 1;
+		else return -1;
 	}
 }

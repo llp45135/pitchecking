@@ -1,11 +1,14 @@
 package com.rxtec.pitchecking.net.event;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import com.rxtec.pitchecking.Ticket;
 
 public class PIVerifyEventBean {
 	private String eventName = "CAM_Notify";
 	private int eventDirection = 1;
-	private String uuid;
+	private String uuid;		//身份证号码
 	private byte[] idPhoto;
 
 	private String personName;
@@ -44,6 +47,22 @@ public class PIVerifyEventBean {
 
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
+		this.convertIDNo(uuid);
+	}
+	
+	//根据身份证号码转换年龄和性别
+	private void convertIDNo(String uuid){
+		if(uuid == null || uuid.length() != 18) return;
+		String gs = uuid.substring(14, 16);
+		int i = Integer.parseInt(gs);
+		int g = i & 1;
+		this.setGender(g);
+		String as = uuid.substring(6,9);
+		int by = Integer.parseInt(as);
+		Calendar c = Calendar.getInstance();
+		c.setTime(new Date());
+		int year = c.get(Calendar.YEAR);
+		this.setAge(year - by);
 	}
 
 	public byte[] getIdPhoto() {

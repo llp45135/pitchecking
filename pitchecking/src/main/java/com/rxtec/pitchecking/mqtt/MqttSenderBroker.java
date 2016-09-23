@@ -168,7 +168,7 @@ public class MqttSenderBroker {
 	 * 
 	 * @param data
 	 */
-	public boolean publishResult(PITVerifyData data) {
+	public boolean publishResult(PITVerifyData data,int verifyStatus) {
 		log.info("$$$$$$$$$$$$$$$准备发送人脸比对结果到CAM.dll by MQTT$$$$$$$$$$$$$$$$$$");
 		if (data == null)
 			return false;
@@ -196,6 +196,7 @@ public class MqttSenderBroker {
 		resultBean.setPhoto1(data.getFaceImg());
 		resultBean.setPhoto2(data.getFaceImg());
 		resultBean.setPhoto3(data.getFaceImg());
+		resultBean.setVerifyStatus(verifyStatus);
 
 		String jsonString;
 		try {

@@ -82,7 +82,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 
 			// 向闸机主控程序发布比对结果
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
-			mqttSenderBroker.publishResult(fd); // MQTT版本 比对结果发布
+			mqttSenderBroker.publishResult(fd,Config.VerifyPassedStatus); // MQTT版本 比对结果发布
 
 			log.debug("准备发布faceframe事件");
 			FaceTrackingScreen.getInstance().offerEvent(
@@ -113,7 +113,11 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.debug("pollPassFaceData, using " + usingTime + " value = null");
 			faceTrackService.stopCheckingFace();
-
+			
+			PITVerifyData failedFd = FaceCheckingService.getInstance().pollFailedFaceData();
+			if(failedFd != null) 
+				mqttSenderBroker.publishResult(fd,Config.VerifyFailedStatus); // MQTT版本 比对结果发布 ,人脸比对失败！ 状态为1
+			
 			// // mq发送人脸
 			// if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
 			// FailedFace failedFace =
@@ -135,7 +139,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getVerifyResult());
 			// 向闸机主控程序发布比对结果
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
-			mqttSenderBroker.publishResult(fd); // MQTT版本 比对结果发布
+			mqttSenderBroker.publishResult(fd,Config.VerifyPassedStatus); // MQTT版本 比对结果发布 ,人脸比对失败！ 状态为0
 			// mqttSenderBroker.testPublishFace();
 
 			faceTrackService.stopCheckingFace();

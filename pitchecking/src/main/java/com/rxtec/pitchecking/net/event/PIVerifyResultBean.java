@@ -11,7 +11,14 @@ public class PIVerifyResultBean {
 	private byte[] photo1;
 	private byte[] photo2;
 	private byte[] photo3;
+	private int verifyStatus = 0;		//比对结果状态，0 代表比对成功，1代表比对未通过（到达超时时间！）
 	
+	public int getVerifyStatus() {
+		return verifyStatus;
+	}
+	public void setVerifyStatus(int verifyStatus) {
+		this.verifyStatus = verifyStatus;
+	}
 	public int getPhotoLen3() {
 		return photoLen3;
 	}
