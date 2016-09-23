@@ -177,12 +177,12 @@ public class MqttReceiverBroker {
 
 					b1.setEventDirection(2);
 					
-					String birthstr = b1.getUuid().substring(6,14);
-					String birthday = birthstr.substring(0, 4) + "-" + birthstr.substring(4, 6) + "-"
-							+ birthstr.substring(6, 8);
-					String today = DateUtils.getStringDateShort();
-					int personAge = DateUtils.getAge(birthday, today);
-					b1.setAge(personAge);
+//					String birthstr = b1.getUuid().substring(6,14);
+//					String birthday = birthstr.substring(0, 4) + "-" + birthstr.substring(4, 6) + "-"
+//							+ birthstr.substring(6, 8);
+//					String today = DateUtils.getStringDateShort();
+//					int personAge = DateUtils.getAge(birthday, today);
+//					b1.setAge(personAge);
 					
 					String notifyResultJson = mapper.writeValueAsString(b1);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, notifyResultJson);
