@@ -14,7 +14,7 @@ import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
 import com.rxtec.pitchecking.net.event.PIVerifyRequestBean;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 /**
  * 本类由人脸检测进程使用 目的是接收主控进程的检脸请求，同时发布检脸命令开始检脸 还可以接收主控进程的其他指令
@@ -78,8 +78,7 @@ public class MqttReceiverBroker {
 	private void connect() throws MqttException {
 		log.info("connect to MqttReceiverBroker.");
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
-		log.info(
-				"***********register Simple Handler " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "***********");
+		log.info("***********register Simple Handler " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "***********");
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
 		mqttClient.registerSimpleHandler(simpleCallbackHandler);// 注册接收消息方法
@@ -149,56 +148,49 @@ public class MqttReceiverBroker {
 		@Override
 		public void publishArrived(String topicName, byte[] payload, int Qos, boolean retained) throws Exception {
 			// TODO Auto-generated method stub
-//			log.info("订阅主题: " + topicName);
-//			log.info("消息数据: " + new String(payload));
-//			log.info("消息级别(0,1,2): " + Qos);
-//			log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
+			// log.info("订阅主题: " + topicName);
+			// log.info("消息数据: " + new String(payload));
+			// log.info("消息级别(0,1,2): " + Qos);
+			// log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String mqttMessage = new String(payload);
 
 			if (topicName.equals("pub_topic")) {
-				if (mqttMessage.toString().indexOf("CAM_Open") != -1) {
+				if (mqttMessage.indexOf("CAM_Open") != -1) {
 					ObjectMapper mapper = new ObjectMapper();
 					CAMOpenBean camOpenBean = mapper.readValue(mqttMessage, CAMOpenBean.class);
-					int faceTimeout = camOpenBean.getTimeout();   //从cam_open输出的结构体获取到总超时时间
+					int faceTimeout = camOpenBean.getTimeout(); // 从cam_open输出的结构体获取到总超时时间
 					Config.getInstance().setFaceCheckDelayTime(faceTimeout);
-					log.info("CAM_Open faceTimeout=="+faceTimeout);
-					
-					camOpenBean.setEventDirection(2);  
+					log.info("CAM_Open faceTimeout==" + faceTimeout);
+
+					camOpenBean.setEventDirection(2);
 					String camOpenResultJson = mapper.writeValueAsString(camOpenBean);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, camOpenResultJson);
 
-				} else if (mqttMessage.toString().indexOf("CAM_Notify") != -1) {
+				} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
+					MqttSenderBroker.getInstance().setNotifyJson(mqttMessage); // 把notify保存起来
+
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyEventBean b1 = mapper.readValue(mqttMessage, PIVerifyEventBean.class);
-
-//					byte[] photo_array = b1.getIdPhoto();
-//					CommUtil.byte2image(photo_array, "idcard_test.jpg");
-
 					b1.setEventDirection(2);
-					
-//					String birthstr = b1.getUuid().substring(6,14);
-//					String birthday = birthstr.substring(0, 4) + "-" + birthstr.substring(4, 6) + "-"
-//							+ birthstr.substring(6, 8);
-//					String today = DateUtils.getStringDateShort();
-//					int personAge = DateUtils.getAge(birthday, today);
-//					b1.setAge(personAge);
-					
+					b1.setIdPhoto(null);
+
 					String notifyResultJson = mapper.writeValueAsString(b1);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, notifyResultJson);
 
-					// 收到调用CAM_Notify方式的请求开始人脸检测的event
-					if (DeviceConfig.getInstance().getVersionFlag() == 1) {
-						eventHandler.InComeEventHandler(mqttMessage.toString());
-					}
-				} else if (mqttMessage.toString().indexOf("CAM_GetPhotoInfo") != -1) {
+				} else if (mqttMessage.indexOf("CAM_GetPhotoInfo") != -1) {
 					// System.out.println("^^^^^^^^^^^^^^^^^^^");
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyRequestBean bean = mapper.readValue(mqttMessage, PIVerifyRequestBean.class);
-					log.info("CAM_GetPhotoInfo.uuid=="+bean.getUuid());
-					log.info("CAM_GetPhotoInfo.iDelay=="+bean.getiDelay());  //控制通过速率的延时时间
+					log.info("CAM_GetPhotoInfo.uuid==" + bean.getUuid());
+					log.info("CAM_GetPhotoInfo.iDelay==" + bean.getiDelay()); // 控制通过速率的延时时间
 					Config.getInstance().setCheckDelayPassTime(bean.getiDelay());
-					
+
+					// 收到调用CAM_GetPhotoInfo方式的请求开始人脸检测
+					if (DeviceConfig.getInstance().getVersionFlag() == 1) {
+						eventHandler.InComeEventHandler(MqttSenderBroker.getInstance().getNotifyJson());
+					}
+
 					if (DeviceConfig.getInstance().getVersionFlag() == 0) {
 						MqttSenderBroker.getInstance().testPublishFace();
 					}

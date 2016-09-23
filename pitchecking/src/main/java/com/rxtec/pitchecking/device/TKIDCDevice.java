@@ -18,7 +18,7 @@ import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 public class TKIDCDevice {
 	private Logger log = LoggerFactory.getLogger("TKIDCDevice");
@@ -288,9 +288,9 @@ public class TKIDCDevice {
 				log.debug("IDBirth==" + birthstr);
 				String birthday = birthstr.substring(0, 4) + "-" + birthstr.substring(4, 6) + "-"
 						+ birthstr.substring(6, 8);
-				String today = DateUtils.getStringDateShort();
+				String today = CalUtils.getStringDateShort();
 				// log.debug("birthday==" + birthday);
-				int personAge = DateUtils.getAge(birthday, today);
+				int personAge = CalUtils.getAge(birthday, today);
 				synIDCard.setAge(personAge); // set age
 				log.debug("出生年月：" + birthstr.substring(0, 4) + "年" + birthstr.substring(4, 6) + "月"
 						+ birthstr.substring(6, 8) + "日" + ",personAge==" + personAge);

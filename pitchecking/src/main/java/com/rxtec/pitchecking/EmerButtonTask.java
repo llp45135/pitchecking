@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.device.SecondGateDevice;
 import com.rxtec.pitchecking.domain.EmerButtonEvent;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 public class EmerButtonTask implements Runnable {
 	private Logger log = LoggerFactory.getLogger("EmerButtonTask");
@@ -69,7 +69,7 @@ public class EmerButtonTask implements Runnable {
 
 			EmerButtonEvent embEvent = new EmerButtonEvent();
 			embEvent.setEventNo("01");
-			embEvent.setEventTime(DateUtils.getStringDateHaomiao());
+			embEvent.setEventTime(CalUtils.getStringDateHaomiao());
 			EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
 		}
 	}

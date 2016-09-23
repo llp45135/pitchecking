@@ -15,7 +15,7 @@ import com.rxtec.pitchecking.TicketVerifyScreen;
 import com.rxtec.pitchecking.domain.EmerButtonEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
@@ -325,13 +325,13 @@ public class SecondGateDevice implements SerialPortEventListener {
 						log.debug("旅客求助按钮被按下");
 						EmerButtonEvent embEvent = new EmerButtonEvent();
 						embEvent.setEventNo("01");
-						embEvent.setEventTime(DateUtils.getStringDateHaomiao());
+						embEvent.setEventTime(CalUtils.getStringDateHaomiao());
 						EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
 					} else if (ss.indexOf("2A560123") == 0) {
 						log.debug("客运求助按钮被按下");
 						EmerButtonEvent embEvent = new EmerButtonEvent();
 						embEvent.setEventNo("02");
-						embEvent.setEventTime(DateUtils.getStringDateHaomiao());
+						embEvent.setEventTime(CalUtils.getStringDateHaomiao());
 						EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
 					}
 					readBuffer.delete(0, readBuffer.length());

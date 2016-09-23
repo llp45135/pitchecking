@@ -12,7 +12,7 @@ import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.IDReader;
 import com.rxtec.pitchecking.QRReader;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 public class VguangApi{
 	private static Log log = LogFactory.getLog("VguangApi");
@@ -100,7 +100,7 @@ public class VguangApi{
 	public static void decodeCallBack(byte[] decodeStrBytes) {
 		String str = new String(decodeStrBytes);
 //		 log.debug("str==" + str);
-		String year = DateUtils.getStringDateShort2().substring(0, 4);
+		String year = CalUtils.getStringDateShort2().substring(0, 4);
 		QRReader.getInstance().performDeviceCallback(str, year);
 	}
 

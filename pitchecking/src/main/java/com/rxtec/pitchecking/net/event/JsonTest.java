@@ -22,8 +22,8 @@ public class JsonTest {
 
 		try {
 //			testPIVerifyEventBean();
-//			testPIVerifyResultBean();
-			testPIVerifyRequestBean();
+			testPIVerifyResultBean();
+//			testPIVerifyRequestBean();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -73,6 +73,7 @@ public class JsonTest {
 		b.setUuid("520203199612169998");
 		b.setEventDirection(2);
 		b.setEventName("CAM_GetPhotoInfo");
+		b.setiDelay(10);
 
 		BufferedImage bi;
 
@@ -88,21 +89,22 @@ public class JsonTest {
 		b.setPhoto2(biArray);
 		b.setPhotoLen3(biArray.length);
 		b.setPhoto3(biArray);
+		b.setVerifyStatus(1);
 		
 		String jsonString = mapper.writeValueAsString(b);
-//		System.out.println(jsonString);
+		System.out.println(jsonString);
 
-		PIVerifyResultBean b1 = mapper.readValue(jsonString,PIVerifyResultBean.class);
-		System.out.println(b1);
-		byte[] a1 = b1.getPhoto1();
-		CommUtil.byte2image(a1, "D:/maven/git/a1.jpg");
-		
-		byte[] a2 = b1.getPhoto1();
-		CommUtil.byte2image(a2, "D:/maven/git/a2.jpg");
-		
-		byte[] a3 = b1.getPhoto1();
-		CommUtil.byte2image(a3, "D:/maven/git/a3.jpg");
-		
+//		PIVerifyResultBean b1 = mapper.readValue(jsonString,PIVerifyResultBean.class);
+//		System.out.println(b1);
+//		byte[] a1 = b1.getPhoto1();
+//		CommUtil.byte2image(a1, "D:/maven/git/a1.jpg");
+//		
+//		byte[] a2 = b1.getPhoto1();
+//		CommUtil.byte2image(a2, "D:/maven/git/a2.jpg");
+//		
+//		byte[] a3 = b1.getPhoto1();
+//		CommUtil.byte2image(a3, "D:/maven/git/a3.jpg");
+//		
 //		EventHandler tool = new EventHandler();
 		
 

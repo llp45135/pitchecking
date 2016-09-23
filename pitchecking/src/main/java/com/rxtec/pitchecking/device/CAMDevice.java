@@ -198,7 +198,7 @@ public class CAMDevice {
 			pointerUUID.setMemory(uuidArray);
 
 			pointerOut = new Pointer(
-					MemoryBlockFactory.createMemoryBlock(4 + 36 + 4 + 100000 + 4 + 100000 + 4 + 300000));
+					MemoryBlockFactory.createMemoryBlock(4 + 36 + 4 + 100000 + 4 + 100000 + 4 + 100000));
 			
 			pointerOut.zeroMemory();
 			
@@ -302,7 +302,7 @@ public class CAMDevice {
 			String IDPhoto_str = "C:/maven/git/pitchecking/zp.jpg";
 			int notify = cam.CAM_Notify(1, uuidStr, IDPhoto_str);
 			if (notify == 0) {
-				int getPhotoRet = cam.CAM_GetPhotoInfo("520203197912141118", 20 * 1000);
+				int getPhotoRet = cam.CAM_GetPhotoInfo("520203197912141118", 20);
 				System.out.println("getPhotoRet==" + getPhotoRet);
 			}
 		}

@@ -40,7 +40,7 @@ import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.task.AutoLogonJob;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
 public class DeviceEventListener implements Runnable {
@@ -120,7 +120,7 @@ public class DeviceEventListener implements Runnable {
 		Ticket ticket = new Ticket();
 		ticket.setCardNo("520203197912141119");
 		ticket.setTicketNo("T129999");
-		ticket.setTrainDate(DateUtils.getStringDateShort2());
+		ticket.setTrainDate(CalUtils.getStringDateShort2());
 		ticket.setFromStationCode("IZQ");
 		ticket.setEndStationCode("SZQ");
 		ticket.setTicketType("0");
@@ -210,7 +210,7 @@ public class DeviceEventListener implements Runnable {
 			}
 
 			ticketVerify.reset();
-			
+
 		} else if (ticketVerifyResult == Config.TicketVerifyWaitInput) { // 等待票证验证数据
 			if (ticketVerify.getTicket() == null || ticketVerify.getIdCard() == null) {
 				TicketVerifyScreen.getInstance()
@@ -253,12 +253,12 @@ public class DeviceEventListener implements Runnable {
 		String IDPhoto_str = "llp.jpg";
 		if (idCard.getIdNo().equals("520203197912141118")) {
 			IDPhoto_str = "zhao.jpg";
-		}else if (idCard.getIdNo().trim().equals("350322198301224317")) {
+		} else if (idCard.getIdNo().trim().equals("350322198301224317")) {
 			IDPhoto_str = "cjw.jpg";
-		}else if (idCard.getIdNo().trim().equals("452502198305034618")) {
+		} else if (idCard.getIdNo().trim().equals("452502198305034618")) {
 			IDPhoto_str = "lwm.jpg";
 		}
-		log.debug("身份证路径=="+IDPhoto_str);
+		log.debug("身份证路径==" + IDPhoto_str);
 		log.debug("CAM_Notify begin");
 		int notifyRet = CAMDevice.getInstance().CAM_Notify(1, uuidStr, IDPhoto_str);
 		int getPhotoRet = -1;
@@ -266,7 +266,7 @@ public class DeviceEventListener implements Runnable {
 			AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音“请平视摄像头”
 																		// 需要语音线程已启动
 			int delaySeconds = 10;
-			getPhotoRet = CAMDevice.getInstance().CAM_GetPhotoInfo(uuidStr, delaySeconds * 1000);  //此处传入的delaySeconds是为了控制检脸通过速率而设置
+			getPhotoRet = CAMDevice.getInstance().CAM_GetPhotoInfo(uuidStr, delaySeconds); // 此处传入的delaySeconds是为了控制检脸通过速率而设置
 		}
 		log.debug("getphotoRet==" + getPhotoRet);
 		return getPhotoRet;
@@ -293,10 +293,10 @@ public class DeviceEventListener implements Runnable {
 			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 			return;
 		}
-//		if (this.startLED() != 1) {
-//			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
-//			return;
-//		}
+		// if (this.startLED() != 1) {
+		// FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+		// return;
+		// }
 		if (this.addQuartzJobs() != 1) {
 			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 			return;
@@ -347,8 +347,15 @@ public class DeviceEventListener implements Runnable {
 	 * @return
 	 */
 	private int OpenCAM() {
-		int faceTimeout = Config.getInstance().getFaceCheckDelayTime();//总超时时间
-		int[] region = { 0, 0, 640, 480, 65, 1, faceTimeout };
+		int x = 0; // 窗口左边界
+		int y = 0; // 窗口顶边界。
+		int cx = 640; // 以像素指定窗口的新的宽度。
+		int cy = 480; // 以像素指定窗口的新的高度。
+		int checkThreshold = 65; // 人脸比对阀值，取值0-100
+		int iCollect = 1; // 摄像头采集图片方式 0:固采 1：预采
+		int faceTimeout = Config.getInstance().getFaceCheckDelayTime(); // 人脸识别算法的超时时间，单位秒
+
+		int[] region = { x, y, cx, cy, checkThreshold, iCollect, faceTimeout };
 		int retVal = CAMDevice.getInstance().CAM_Open(region);
 		return retVal;
 	}
@@ -496,12 +503,12 @@ public class DeviceEventListener implements Runnable {
 		if (isRead) {
 			log.debug("读卡器开始寻卡");
 			IDReader.getInstance().start();
-//			QRReader.getInstance().start();
+			// QRReader.getInstance().start();
 			BarCodeReader.getInstance().start();
 		} else {
 			log.debug("读卡器停止寻卡");
 			IDReader.getInstance().stop();
-//			QRReader.getInstance().stop();
+			// QRReader.getInstance().stop();
 			BarCodeReader.getInstance().stop();
 		}
 	}

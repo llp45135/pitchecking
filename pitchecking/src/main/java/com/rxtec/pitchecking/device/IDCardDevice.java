@@ -31,7 +31,7 @@ import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectByPixelJNIEntryClone;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 /**
  * Syn_OpenPort Syn_SetMaxRFByte(m_Port, 80, 0); Syn_StartFindIDCard(m_Port,* *
@@ -519,9 +519,9 @@ public class IDCardDevice {
 				Info[1].getChars(9, 11, BirthdateChar, 0);
 				BirthdateStr = String.valueOf(BirthdateChar);
 				String birthday = BirthyearStr + "-" + BirthmonthStr + "-" + BirthdateStr;
-				String today = DateUtils.getStringDateShort();
+				String today = CalUtils.getStringDateShort();
 				// log.debug("birthday==" + birthday);
-				int personAge = DateUtils.getAge(birthday, today);
+				int personAge = CalUtils.getAge(birthday, today);
 				synIDCard.setAge(personAge); // set age
 				log.debug("出生年月：" + BirthyearStr + "年" + BirthmonthStr + "月" + BirthdateStr + "日" + ",personAge=="
 						+ personAge);

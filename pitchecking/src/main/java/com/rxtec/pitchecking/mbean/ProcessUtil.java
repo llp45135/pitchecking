@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 public class ProcessUtil {
 	private static Logger log = LoggerFactory.getLogger("RSFaceTrackTask");
@@ -38,7 +38,7 @@ public class ProcessUtil {
 
 	public static boolean writeHeartbeat(String pid) {
 		Date now = new Date();
-		String nowTime = DateUtils.getStringDateHaomiao();// Long.toString(now.getTime());
+		String nowTime = CalUtils.getStringDateHaomiao();// Long.toString(now.getTime());
 		try {
 			File logFile = new File(Config.getInstance().getHeartBeatLogFile());
 			if (!logFile.exists()) {

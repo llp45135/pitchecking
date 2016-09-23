@@ -87,16 +87,15 @@ public class EventHandler {
 	public void InComeEventHandler(String jsonString) throws JsonParseException, IOException {
 		String eventName = getEventName(jsonString);
 		if (Config.BeginVerifyFaceEvent.equals(eventName)) {
-			log.info("收到调用CAM_Notify方式的请求开始人脸检测的event");
+			log.info("收到调用CAM_GetPhotoInfo方式的请求开始人脸检测的event");
 			PIVerifyEventBean b = buildPIVerifyEventBean(jsonString);
 			Ticket ticket = new Ticket();
 			IDCard idCard = new IDCard();
 			idCard.setIdNo(b.getUuid());
 			idCard.setAge(b.getAge());
 			idCard.setCardImageBytes(b.getIdPhoto());
-			b.setDelaySeconds(Config.getInstance().getFaceCheckDelayTime());
-			log.info("getDelaySeconds=="+b.getDelaySeconds());
-			verifyFaceTask.beginCheckFace(idCard, ticket, b.getDelaySeconds());
+			
+			verifyFaceTask.beginCheckFace(idCard, ticket, 0);
 		}else if(Config.GetVerifyFaceResultInnerEvent.equals(eventName)) {
 //			log.debug("fd json=="+jsonString);
 			PITVerifyData fd = buildPITVerifyData(jsonString);

@@ -10,7 +10,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +63,56 @@ public class CommUtil {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static String getStringDateShort() {
+		Date currentTime = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		TimeZone timeZoneChina = TimeZone.getTimeZone("Asia/Shanghai"); // 获取时区
+		formatter.setTimeZone(timeZoneChina); // 设置系统时区
+		String dateString = formatter.format(currentTime);
+		return dateString;
+	}
+	
+	public static String getStringDateShort2() {
+		Date currentTime = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+		TimeZone timeZoneChina = TimeZone.getTimeZone("Asia/Shanghai"); // 获取时区
+		formatter.setTimeZone(timeZoneChina); // 设置系统时区
+		String dateString = formatter.format(currentTime);
+		return dateString;
+	}
+	
+	public static int getAge(String dateBegin, String dateEnd) {
+		int distance = 0; // 时间之间的天数
+		String db = dateBegin; // 开始日期
+		String de = dateEnd; // 结束日期
+
+		int strby = 0; // substring of begin date year 开始日期的年份
+		int strbm = 0; // 开始日期的月份
+		int strbd = 0; // 开始日期的日子
+		int strey = 0;
+		int strem = 0;
+		int stred = 0;
+		// 类型转换
+		strby = Integer.parseInt(db.substring(0, 4));
+		strbm = Integer.parseInt(db.substring(5, 7));
+		strbd = Integer.parseInt(db.substring(8, 10));
+		strey = Integer.parseInt(de.substring(0, 4));
+		strem = Integer.parseInt(de.substring(5, 7));
+		stred = Integer.parseInt(de.substring(8, 10));
+		if (stred < strbd) {
+			stred = stred + 30;
+			strem = strem - 1;
+		}
+
+		if (strem < strbm) {
+			strem = strem + 12;
+			strey = strey - 1;
+		}
+		distance = (strey - strby) * 365 + (strem - strbm) * 30 + stred - strbd;
+		int age = distance / 365;
+		return age;
 	}
 
 	/**

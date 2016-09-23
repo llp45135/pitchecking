@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 /**
  * 由人脸比对进程启动
@@ -49,12 +49,12 @@ public class PITProcessDetect implements Runnable {
 				if (!hbs.equals("")) {
 					pid = hbs.split("@")[0];
 					String t = hbs.split("@")[1];
-					String nowHT = DateUtils.getStringDateHaomiao();// (new
+					String nowHT = CalUtils.getStringDateHaomiao();// (new
 																	// Date()).getTime();
 					log.debug(pid + " last heartbeat time=" + t);
 					long ss = 0;
 					try {
-						ss = DateUtils.howLong("ms", t, nowHT);
+						ss = CalUtils.howLong("ms", t, nowHT);
 					} catch (Exception ex) {
 						log.error("", ex);
 					}

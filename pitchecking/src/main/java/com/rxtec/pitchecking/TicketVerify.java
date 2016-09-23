@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 public class TicketVerify {
 	private Logger log = LoggerFactory.getLogger("TicketVerify");
@@ -24,7 +24,7 @@ public class TicketVerify {
 				if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
 					if (DeviceConfig.softIdNo.indexOf(ticket.getCardNo()) != -1) {
 						return Config.TicketVerifyWaitInput;
-					} else if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、当日票
+					} else if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、当日票
 						log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
 						return Config.TicketVerifyTrainDateRuleFail;
 					} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、本站乘车
@@ -67,7 +67,7 @@ public class TicketVerify {
 			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
 				if (DeviceConfig.softIdNo.indexOf(idCard.getIdNo()) != -1 && ticket.getCardNo().equals(idCard.getIdNo())) {
 					return Config.TicketVerifySucc;
-				} else if (!ticket.getTrainDate().equals(DateUtils.getStringDateShort2())) {// 1、非当日票
+				} else if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、非当日票
 					log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
 					return Config.TicketVerifyTrainDateRuleFail;
 				} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、非本站乘车

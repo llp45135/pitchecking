@@ -26,7 +26,7 @@ import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.IDReader;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 public class HXGCDevice {
 	private static Logger log = LoggerFactory.getLogger("IDCardDevice");
@@ -403,9 +403,9 @@ public class HXGCDevice {
 				Info[1].getChars(9, 11, BirthdateChar, 0);
 				BirthdateStr = String.valueOf(BirthdateChar);
 				String birthday = BirthyearStr + "-" + BirthmonthStr + "-" + BirthdateStr;
-				String today = DateUtils.getStringDateShort();
+				String today = CalUtils.getStringDateShort();
 				// log.debug("birthday==" + birthday);
-				int personAge = DateUtils.getAge(birthday, today);
+				int personAge = CalUtils.getAge(birthday, today);
 				synIDCard.setAge(personAge); // set age
 				log.debug("出生年月：" + BirthyearStr + "年" + BirthmonthStr + "月" + BirthdateStr + "日" + ",personAge=="
 						+ personAge);

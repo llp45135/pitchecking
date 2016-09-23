@@ -24,6 +24,8 @@ import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
+import sun.security.krb5.Config;
+
 public class MqttSenderBroker {
 	// 连接参数
 	Logger log = LoggerFactory.getLogger("MqttSenderBroker");
@@ -38,6 +40,15 @@ public class MqttSenderBroker {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	private MqttClient mqttClient;
+	private String notifyJson;
+
+	public String getNotifyJson() {
+		return notifyJson;
+	}
+
+	public void setNotifyJson(String notifyJson) {
+		this.notifyJson = notifyJson;
+	}
 
 	/**
 	 * 返回实例对象
@@ -86,7 +97,7 @@ public class MqttSenderBroker {
 		mqttClient.connect(CLIENT_ID, CLEAN_START, KEEP_ALIVE);
 		log.debug("***********subscribe receiver topics***********");
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
-		mqttClient.unsubscribe(UNSUB_TOPICS);
+		// mqttClient.unsubscribe(UNSUB_TOPICS);
 
 		log.debug("***********CLIENT_ID:" + CLIENT_ID);
 
@@ -106,7 +117,8 @@ public class MqttSenderBroker {
 	public void sendMessage(String clientId, String message) {
 		try {
 
-			log.debug("send message to " + clientId + ", message is " + message);
+			// log.debug("send message to " + clientId + ", message is " +
+			// message);
 			// 发布自己的消息
 			mqttClient.publish(clientId, message.getBytes(), 0, false);
 		} catch (MqttException e) {
@@ -152,8 +164,10 @@ public class MqttSenderBroker {
 			PIVBean.setPhoto3(biArray);
 			log.debug("length==" + biArray.length);
 
+			PIVBean.setVerifyStatus(0);
+
 			String jsonString = mapper.writeValueAsString(PIVBean);
-			 log.debug("jsonString=="+jsonString);
+			log.debug("jsonString==" + jsonString);
 
 			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
 
@@ -168,34 +182,35 @@ public class MqttSenderBroker {
 	 * 
 	 * @param data
 	 */
-	public boolean publishResult(PITVerifyData data,int verifyStatus) {
-		log.info("$$$$$$$$$$$$$$$准备发送人脸比对结果到CAM.dll by MQTT$$$$$$$$$$$$$$$$$$");
+	public boolean publishResult(PITVerifyData data, int verifyStatus) {
+		log.info("********准备发送人脸比对结果到DLL by MQ********verifyStatus==" + verifyStatus);
+		log.info("PITVerifyData==" + data);
 		if (data == null)
 			return false;
 		PIVerifyResultBean resultBean = new PIVerifyResultBean();
 
-//		log.info("data.getFaceImg().length==" + data.getFaceImg().length);
-//		log.info("data.getFrameImg().length==" + data.getFrameImg().length);
-//		log.info("data.getIdCardImg().length==" + data.getIdCardImg().length);
-//		log.info("getVerifyResult==" + String.valueOf(data.getVerifyResult()));
+		// log.info("data.getFaceImg().length==" + data.getFaceImg().length);
+		// log.info("data.getFrameImg().length==" + data.getFrameImg().length);
+		// log.info("data.getIdCardImg().length==" +
+		// data.getIdCardImg().length);
+		// log.info("getVerifyResult==" +
+		// String.valueOf(data.getVerifyResult()));
 		float faceResult = 1f;
 		try {
 			faceResult = CommUtil.round(2, data.getVerifyResult());
-//			log.info("faceResult==" + (int) (faceResult * 100));
+			// log.info("faceResult==" + (int) (faceResult * 100));
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
-			log.error("faceResult round:",e1);
+			log.error("faceResult round:", e1);
 		}
 		resultBean.setResult((int) (faceResult * 100));
 		resultBean.setUuid(data.getIdNo());
+		resultBean.setiDelay(com.rxtec.pitchecking.Config.getInstance().getCheckDelayPassTime());
 		resultBean.setEventDirection(2);
 		resultBean.setEventName("CAM_GetPhotoInfo");
-		resultBean.setPhotoLen1(data.getFaceImg().length);
-		resultBean.setPhotoLen2(data.getFaceImg().length);
-		resultBean.setPhotoLen3(data.getFaceImg().length);
 		resultBean.setPhoto1(data.getFaceImg());
-		resultBean.setPhoto2(data.getFaceImg());
-		resultBean.setPhoto3(data.getFaceImg());
+//		resultBean.setPhoto2(data.getFaceImg());
+		resultBean.setPhoto2(data.getFrameImg());
 		resultBean.setVerifyStatus(verifyStatus);
 
 		String jsonString;
@@ -209,7 +224,7 @@ public class MqttSenderBroker {
 		if (jsonString == null)
 			return false;
 		try {
-//			log.info("jsonString==" + jsonString);
+			// log.info("jsonString==" + jsonString);
 			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
 			log.info("##########人脸比对结果发送结束##########");
 		} catch (MqttException e) {
@@ -253,11 +268,34 @@ public class MqttSenderBroker {
 		public void publishArrived(String topicName, byte[] payload, int Qos, boolean retained) throws Exception {
 			// TODO Auto-generated method stub
 			log.debug("订阅主题: " + topicName);
-			log.debug("消息数据: " + new String(payload));
-			log.debug("消息级别(0,1,2): " + Qos);
+			// log.debug("消息数据: " + new String(payload));
+			// log.debug("消息级别(0,1,2): " + Qos);
 			log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
-			// String mqttMessage = new String(payload);
+			String mqttMessage = new String(payload);
+			if (mqttMessage.indexOf("CAM_Open") != -1) {
+
+			} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
+
+			} else if (mqttMessage.indexOf("CAM_GetPhotoInfo") != -1) {
+				ObjectMapper mapper = new ObjectMapper();
+				PIVerifyResultBean b = mapper.readValue(mqttMessage, PIVerifyResultBean.class);
+				log.debug("eventName==" + b.getEventName());
+				log.debug("uuid==" + b.getUuid());
+				log.debug("photoLen1==" + b.getPhotoLen1());
+				if (b.getPhoto1() != null) {
+					log.debug("getPhoto1().length==" + b.getPhoto1().length);
+				}
+				log.debug("photoLen2==" + b.getPhotoLen2());
+				if (b.getPhoto2() != null) {
+					log.debug("getPhoto2().length==" + b.getPhoto2().length);
+				}
+				log.debug("photoLen3==" + b.getPhotoLen3());
+				if (b.getPhoto3() != null) {
+					log.debug("getPhoto3().length==" + b.getPhoto3().length);
+				}
+				log.debug("verifyStatus==" + b.getVerifyStatus());
+			}
 			payload = null;
 		}
 

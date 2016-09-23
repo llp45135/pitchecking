@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.rxtec.pitchecking.QRReader;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
@@ -113,7 +113,7 @@ public class HoneyWellQRDevice implements SerialPortEventListener {
 				}
 				this.bufferData = new String(bufferBytes).trim();
 				log.debug("retData==" + bufferData + "##");
-				String year = DateUtils.getStringDateShort2().substring(0, 4);
+				String year = CalUtils.getStringDateShort2().substring(0, 4);
 				QRReader.getInstance().performDeviceCallback(bufferData, year);
 
 			} catch (IOException ex) {

@@ -112,11 +112,11 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 		if (fd == null) {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.debug("pollPassFaceData, using " + usingTime + " value = null");
-			faceTrackService.stopCheckingFace();
 			
 			PITVerifyData failedFd = FaceCheckingService.getInstance().pollFailedFaceData();
+			log.debug("Timeout return PITVerifyData = " + failedFd);	
 			if(failedFd != null) 
-				mqttSenderBroker.publishResult(fd,Config.VerifyFailedStatus); // MQTT版本 比对结果发布 ,人脸比对失败！ 状态为1
+				mqttSenderBroker.publishResult(failedFd,Config.VerifyFailedStatus); // MQTT版本 比对结果发布 ,人脸比对失败！ 状态为1
 			
 			// // mq发送人脸
 			// if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
@@ -131,9 +131,10 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// FaceCheckingService.getInstance().setFailedFace(null);
 			// }
 
+			faceTrackService.stopCheckingFace();
 			FaceTrackingScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
-
+			
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getVerifyResult());

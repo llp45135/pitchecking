@@ -15,7 +15,7 @@ import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.TKQRDevice;
 import com.rxtec.pitchecking.event.QRCodeReaderEvent;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 public class BarCodeReader implements Runnable {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
@@ -63,12 +63,12 @@ public class BarCodeReader implements Runnable {
 	private void readBarCode() {
 		String barCode = tkqrDevice.BAR_ReadData("500");
 		if (barCode != null && !barCode.equals("")) {
-			String year = DateUtils.getStringDateShort2().substring(0, 4);
+			String year = CalUtils.getStringDateShort2().substring(0, 4);
 			Ticket ticket = null;
 			try {
 				ticket = barUnsecurity.buildTicket(barUnsecurity.uncompress(barCode, year));
 				// 仅供测试用例
-				ticket.setTrainDate(DateUtils.getStringDateShort2());
+				ticket.setTrainDate(CalUtils.getStringDateShort2());
 			} catch (NumberFormatException | UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				log.error("BarCodeReader buildBarCode:", e);

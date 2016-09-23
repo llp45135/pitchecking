@@ -27,7 +27,7 @@ import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.utils.DateUtils;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -267,7 +267,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 
 		setSoftVersion("软件版本号：" + DeviceConfig.softVersion);
 		setGateIP("IP地址：" + DeviceConfig.getInstance().getIpAddress());
-		this.bootTime.setText("启动时间:" + DateUtils.getStringDate());
+		this.bootTime.setText("启动时间:" + CalUtils.getStringDate());
 		this.bootTime.setBorder(null);
 	}
 
@@ -562,7 +562,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 	}
 
 	private void timeRefresh() {
-		String now = DateUtils.getStringDate();
+		String now = CalUtils.getStringDate();
 		timelabel.setText(now);
 	}
 

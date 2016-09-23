@@ -5,6 +5,7 @@ public class PIVerifyResultBean {
 	private int eventDirection = 2;
 	private int result;
 	private String uuid;
+	private int iDelay;
 	private int photoLen1;
 	private int photoLen2;
 	private int photoLen3;
@@ -13,6 +14,12 @@ public class PIVerifyResultBean {
 	private byte[] photo3;
 	private int verifyStatus = 0;		//比对结果状态，0 代表比对成功，1代表比对未通过（到达超时时间！）
 	
+	public int getiDelay() {
+		return iDelay;
+	}
+	public void setiDelay(int iDelay) {
+		this.iDelay = iDelay;
+	}
 	public int getVerifyStatus() {
 		return verifyStatus;
 	}
@@ -30,6 +37,9 @@ public class PIVerifyResultBean {
 	}
 	public void setPhoto3(byte[] photo3) {
 		this.photo3 = photo3;
+		if(photo3 != null)
+			this.photoLen3 = photo3.length;
+		
 	}
 	public String getEventName() {
 		return eventName;
@@ -72,12 +82,18 @@ public class PIVerifyResultBean {
 	}
 	public void setPhoto1(byte[] photo1) {
 		this.photo1 = photo1;
+		if(photo1 != null)
+			this.photoLen1 = photo1.length;
+
 	}
 	public byte[] getPhoto2() {
 		return photo2;
 	}
 	public void setPhoto2(byte[] photo2) {
 		this.photo2 = photo2;
+		if(photo2 != null)
+			this.photoLen2 = photo2.length;
+
 	}
 
 	
