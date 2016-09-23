@@ -173,7 +173,8 @@ public class MqttReceiverBroker {
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyEventBean b1 = mapper.readValue(mqttMessage, PIVerifyEventBean.class);
 					b1.setEventDirection(2);
-					b1.setIdPhoto(null);
+					String ss = "";
+					b1.setIdPhoto(ss.getBytes());
 
 					String notifyResultJson = mapper.writeValueAsString(b1);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, notifyResultJson);

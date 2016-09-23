@@ -1,8 +1,13 @@
 package com.rxtec.pitchecking.net.event;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import javax.imageio.ImageIO;
 
@@ -22,8 +27,9 @@ public class JsonTest {
 
 		try {
 //			testPIVerifyEventBean();
-			testPIVerifyResultBean();
+//			testPIVerifyResultBean();
 //			testPIVerifyRequestBean();
+			testMapPIVerifyResultBean();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -94,10 +100,10 @@ public class JsonTest {
 		String jsonString = mapper.writeValueAsString(b);
 		System.out.println(jsonString);
 
-//		PIVerifyResultBean b1 = mapper.readValue(jsonString,PIVerifyResultBean.class);
-//		System.out.println(b1);
-//		byte[] a1 = b1.getPhoto1();
-//		CommUtil.byte2image(a1, "D:/maven/git/a1.jpg");
+		PIVerifyResultBean b1 = mapper.readValue(jsonString,PIVerifyResultBean.class);
+		System.out.println(b1);
+		byte[] a1 = b1.getPhoto1();
+		CommUtil.byte2image(a1, "D:/tmp/a1.jpg");
 //		
 //		byte[] a2 = b1.getPhoto1();
 //		CommUtil.byte2image(a2, "D:/maven/git/a2.jpg");
@@ -109,6 +115,16 @@ public class JsonTest {
 		
 
 		
+	}
+	
+	
+	public static void testMapPIVerifyResultBean() throws IOException{
+		ObjectMapper mapper = new ObjectMapper(); 
+		InputStreamReader fr = new InputStreamReader(new FileInputStream(new File("D:/tmp/a.json")));
+		BufferedReader br = new BufferedReader(fr);
+		String jsonString = br.readLine();
+		PIVerifyResultBean b1 = mapper.readValue(jsonString,PIVerifyResultBean.class);
+		System.out.println(b1);
 	}
 
 	
