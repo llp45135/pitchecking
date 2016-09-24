@@ -83,8 +83,8 @@ public class PIXELFaceVerifyJniEntry implements FaceVerifyInterface {
 			// 获取输出参数值（验证分数值）
 			result = aArrIntInputf.getAsFloat(0);
 			aArrIntInputf.dispose();
-			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.info("Using " + usingTime + " ms, value=" + df.format(result));
+//			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
+//			log.debug("Using " + usingTime + " ms, value=" + df.format(result));
 
 		} catch (NativeException e) {
 			log.error("FaceVerifyJniEntry verify failed!", e);

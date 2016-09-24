@@ -167,7 +167,6 @@ public class MqttSenderBroker {
 			PIVBean.setVerifyStatus(0);
 
 			String jsonString = mapper.writeValueAsString(PIVBean);
-			log.debug("jsonString==" + jsonString);
 
 			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
 
@@ -209,8 +208,9 @@ public class MqttSenderBroker {
 		resultBean.setEventDirection(2);
 		resultBean.setEventName("CAM_GetPhotoInfo");
 		resultBean.setPhoto1(data.getFaceImg());
-//		resultBean.setPhoto2(data.getFaceImg());
+		resultBean.setPhoto1(data.getFrameImg());				//for debug
 		resultBean.setPhoto2(data.getFrameImg());
+		resultBean.setPhoto3(data.getFrameImg());
 		resultBean.setVerifyStatus(verifyStatus);
 
 		String jsonString;

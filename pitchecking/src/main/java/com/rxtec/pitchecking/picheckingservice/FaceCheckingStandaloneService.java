@@ -1,24 +1,12 @@
 package com.rxtec.pitchecking.picheckingservice;
 
-import java.lang.management.ManagementFactory;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
+import java.io.File;
 
-import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.db.PitRecordLoger;
-import com.rxtec.pitchecking.mbean.FaceVerifyServiceManager;
-import com.rxtec.pitchecking.mbean.PITProcessDetect;
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
 import com.rxtec.pitchecking.utils.CommUtil;
+
+import io.aeron.driver.MediaDriver;
 
 
 /**
@@ -48,10 +36,23 @@ public class FaceCheckingStandaloneService {
 //			PitRecordLoger.getInstance().clearExpirationData();
 //			PitRecordLoger.getInstance().startThread();
 //		}
+//		clearAeron();
+//		final MediaDriver driver = MediaDriver.launch();
 		FaceCheckingService.getInstance().beginFaceCheckerStandaloneTask();
 		CommUtil.sleep(3000);
 		PIVerifySubscriber s = new PIVerifySubscriber();
 
+	}
+	
+	private static void clearAeron(){
+		String currentUser = System.getProperty("user.name");
+		if(currentUser != null){
+			String fileName = "C:/Users/" + currentUser + "/AppData/Local/Temp/aeron-"+currentUser+"/cnc.dat";
+			File file = new File(fileName);
+		    if (file.isFile() && file.exists()) {  
+		    	file.delete();
+		    }
+		}
 	}
 
 }
