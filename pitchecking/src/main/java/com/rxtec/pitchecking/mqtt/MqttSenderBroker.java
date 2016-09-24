@@ -148,21 +148,21 @@ public class MqttSenderBroker {
 
 			byte[] bb = CommUtil.image2byte("face1.jpg");
 
-			// PIVBean.setPhotoLen1(bb.length);
-			// PIVBean.setPhoto1(bb);
-			// PIVBean.setPhotoLen2(bb.length);
-			// PIVBean.setPhoto2(bb);
-			// PIVBean.setPhotoLen3(bb.length);
-			// PIVBean.setPhoto3(bb);
-			// log.debug("length=="+bb.length);
+			 PIVBean.setPhotoLen1(bb.length);
+			 PIVBean.setPhoto1(bb);
+			 PIVBean.setPhotoLen2(bb.length);
+			 PIVBean.setPhoto2(bb);
+			 PIVBean.setPhotoLen3(bb.length);
+			 PIVBean.setPhoto3(bb);
+			 log.debug("length=="+bb.length);
 
-			PIVBean.setPhotoLen1(biArray.length);
-			PIVBean.setPhoto1(biArray);
-			PIVBean.setPhotoLen2(biArray.length);
-			PIVBean.setPhoto2(biArray);
-			PIVBean.setPhotoLen3(biArray.length);
-			PIVBean.setPhoto3(biArray);
-			log.debug("length==" + biArray.length);
+//			PIVBean.setPhotoLen1(biArray.length);
+//			PIVBean.setPhoto1(biArray);
+//			PIVBean.setPhotoLen2(biArray.length);
+//			PIVBean.setPhoto2(biArray);
+//			PIVBean.setPhotoLen3(biArray.length);
+//			PIVBean.setPhoto3(biArray);
+//			log.debug("length==" + biArray.length);
 
 			PIVBean.setVerifyStatus(0);
 
@@ -207,10 +207,10 @@ public class MqttSenderBroker {
 		resultBean.setiDelay(com.rxtec.pitchecking.Config.getInstance().getCheckDelayPassTime());
 		resultBean.setEventDirection(2);
 		resultBean.setEventName("CAM_GetPhotoInfo");
-		resultBean.setPhoto1(data.getFaceImg());
-		resultBean.setPhoto1(data.getFrameImg());				//for debug
+		resultBean.setPhoto1(data.getFaceImg());				//for debug
 		resultBean.setPhoto2(data.getFrameImg());
-		resultBean.setPhoto3(data.getFrameImg());
+		String photo3str = "";
+		resultBean.setPhoto3(photo3str.getBytes());
 		resultBean.setVerifyStatus(verifyStatus);
 
 		String jsonString;
@@ -303,6 +303,9 @@ public class MqttSenderBroker {
 
 	public static void main(String[] args) {
 		// MqttBroker mqttBroker = MqttBroker.getInstance();
+		
+		String ss  = "";
+		System.out.println("ss.bytes=="+ss.getBytes().length);
 
 	}
 }

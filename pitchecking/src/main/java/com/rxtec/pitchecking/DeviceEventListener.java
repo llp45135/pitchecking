@@ -250,14 +250,14 @@ public class DeviceEventListener implements Runnable {
 		// verifyFaceTask.beginCheckFace(idCard, ticket, delaySeconds);
 
 		String uuidStr = idCard.getIdNo();
-		String IDPhoto_str = "llp.jpg";
-		if (idCard.getIdNo().equals("520203197912141118")) {
-			IDPhoto_str = "zhao.jpg";
-		} else if (idCard.getIdNo().trim().equals("350322198301224317")) {
-			IDPhoto_str = "cjw.jpg";
-		} else if (idCard.getIdNo().trim().equals("452502198305034618")) {
-			IDPhoto_str = "lwm.jpg";
-		}
+		String IDPhoto_str = "zp.jpg";
+//		if (idCard.getIdNo().equals("520203197912141118")) {
+//			IDPhoto_str = "zhao.jpg";
+//		} else if (idCard.getIdNo().trim().equals("350322198301224317")) {
+//			IDPhoto_str = "cjw.jpg";
+//		} else if (idCard.getIdNo().trim().equals("452502198305034618")) {
+//			IDPhoto_str = "lwm.jpg";
+//		}
 		log.debug("身份证路径==" + IDPhoto_str);
 		log.debug("CAM_Notify begin");
 		int notifyRet = CAMDevice.getInstance().CAM_Notify(1, uuidStr, IDPhoto_str);

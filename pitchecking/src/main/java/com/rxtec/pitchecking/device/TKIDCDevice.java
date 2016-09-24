@@ -2,6 +2,8 @@ package com.rxtec.pitchecking.device;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import javax.imageio.ImageIO;
@@ -21,13 +23,14 @@ import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
 
 public class TKIDCDevice {
-	private Logger log = LoggerFactory.getLogger("TKIDCDevice");
+	private Logger log = LoggerFactory.getLogger("IDCardDevice");
 	private String dllName = "IDC_EWTa.dll";
 	JNative jnativeIDC_Init = null;
 	JNative jnativeIDC_FetchCard = null;
 	JNative jnativeIDC_GetSerial = null;
 	JNative jnativeIDC_ReadIDCardInfo = null;
-	private static TKIDCDevice _instance = new TKIDCDevice();
+	JNative jnativeBmp = null;
+	static TKIDCDevice _instance = new TKIDCDevice();
 
 	public static TKIDCDevice getInstance() {
 		return _instance;
@@ -46,6 +49,7 @@ public class TKIDCDevice {
 			jnativeIDC_FetchCard = new JNative(dllName, "IDC_FetchCard");
 			jnativeIDC_GetSerial = new JNative(dllName, "IDC_GetSerial");
 			jnativeIDC_ReadIDCardInfo = new JNative(dllName, "IDC_ReadIDCardInfo");
+			jnativeBmp = new JNative("WltRS.dll", "GetBmp");
 
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
@@ -337,16 +341,38 @@ public class TKIDCDevice {
 				for (int k = 0; k < IDPhoto.length; k++) {
 					IDPhoto[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30 + 16 + 16 + 70);
 				}
-				// log.debug("IDPhoto==" + new String(IDPhoto,"utf-16"));
-				// CommUtil.byte2image(IDPhoto, "tkzp.jpg");
-				String photoFile = "llp.jpg";
-				if (IDCardNoStr.trim().equals("520203197912141118")) {
-					photoFile = "zhao.jpg";
-				}else if (IDCardNoStr.trim().equals("350322198301224317")) {
-					photoFile = "cjw.jpg";
-				}else if (IDCardNoStr.trim().equals("452502198305034618")) {
-					photoFile = "lwm.jpg";
+				try {
+					File myFile = new File("zp.wlt");
+					FileOutputStream out = new FileOutputStream(myFile);
+					out.write(IDPhoto, 0, 1024 - 1);
+				} catch (IOException t) {
+					t.printStackTrace();
 				}
+				
+				/**
+				 * Syn_GetBmp本函数用于将wlt文件解码成bmp文件
+				 * 参数2：阅读设备通讯接口类型（1—RS-232C，2—USB）
+				 */
+				int j = 0;
+				String bmpretval = "";
+
+				jnativeBmp.setRetVal(org.xvolks.jnative.Type.INT);
+				jnativeBmp.setParameter(j++, "zp.wlt");
+				jnativeBmp.setParameter(j++, 1);
+				jnativeBmp.invoke();
+				bmpretval = jnativeBmp.getRetVal();
+				log.debug("GetBmp: bmpretval==" + bmpretval);// 获取返回值
+
+				CommUtil.bmpTojpg("zp.bmp", "zp.jpg");
+				
+				String photoFile = "zp.jpg";
+//				if (IDCardNoStr.trim().equals("520203197912141118")) {
+//					photoFile = "zhao.jpg";
+//				}else if (IDCardNoStr.trim().equals("350322198301224317")) {
+//					photoFile = "cjw.jpg";
+//				}else if (IDCardNoStr.trim().equals("452502198305034618")) {
+//					photoFile = "lwm.jpg";
+//				}
 				log.info("photoFile=="+photoFile);
 				File idcardFile = new File(photoFile);
 				BufferedImage idCardImage = null;
