@@ -84,10 +84,10 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
 			mqttSenderBroker.publishResult(fd,Config.VerifyPassedStatus); // MQTT版本 比对结果发布
 
-			log.debug("准备发布faceframe事件");
-			FaceTrackingScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-			log.debug("faceframe事件已经发布");
+//			log.debug("准备发布faceframe事件");
+//			FaceTrackingScreen.getInstance().offerEvent(
+//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
+//			log.debug("faceframe事件已经发布");
 
 			return fd;
 		}
@@ -132,8 +132,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// }
 
 			faceTrackService.stopCheckingFace();
-			FaceTrackingScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
+//			FaceTrackingScreen.getInstance().offerEvent(
+//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
 			
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
@@ -146,8 +146,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			faceTrackService.stopCheckingFace();
 //			FaceCheckingService.getInstance().setFailedFace(null);
 
-			FaceTrackingScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
+//			FaceTrackingScreen.getInstance().offerEvent(
+//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
 		}
 
 		return fd;

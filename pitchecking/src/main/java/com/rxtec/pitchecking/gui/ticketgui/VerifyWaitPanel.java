@@ -15,8 +15,8 @@ import javax.swing.border.LineBorder;
 import com.rxtec.pitchecking.device.DeviceConfig;
 
 public class VerifyWaitPanel extends JPanel {
-	private JLabel waitmsgLabel;
-	private JLabel label;
+	private JLabel waitmsgLabelUp;
+	private JLabel waitmsgLabelDown;
 	/**
 	 * Create the panel.
 	 */
@@ -27,29 +27,29 @@ public class VerifyWaitPanel extends JPanel {
 		setMaximumSize(new Dimension(1024, 608));
 		setLayout(null);
 		
-		waitmsgLabel = new JLabel("请取走车票和身份证！");
-		waitmsgLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		waitmsgLabel.setForeground(Color.RED);
-		waitmsgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 100));
-		waitmsgLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		waitmsgLabel.setBounds(10, 124, 1004, 148);
-		add(waitmsgLabel);
+		waitmsgLabelUp = new JLabel("请取走车票和身份证");
+		waitmsgLabelUp.setBorder(new LineBorder(new Color(0, 0, 0)));
+		waitmsgLabelUp.setForeground(Color.RED);
+		waitmsgLabelUp.setFont(new Font("微软雅黑", Font.PLAIN, 100));
+		waitmsgLabelUp.setHorizontalAlignment(SwingConstants.CENTER);
+		waitmsgLabelUp.setBounds(10, 65, 1004, 148);
+		add(waitmsgLabelUp);
 		
-		label = new JLabel("往前走进通道");
-		label.setBorder(new LineBorder(new Color(0, 0, 0)));
-		label.setHorizontalAlignment(SwingConstants.CENTER);
-		label.setForeground(Color.RED);
-		label.setFont(new Font("微软雅黑", Font.PLAIN, 100));
-		label.setBounds(10, 279, 1004, 155);
-		add(label);
+		waitmsgLabelDown = new JLabel("往前走进通道");
+		waitmsgLabelDown.setBorder(new LineBorder(new Color(0, 0, 0)));
+		waitmsgLabelDown.setHorizontalAlignment(SwingConstants.CENTER);
+		waitmsgLabelDown.setForeground(Color.RED);
+		waitmsgLabelDown.setFont(new Font("微软雅黑", Font.PLAIN, 100));
+		waitmsgLabelDown.setBounds(10, 240, 1004, 155);
+		add(waitmsgLabelDown);
 		
 		
 	}
 	
 	public void showWaitMsg(String msg1,String msg2){
-		this.waitmsgLabel.setText(msg1);
-		this.waitmsgLabel.setBorder(null);
-		this.label.setText(msg2);
-		this.label.setBorder(null);
+		this.waitmsgLabelUp.setText(msg1);
+		this.waitmsgLabelUp.setBorder(null);
+		this.waitmsgLabelDown.setText(msg2);
+		this.waitmsgLabelDown.setBorder(null);
 	}
 }

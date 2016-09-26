@@ -54,35 +54,65 @@ public class BarCodeReader implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		readBarCode();
+		readBarCode(false);
 	}
 
 	/**
 	 * 调用DLL接口方式读二维码
 	 */
-	private void readBarCode() {
-		String barCode = tkqrDevice.BAR_ReadData("500");
-		if (barCode != null && !barCode.equals("")) {
-			String year = CalUtils.getStringDateShort2().substring(0, 4);
-			Ticket ticket = null;
-			try {
-				ticket = barUnsecurity.buildTicket(barUnsecurity.uncompress(barCode, year));
-				// 仅供测试用例
-				ticket.setTrainDate(CalUtils.getStringDateShort2());
-			} catch (NumberFormatException | UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				log.error("BarCodeReader buildBarCode:", e);
-			}
-			if (deviceStatus == Config.StartStatus && ticket != null) {
-				if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 以下为正式代码
-					if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
-						QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(Config.QRReaderEvent);
-						qrEvent.setTicket(ticket);
-						log.debug("offerDeviceEvent ticket");
-						DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+	private void readBarCode(boolean isReadData) {
+		if (isReadData) {
+			String barCode = tkqrDevice.BAR_ReadData("500");
+			if (barCode != null && !barCode.equals("")) {
+				String year = CalUtils.getStringDateShort2().substring(0, 4);
+				Ticket ticket = null;
+				try {
+					ticket = barUnsecurity.buildTicket(barUnsecurity.uncompress(barCode, year));
+					// 仅供测试用例
+					ticket.setTrainDate(CalUtils.getStringDateShort2());
+				} catch (NumberFormatException | UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					log.error("BarCodeReader buildBarCode:", e);
+				}
+				if (deviceStatus == Config.StartStatus && ticket != null) {
+					if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 以下为正式代码
+						if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
+							QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(Config.QRReaderEvent);
+							qrEvent.setTicket(ticket);
+							log.debug("offerDeviceEvent ticket");
+							DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+						}
+					} else {
+						ticketFrame.showWaitInputContent(ticket, null, 2, 0); // 仅供测试用
 					}
-				} else {
-					ticketFrame.showWaitInputContent(ticket, null, 2, 0); // 仅供测试用
+				}
+			}
+		} else {
+			if (deviceStatus == Config.StartStatus) {
+				String barCode = tkqrDevice.BAR_ReadData("500");
+				if (barCode != null && !barCode.equals("")) {
+					String year = CalUtils.getStringDateShort2().substring(0, 4);
+					Ticket ticket = null;
+					try {
+						ticket = barUnsecurity.buildTicket(barUnsecurity.uncompress(barCode, year));
+						// 仅供测试用例
+						ticket.setTrainDate(CalUtils.getStringDateShort2());
+					} catch (NumberFormatException | UnsupportedEncodingException e) {
+						// TODO Auto-generated catch block
+						log.error("BarCodeReader buildBarCode:", e);
+					}
+					if (ticket != null) {
+						if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 以下为正式代码
+							if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
+								QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(Config.QRReaderEvent);
+								qrEvent.setTicket(ticket);
+								log.debug("offerDeviceEvent ticket");
+								DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+							}
+						} else {
+							ticketFrame.showWaitInputContent(ticket, null, 2, 0); // 仅供测试用
+						}
+					}
 				}
 			}
 		}

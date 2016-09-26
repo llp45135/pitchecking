@@ -431,7 +431,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 			// contentPane.add(bottomPanel);
 			// contentPane.repaint();
 
-			this.showSuccWait("请取走车票和身份证！", "往前走进通道");
+			this.showSuccWait("请取走车票和身份证", "往前走进通道");
 
 			timeIntevel = DeviceConfig.getInstance().getSuccTimeDelay();
 		} catch (Exception e) {
@@ -600,7 +600,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 				}
 				showDefaultContent();
 			} else {
-				this.showSuccWait("后面的旅客请稍候!", "");
+				this.showSuccWait("人脸核验中", "后面的旅客切勿刷票");
 			}
 		}
 		if (timeIntevel-- < 0)

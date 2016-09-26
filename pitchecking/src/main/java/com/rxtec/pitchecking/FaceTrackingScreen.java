@@ -12,6 +12,7 @@ import com.rxtec.pitchecking.gui.VideoPanel;
 
 /**
  * 人脸识别显示屏幕
+ * 
  * @author lenovo
  *
  */
@@ -33,19 +34,18 @@ public class FaceTrackingScreen {
 
 		GraphicsDevice gd = gs[DeviceConfig.getInstance().getFaceScreen()];
 		GraphicsConfiguration gc = gd.getDefaultConfiguration();
-		if(gd != null){
+		if (gd != null) {
 			int xOff = gc.getBounds().x;
 			int yOff = gc.getBounds().y;
 			faceFrame.setVisible(true);
 			faceFrame.setLocation(xOff, yOff);
-			
-	
+
 		}
-		
-//		 gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
-//		faceFrame.setUndecorated(true);
-//		faceFrame.setVisible(true);
-//		faceFrame.setAlwaysOnTop(true);
+
+		// gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
+		// faceFrame.setUndecorated(true);
+		// faceFrame.setVisible(true);
+		// faceFrame.setAlwaysOnTop(true);
 	}
 
 	public VideoPanel getVideoPanel() {
@@ -56,14 +56,11 @@ public class FaceTrackingScreen {
 		return _instance;
 	}
 
-
 	public void offerEvent(ScreenElementModifyEvent e) {
 		if (e != null) {
 			processEventByType(e);
 		}
 	}
-
-
 
 	/**
 	 * 人脸识别屏幕事件处理
@@ -82,6 +79,8 @@ public class FaceTrackingScreen {
 
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckFailed.getValue()) {
 			faceFrame.showCheckFailedContent();
+		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceDisplayFromTK.getValue()) {
+			faceFrame.showFaceDisplayFromTK();
 		}
 	}
 

@@ -8,11 +8,15 @@ import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.FaceTrackingScreen;
+import com.rxtec.pitchecking.ScreenCmdEnum;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.net.event.CAMOpenBean;
 import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
 import com.rxtec.pitchecking.net.event.PIVerifyRequestBean;
+import com.rxtec.pitchecking.net.event.ScreenDisplayBean;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
 
@@ -183,19 +187,41 @@ public class MqttReceiverBroker {
 					// System.out.println("^^^^^^^^^^^^^^^^^^^");
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyRequestBean bean = mapper.readValue(mqttMessage, PIVerifyRequestBean.class);
+					String idCardNo = bean.getUuid();
 					log.info("CAM_GetPhotoInfo.uuid==" + bean.getUuid());
 					log.info("CAM_GetPhotoInfo.iDelay==" + bean.getiDelay()); // 控制通过速率的延时时间
 					Config.getInstance().setCheckDelayPassTime(bean.getiDelay());
 
-					// 收到调用CAM_GetPhotoInfo方式的请求开始人脸检测
-					if (DeviceConfig.getInstance().getVersionFlag() == 1) {
-						eventHandler.InComeEventHandler(MqttSenderBroker.getInstance().getNotifyJson());
-					}
+					if (idCardNo != null && idCardNo.trim().length() == 18) {
+						// 收到调用CAM_GetPhotoInfo方式的请求开始人脸检测
+						if (DeviceConfig.getInstance().getVersionFlag() == 1) {
+							eventHandler.InComeEventHandler(MqttSenderBroker.getInstance().getNotifyJson());
+						}
 
-					if (DeviceConfig.getInstance().getVersionFlag() == 0) {
-						MqttSenderBroker.getInstance().testPublishFace();
+						if (DeviceConfig.getInstance().getVersionFlag() == 0) {
+							MqttSenderBroker.getInstance().testPublishFace();
+						}
+					} else {
+						MqttSenderBroker.getInstance().PublishWrongIDNo();
 					}
+				} else if (mqttMessage.indexOf("CAM_ScreenDisplay") != -1) {
+					log.info("CAM_ScreenDisplay json==" + mqttMessage);
+					ObjectMapper mapper = new ObjectMapper();
+					ScreenDisplayBean screenDisplayBean = mapper.readValue(mqttMessage, ScreenDisplayBean.class);
+					int displayTimeout = screenDisplayBean.getTimeout(); // 从CAM_ScreenDisplay输出的结构体获取到屏幕超时时间
+					String faceScreenDisplay = screenDisplayBean.getScreenDisplay();
+					log.info("CAM_ScreenDisplay faceScreenDisplay==" + faceScreenDisplay);
+					log.info("CAM_ScreenDisplay displayTimeout==" + displayTimeout);
+					
+					MqttSenderBroker.getInstance().setFaceScreenDisplay(faceScreenDisplay);
+					MqttSenderBroker.getInstance().setFaceScreenDisplayTimeout(displayTimeout);
 
+					screenDisplayBean.setEventDirection(2);
+					String screenDisplayResultJson = mapper.writeValueAsString(screenDisplayBean);
+					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, screenDisplayResultJson);
+					
+					FaceTrackingScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceDisplayFromTK.getValue(), null, null, null));
 				}
 			}
 			payload = null;

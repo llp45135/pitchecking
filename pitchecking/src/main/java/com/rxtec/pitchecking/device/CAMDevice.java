@@ -21,6 +21,7 @@ public class CAMDevice {
 	private JNative jnativeCAM_Close = null;
 	private JNative jnativeCAM_Notify = null;
 	private JNative jnativeCAM_GetPhotoInfo = null;
+	private JNative jnativeCAM_ScreenDisplay = null;
 
 	public static CAMDevice getInstance() {
 		return _instance;
@@ -32,9 +33,12 @@ public class CAMDevice {
 			jnativeCAM_Close = new JNative(dllName, "CAM_Close");
 			jnativeCAM_Notify = new JNative(dllName, "CAM_Notify");
 			jnativeCAM_GetPhotoInfo = new JNative(dllName, "CAM_GetPhotoInfo");
+			jnativeCAM_ScreenDisplay = new JNative(dllName, "CAM_ScreenDisplay");
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("init CAMDevice:", e);
+		} catch(Exception ex){
+			log.error("init CAMDevice:", ex);
 		}
 	}
 
@@ -47,7 +51,7 @@ public class CAMDevice {
 		Pointer pointerOut = null;
 
 		try {
-			pointerIn = new Pointer(MemoryBlockFactory.createMemoryBlock(28));
+			pointerIn = new Pointer(MemoryBlockFactory.createMemoryBlock(128));
 
 			byte[] P_T_REGION = new byte[7 * 4];
 			for (int i = 0; i < 7; i++) {
@@ -57,9 +61,11 @@ public class CAMDevice {
 				}
 			}
 
+			pointerIn.zeroMemory();
 			pointerIn.setMemory(P_T_REGION);
 
 			pointerOut = new Pointer(MemoryBlockFactory.createMemoryBlock(8));
+			pointerOut.zeroMemory();
 			int i = 0;
 
 			jnativeCAM_Open.setRetVal(Type.INT);
@@ -199,10 +205,10 @@ public class CAMDevice {
 
 			pointerOut = new Pointer(
 					MemoryBlockFactory.createMemoryBlock(4 + 36 + 4 + 100000 + 4 + 100000 + 4 + 100000));
-			
+
 			pointerOut.zeroMemory();
-			
-//			log.info("size=="+pointerOut.getSize());
+
+			// log.info("size=="+pointerOut.getSize());
 
 			int i = 0;
 
@@ -216,60 +222,64 @@ public class CAMDevice {
 			log.info("CAM_GetPhotoInfo retval==" + retval);
 
 			if (retval == 0) {
-//				byte[] iResult = new byte[4];
-//				for (int k = 0; k < 4; k++) {
-//					iResult[k] = pointerOut.getAsByte(k);
-//				}
-//				log.debug("iResult==" + CommUtil.bytesToInt(iResult, 0));
-//
-//				byte[] uuid = new byte[36];
-//				for (int k = 0; k < 36; k++) {
-//					uuid[k] = pointerOut.getAsByte(k + 4);
-//				}
-//				log.debug("uuid==" + new String(uuid));
-//
-//				byte[] iPhotoLen1 = new byte[4];
-//				for (int k = 0; k < 4; k++) {
-//					iPhotoLen1[k] = pointerOut.getAsByte(k + 4 + 36);
-//				}
-//				int len1 = CommUtil.bytesToInt(iPhotoLen1, 0);
-//				log.debug("iPhotoLen1==" + len1);
-//
-//				byte[] Photo1 = new byte[len1];
-//				for (int k = 0; k < len1; k++) {
-//					Photo1[k] = pointerOut.getAsByte(k + 4 + 36 + 4);
-//				}
-//				// CommUtil.byte2image(Photo1, "D:/maven/git/a1.jpg");
-//				Photo1 = null;
-//				// log.debug("Photo1==" + new String(Photo1));
-//				byte[] iPhotoLen2 = new byte[4];
-//				for (int k = 0; k < 4; k++) {
-//					iPhotoLen2[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000);
-//				}
-//				int len2 = CommUtil.bytesToInt(iPhotoLen2, 0);
-//				log.debug("iPhotoLen2==" + len2);
-//
-//				byte[] Photo2 = new byte[len2];
-//				for (int k = 0; k < len2; k++) {
-//					Photo2[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4);
-//				}
-//				// CommUtil.byte2image(Photo2, "D:/maven/git/a2.jpg");
-//				Photo2 = null;
-//
-//				byte[] iPhotoLen3 = new byte[4];
-//				for (int k = 0; k < 4; k++) {
-//					iPhotoLen3[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4 + 100000);
-//				}
-//				int len3 = CommUtil.bytesToInt(iPhotoLen3, 0);
-//				log.debug("iPhotoLen3==" + len3);
-//
-//				byte[] Photo3 = new byte[len3];
-//				for (int k = 0; k < len3; k++) {
-//					Photo3[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4 + 100000 + 4);
-//				}
+				// byte[] iResult = new byte[4];
+				// for (int k = 0; k < 4; k++) {
+				// iResult[k] = pointerOut.getAsByte(k);
+				// }
+				// log.debug("iResult==" + CommUtil.bytesToInt(iResult, 0));
+				//
+				// byte[] uuid = new byte[36];
+				// for (int k = 0; k < 36; k++) {
+				// uuid[k] = pointerOut.getAsByte(k + 4);
+				// }
+				// log.debug("uuid==" + new String(uuid));
+				//
+				// byte[] iPhotoLen1 = new byte[4];
+				// for (int k = 0; k < 4; k++) {
+				// iPhotoLen1[k] = pointerOut.getAsByte(k + 4 + 36);
+				// }
+				// int len1 = CommUtil.bytesToInt(iPhotoLen1, 0);
+				// log.debug("iPhotoLen1==" + len1);
+				//
+				// byte[] Photo1 = new byte[len1];
+				// for (int k = 0; k < len1; k++) {
+				// Photo1[k] = pointerOut.getAsByte(k + 4 + 36 + 4);
+				// }
+				// // CommUtil.byte2image(Photo1, "D:/maven/git/a1.jpg");
+				// Photo1 = null;
+				// // log.debug("Photo1==" + new String(Photo1));
+				// byte[] iPhotoLen2 = new byte[4];
+				// for (int k = 0; k < 4; k++) {
+				// iPhotoLen2[k] = pointerOut.getAsByte(k + 4 + 36 + 4 +
+				// 100000);
+				// }
+				// int len2 = CommUtil.bytesToInt(iPhotoLen2, 0);
+				// log.debug("iPhotoLen2==" + len2);
+				//
+				// byte[] Photo2 = new byte[len2];
+				// for (int k = 0; k < len2; k++) {
+				// Photo2[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 +
+				// 4);
+				// }
+				// // CommUtil.byte2image(Photo2, "D:/maven/git/a2.jpg");
+				// Photo2 = null;
+				//
+				// byte[] iPhotoLen3 = new byte[4];
+				// for (int k = 0; k < 4; k++) {
+				// iPhotoLen3[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000
+				// + 4 + 100000);
+				// }
+				// int len3 = CommUtil.bytesToInt(iPhotoLen3, 0);
+				// log.debug("iPhotoLen3==" + len3);
+				//
+				// byte[] Photo3 = new byte[len3];
+				// for (int k = 0; k < len3; k++) {
+				// Photo3[k] = pointerOut.getAsByte(k + 4 + 36 + 4 + 100000 + 4
+				// + 100000 + 4);
+				// }
 				// CommUtil.byte2image(Photo3,
 				// "C:/maven/git/pitchecking/a3.jpg");
-//				Photo3 = null;
+				// Photo3 = null;
 			}
 			pointerUUID.dispose();
 			pointerOut.dispose();
@@ -288,10 +298,54 @@ public class CAMDevice {
 
 	/**
 	 * 
+	 * @param pIn
+	 * @param timeout
+	 * @return
+	 */
+	public int CAM_ScreenDisplay(String pIn, int timeout) {
+		int retval = -1;
+		Pointer pointerIn = null;
+		Pointer pointerOut = null;
+		try {
+			pointerOut = new Pointer(MemoryBlockFactory.createMemoryBlock(8));
+
+			pointerOut.zeroMemory();
+
+			// log.info("size=="+pointerOut.getSize());
+
+			int i = 0;
+
+			jnativeCAM_ScreenDisplay.setRetVal(Type.INT);
+			jnativeCAM_ScreenDisplay.setParameter(i++, pIn);
+			jnativeCAM_ScreenDisplay.setParameter(i++, timeout);
+			jnativeCAM_ScreenDisplay.setParameter(i++, pointerOut);
+			jnativeCAM_ScreenDisplay.invoke();
+
+			retval = jnativeCAM_ScreenDisplay.getRetValAsInt();
+			log.info("CAM_ScreenDisplay retval==" + retval);
+
+			if (retval == 0) {
+
+			}
+		} catch (NativeException e) {
+			// TODO Auto-generated catch block
+			log.error("CAMDevice CAM_ScreenDisplay:", e);
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			log.error("CAMDevice CAM_ScreenDisplay:", e);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			log.error("CAMDevice CAM_ScreenDisplay:", e);
+		}
+		return retval;
+	}
+
+	/**
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
+		// MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
 
 		CAMDevice cam = CAMDevice.getInstance();
 
@@ -299,11 +353,15 @@ public class CAMDevice {
 		int openRet = cam.CAM_Open(region);
 		if (openRet == 0) {
 			String uuidStr = "520203197912141118";
-			String IDPhoto_str = "C:/maven/git/pitchecking/zp.jpg";
+			String IDPhoto_str = "zp.jpg";
 			int notify = cam.CAM_Notify(1, uuidStr, IDPhoto_str);
 			if (notify == 0) {
-				int getPhotoRet = cam.CAM_GetPhotoInfo("520203197912141118", 20);
+				int getPhotoRet = cam.CAM_GetPhotoInfo(uuidStr, 20);
 				System.out.println("getPhotoRet==" + getPhotoRet);
+				if (getPhotoRet == 0) {
+					int ss = cam.CAM_ScreenDisplay("验证失败，请从边门离开", 3);
+					System.out.println("ss==" + ss);
+				}
 			}
 		}
 

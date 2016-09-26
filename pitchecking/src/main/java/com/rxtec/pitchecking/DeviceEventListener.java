@@ -196,11 +196,16 @@ public class DeviceEventListener implements Runnable {
 				// 人脸比对通过
 				log.debug("人脸比对通过，开第三道闸门");
 				SecondGateDevice.getInstance().openThirdDoor(); //
+				CAMDevice.getInstance().CAM_ScreenDisplay("人脸识别成功#请通过", 3);
 			} else {
 				// 人脸比对失败
-				AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
+
 				log.debug("人脸比对失败，开第二道电磁门");
 				SecondGateDevice.getInstance().openSecondDoor(); //
+
+				CAMDevice.getInstance().CAM_ScreenDisplay("人脸识别失败#请从侧门离开", 3);
+
+				AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
 				// 人脸比对失败，开第二道电磁门
 				TicketVerifyScreen.getInstance()
 						.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(),
@@ -251,13 +256,6 @@ public class DeviceEventListener implements Runnable {
 
 		String uuidStr = idCard.getIdNo();
 		String IDPhoto_str = "zp.jpg";
-//		if (idCard.getIdNo().equals("520203197912141118")) {
-//			IDPhoto_str = "zhao.jpg";
-//		} else if (idCard.getIdNo().trim().equals("350322198301224317")) {
-//			IDPhoto_str = "cjw.jpg";
-//		} else if (idCard.getIdNo().trim().equals("452502198305034618")) {
-//			IDPhoto_str = "lwm.jpg";
-//		}
 		log.debug("身份证路径==" + IDPhoto_str);
 		log.debug("CAM_Notify begin");
 		int notifyRet = CAMDevice.getInstance().CAM_Notify(1, uuidStr, IDPhoto_str);
@@ -282,25 +280,36 @@ public class DeviceEventListener implements Runnable {
 			log.debug("软件版本错误:" + DeviceConfig.getInstance().getVersionFlag());
 			TicketVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowVersionFault.getValue(), null, null, null));
-			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+			LightEntryLED(false);
 			return;
 		}
+		
+		if (this.OpenCAM() != 0) {
+			this.setDealDeviceEvent(false);// 停止处理新的事件
+			TicketVerifyScreen.getInstance().offerEvent(
+					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowCamOpenException.getValue(), null, null, null));
+			LightEntryLED(false);
+			return;
+		}
+		
 		if (this.startIDDevice() != 1) {
-			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+			LightEntryLED(false);
 			return;
 		}
 		if (this.startQRDevice() != 1) {
-			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+			LightEntryLED(false);
 			return;
 		}
 		// if (this.startLED() != 1) {
 		// FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 		// return;
-		// }
-		if (this.addQuartzJobs() != 1) {
-			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
-			return;
-		}
+		// }		
+		
+		
+		 if (this.addQuartzJobs() != 1) {
+		 FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+		 return;
+		 }
 
 		/**
 		 * 连接mq服务，启动mq receiver线程
@@ -329,16 +338,22 @@ public class DeviceEventListener implements Runnable {
 			scheduler.scheduleWithFixedDelay(JmsSenderTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		}
 
-		if (this.OpenCAM() != 0) {
-			this.setDealDeviceEvent(false);// 停止处理新的事件
-			TicketVerifyScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowVersionFault.getValue(), null, null, null));
-			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
-			return;
-		}
+		LightEntryLED(true);
+	}
 
-		// 启动成功点亮绿色通行箭头
-		FirstGateDevice.getInstance().LightEntryArrow();
+	/**
+	 * 控制入口LED灯的显示
+	 * @param isArrow
+	 * @return
+	 */
+	private int LightEntryLED(boolean isArrow) {
+		int retval = -1;
+		if (isArrow) {
+			FirstGateDevice.getInstance().LightEntryArrow();// 启动成功点亮绿色通行箭头
+		} else {
+			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+		}
+		return retval;
 	}
 
 	/**
@@ -356,7 +371,9 @@ public class DeviceEventListener implements Runnable {
 		int faceTimeout = Config.getInstance().getFaceCheckDelayTime(); // 人脸识别算法的超时时间，单位秒
 
 		int[] region = { x, y, cx, cy, checkThreshold, iCollect, faceTimeout };
+		log.debug("开始调用CAM_Open");
 		int retVal = CAMDevice.getInstance().CAM_Open(region);
+		log.debug("调用CAM_Open收到返回值");
 		return retVal;
 	}
 

@@ -10,7 +10,8 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 public class TKQRDevice {
 	private Logger log = LoggerFactory.getLogger("TKQRDevice");
-	private String dllName = "Bar_QRCode.dll";
+//	private String dllName = "Bar_QRCode.dll";
+	private String dllName = "BAR_RXTa.dll";
 	JNative jnativeBAR_Init = null;
 	JNative jnativeBAR_Uninit = null;
 	JNative jnativeBAR_ReadData = null;

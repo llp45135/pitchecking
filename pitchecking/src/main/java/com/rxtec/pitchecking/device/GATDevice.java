@@ -8,11 +8,11 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
-public class GateDevice {
+public class GATDevice {
 	
-	private Logger log = LoggerFactory.getLogger("GateDevice");
-	private static GateDevice _instance = new GateDevice();
-	private String dllName = "GAT_GTAg.dll";
+	private Logger log = LoggerFactory.getLogger("GATDevice");
+	private static GATDevice _instance = new GATDevice();
+	private String dllName = "GAT_RXTa.dll";
 	JNative jnativeGAT_Init = null;
 	JNative jnativeGAT_Uninit = null;
 	JNative jnativeGAT_SetMode = null;
@@ -21,11 +21,11 @@ public class GateDevice {
 	JNative jnativeGAT_GetStatus = null;
 	
 
-	public static GateDevice getInstance() {
+	public static GATDevice getInstance() {
 		return _instance;
 	}
 
-	private GateDevice() {
+	private GATDevice() {
 		// TODO Auto-generated constructor stub
 		JNative.setLoggingEnabled(true);
 		this.initJnative();
@@ -70,7 +70,7 @@ public class GateDevice {
 			int i = 0;
 
 			jnativeGAT_Init.setRetVal(Type.INT);
-			jnativeGAT_Init.setParameter(i++, pointerIn);
+			jnativeGAT_Init.setParameter(i++, pIn);
 			jnativeGAT_Init.setParameter(i++, pointerOut);
 			jnativeGAT_Init.invoke();
 
@@ -83,12 +83,12 @@ public class GateDevice {
 			pointerOut.dispose();
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			log.error("GateDevice GAT_Init:", e);
+			log.error("GATDevice GAT_Init:", e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			log.error("GateDevice GAT_Init:", e);
+			log.error("GATDevice GAT_Init:", e);
 		} catch (Exception e) {
-			log.error("GateDevice GAT_Init:", e);
+			log.error("GATDevice GAT_Init:", e);
 		}
 		return retval;
 	}
@@ -129,12 +129,12 @@ public class GateDevice {
 			pointerOut.dispose();
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			log.error("GateDevice GAT_Uninit:", e);
+			log.error("GATDevice GAT_Uninit:", e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			log.error("GateDevice GAT_Uninit:", e);
+			log.error("GATDevice GAT_Uninit:", e);
 		} catch (Exception e) {
-			log.error("GateDevice GAT_Uninit:", e);
+			log.error("GATDevice GAT_Uninit:", e);
 		}
 		return retval;
 	}
@@ -175,12 +175,12 @@ public class GateDevice {
 			pointerOut.dispose();
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			log.error("GateDevice GAT_SetMode:", e);
+			log.error("GATDevice GAT_SetMode:", e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			log.error("GateDevice GAT_SetMode:", e);
+			log.error("GATDevice GAT_SetMode:", e);
 		} catch (Exception e) {
-			log.error("GateDevice GAT_SetMode:", e);
+			log.error("GATDevice GAT_SetMode:", e);
 		}
 		return retval;
 	}
@@ -221,12 +221,12 @@ public class GateDevice {
 			pointerOut.dispose();
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			log.error("GateDevice GAT_Control:", e);
+			log.error("GATDevice GAT_Control:", e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			log.error("GateDevice GAT_Control:", e);
+			log.error("GATDevice GAT_Control:", e);
 		} catch (Exception e) {
-			log.error("GateDevice GAT_Control:", e);
+			log.error("GATDevice GAT_Control:", e);
 		}
 		return retval;
 	}
@@ -262,19 +262,19 @@ public class GateDevice {
 			pointerOut.dispose();
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			log.error("GateDevice GAT_GetStatus:", e);
+			log.error("GATDevice GAT_GetStatus:", e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			log.error("GateDevice GAT_GetStatus:", e);
+			log.error("GATDevice GAT_GetStatus:", e);
 		} catch (Exception e) {
-			log.error("GateDevice GAT_GetStatus:", e);
+			log.error("GATDevice GAT_GetStatus:", e);
 		}
 		return retval;
 	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		GateDevice gate = GateDevice.getInstance();
+		GATDevice gate = GATDevice.getInstance();
 		int initRet = gate.GAT_Init("2");
 		if(initRet ==0){
 			int setMode = gate.GAT_SetMode("2");

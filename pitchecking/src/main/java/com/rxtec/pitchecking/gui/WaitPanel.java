@@ -32,7 +32,7 @@ public class WaitPanel extends JPanel {
 		waitmsgLabel.setForeground(Color.RED);
 		waitmsgLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
 		waitmsgLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		waitmsgLabel.setBounds(10, 124, 1260, 148);
+		waitmsgLabel.setBounds(10, 55, 1260, 148);
 		add(waitmsgLabel);
 		
 		label = new JLabel("往前走进通道");
@@ -40,7 +40,7 @@ public class WaitPanel extends JPanel {
 		label.setHorizontalAlignment(SwingConstants.CENTER);
 		label.setForeground(Color.RED);
 		label.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-		label.setBounds(10, 279, 1260, 155);
+		label.setBounds(10, 230, 1260, 155);
 		add(label);
 		
 		

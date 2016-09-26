@@ -34,9 +34,9 @@ public class TicketVerifyScreen {
 	}
 
 	public void initUI() {
-		 gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
-//		ticketFrame.setUndecorated(true);
-//		ticketFrame.setVisible(true);
+		gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
+		// ticketFrame.setUndecorated(true);
+		// ticketFrame.setVisible(true);
 
 	}
 
@@ -99,6 +99,9 @@ public class TicketVerifyScreen {
 			ticketFrame.showExceptionContent(DeviceConfig.getInstance(), -1, exMsg);
 		} else if (cmdType == ScreenCmdEnum.ShowVersionFault.getValue()) {
 			String exMsg = "软件版本错误!";
+			ticketFrame.showExceptionContent(DeviceConfig.getInstance(), -1, exMsg);
+		} else if (cmdType == ScreenCmdEnum.ShowCamOpenException.getValue()) {
+			String exMsg = "摄像头连接故障!";
 			ticketFrame.showExceptionContent(DeviceConfig.getInstance(), -1, exMsg);
 		}
 	}

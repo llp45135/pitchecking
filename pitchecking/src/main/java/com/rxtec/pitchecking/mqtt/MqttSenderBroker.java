@@ -41,6 +41,24 @@ public class MqttSenderBroker {
 
 	private MqttClient mqttClient;
 	private String notifyJson;
+	private String faceScreenDisplay = "";
+	private int faceScreenDisplayTimeout =0;
+
+	public String getFaceScreenDisplay() {
+		return faceScreenDisplay;
+	}
+
+	public void setFaceScreenDisplay(String faceScreenDisplay) {
+		this.faceScreenDisplay = faceScreenDisplay;
+	}
+
+	public int getFaceScreenDisplayTimeout() {
+		return faceScreenDisplayTimeout;
+	}
+
+	public void setFaceScreenDisplayTimeout(int faceScreenDisplayTimeout) {
+		this.faceScreenDisplayTimeout = faceScreenDisplayTimeout;
+	}
 
 	public String getNotifyJson() {
 		return notifyJson;
@@ -129,6 +147,37 @@ public class MqttSenderBroker {
 	}
 
 	/**
+	 * 当主控端传入的uuid，即身份证号为空时，立即返回检脸失败
+	 */
+	public void PublishWrongIDNo() {
+		log.info("########PublishWrongIDNo  身份号错误########");
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			PIVerifyResultBean PIVBean = new PIVerifyResultBean();
+			PIVBean.setResult(0);
+			PIVBean.setUuid("");
+			PIVBean.setEventDirection(2);
+			PIVBean.setEventName("CAM_GetPhotoInfo");
+
+			String ww = "";
+			PIVBean.setPhoto1(ww.getBytes());
+			PIVBean.setPhoto2(ww.getBytes());
+			PIVBean.setPhoto3(ww.getBytes());
+
+			PIVBean.setVerifyStatus(1);
+
+			String jsonString = mapper.writeValueAsString(PIVBean);
+			log.info("PublishWrongIDNo json=="+jsonString);
+
+			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
+
+		} catch (IOException | MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
 	 * 
 	 */
 	public void testPublishFace() {
@@ -148,21 +197,21 @@ public class MqttSenderBroker {
 
 			byte[] bb = CommUtil.image2byte("face1.jpg");
 
-			 PIVBean.setPhotoLen1(bb.length);
-			 PIVBean.setPhoto1(bb);
-			 PIVBean.setPhotoLen2(bb.length);
-			 PIVBean.setPhoto2(bb);
-			 PIVBean.setPhotoLen3(bb.length);
-			 PIVBean.setPhoto3(bb);
-			 log.debug("length=="+bb.length);
+			PIVBean.setPhotoLen1(bb.length);
+			PIVBean.setPhoto1(bb);
+			PIVBean.setPhotoLen2(bb.length);
+			PIVBean.setPhoto2(bb);
+			PIVBean.setPhotoLen3(bb.length);
+			PIVBean.setPhoto3(bb);
+			log.debug("length==" + bb.length);
 
-//			PIVBean.setPhotoLen1(biArray.length);
-//			PIVBean.setPhoto1(biArray);
-//			PIVBean.setPhotoLen2(biArray.length);
-//			PIVBean.setPhoto2(biArray);
-//			PIVBean.setPhotoLen3(biArray.length);
-//			PIVBean.setPhoto3(biArray);
-//			log.debug("length==" + biArray.length);
+			// PIVBean.setPhotoLen1(biArray.length);
+			// PIVBean.setPhoto1(biArray);
+			// PIVBean.setPhotoLen2(biArray.length);
+			// PIVBean.setPhoto2(biArray);
+			// PIVBean.setPhotoLen3(biArray.length);
+			// PIVBean.setPhoto3(biArray);
+			// log.debug("length==" + biArray.length);
 
 			PIVBean.setVerifyStatus(0);
 
@@ -207,7 +256,7 @@ public class MqttSenderBroker {
 		resultBean.setiDelay(com.rxtec.pitchecking.Config.getInstance().getCheckDelayPassTime());
 		resultBean.setEventDirection(2);
 		resultBean.setEventName("CAM_GetPhotoInfo");
-		resultBean.setPhoto1(data.getFaceImg());				//for debug
+		resultBean.setPhoto1(data.getFaceImg()); // for debug
 		resultBean.setPhoto2(data.getFrameImg());
 		String photo3str = "";
 		resultBean.setPhoto3(photo3str.getBytes());
@@ -270,7 +319,7 @@ public class MqttSenderBroker {
 			log.debug("订阅主题: " + topicName);
 			// log.debug("消息数据: " + new String(payload));
 			// log.debug("消息级别(0,1,2): " + Qos);
-			log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
+//			log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String mqttMessage = new String(payload);
 			if (mqttMessage.indexOf("CAM_Open") != -1) {
@@ -303,9 +352,9 @@ public class MqttSenderBroker {
 
 	public static void main(String[] args) {
 		// MqttBroker mqttBroker = MqttBroker.getInstance();
-		
-		String ss  = "";
-		System.out.println("ss.bytes=="+ss.getBytes().length);
+
+		String ss = "";
+		System.out.println("ss.bytes==" + ss.getBytes().length);
 
 	}
 }

@@ -23,7 +23,7 @@ import gnu.io.SerialPortEventListener;
  */
 public class FirstGateDevice implements SerialPortEventListener {
 	private Log log = LogFactory.getLog("FirstGateDevice");
-	private static FirstGateDevice instance;
+	private static FirstGateDevice _instance = new FirstGateDevice();;
 	private SerialPort serialPort;
 	private InputStream in;
 	private OutputStream out;
@@ -33,11 +33,8 @@ public class FirstGateDevice implements SerialPortEventListener {
 	private static int delayTime = 30;
 	private static int delayCount = 1000;
 
-	public static synchronized FirstGateDevice getInstance() {
-		if (instance == null) {
-			instance = new FirstGateDevice();
-		}
-		return instance;
+	public static FirstGateDevice getInstance() {
+		return _instance;
 	}
 
 	private FirstGateDevice() {

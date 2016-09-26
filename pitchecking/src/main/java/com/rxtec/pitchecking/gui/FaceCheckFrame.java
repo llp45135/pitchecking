@@ -36,6 +36,7 @@ import javax.swing.border.LineBorder;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.mqtt.MqttSenderBroker;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
@@ -66,6 +67,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	private JPanel cameraPanel;
 	private JPanel msgPanel;
 	private JLabel msgTopLabel;
+	private String displayMsg = "";
 
 	int timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 	JLabel label_result = new JLabel("");
@@ -167,12 +169,12 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		contentPane.add(msgPanel, "name_1726792116426379");
 		msgPanel.setLayout(null);
 
-		msgTopLabel = new JLabel("验证通过请进站!");
+		msgTopLabel = new JLabel("验证通过请进站");
 		msgTopLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		msgTopLabel.setForeground(Color.RED);
-		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 125));
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
 		msgTopLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		msgTopLabel.setBounds(10, 235, 1004, 274);
+		msgTopLabel.setBounds(10, 129, 1004, 495);
 		msgPanel.add(msgTopLabel);
 
 		cameraPanel = new JPanel();
@@ -229,6 +231,46 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	// //idCardImage.repaint();
 	// //panel_idCardImage.repaint();
 	// }
+
+	/**
+	 * 主控端通过调用dll接口方式传输
+	 */
+	public void showFaceDisplayFromTK() {
+		timeIntevel = 0;
+
+		panel_title.setBackground(null);
+		panel_bottom.setBackground(null);
+
+		label_title.setText("");
+		label_title.setBackground(null);
+		label_result.setText("");
+
+		msgPanel.setVisible(true);
+		msgPanel.setBackground(null); // 把背景设置为空
+		msgPanel.setOpaque(false); // 设置为透明
+		this.cameraPanel.setVisible(true);
+		this.videoPanel.setVisible(false);
+		msgTopLabel.setBorder(null);
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+
+		String displayStr = MqttSenderBroker.getInstance().getFaceScreenDisplay();
+		if (displayStr.indexOf("#") != -1) { // 由#号，分两行
+			int kk = displayStr.indexOf("#");
+			String displayMsg1 = displayStr.substring(0, kk);
+			String displayMsg2 = displayStr.substring(kk + 1);
+			this.displayMsg = "<html><div align='center'>" + displayMsg1 + "</div>" + "<div align='center'>"
+					+ displayMsg2 + "</div>";
+			this.msgTopLabel.setText(displayMsg + "<div align='center'>"
+					+ MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout() + "</div>" + "</html>");
+		} else {
+			this.displayMsg = "<html><div align='center'>" + displayStr + "</div>";
+			this.msgTopLabel.setText(displayMsg + "<div align='center'>"
+					+ MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout() + "</div>" + "</html>");
+		}
+
+		timeIntevel = MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout();
+		titleStrType = 4;
+	}
 
 	/**
 	 * 验证通过处理
@@ -290,12 +332,12 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	 * 初始界面
 	 */
 	public void showDefaultContent() {
-//		try {
-//			Thread.sleep(Config.getInstance().getDefaultFaceCheckScreenDeley());
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		// try {
+		// Thread.sleep(Config.getInstance().getDefaultFaceCheckScreenDeley());
+		// } catch (InterruptedException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 		panel_title.setBackground(Color.ORANGE);
 		label_title.setText("请摘下眼镜后平视摄像头");
 		label_result.setText("");
@@ -345,20 +387,23 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 
 		if (timeIntevel > 0) {
 			if (this.titleStrType == 0) {
-				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 125));
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
 				msgTopLabel.setText("<html><div align='center'>验证通过请进站!</div><div align='center'>" + (timeIntevel - 1)
 						+ "</di></html>");
 			} else if (this.titleStrType == 1) {
-				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 76));
-				msgTopLabel.setText("<html><div align='center'>验证失败!  " + (timeIntevel - 1)
-						+ "</div><div align='center'>" + "请从边门离开或按求助按钮!" + "</di></html>");
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+				msgTopLabel.setText(displayMsg);
+			} else if (this.titleStrType == 4) {
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+				msgTopLabel.setText(displayMsg + "<div align='center'>" + (timeIntevel - 1) + "</div>" + "</html>");
 			} else {
 				label_title.setText("请平视摄像头     " + (timeIntevel - 1));
 			}
 
-//			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-//			msgTopLabel.setText(
-//					"<html><div align='center'>请平视摄像头!</div><div align='center'>" + (timeIntevel - 1) + "</di></html>");
+			// msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+			// msgTopLabel.setText(
+			// "<html><div align='center'>请平视摄像头!</div><div align='center'>" +
+			// (timeIntevel - 1) + "</di></html>");
 		}
 		if (timeIntevel == 0) {
 			this.showDefaultContent();

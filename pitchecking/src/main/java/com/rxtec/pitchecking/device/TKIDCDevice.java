@@ -24,9 +24,11 @@ import com.rxtec.pitchecking.utils.CalUtils;
 
 public class TKIDCDevice {
 	private Logger log = LoggerFactory.getLogger("IDCardDevice");
-	private String dllName = "IDC_EWTa.dll";
+	// private String dllName = "IDC_EWTa.dll";
+	private String dllName = "ICC_EWTa.dll";
 	JNative jnativeIDC_Init = null;
 	JNative jnativeIDC_FetchCard = null;
+	JNative jnativeIDC_StopFetchCard = null;
 	JNative jnativeIDC_GetSerial = null;
 	JNative jnativeIDC_ReadIDCardInfo = null;
 	JNative jnativeBmp = null;
@@ -42,11 +44,15 @@ public class TKIDCDevice {
 		this.IDC_Init();
 	}
 
+	/**
+	 * 初始化jnative
+	 */
 	private void initJnative() {
 
 		try {
 			jnativeIDC_Init = new JNative(dllName, "IDC_Init");
 			jnativeIDC_FetchCard = new JNative(dllName, "IDC_FetchCard");
+			jnativeIDC_StopFetchCard = new JNative(dllName, "IDC_StopFetchCard");
 			jnativeIDC_GetSerial = new JNative(dllName, "IDC_GetSerial");
 			jnativeIDC_ReadIDCardInfo = new JNative(dllName, "IDC_ReadIDCardInfo");
 			jnativeBmp = new JNative("WltRS.dll", "GetBmp");
@@ -60,6 +66,9 @@ public class TKIDCDevice {
 		}
 	}
 
+	/**
+	 * 对二代居民身份证识读单元进行初始化设置
+	 */
 	public void IDC_Init() {
 		String retval = "";
 		Pointer pointerOut = null;
@@ -73,7 +82,7 @@ public class TKIDCDevice {
 			jnativeIDC_Init.invoke();
 
 			retval = jnativeIDC_Init.getRetVal();
-			log.info("IDC_Init retval==" + retval);
+			log.debug("IDC_Init retval==" + retval);
 			if (retval.equals("0")) {
 				byte[] iLogicCode = new byte[4];
 				for (int k = 0; k < 4; k++) {
@@ -124,7 +133,7 @@ public class TKIDCDevice {
 	}
 
 	/**
-	 * 
+	 * 读取二代居民身份证识读单元序列号
 	 */
 	public void IDC_GetSerial() {
 		String retval = "";
@@ -159,6 +168,12 @@ public class TKIDCDevice {
 		}
 	}
 
+	/**
+	 * 在设定时间内寻找是否有二代居民身份证进入部件读取有效范围
+	 * 
+	 * @param iTimeOut
+	 * @return
+	 */
 	public String IDC_FetchCard(int iTimeOut) {
 		String retval = "-1";
 		Pointer pointerCardType = null;
@@ -176,14 +191,83 @@ public class TKIDCDevice {
 			jnativeIDC_FetchCard.invoke();
 
 			retval = jnativeIDC_FetchCard.getRetVal();
-			log.info("IDC_FetchCard retval==" + retval);
+//			log.debug("IDC_FetchCard retval==" + retval);
 			if (retval.equals("0")) {
-				byte[] iCardType = new byte[4];
-				for (int k = 0; k < 4; k++) {
-					iCardType[k] = pointerCardType.getAsByte(k);
-				}
-				log.debug("iCardType==" + CommUtil.bytesToInt(iCardType, 0));
+				log.debug("已经寻到二代证");
+//				byte[] iCardType = new byte[4];
+//				for (int k = 0; k < 4; k++) {
+//					iCardType[k] = pointerCardType.getAsByte(k);
+//				}
+//				log.debug("iCardType==" + CommUtil.bytesToInt(iCardType, 0));
+//
+//				byte[] iLogicCode = new byte[4];
+//				for (int k = 0; k < 4; k++) {
+//					iLogicCode[k] = pointerOut.getAsByte(k);
+//				}
+//				log.debug("iLogicCode==" + CommUtil.bytesToInt(iLogicCode, 0));
+//
+//				byte[] iPhyCode = new byte[4];
+//				for (int k = 0; k < 4; k++) {
+//					iPhyCode[k] = pointerOut.getAsByte(k + 4);
+//				}
+//				log.debug("iPhyCode==" + CommUtil.bytesToInt(iPhyCode, 0));
+//
+//				byte[] iHandle = new byte[4];
+//				for (int k = 0; k < 4; k++) {
+//					iHandle[k] = pointerOut.getAsByte(k + 4 + 4);
+//				}
+//				log.debug("iHandle==" + CommUtil.bytesToInt(iHandle, 0));
+//
+//				byte[] iType = new byte[4];
+//				for (int k = 0; k < 4; k++) {
+//					iType[k] = pointerOut.getAsByte(k + 4 + 4);
+//				}
+//				log.debug("iType==" + CommUtil.bytesToInt(iType, 0));
+//
+//				byte[] acDevReturn = new byte[128];
+//				for (int k = 0; k < 128; k++) {
+//					acDevReturn[k] = pointerOut.getAsByte(k + 4 + 4 + 4);
+//				}
+//				log.debug("acDevReturn==" + new String(acDevReturn));
+//
+//				byte[] acReserve = new byte[128];
+//				for (int k = 0; k < 128; k++) {
+//					acReserve[k] = pointerOut.getAsByte(k + 4 + 4 + 4 + 128);
+//				}
+//				log.debug("acReserve==" + new String(acReserve));
+			}
+			pointerCardType.dispose();
+			pointerOut.dispose();
+		} catch (NativeException e) {
+			// TODO Auto-generated catch block
+			log.error("TKIDCDevice IDC_FetchCard:", e);
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			log.error("TKIDCDevice IDC_FetchCard:", e);
+		} catch (Exception e) {
+			log.error("TKIDCDevice IDC_FetchCard:", e);
+		}
+		return retval;
+	}
 
+	/**
+	 * 停止二代居民身份证识读单元寻找是否有二代居民身份证进入部件读取有效范围
+	 */
+	public void IDC_StopFetchCard() {
+		String retval = "";
+		Pointer pointerOut = null;
+
+		try {
+			pointerOut = new Pointer(MemoryBlockFactory.createMemoryBlock(4 * 4 + 128 + 128));
+			int i = 0;
+
+			jnativeIDC_StopFetchCard.setRetVal(Type.INT);
+			jnativeIDC_StopFetchCard.setParameter(i++, pointerOut);
+			jnativeIDC_StopFetchCard.invoke();
+
+			retval = jnativeIDC_StopFetchCard.getRetVal();
+			log.debug("jnativeIDC_StopFetchCard retval==" + retval);
+			if (retval.equals("0")) {
 				byte[] iLogicCode = new byte[4];
 				for (int k = 0; k < 4; k++) {
 					iLogicCode[k] = pointerOut.getAsByte(k);
@@ -220,20 +304,26 @@ public class TKIDCDevice {
 				}
 				log.debug("acReserve==" + new String(acReserve));
 			}
-			pointerCardType.dispose();
 			pointerOut.dispose();
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
-			log.error("TKIDCDevice IDC_FetchCard:", e);
+			log.error("TKIDCDevice IDC_StopFetchCard:", e);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
-			log.error("TKIDCDevice IDC_FetchCard:", e);
+			log.error("TKIDCDevice IDC_StopFetchCard:", e);
 		} catch (Exception e) {
-			log.error("TKIDCDevice IDC_FetchCard:", e);
+			log.error("TKIDCDevice IDC_StopFetchCard:", e);
 		}
-		return retval;
 	}
 
+	/**
+	 * 根据指定的类型读取二代居民身份证信息。 输入参数： iType 读取二代居民身份证信息类型。
+	 * 1：读取除照片外的文本信息，包括二代证卡号、姓名、性别、名族、出生日期、有效期限、住址 2: 读取二代居民身份证所有信息 输出参数：
+	 * p_psCardInfo 保存二代居民身份证信息。 p_psStatus 保存状态信息。 返回值： int 0：成功 1：失败
+	 * 
+	 * @param iType
+	 * @return
+	 */
 	public IDCard IDC_ReadIDCardInfo(int iType) {
 		String retval = "-1";
 		Pointer pointerCardInfo = null;
@@ -252,7 +342,7 @@ public class TKIDCDevice {
 			jnativeIDC_ReadIDCardInfo.invoke();
 
 			retval = jnativeIDC_ReadIDCardInfo.getRetVal();
-			log.info("IDC_ReadIDCardInfo retval==" + retval);
+			log.debug("IDC_ReadIDCardInfo retval==" + retval);
 			if (retval.equals("0")) {
 				synIDCard = new IDCard();
 
@@ -348,10 +438,9 @@ public class TKIDCDevice {
 				} catch (IOException t) {
 					t.printStackTrace();
 				}
-				
+
 				/**
-				 * Syn_GetBmp本函数用于将wlt文件解码成bmp文件
-				 * 参数2：阅读设备通讯接口类型（1—RS-232C，2—USB）
+				 * Syn_GetBmp本函数用于将wlt文件解码成bmp文件 参数2：阅读设备通讯接口类型（1—RS-232C，2—USB）
 				 */
 				int j = 0;
 				String bmpretval = "";
@@ -364,17 +453,11 @@ public class TKIDCDevice {
 				log.debug("GetBmp: bmpretval==" + bmpretval);// 获取返回值
 
 				CommUtil.bmpTojpg("zp.bmp", "zp.jpg");
-				
+
 				String photoFile = "zp.jpg";
-//				if (IDCardNoStr.trim().equals("520203197912141118")) {
-//					photoFile = "zhao.jpg";
-//				}else if (IDCardNoStr.trim().equals("350322198301224317")) {
-//					photoFile = "cjw.jpg";
-//				}else if (IDCardNoStr.trim().equals("452502198305034618")) {
-//					photoFile = "lwm.jpg";
-//				}
-				log.info("photoFile=="+photoFile);
+				log.debug("photoFile==" + photoFile);
 				File idcardFile = new File(photoFile);
+				
 				BufferedImage idCardImage = null;
 				idCardImage = ImageIO.read(idcardFile);
 				if (idCardImage != null) {

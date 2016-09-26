@@ -2,7 +2,7 @@ package com.rxtec.pitchecking;
 
 public enum ScreenCmdEnum {
 	
-	showFaceDefaultContent(1), 
+	showFaceDefaultContent(1),
 	ShowBeginCheckFaceContent(2), 
 	ShowFaceCheckPass(3), 
 	ShowFaceCheckFailed(4),
@@ -13,9 +13,11 @@ public enum ScreenCmdEnum {
 	ShowTicketVerifyWaitInput(9),
 	ShowTicketVerifySucc(10),
 	ShowTicketVerifyTrainDateRuleFail(11),
+	ShowFaceDisplayFromTK(12),
 	ShowQRDeviceException(-1),
 	ShowIDDeviceException(-2),
-	ShowVersionFault(-3) 
+	ShowVersionFault(-3),
+	ShowCamOpenException(-4)
 	{
 		@Override
 		public boolean isRest() {
