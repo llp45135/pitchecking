@@ -125,8 +125,10 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		setContentPane(contentPane);
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
+		Color bgcolor = new Color(0,113,205);
+		
 		topPanel = new JPanel();
-		topPanel.setBackground(Color.CYAN);
+		topPanel.setBackground(bgcolor);
 		topPanel.setMinimumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
 		topPanel.setMaximumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
 		contentPane.add(topPanel);
@@ -134,13 +136,13 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 
 		labelTitle = new JLabel("");
 		labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
-		labelTitle.setForeground(Color.BLUE);
+		labelTitle.setForeground(Color.YELLOW);
 		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 50));
 		labelTitle.setBounds(225, 26, 551, 62);
 		topPanel.add(labelTitle);
 
 		timelabel = new JLabel("yyyyMMdd hh:mm:ss");
-		timelabel.setForeground(Color.RED);
+		timelabel.setForeground(Color.YELLOW);
 		timelabel.setFont(new Font("微软雅黑", Font.PLAIN, 20));
 		timelabel.setBounds(786, 26, 218, 45);
 		topPanel.add(timelabel);
@@ -232,7 +234,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		ticketPanel.add(lableWarnmsg);
 
 		bottomPanel = new JPanel();
-		bottomPanel.setBackground(Color.CYAN);
+		bottomPanel.setBackground(bgcolor);
 		bottomPanel.setMinimumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT));
 		bottomPanel.setMaximumSize(new Dimension(1024, 60));
 		bottomPanel.setLayout(null);
@@ -574,16 +576,16 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		if (timeIntevel > 0) {
 			if (this.titleStrType == 1) {
 				labelTitle.setText("还需扫火车票二维码   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.RED);
+				labelTitle.setForeground(Color.YELLOW);
 			} else if (this.titleStrType == 2) {
 				labelTitle.setText("还需刷第二代身份证   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.RED);
+				labelTitle.setForeground(Color.YELLOW);
 			} else if (this.titleStrType == 3) {
 				labelTitle.setText("票证核验成功   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.GREEN);
+				labelTitle.setForeground(Color.YELLOW);
 			} else if (this.titleStrType == 4) {
 				labelTitle.setText("票证核验失败   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.RED);
+				labelTitle.setForeground(Color.YELLOW);
 			}
 		}
 
