@@ -27,7 +27,7 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "160825.16.01";
+	public static String softVersion = "160923.10.01";
 	public static String softIdNo = "520203197912141118,440111197209283012";
 
 	public static int idDeviceSucc = 1;
@@ -51,7 +51,7 @@ public class DeviceConfig {
 //	public static String initImgPath = "./img/init2.gif";
 	public static String initImgPath = "./img/initNew.gif";
 
-	public static String faceBgImgPath = "./img/bg.png";
+	public static String faceBgImgPath = "./img/bluebg.jpg";//"./img/bg.png";
 
 	// 语音文件
 	public static String idReaderWav = "./wav/thanks.wav";

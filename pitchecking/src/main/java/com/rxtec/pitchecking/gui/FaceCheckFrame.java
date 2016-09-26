@@ -83,9 +83,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 				try {
 					FaceCheckFrame frame = new FaceCheckFrame();
 					frame.setVisible(true);
-					frame.showBeginCheckFaceContent();
-					// frame.showFaceCheckPassContent();
-					// frame.showCheckFailedContent();
+					// frame.showBeginCheckFaceContent();
+//					frame.showFaceCheckPassContent();
+					 frame.showCheckFailedContent();
 					// frame.showDefaultContent();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -169,9 +169,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		contentPane.add(msgPanel, "name_1726792116426379");
 		msgPanel.setLayout(null);
 
-		msgTopLabel = new JLabel("验证通过请进站");
+		msgTopLabel = new JLabel("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div></html>");
 		msgTopLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		msgTopLabel.setForeground(Color.RED);
+		msgTopLabel.setForeground(Color.YELLOW);
 		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
 		msgTopLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		msgTopLabel.setBounds(10, 129, 1004, 495);
@@ -291,8 +291,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		this.cameraPanel.setVisible(true);
 		this.videoPanel.setVisible(false);
 		msgTopLabel.setBorder(null);
-		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 125));
-		this.msgTopLabel.setText("<html><div align='center'>验证通过请进站!</div></html>");
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+		this.msgTopLabel.setText("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div></html>");
 
 		timeIntevel = 3;
 		titleStrType = 0;
@@ -317,9 +317,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		this.cameraPanel.setVisible(true);
 		this.videoPanel.setVisible(false);
 		msgTopLabel.setBorder(null);
-		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 76));
-		this.msgTopLabel.setText(
-				"<html><div align='center'>验证失败!</div><div align='center'>" + "请从边门离开或按求助按钮!" + "</di></html>");
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+		this.msgTopLabel.setText("<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div></html>");
 
 		panel_bottom.setVisible(true);
 
@@ -388,11 +387,14 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		if (timeIntevel > 0) {
 			if (this.titleStrType == 0) {
 				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-				msgTopLabel.setText("<html><div align='center'>验证通过请进站!</div><div align='center'>" + (timeIntevel - 1)
-						+ "</di></html>");
+				msgTopLabel.setText(
+						"<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>"
+								+ (timeIntevel - 1) + "</di></html>");
 			} else if (this.titleStrType == 1) {
 				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-				msgTopLabel.setText(displayMsg);
+				msgTopLabel.setText(
+						"<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>"
+								+ (timeIntevel - 1) + "</di></html>");
 			} else if (this.titleStrType == 4) {
 				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
 				msgTopLabel.setText(displayMsg + "<div align='center'>" + (timeIntevel - 1) + "</div>" + "</html>");

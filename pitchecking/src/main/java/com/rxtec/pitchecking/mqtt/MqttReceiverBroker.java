@@ -205,7 +205,7 @@ public class MqttReceiverBroker {
 						MqttSenderBroker.getInstance().PublishWrongIDNo();
 					}
 				} else if (mqttMessage.indexOf("CAM_ScreenDisplay") != -1) {
-					log.info("CAM_ScreenDisplay json==" + mqttMessage);
+//					log.info("CAM_ScreenDisplay json==" + mqttMessage);
 					ObjectMapper mapper = new ObjectMapper();
 					ScreenDisplayBean screenDisplayBean = mapper.readValue(mqttMessage, ScreenDisplayBean.class);
 					int displayTimeout = screenDisplayBean.getTimeout(); // 从CAM_ScreenDisplay输出的结构体获取到屏幕超时时间
