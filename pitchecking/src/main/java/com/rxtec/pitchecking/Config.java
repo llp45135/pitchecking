@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 import java.util.HashMap;
 import java.util.List;
@@ -119,7 +120,7 @@ public class Config {
 	/** ******************************************************************************* */
 
 
-	private int faceVerifyThreads = 2; // 人脸比对线程数
+	private int faceVerifyThreads = 1; // 人脸比对线程数
 
 	private float faceCheckThreshold = (float) 0.68;
 	private float glassFaceCheckThreshold = (float) 0.65;
@@ -435,7 +436,11 @@ public class Config {
 	private Config() {
 		Properties p = new Properties();
 		try {
-			InputStream is = new FileInputStream("./conf/conf.properties");
+			
+			String filePath = Thread.currentThread().getContextClassLoader().getResource("").toString();
+			String fn = filePath + "conf/conf.properties";
+			URL url = new URL(fn);
+			FileInputStream is = new FileInputStream(url.getFile());
 			p.load(is);
 			this.faceCheckThreshold = Float.valueOf(p.getProperty("FaceCheckThreshold", "0.7"));
 			this.glassFaceCheckThreshold = Float.valueOf(p.getProperty("GlassFaceCheckThreshold", "0.68"));
@@ -466,9 +471,6 @@ public class Config {
 			this.startPITAppCmd = p.getProperty("StartPITAppCmd", "C:/pitchecking/bin");
 			this.faceVerifyTaskVersion = p.getProperty("FaceVerifyTaskVersion", "TK");
 			this.faceFrameTransparency = Float.valueOf(p.getProperty("faceFrameTransparency", "0.75"));
-
-			
-
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();

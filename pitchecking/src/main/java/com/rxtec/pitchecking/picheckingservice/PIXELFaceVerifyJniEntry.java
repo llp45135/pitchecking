@@ -1,5 +1,7 @@
 package com.rxtec.pitchecking.picheckingservice;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Calendar;
@@ -13,8 +15,17 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 public class PIXELFaceVerifyJniEntry implements FaceVerifyInterface {
 
+	
+	private int initStatus = 0;
+	
+	public int getInitStatus() {
+		return initStatus;
+	}
+
+
 	public PIXELFaceVerifyJniEntry(String DLLName) {
-		this.DLLName = DLLName;
+		String filePath = Thread.currentThread().getContextClassLoader().getResource("").toString();
+		this.DLLName = filePath.substring(6, filePath.length()) + DLLName;
 		initJNIContext();
 	}
 
@@ -31,16 +42,20 @@ public class PIXELFaceVerifyJniEntry implements FaceVerifyInterface {
 			jnativeInitFun = new JNative(DLLName, "PS_InitFaceIDSDK");
 			jnativeInitFun.setRetVal(Type.INT);
 			jnativeInitFun.invoke();
-			log.debug("PS_InitFaceIDSDK ret: " + jnativeInitFun.getRetVal());// 获取返回值
+			log.info("初始化 PS_InitFaceIDSDK 成功!  ret: " + jnativeInitFun.getRetVal());// 获取返回值
 			jnativeVerifyFun = new JNative(DLLName, "PS_VerifyImage");
 		} catch (NativeException e) {
-			log.error("FaceVerifyJniEntry initJNIContext failed!", e);
+			log.error("初始化 PS_InitFaceIDSDK 失败！", e);
+			initStatus = -1;
 		} catch (IllegalAccessException e) {
-			log.error("FaceVerifyJniEntry initJNIContext failed!", e);
+			log.error("初始化 PS_InitFaceIDSDK 失败!", e);
+			initStatus = -1;
 		} finally {
 		}
 
 		df.setMaximumFractionDigits(2);
+		initStatus = 1;
+
 	}
 
 	public void clearJNIContext() {

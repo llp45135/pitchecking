@@ -18,6 +18,7 @@ public class MICROPFaceVerifyJNIEntry implements FaceVerifyInterface{
 		this.DLLName = DLLName;
 		initJNIContext();
 	}
+	private int initStatus;
 
 	JNative jnativeInitFun = null;
 	JNative jnativeVerifyFun = null;
@@ -36,12 +37,15 @@ public class MICROPFaceVerifyJNIEntry implements FaceVerifyInterface{
 			jnativeVerifyFun = new JNative(DLLName, "GetSimilarity");
 		} catch (NativeException e) {
 			log.error("FaceVerifyMicroVJNIEntry initJNIContext failed!", e);
+			initStatus = -1;
 		} catch (IllegalAccessException e) {
 			log.error("FaceVerifyMicroVJNIEntry initJNIContext failed!", e);
+			initStatus = -1;
 		} finally {
 		}
 
 		df.setMaximumFractionDigits(2);
+		initStatus = 1;
 	}
 
 	public void clearJNIContext() {
@@ -101,6 +105,12 @@ public class MICROPFaceVerifyJNIEntry implements FaceVerifyInterface{
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public int getInitStatus() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 

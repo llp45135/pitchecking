@@ -1,13 +1,8 @@
 package com.rxtec.pitchecking.picheckingservice;
 
 
-import java.io.File;
-
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
 import com.rxtec.pitchecking.utils.CommUtil;
-
-import io.aeron.driver.MediaDriver;
-
 
 /**
  * 单独比对人脸进程
@@ -36,23 +31,11 @@ public class FaceCheckingStandaloneService {
 //			PitRecordLoger.getInstance().clearExpirationData();
 //			PitRecordLoger.getInstance().startThread();
 //		}
-//		clearAeron();
-//		final MediaDriver driver = MediaDriver.launch();
+
 		FaceCheckingService.getInstance().beginFaceCheckerStandaloneTask();
-		CommUtil.sleep(3000);
 		PIVerifySubscriber s = new PIVerifySubscriber();
 
 	}
 	
-	private static void clearAeron(){
-		String currentUser = System.getProperty("user.name");
-		if(currentUser != null){
-			String fileName = "C:/Users/" + currentUser + "/AppData/Local/Temp/aeron-"+currentUser+"/cnc.dat";
-			File file = new File(fileName);
-		    if (file.isFile() && file.exists()) {  
-		    	file.delete();
-		    }
-		}
-	}
 
 }

@@ -16,18 +16,28 @@ public class FaceCheckingStandaloneTask implements Runnable {
 	PTVerifyResultPublisher publisher = PTVerifyResultPublisher.getInstance();
 	FaceVerifyInterface faceVerify = null;
 	private Logger log = LoggerFactory.getLogger("FaceCheckingStandaloneTask");
+	
+	private int initDllStatus = 0;
 
 	public FaceCheckingStandaloneTask() {
 		if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyPIXEL)) {
 			faceVerify = new PIXELFaceVerifyJniEntry(Config.PIXELFaceVerifyDLLName);
+			initDllStatus = faceVerify.getInitStatus();
 		} else if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyMicro)) {
 			faceVerify = new MICROPFaceVerifyJNIEntry(Config.MICROFaceVerifyCloneDLLName);
+			initDllStatus = faceVerify.getInitStatus();
 		}
 	}
 
 	@Override
 	public void run() {
+		
+		if(initDllStatus <1){
+			log.error("!!!!!!!!!!!!!!!!!!VerifyDLL init failed!!!!!!!!!!!!!!!");
+			return;
+		}
 		while (true) {
+			
 			try {
 				Thread.sleep(50);
 				PITVerifyData fd = FaceCheckingService.getInstance().takeFaceVerifyData();// 从待验证人脸队列中取出人脸对象
