@@ -205,23 +205,23 @@ public class MqttReceiverBroker {
 						MqttSenderBroker.getInstance().PublishWrongIDNo();
 					}
 				} else if (mqttMessage.indexOf("CAM_ScreenDisplay") != -1) {
-//					log.info("CAM_ScreenDisplay json==" + mqttMessage);
+					// log.info("CAM_ScreenDisplay json==" + mqttMessage);
 					ObjectMapper mapper = new ObjectMapper();
 					ScreenDisplayBean screenDisplayBean = mapper.readValue(mqttMessage, ScreenDisplayBean.class);
 					int displayTimeout = screenDisplayBean.getTimeout(); // 从CAM_ScreenDisplay输出的结构体获取到屏幕超时时间
 					String faceScreenDisplay = screenDisplayBean.getScreenDisplay();
 					log.info("CAM_ScreenDisplay faceScreenDisplay==" + faceScreenDisplay);
 					log.info("CAM_ScreenDisplay displayTimeout==" + displayTimeout);
-					
+
 					MqttSenderBroker.getInstance().setFaceScreenDisplay(faceScreenDisplay);
 					MqttSenderBroker.getInstance().setFaceScreenDisplayTimeout(displayTimeout);
 
 					screenDisplayBean.setEventDirection(2);
 					String screenDisplayResultJson = mapper.writeValueAsString(screenDisplayBean);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, screenDisplayResultJson);
-					
-					FaceTrackingScreen.getInstance().offerEvent(
-					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceDisplayFromTK.getValue(), null, null, null));
+
+					FaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(1,
+							ScreenCmdEnum.ShowFaceDisplayFromTK.getValue(), null, null, null));
 				}
 			}
 			payload = null;
