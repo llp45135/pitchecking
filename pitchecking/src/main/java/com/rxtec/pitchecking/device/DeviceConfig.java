@@ -56,10 +56,12 @@ public class DeviceConfig {
 	// 语音文件
 	public static String idReaderWav = "./wav/thanks.wav";
 	public static String qrReaderWav = "./wav/talkforever16.wav";
-	public static String cameraWav = "./wav/camera.wav";// "./wav/12-35.wav";
+	public static String cameraWav = "./wav/camera_glasses.wav";// "./wav/12-35.wav";
 	public static String emerDoorWav = "./wav/emerDoor.wav";
+	public static String takeTicketWav = "./wav/take_ticket.wav";
 	public static int cameraFlag = 1;
 	public static int emerDoorFlag = 2;
+	public static int takeTicketFlag = 3;
 
 	private int versionFlag = 0;
 	private int readerTimeDelay = 10;

@@ -277,6 +277,26 @@ public class FirstGateDevice implements SerialPortEventListener {
 		return 0;
 	}
 
+	/**
+	 * 获取通道状态函数，此函数功能是检查通道内是否有人闯闸的 第一道门检测有没没刷卡进入通道的反馈 主机---->闸机
+	 * (控制板收到此命令时查一下光电感应器的状态。) 2a 58 01 23 主机收到指令后返回 闸机--->主机 2a 58 xx 23 其中XX
+	 * 0x00代表正常，没有闯入，0x01代表异常，有未刷卡闯入
+	 */
+	public int getGateStatus() {
+		try {
+			String cmd = "2A580123";
+			log.debug("getGateStatus cmd==" + cmd);
+			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
+			for (int i = 0; i < cmdData.length; i++) {
+				this.out.write(cmdData[i]);
+			}
+			this.out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
 	@Override
 	public void serialEvent(SerialPortEvent event) {
 		// TODO Auto-generated method stub
@@ -321,6 +341,8 @@ public class FirstGateDevice implements SerialPortEventListener {
 						log.debug("点亮入口绿色箭头");
 					} else if (ss.indexOf("2A510023") == 0) {
 						log.debug("点亮入口红色叉叉");
+					} else if (ss.indexOf("2A58") == 0) {
+						log.debug("通道当前状态为：" + ss);
 					}
 					readBuffer.delete(0, readBuffer.length());
 				}

@@ -1,6 +1,8 @@
 package com.rxtec.pitchecking.picheckingservice;
 
 
+import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.db.PitRecordLoger;
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -27,10 +29,12 @@ public class FaceCheckingStandaloneService {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-//		if (Config.getInstance().getIsUseMongoDB() == 1) {
-//			PitRecordLoger.getInstance().clearExpirationData();
-//			PitRecordLoger.getInstance().startThread();
-//		}
+		
+		//是否启用monodb保存人脸数据
+		if (Config.getInstance().getIsUseMongoDB() == 1) {
+			PitRecordLoger.getInstance().clearExpirationData();
+			PitRecordLoger.getInstance().startThread();
+		}
 
 		FaceCheckingService.getInstance().beginFaceCheckerStandaloneTask();
 		PIVerifySubscriber s = new PIVerifySubscriber();

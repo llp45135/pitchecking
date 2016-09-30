@@ -29,6 +29,7 @@ public class AudioDevice {
 	private static AudioDevice _instance = new AudioDevice();
 	File audioFile = null;
 	File emerAudioFile = null; // 应急门离开语音
+	File takeTicketAudioFile = null;
 
 	public static synchronized AudioDevice getInstance() {
 		if (_instance == null) {
@@ -40,6 +41,7 @@ public class AudioDevice {
 	private AudioDevice() {
 		audioFile = new File(DeviceConfig.cameraWav);
 		emerAudioFile = new File(DeviceConfig.emerDoorWav);
+		takeTicketAudioFile = new File(DeviceConfig.takeTicketWav);
 	}
 
 	/**
@@ -59,6 +61,9 @@ public class AudioDevice {
 			} else if (audioFlag == DeviceConfig.emerDoorFlag) {
 				log.debug("载入声音文件:" + emerAudioFile);
 				audioStream = AudioSystem.getAudioInputStream(emerAudioFile);
+			}else if (audioFlag == DeviceConfig.takeTicketFlag) {
+				log.debug("载入声音文件:" + takeTicketAudioFile);
+				audioStream = AudioSystem.getAudioInputStream(takeTicketAudioFile);
 			}
 			audioFormat = audioStream.getFormat();
 
@@ -156,6 +161,6 @@ public class AudioDevice {
 		
 		CommUtil.sleep(1000);
 		
-		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音“请平视摄像头”
+		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); // 调用语音“请平视摄像头”
 	}
 }
