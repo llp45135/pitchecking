@@ -182,7 +182,7 @@ public class AudioDevice {
 
 		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); // 调用语音“请平视摄像头”
 
-		CommUtil.sleep(6000);
+		CommUtil.sleep(6500);
 
 		AudioDevice.getInstance().killpid(AudioDevice.getInstance().pidstr);
 	}
