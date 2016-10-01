@@ -202,6 +202,7 @@ public class RSFaceTrackTask implements Runnable {
 
 	/**
 	 * 画脸部框
+	 * 
 	 * @param detection
 	 */
 	private void drawLocation(PXCMFaceData.DetectionData detection) {
@@ -230,6 +231,7 @@ public class RSFaceTrackTask implements Runnable {
 
 	/**
 	 * 画脸部特征点
+	 * 
 	 * @param face
 	 */
 	private void drawLandmark(PXCMFaceData.Face face) {
@@ -549,8 +551,9 @@ public class RSFaceTrackTask implements Runnable {
 	private PXCMFaceData.PoseEulerAngles checkFacePose(PXCMFaceData.PoseData poseData) {
 		PXCMFaceData.PoseEulerAngles pea = new PXCMFaceData.PoseEulerAngles();
 		poseData.QueryPoseAngles(pea);
-//		log.debug("Confidence = " + poseData.QueryConfidence());
-//		log.debug("Roll=" + Math.abs(pea.roll) + "      Pitch=" + Math.abs(pea.pitch) + "      Yaw" + Math.abs(pea.yaw));
+		// log.debug("Confidence = " + poseData.QueryConfidence());
+		// log.debug("Roll=" + Math.abs(pea.roll) + " Pitch=" +
+		// Math.abs(pea.pitch) + " Yaw" + Math.abs(pea.yaw));
 		if (poseData.QueryConfidence() == 0)
 			return null;
 		if (Math.abs(pea.yaw) > Config.FACE_POSE_YAW || Math.abs(pea.pitch) > Config.FACE_POSE_PITCH
@@ -674,25 +677,27 @@ public class RSFaceTrackTask implements Runnable {
 		setupColorCameraDevice(dev);
 		while (startCapture) {
 			sts = senseMgr.AcquireFrame(true);
-			if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0){
-//				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
-			}
-			else 
+			if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0) {
+				// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+			} else {
 				log.error("senseMgr failed! sts=" + sts);
+			}
 
 			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
 			if (sample == null) {
+				log.error("QueryFaceSample failed! sample=" + sample);
 				senseMgr.ReleaseFrame();
 				continue;
-			}else{
-//				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+			} else {
+				// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 			}
 
 			BufferedImage frameImage = null;
 			if (sample.color != null) {
 				frameImage = drawFrameImage(sample);
-//				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
-			}else{
+				// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+			} else {
+				log.error("QueryFaceSample failed! sample.color=" + sample.color);
 				senseMgr.ReleaseFrame();
 				continue;
 			}

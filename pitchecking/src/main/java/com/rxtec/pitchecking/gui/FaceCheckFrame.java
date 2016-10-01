@@ -87,8 +87,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					FaceCheckFrame frame = new FaceCheckFrame();
 					frame.setVisible(true);
 //					 frame.showBeginCheckFaceContent();
-					 frame.showFaceCheckPassContent();
-//					frame.showCheckFailedContent();
+//					 frame.showFaceCheckPassContent();
+					frame.showCheckFailedContent();
 					// frame.showDefaultContent();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -294,8 +294,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		}
 		label_title.setText(displayMsg);
 
-		this.cameraPanel.setVisible(true);
-		this.videoPanel.setVisible(true);
+//		this.cameraPanel.setVisible(true);
+//		this.videoPanel.setVisible(true);
+		
 		// msgPanel.setVisible(false);
 		// msgPanel.setBackground(null); // 把背景设置为空
 		// msgPanel.setOpaque(false); // 设置为透明
@@ -337,8 +338,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_title.setForeground(Color.BLACK);		
 		label_title.setText("人脸识别成功！请通过");
 
-		this.cameraPanel.setVisible(true);
-		this.videoPanel.setVisible(true);
+//		this.cameraPanel.setVisible(true);
+//		this.videoPanel.setVisible(true);
+		
 		// msgPanel.setVisible(false);
 		// msgPanel.setBackground(null); // 把背景设置为空
 		// msgPanel.setOpaque(false); // 设置为透明
@@ -365,8 +367,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_title.setText("人脸识别失败！请从侧门离开");
 		// label_title.setBackground(null);
 
-		this.cameraPanel.setVisible(true);
-		this.videoPanel.setVisible(true);
+//		this.cameraPanel.setVisible(true);
+//		this.videoPanel.setVisible(true);
 
 		// msgPanel.setVisible(false);
 		// msgPanel.setBackground(null); // 把背景设置为空
@@ -402,8 +404,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_title.setText("请摘下眼镜后平视摄像头");
 
 		// this.msgPanel.setVisible(false);
-		this.cameraPanel.setVisible(true);
-		this.videoPanel.setVisible(true);
+		
+//		this.cameraPanel.setVisible(true);
+//		this.videoPanel.setVisible(true);
 
 		timeIntevel = 0;
 		timer.start();
@@ -421,8 +424,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_title.setForeground(Color.BLACK);
 		label_title.setText("");
 
-		this.cameraPanel.setVisible(true);
-		this.videoPanel.setVisible(true);
+//		this.cameraPanel.setVisible(true);
+//		this.videoPanel.setVisible(true);
+		
 		// msgPanel.setVisible(false);
 		// msgPanel.setBackground(null); // 把背景设置为空
 		// msgPanel.setOpaque(false); // 设置为透明
