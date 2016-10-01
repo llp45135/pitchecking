@@ -117,7 +117,12 @@ public class RSFaceDetectionService implements IFaceTrackService{
 	public void beginVideoCaptureAndTracking() {
 //		ExecutorService executer = Executors.newCachedThreadPool();
 //		executer.execute(trackTask);
-		trackTask.doTracking();
+		try {
+			trackTask.doTracking();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			log.error("trackTask.doTracking:",e);
+		}
 	}
 	
 

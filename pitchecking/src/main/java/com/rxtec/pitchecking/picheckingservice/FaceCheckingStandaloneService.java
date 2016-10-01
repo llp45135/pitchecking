@@ -1,8 +1,12 @@
 package com.rxtec.pitchecking.picheckingservice;
 
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.db.PitRecordLoger;
+import com.rxtec.pitchecking.mbean.PITProcessDetect;
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -16,9 +20,9 @@ public class FaceCheckingStandaloneService {
 
 	public static void main(String[] args) {
 		//启动检脸进程保护的线程
-//		ExecutorService executer = Executors.newSingleThreadExecutor();
-//		PITProcessDetect pitProcessDetect = new PITProcessDetect();
-//		executer.execute(pitProcessDetect);
+		ExecutorService executer = Executors.newSingleThreadExecutor();
+		PITProcessDetect pitProcessDetect = new PITProcessDetect();
+		executer.execute(pitProcessDetect);
 
 //		MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 //		FaceVerifyServiceManager mbean = new FaceVerifyServiceManager();

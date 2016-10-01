@@ -67,7 +67,7 @@ public class RSFaceTrackTask implements Runnable {
 
 	private static int LandmarkAlignment = 10;
 
-//	private RSModuleStatus rsStatus;
+	// private RSModuleStatus rsStatus;
 
 	public VideoPanel getVideoPanel() {
 		return videoPanel;
@@ -123,7 +123,12 @@ public class RSFaceTrackTask implements Runnable {
 
 	@Override
 	public void run() {
-		doTracking();
+		try {
+			doTracking();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			log.error("RSFaceTrackTask doTracking:", e);
+		}
 
 	}
 
@@ -570,14 +575,26 @@ public class RSFaceTrackTask implements Runnable {
 	public void beginCheckingFace(IDCard idCard, Ticket ticket) {
 		currentIDCard = idCard;
 		currentTicket = ticket;
-		log.debug("beginCheckingFace......");
-
+		log.debug("/******beginCheckingFace*******/");
+		log.debug("将心跳进程号置为空");
+		Config.getInstance().setPITTrackPidstr("");
+		pid = ProcessUtil.getCurrentProcessID();
+		Config.getInstance().setTrackPidForKill(pid);
+		log.debug("getPITTrackPidstr==" + Config.getInstance().getPITTrackPidstr());
+		log.debug("getTrackPidForKill==" + Config.getInstance().getTrackPidForKill());
 	}
 
 	public void stopCheckingFace() {
 		currentIDCard = null;
 		currentTicket = null;
 		log.debug("stopCheckingFace......");
+		pid = ProcessUtil.getCurrentProcessID();
+		log.debug("开始写心跳日志,进程号：" + pid);
+		// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+		Config.getInstance().setPITTrackPidstr(pid);
+		log.debug("getPITTrackPidstr==" + Config.getInstance().getPITTrackPidstr());
+		log.debug("getTrackPidForKill==" + Config.getInstance().getTrackPidForKill());
+		log.debug("/####################################/");
 	}
 
 	public IDCard getCurrentIDCard() {
@@ -616,7 +633,7 @@ public class RSFaceTrackTask implements Runnable {
 	/**
 	 * 检脸算法
 	 */
-	public void doTracking() {
+	public void doTracking() throws Exception {
 		pid = ProcessUtil.getCurrentProcessID();
 		PXCMSession session = PXCMSession.CreateInstance();
 		PXCMPowerState ps = session.CreatePowerManager();
@@ -678,7 +695,7 @@ public class RSFaceTrackTask implements Runnable {
 		while (startCapture) {
 			sts = senseMgr.AcquireFrame(true);
 			if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0) {
-				// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 			} else {
 				log.error("senseMgr failed! sts=" + sts);
 			}
@@ -689,13 +706,13 @@ public class RSFaceTrackTask implements Runnable {
 				senseMgr.ReleaseFrame();
 				continue;
 			} else {
-				// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 			}
 
 			BufferedImage frameImage = null;
 			if (sample.color != null) {
 				frameImage = drawFrameImage(sample);
-				// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 			} else {
 				log.error("QueryFaceSample failed! sample.color=" + sample.color);
 				senseMgr.ReleaseFrame();
@@ -709,7 +726,7 @@ public class RSFaceTrackTask implements Runnable {
 				PXCMFaceData.Face face = sf.face;
 				PXCMFaceData.DetectionData detection = face.QueryDetection();
 
-				drawLocation(detection);
+				drawLocation(detection);// 画脸部框
 				PXCMFaceData.PoseEulerAngles pae = checkFacePose(face.QueryPose());
 
 				boolean isRealFace = true;
@@ -727,7 +744,7 @@ public class RSFaceTrackTask implements Runnable {
 							fd.setFacePosePitch(pae.pitch);
 							fd.setFacePoseRoll(pae.roll);
 							fd.setFacePoseYaw(pae.yaw);
-							log.debug("Begin to verify face.........");
+							// log.debug("Begin to verify face.........");
 							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
 						}
 					}

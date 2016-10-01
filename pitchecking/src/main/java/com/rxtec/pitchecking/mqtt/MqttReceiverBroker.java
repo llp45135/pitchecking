@@ -10,6 +10,7 @@ import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.FaceTrackingScreen;
 import com.rxtec.pitchecking.ScreenCmdEnum;
+import com.rxtec.pitchecking.device.AudioDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.net.event.CAMOpenBean;
@@ -29,6 +30,7 @@ import com.rxtec.pitchecking.utils.CalUtils;
 public class MqttReceiverBroker {
 	// 连接参数
 	Logger log = LoggerFactory.getLogger("MqttReceiverBroker");
+	Logger logTrack = LoggerFactory.getLogger("RSFaceTrackTask");
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
 	private final static String CLIENT_ID = "PitcheckSubcriber";// 客户端标识
@@ -172,6 +174,18 @@ public class MqttReceiverBroker {
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, camOpenResultJson);
 
 				} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
+					logTrack.info("getPITTrackPidstr()=="+Config.getInstance().getPITTrackPidstr());
+					if (Config.getInstance().getPITTrackPidstr() == null || Config.getInstance().getPITTrackPidstr().trim().equals("")) {
+						try {
+							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
+
+							AudioDevice.getInstance().killpid(Config.getInstance().getTrackPidForKill());
+						} catch (Exception ex) {
+							logTrack.error("killpid:", ex);
+						}
+					}
+					
+					
 					MqttSenderBroker.getInstance().setNotifyJson(mqttMessage); // 把notify保存起来
 
 					ObjectMapper mapper = new ObjectMapper();

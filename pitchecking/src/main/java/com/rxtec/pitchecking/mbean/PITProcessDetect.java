@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking.mbean;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,16 +64,16 @@ public class PITProcessDetect implements Runnable {
 						if (startStatus) {
 							this.setStartStatus(false);
 							try {
-								String cmd = "tskill " + pid;
-								Runtime.getRuntime().exec(cmd);
-							} catch (Exception ex) {
-								log.error("tskill:", ex);
+								log.info("准备杀死进程 " + pid);
+								Runtime.getRuntime().exec("taskkill /F /PID " + pid);
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
 							try {
-//								Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
-								Runtime.getRuntime().exec(Config.AutoLogonCmd);
-								CommUtil.sleep(10 * 1000);
-								log.info("Resatrt PITCheckApp......");
+								Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
+								CommUtil.sleep(5 * 1000);
+								log.info("Resatrt PITTrackApp......");
 								this.setStartStatus(true);
 							} catch (Exception ex) {
 								log.error("Restart:", ex);
@@ -82,7 +83,7 @@ public class PITProcessDetect implements Runnable {
 				} else if (hbs.equals("null")) {
 					if (startStatus) {
 						try {
-							Runtime.getRuntime().exec(Config.AutoLogonCmd);
+							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
 							CommUtil.sleep(10 * 1000);
 							log.info("Resatrt PITCheckApp......When hbs is null");
 							this.setStartStatus(true);
@@ -91,7 +92,7 @@ public class PITProcessDetect implements Runnable {
 						}
 					}
 				} else {
-					log.debug("未讀取到work log");
+					log.debug("未读取到 work log");
 				}
 			}
 		}
