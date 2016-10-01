@@ -67,7 +67,7 @@ public class RSFaceTrackTask implements Runnable {
 
 	private static int LandmarkAlignment = 10;
 
-	private RSModuleStatus rsStatus;
+//	private RSModuleStatus rsStatus;
 
 	public VideoPanel getVideoPanel() {
 		return videoPanel;
