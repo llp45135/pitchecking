@@ -6,6 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.rxtec.pitchecking.device.LightControlBoard;
+import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
 import com.rxtec.pitchecking.net.PIVerifyEventSubscriber;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
@@ -25,9 +26,12 @@ public class PITrackingApp {
 	static FaceTrackingScreen screen = FaceTrackingScreen.getInstance();
 
 	public static void main(String[] args) throws InterruptedException {
-		LightControlBoard.getInstance().startLED();
+//		LightControlBoard.getInstance().startLED();
 
+		FaceCheckFrame frame = new FaceCheckFrame();
+		FaceTrackingScreen.getInstance().setFaceFrame(frame);
 		screen.initUI();
+		screen.getFaceFrame().showDefaultContent();
 
 		// PIVerifyEventSubscriber.getInstance().startSubscribing(); //启动
 		// 闸机主控程序发送事件的订阅者

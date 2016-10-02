@@ -18,23 +18,39 @@ import com.rxtec.pitchecking.gui.VideoPanel;
  */
 public class FaceTrackingScreen {
 
-	private Logger log = LoggerFactory.getLogger("FaceTrackingScreen");
+	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private static FaceTrackingScreen _instance = new FaceTrackingScreen();
 
-	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-	GraphicsDevice[] gs = ge.getScreenDevices();
+	
 
-	FaceCheckFrame faceFrame = new FaceCheckFrame();
+	FaceCheckFrame faceFrame;
+	
+
+	public FaceCheckFrame getFaceFrame() {
+		return faceFrame;
+	}
+
+	public void setFaceFrame(FaceCheckFrame faceFrame) {
+		this.faceFrame = faceFrame;
+	}
 
 	private FaceTrackingScreen() {
-		initUI();
+//		initUI();
 	}
 
 	public void initUI() {
-
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gs = ge.getScreenDevices();
+		if(gs == null){
+			if(ge == null){
+				ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			}
+			gs = ge.getScreenDevices();
+		}
 		GraphicsDevice gd = gs[DeviceConfig.getInstance().getFaceScreen()];
-		GraphicsConfiguration gc = gd.getDefaultConfiguration();
+		log.info("GraphicsDevice=="+gd);
 		if (gd != null) {
+			GraphicsConfiguration gc = gd.getDefaultConfiguration();
 			int xOff = gc.getBounds().x;
 			int yOff = gc.getBounds().y;
 			faceFrame.setVisible(true);

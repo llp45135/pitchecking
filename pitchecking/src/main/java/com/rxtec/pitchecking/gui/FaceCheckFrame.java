@@ -35,6 +35,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.border.LineBorder;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.FaceTrackingScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mqtt.MqttSenderBroker;
 import com.rxtec.pitchecking.picheckingservice.PITData;
@@ -84,11 +85,15 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					FaceTrackingScreen.getInstance();
 					FaceCheckFrame frame = new FaceCheckFrame();
-					frame.setVisible(true);
+					FaceTrackingScreen.getInstance().setFaceFrame(frame);
+					
+					frame.showDefaultContent();
+//					frame.setVisible(true);
 //					 frame.showBeginCheckFaceContent();
 //					 frame.showFaceCheckPassContent();
-					frame.showCheckFailedContent();
+//					frame.showCheckFailedContent();
 					// frame.showDefaultContent();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -256,7 +261,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		IPLabel.setBorder(null);
 		trackVerLabel.setBorder(null);
 
-		showDefaultContent();
+//		showDefaultContent();
 
 		// this.setLocationRelativeTo(null);
 		setUndecorated(true);
@@ -395,6 +400,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		// // TODO Auto-generated catch block
 		// e.printStackTrace();
 		// }
+		
+		
+		
 		Color bgColor = new Color(0,142,240);
 		panel_title.setBackground(bgColor);		
 		panel_bottom.setBackground(bgColor);
@@ -417,6 +425,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	 * 开始检脸
 	 */
 	public void showBeginCheckFaceContent() {
+		FaceTrackingScreen.getInstance().initUI();
+		FaceTrackingScreen.getInstance().repainFaceFrame();
+		
 		// label_title.setText("请平视摄像头 ");
 		panel_title.setBackground(Color.ORANGE);		
 		panel_bottom.setBackground(Color.ORANGE);

@@ -88,12 +88,13 @@ public class Config {
 	public static String FaceVerifyMicro = "MICRO";
 	public static String FaceVerifyPIXEL = "PIXEL";
 
-	public static int HEART_BEAT_DELAY = 10000;
+	private int HEART_BEAT_DELAY = 15 * 1000;
 
 	public static int ByPassMaxAge = 65;
 	public static int ByPassMinAge = 12;
 
 	private String heartBeatLogFile = "D:/pitchecking/work/HEART.log";
+	private String rebackTrackFile = "D:/pitchecking/work/RebackFlag.log";
 	private String startPITAppCmd = "D:/pitchecking/work/RestartPITTrack.bat";
 	public static String AutoRestartCmd = "D:/pitchecking/work/autoRestartPC.bat";
 	public static String AutoLogonCmd = "D:/pitchecking/work/autoLogonPC.bat";
@@ -147,6 +148,7 @@ public class Config {
 	private float faceFrameTransparency = (float) 0.75;
 	private String PITTrackPidstr = "-1"; // 人脸检测进程号
 	private String trackPidForKill = "-1";
+	private boolean rebackTrackFlag = true;
 
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
@@ -171,6 +173,30 @@ public class Config {
 	private float maxAverageDepth = 1000F;
 
 	private int faceTrackMode = 1; // 人臉追蹤模式 1 紅外，2 顔色+景深
+
+	public boolean isRebackTrackFlag() {
+		return rebackTrackFlag;
+	}
+
+	public void setRebackTrackFlag(boolean rebackTrackFlag) {
+		this.rebackTrackFlag = rebackTrackFlag;
+	}
+
+	public String getRebackTrackFile() {
+		return rebackTrackFile;
+	}
+
+	public void setRebackTrackFile(String rebackTrackFile) {
+		this.rebackTrackFile = rebackTrackFile;
+	}
+
+	public int getHEART_BEAT_DELAY() {
+		return HEART_BEAT_DELAY;
+	}
+
+	public void setHEART_BEAT_DELAY(int hEART_BEAT_DELAY) {
+		HEART_BEAT_DELAY = hEART_BEAT_DELAY;
+	}
 
 	public String getTrackPidForKill() {
 		return trackPidForKill;
@@ -471,9 +497,11 @@ public class Config {
 			this.faceTrackMode = Integer.valueOf(p.getProperty("FaceTrackMode", "1"));
 			this.faceDetectionScale = Float.valueOf(p.getProperty("FaceDetectionScale", "1.3"));
 			this.heartBeatLogFile = p.getProperty("HeartBeatLogFile", "C:/pitchecking/work/HEART.log");
+			this.rebackTrackFile = p.getProperty("rebackTrackFile", "D:/pitchecking/work/RebackFlag.log");
 			this.startPITAppCmd = p.getProperty("StartPITAppCmd", "C:/pitchecking/bin");
 			this.faceVerifyTaskVersion = p.getProperty("FaceVerifyTaskVersion", "TK");
 			this.faceFrameTransparency = Float.valueOf(p.getProperty("faceFrameTransparency", "0.75"));
+			this.HEART_BEAT_DELAY = Integer.valueOf(p.getProperty("HEART_BEAT_DELAY", "15000"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -489,6 +517,7 @@ public class Config {
 	public static void main(String[] args) {
 		Config.getInstance();
 		System.out.println("getIsCheckRealFace==" + Config.getInstance().getIsCheckRealFace());
+		System.out.println("getHEART_BEAT_DELAY=="+Config.getInstance().getHEART_BEAT_DELAY());
 	}
 
 }

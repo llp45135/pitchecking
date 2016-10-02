@@ -576,24 +576,23 @@ public class RSFaceTrackTask implements Runnable {
 		currentIDCard = idCard;
 		currentTicket = ticket;
 		log.debug("/******beginCheckingFace*******/");
-		log.debug("将心跳进程号置为空");
-		Config.getInstance().setPITTrackPidstr("");
-		pid = ProcessUtil.getCurrentProcessID();
-		Config.getInstance().setTrackPidForKill(pid);
-		log.debug("getPITTrackPidstr==" + Config.getInstance().getPITTrackPidstr());
-		log.debug("getTrackPidForKill==" + Config.getInstance().getTrackPidForKill());
+//		log.debug("将心跳进程号置为空");
+//		Config.getInstance().setPITTrackPidstr("");
+//		pid = ProcessUtil.getCurrentProcessID();
+//		Config.getInstance().setTrackPidForKill(pid);
+//		log.debug("getPITTrackPidstr==" + Config.getInstance().getPITTrackPidstr());
+//		log.debug("getTrackPidForKill==" + Config.getInstance().getTrackPidForKill());
 	}
 
 	public void stopCheckingFace() {
 		currentIDCard = null;
 		currentTicket = null;
 		log.debug("stopCheckingFace......");
-		pid = ProcessUtil.getCurrentProcessID();
-		log.debug("开始写心跳日志,进程号：" + pid);
-		// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
-		Config.getInstance().setPITTrackPidstr(pid);
-		log.debug("getPITTrackPidstr==" + Config.getInstance().getPITTrackPidstr());
-		log.debug("getTrackPidForKill==" + Config.getInstance().getTrackPidForKill());
+//		pid = ProcessUtil.getCurrentProcessID();
+//		log.debug("开始写心跳日志,进程号：" + pid);
+//		Config.getInstance().setPITTrackPidstr(pid);
+//		log.debug("getPITTrackPidstr==" + Config.getInstance().getPITTrackPidstr());
+//		log.debug("getTrackPidForKill==" + Config.getInstance().getTrackPidForKill());
 		log.debug("/####################################/");
 	}
 
@@ -700,26 +699,25 @@ public class RSFaceTrackTask implements Runnable {
 				log.error("senseMgr failed! sts=" + sts);
 			}
 
+			BufferedImage frameImage = null;
 			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
-			if (sample == null) {
+			if (sample == null || sample.color == null) {
 				log.error("QueryFaceSample failed! sample=" + sample);
 				senseMgr.ReleaseFrame();
 				continue;
 			} else {
+				frameImage = drawFrameImage(sample);
 				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 			}
 
-			BufferedImage frameImage = null;
-			if (sample.color != null) {
-				frameImage = drawFrameImage(sample);
-				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
-			} else {
-				log.error("QueryFaceSample failed! sample.color=" + sample.color);
+
+
+			sts = faceData.Update();
+			if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) != 0) {
+				log.error("faceData.Update() failed! sts=" + sts);
 				senseMgr.ReleaseFrame();
 				continue;
 			}
-
-			faceData.Update();
 
 			List<SortFace> sortFaces = sortFaceByDistence(faceData);
 			for (SortFace sf : sortFaces) {

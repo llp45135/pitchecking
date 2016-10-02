@@ -174,16 +174,16 @@ public class MqttReceiverBroker {
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, camOpenResultJson);
 
 				} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
-					logTrack.info("getPITTrackPidstr()=="+Config.getInstance().getPITTrackPidstr());
-					if (Config.getInstance().getPITTrackPidstr() == null || Config.getInstance().getPITTrackPidstr().trim().equals("")) {
-						try {
-							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
-
-							AudioDevice.getInstance().killpid(Config.getInstance().getTrackPidForKill());
-						} catch (Exception ex) {
-							logTrack.error("killpid:", ex);
-						}
-					}
+//					logTrack.info("getPITTrackPidstr()=="+Config.getInstance().getPITTrackPidstr());
+//					if (Config.getInstance().getPITTrackPidstr() == null || Config.getInstance().getPITTrackPidstr().trim().equals("")) {
+//						try {
+//							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
+//
+//							AudioDevice.getInstance().killpid(Config.getInstance().getTrackPidForKill());
+//						} catch (Exception ex) {
+//							logTrack.error("killpid:", ex);
+//						}
+//					}
 					
 					
 					MqttSenderBroker.getInstance().setNotifyJson(mqttMessage); // 把notify保存起来
