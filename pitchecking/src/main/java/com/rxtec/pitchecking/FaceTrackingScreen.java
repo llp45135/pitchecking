@@ -41,12 +41,6 @@ public class FaceTrackingScreen {
 	public void initUI() {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice[] gs = ge.getScreenDevices();
-		if(gs == null){
-			if(ge == null){
-				ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			}
-			gs = ge.getScreenDevices();
-		}
 		GraphicsDevice gd = gs[DeviceConfig.getInstance().getFaceScreen()];
 		log.info("GraphicsDevice=="+gd);
 		if (gd != null) {

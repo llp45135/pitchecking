@@ -88,11 +88,11 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					FaceTrackingScreen.getInstance();
 					FaceCheckFrame frame = new FaceCheckFrame();
 					FaceTrackingScreen.getInstance().setFaceFrame(frame);
-					
+					FaceTrackingScreen.getInstance().initUI();
 					frame.showDefaultContent();
 //					frame.setVisible(true);
 //					 frame.showBeginCheckFaceContent();
-//					 frame.showFaceCheckPassContent();
+					 frame.showFaceCheckPassContent();
 //					frame.showCheckFailedContent();
 					// frame.showDefaultContent();
 				} catch (Exception e) {
