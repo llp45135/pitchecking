@@ -23,15 +23,15 @@ import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
  */
 public class PITrackingApp {
 
-	static FaceTrackingScreen screen = FaceTrackingScreen.getInstance();
+	static FaceTrackingScreen faceTrackingScreen = FaceTrackingScreen.getInstance();
 
 	public static void main(String[] args) throws InterruptedException {
 //		LightControlBoard.getInstance().startLED();
 
-		FaceCheckFrame frame = new FaceCheckFrame();
-		FaceTrackingScreen.getInstance().setFaceFrame(frame);
-		screen.initUI();
-		screen.getFaceFrame().showDefaultContent();
+		FaceCheckFrame faceCheckFrame = new FaceCheckFrame();
+		faceTrackingScreen.setFaceFrame(faceCheckFrame);
+		faceTrackingScreen.initUI();
+		faceTrackingScreen.getFaceFrame().showDefaultContent();
 
 		// PIVerifyEventSubscriber.getInstance().startSubscribing(); //启动
 		// 闸机主控程序发送事件的订阅者
@@ -47,10 +47,10 @@ public class PITrackingApp {
 
 		Thread.sleep(1000);
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {
-			RSFaceDetectionService.getInstance().setVideoPanel(screen.getVideoPanel());
+			RSFaceDetectionService.getInstance().setVideoPanel(faceTrackingScreen.getVideoPanel());
 			RSFaceDetectionService.getInstance().beginVideoCaptureAndTracking(); // 启动人脸检测线程
 		} else {
-			FaceDetectionService.getInstance().setVideoPanel(screen.getVideoPanel());
+			FaceDetectionService.getInstance().setVideoPanel(faceTrackingScreen.getVideoPanel());
 			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
 		}
 	}

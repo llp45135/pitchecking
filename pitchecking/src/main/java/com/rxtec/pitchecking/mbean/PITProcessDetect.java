@@ -35,17 +35,21 @@ public class PITProcessDetect implements Runnable {
 		this.startStatus = startStatus;
 	}
 
+	public PITProcessDetect() {
+		log.info("初始化心跳侦测线程");
+	}
+
 	@Override
 	public void run() {
 		while (true) {
-			CommUtil.sleep(3000);
+			CommUtil.sleep(2500);
 			String HeartBeatStr = "";
 			try {
 				HeartBeatStr = ProcessUtil.getLastHeartBeat();
 			} catch (Exception ex) {
 				log.error("PITProcessDetect getLastHeartBeat：", ex);
 			}
-			log.debug("HeartBeatStr==" + HeartBeatStr + "##");
+			// log.debug("HeartBeatStr==" + HeartBeatStr + "##");
 			if (HeartBeatStr != null) {
 				HeartBeatStr = HeartBeatStr.trim();
 				if (!HeartBeatStr.equals("")) {
@@ -53,45 +57,46 @@ public class PITProcessDetect implements Runnable {
 					String t = HeartBeatStr.split("@")[1];
 					String nowHT = CalUtils.getStringDateHaomiao();// (new
 																	// Date()).getTime();
-					log.debug(pid + " last heartbeat time=" + t);
+					// log.debug(pid + " last heartbeat time=" + t);
 					long heartWaitTime = 0;
 					try {
 						heartWaitTime = CalUtils.howLong("ms", t, nowHT);
 					} catch (Exception ex) {
 						log.error("Cal heartWaitTime:", ex);
 					}
-					log.debug("heartWaitTime===" + heartWaitTime);
-					String rebackFlag = ProcessUtil.getRebackTrackAppFlag(Config.getInstance().getRebackTrackFile());
-					log.info("rebackFlag=="+Config.getInstance().isRebackTrackFlag());
+					// log.debug("heartWaitTime===" + heartWaitTime);
+					// log.info("rebackFlag=="+Config.getInstance().isRebackTrackFlag());
 					if (!Config.getInstance().isRebackTrackFlag()) {
 						try {
-//							ProcessUtil.writeRebackTrackAppFlag(Config.getInstance().getRebackTrackFile(), "1");
 							Config.getInstance().setRebackTrackFlag(true);
 							log.info("准备执行恢复检脸进程的批处理");
 							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
 							log.info("Resatrt PITTrackApp......");
 							this.setStartStatus(true);
 						} catch (Exception ex) {
-							log.error("Restart:", ex);
-						}	
-						try{
-						File heartFile = new File(Config.getInstance().getHeartBeatLogFile());
-						heartFile.delete();
-						log.info("已经执行恢复检脸进程的批处理");
-						continue;
-						}catch (Exception ex) {
-							log.error("Restart:", ex);
+							log.error("Resatrt PITTrackApp......:", ex);
 						}
-						
+						try {
+							File heartFile = new File(Config.getInstance().getHeartBeatLogFile());
+							heartFile.delete();
+							log.info("已经执行恢复检脸进程的批处理");
+							continue;
+						} catch (Exception ex) {
+							log.error("Resatrt PITTrackApp......:", ex);
+						}
+
 					}
+					/**
+					 * 超时未收到心跳，需要杀死当前检脸进程
+					 */
 					if (heartWaitTime > Config.getInstance().getHEART_BEAT_DELAY()) {
+						log.debug("heartWaitTime==" + heartWaitTime + ",pid==" + pid);
 						if (startStatus) {
 							this.setStartStatus(false);
 							try {
 								log.info("准备杀死进程 " + pid);
-//								ProcessUtil.writeRebackTrackAppFlag(Config.getInstance().getRebackTrackFile(), "0");
 								Config.getInstance().setRebackTrackFlag(false);
-								Runtime.getRuntime().exec("taskkill /F /PID " + pid);								
+								Runtime.getRuntime().exec("taskkill /F /PID " + pid);
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								log.error("PITProcessDetect taskkill:", e);
@@ -112,7 +117,7 @@ public class PITProcessDetect implements Runnable {
 						}
 					}
 				} else {
-					log.debug("未读取到 work log");
+					log.debug("未读取到 HEART work log");
 				}
 			}
 		}

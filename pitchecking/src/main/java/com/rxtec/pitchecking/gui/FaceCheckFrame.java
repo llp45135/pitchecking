@@ -66,8 +66,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	private VideoPanel videoPanel = new VideoPanel(Config.FrameWidth, Config.FrameHeigh);
 
 	private JPanel cameraPanel;
-	// private JPanel msgPanel;
-	// private JLabel msgTopLabel;
+	private JPanel msgPanel;
+	private JLabel msgTopLabel;
 	private String displayMsg = "";
 
 	private JLabel bootTimeLabel;
@@ -90,10 +90,14 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					FaceTrackingScreen.getInstance().setFaceFrame(frame);
 					FaceTrackingScreen.getInstance().initUI();
 					frame.showDefaultContent();
-//					frame.setVisible(true);
-//					 frame.showBeginCheckFaceContent();
-					 frame.showFaceCheckPassContent();
-//					frame.showCheckFailedContent();
+					// frame.setVisible(true);
+					MqttSenderBroker.getInstance().setFaceScreenDisplayTimeout(5);
+//					MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别成功#请通过");
+					MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
+					frame.showFaceDisplayFromTK();
+//					frame.showBeginCheckFaceContent();
+					// frame.showFaceCheckPassContent();
+					// frame.showCheckFailedContent();
 					// frame.showDefaultContent();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -120,77 +124,75 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		contentPane = new JPanel();
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
+		contentPane.setLayout(new CardLayout(0, 0));
 
-		// msgPanel = new JPanel() {
-		// private static final long serialVersionUID = -3812942899603254185L;
-		// private Image localImg;
-		// private MediaTracker mt;
-		// private int w;
-		// private int h;
-		//
-		// public void paintComponent(Graphics g) {
-		// super.paintComponent(g);
-		// try {
-		// g.drawImage(this.getBgImage(DeviceConfig.faceBgImgPath), 0, 0, null);
-		// } catch (Exception e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// } // 画窗口背景图
-		// }
-		//
-		// /**
-		// *
-		// * @param name
-		// * @param imagePath
-		// * @return
-		// */
-		// public Image getBgImage(String imagePath) {
-		// Image bgImage = null;
-		// try {
-		// localImg = new ImageIcon(imagePath).getImage(); // 读取本地图片
-		// mt = new MediaTracker(this);// 为此按钮添加媒体跟踪器
-		// mt.addImage(localImg, 0);// 在跟踪器添加图片，下标为0
-		// mt.waitForAll(); // 等待加载
-		// w = localImg.getWidth(this);// 读取图片长度
-		// h = localImg.getHeight(this);// 读取图片宽度
-		//
-		// GraphicsConfiguration gc = new JFrame().getGraphicsConfiguration();
-		// // 本地图形设备
-		// bgImage = gc.createCompatibleImage(w, h, Transparency.TRANSLUCENT);//
-		// 建立透明画布
-		// Graphics2D g = (Graphics2D) bgImage.getGraphics(); // 在画布上创建画笔
-		//
-		// Composite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-		// Config.getInstance().getFaceFrameTransparency()); // 指定透明度为半透明90%
-		// g.setComposite(alpha);
-		// g.drawImage(localImg, 0, 0, this); // 注意是,将image画到g画笔所在的画布上
-		// g.setColor(Color.black);// 设置颜色为黑色
-		// g.dispose(); // 释放内存
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		//
-		// return bgImage;
-		// }
-		//
-		// };
-		//
-		// contentPane.add(msgPanel, "name_1726792116426379");
-		// msgPanel.setLayout(null);
-		//
-		// msgTopLabel = new JLabel("<html><div align='center'>人脸识别成功</div><div
-		// align='center'>请通过</div></html>");
-		// msgTopLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		// msgTopLabel.setForeground(Color.YELLOW);
-		// msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-		// msgTopLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		// msgTopLabel.setBounds(10, 129, 1004, 495);
-		// msgPanel.add(msgTopLabel);
+		msgPanel = new JPanel() {
+			private static final long serialVersionUID = -3812942899603254185L;
+			private Image localImg;
+			private MediaTracker mt;
+			private int w;
+			private int h;
+
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				try {
+					g.drawImage(this.getBgImage(DeviceConfig.faceBgImgPath), 0, 0, null);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} // 画窗口背景图
+			}
+
+			/**
+			 *
+			 * @param name
+			 * @param imagePath
+			 * @return
+			 */
+			public Image getBgImage(String imagePath) {
+				Image bgImage = null;
+				try {
+					localImg = new ImageIcon(imagePath).getImage(); // 读取本地图片
+					mt = new MediaTracker(this);// 为此按钮添加媒体跟踪器
+					mt.addImage(localImg, 0);// 在跟踪器添加图片，下标为0
+					mt.waitForAll(); // 等待加载
+					w = localImg.getWidth(this);// 读取图片长度
+					h = localImg.getHeight(this);// 读取图片宽度
+
+					GraphicsConfiguration gc = new JFrame().getGraphicsConfiguration();
+					// 本地图形设备
+					bgImage = gc.createCompatibleImage(w, h, Transparency.TRANSLUCENT);
+					// 建立透明画布
+					Graphics2D g = (Graphics2D) bgImage.getGraphics(); // 在画布上创建画笔
+
+					Composite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+							Config.getInstance().getFaceFrameTransparency()); // 指定透明度为半透明90%
+					g.setComposite(alpha);
+					g.drawImage(localImg, 0, 0, this); // 注意是,将image画到g画笔所在的画布上
+					g.setColor(Color.black);// 设置颜色为黑色
+					g.dispose(); // 释放内存
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				return bgImage;
+			}
+
+		};
+
+		contentPane.add(msgPanel, "name_1726792116426379");
+		msgPanel.setLayout(null);
+
+		msgTopLabel = new JLabel("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div></html>");
+		msgTopLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
+		msgTopLabel.setForeground(Color.YELLOW);
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+		msgTopLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		msgTopLabel.setBounds(10, 129, 1004, 495);
+		msgPanel.add(msgTopLabel);
 
 		cameraPanel = new JPanel();
-		cameraPanel.setBounds(0, 0, 1024, 768);
-		contentPane.add(cameraPanel);
+		contentPane.add(cameraPanel, "name_219670385833610");
 		cameraPanel.setLayout(new BoxLayout(cameraPanel, BoxLayout.Y_AXIS));
 
 		panel_center = new JPanel();
@@ -261,7 +263,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		IPLabel.setBorder(null);
 		trackVerLabel.setBorder(null);
 
-//		showDefaultContent();
+		// showDefaultContent();
 
 		// this.setLocationRelativeTo(null);
 		setUndecorated(true);
@@ -280,54 +282,48 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	public void showFaceDisplayFromTK() {
 		timeIntevel = 0;
 
-
-
 		String displayStr = MqttSenderBroker.getInstance().getFaceScreenDisplay();
 
-		this.displayMsg = displayStr.replace("#", "！");
-		
-		if (displayStr.indexOf("成功") != -1) {
-			panel_title.setBackground(Color.GREEN);
-			panel_bottom.setBackground(Color.GREEN);
-			label_title.setBackground(Color.GREEN);
-			label_title.setForeground(Color.BLACK);
-		} else {
-			panel_title.setBackground(Color.RED);
-			panel_bottom.setBackground(Color.RED);
-			label_title.setBackground(Color.RED);
-			label_title.setForeground(Color.BLACK);
-		}
-		label_title.setText(displayMsg);
-
-//		this.cameraPanel.setVisible(true);
-//		this.videoPanel.setVisible(true);
-		
-		// msgPanel.setVisible(false);
-		// msgPanel.setBackground(null); // 把背景设置为空
-		// msgPanel.setOpaque(false); // 设置为透明
-		// msgTopLabel.setBorder(null);
-		// msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-
-		// if (displayStr.indexOf("#") != -1) { // 由#号，分两行
-		// int kk = displayStr.indexOf("#");
-		// String displayMsg1 = displayStr.substring(0, kk);
-		// String displayMsg2 = displayStr.substring(kk + 1);
-		// this.displayMsg = "<html><div align='center'>" + displayMsg1 +
-		// "</div>" + "<div align='center'>"
-		// + displayMsg2 + "</div>";
-		// this.msgTopLabel.setText(displayMsg + "<div align='center'>"
-		// + MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout() +
-		// "</div>" + "</html>");
+		// this.displayMsg = displayStr.replace("#", "！");
+		//
+		// if (displayStr.indexOf("成功") != -1) {
+		// panel_title.setBackground(Color.GREEN);
+		// panel_bottom.setBackground(Color.GREEN);
+		// label_title.setBackground(Color.GREEN);
+		// label_title.setForeground(Color.BLACK);
 		// } else {
-		// this.displayMsg = "<html><div align='center'>" + displayStr +
-		// "</div>";
-		// this.msgTopLabel.setText(displayMsg + "<div align='center'>"
-		// + MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout() +
-		// "</div>" + "</html>");
+		// panel_title.setBackground(Color.RED);
+		// panel_bottom.setBackground(Color.RED);
+		// label_title.setBackground(Color.RED);
+		// label_title.setForeground(Color.BLACK);
 		// }
+		// label_title.setText(displayMsg);
+
+		this.cameraPanel.setVisible(false);
+		this.videoPanel.setVisible(false);
+
+		msgPanel.setVisible(true);
+		msgPanel.setBackground(null); // 把背景设置为空
+		msgPanel.setOpaque(false); // 设置为透明
+		msgTopLabel.setBorder(null);
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+
+		if (displayStr.indexOf("#") != -1) { // 由#号，分两行
+			int kk = displayStr.indexOf("#");
+			String displayMsg1 = displayStr.substring(0, kk);
+			String displayMsg2 = displayStr.substring(kk + 1);
+			this.displayMsg = "<html><div align='center'>" + displayMsg1 + "</div>" + "<div align='center'>"
+					+ displayMsg2 + "</div>";
+			this.msgTopLabel.setText(displayMsg + "<div align='center'>"
+					+ MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout() + "</div>" + "</html>");
+		} else {
+			this.displayMsg = "<html><div align='center'>" + displayStr + "</div>";
+			this.msgTopLabel.setText(displayMsg + "<div align='center'>"
+					+ MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout() + "</div>" + "</html>");
+		}
 
 		timeIntevel = MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout();
-		titleStrType = 5;
+		titleStrType = 4;  //4:覆盖一层panel  5：不覆盖
 	}
 
 	/**
@@ -336,26 +332,27 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	public void showFaceCheckPassContent() {
 		timeIntevel = 0;
 
-		panel_title.setBackground(Color.GREEN);
-		panel_bottom.setBackground(Color.GREEN);
-		label_title.setBackground(Color.GREEN);
-		
-		label_title.setForeground(Color.BLACK);		
-		label_title.setText("人脸识别成功！请通过");
+		// panel_title.setBackground(Color.GREEN);
+		// panel_bottom.setBackground(Color.GREEN);
+		// label_title.setBackground(Color.GREEN);
+		//
+		// label_title.setForeground(Color.BLACK);
+		// label_title.setText("人脸识别成功！请通过");
 
-//		this.cameraPanel.setVisible(true);
-//		this.videoPanel.setVisible(true);
-		
-		// msgPanel.setVisible(false);
-		// msgPanel.setBackground(null); // 把背景设置为空
-		// msgPanel.setOpaque(false); // 设置为透明
-		// msgTopLabel.setBorder(null);
-		// msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-		// this.msgTopLabel.setText("<html><div align='center'>人脸识别成功</div><div
-		// align='center'>请通过</div></html>");
+		this.cameraPanel.setVisible(false);
+		this.videoPanel.setVisible(false);
+
+		msgPanel.setVisible(true);
+		msgPanel.setBackground(null); // 把背景设置为空
+		msgPanel.setOpaque(false); // 设置为透明
+		msgTopLabel.setBorder(null);
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
 
 		timeIntevel = 3;
 		titleStrType = 0;
+		this.msgTopLabel
+				.setText("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>"
+						+ timeIntevel + "</div></html>");
 	}
 
 	/**
@@ -364,30 +361,29 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	public void showCheckFailedContent() {
 		timeIntevel = 0;
 
-		panel_title.setBackground(Color.RED);
-		panel_bottom.setBackground(Color.RED);
-		label_title.setBackground(Color.RED);
-		
-		label_title.setForeground(Color.BLACK);
-		label_title.setText("人脸识别失败！请从侧门离开");
+		// panel_title.setBackground(Color.RED);
+		// panel_bottom.setBackground(Color.RED);
+		// label_title.setBackground(Color.RED);
+		//
+		// label_title.setForeground(Color.BLACK);
+		// label_title.setText("人脸识别失败！请从侧门离开");
 		// label_title.setBackground(null);
+		// panel_bottom.setVisible(true);
 
-//		this.cameraPanel.setVisible(true);
-//		this.videoPanel.setVisible(true);
+		this.cameraPanel.setVisible(false);
+		this.videoPanel.setVisible(false);
 
-		// msgPanel.setVisible(false);
-		// msgPanel.setBackground(null); // 把背景设置为空
-		// msgPanel.setOpaque(false); // 设置为透明
-		// msgTopLabel.setBorder(null);
-		// msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-		// this.msgTopLabel.setText("<html><div align='center'>人脸识别失败</div><div
-		// align='center'>请从侧门离开</div></html>");
+		msgPanel.setVisible(true);
+		msgPanel.setBackground(null); // 把背景设置为空
+		msgPanel.setOpaque(false); // 设置为透明
+		msgTopLabel.setBorder(null);
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
 
-		panel_bottom.setVisible(true);
-
-		timeIntevel = 3;
+		timeIntevel = 5;
 		titleStrType = 1;
-
+		this.msgTopLabel
+				.setText("<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>"
+						+ timeIntevel + "</div></html>");
 	}
 
 	/**
@@ -401,20 +397,17 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		// e.printStackTrace();
 		// }
 		
-		
-		
-		Color bgColor = new Color(0,142,240);
-		panel_title.setBackground(bgColor);		
+		this.msgPanel.setVisible(false);
+		this.cameraPanel.setVisible(true);
+		this.videoPanel.setVisible(true);
+
+		Color bgColor = new Color(0, 142, 240);
+		panel_title.setBackground(bgColor);
 		panel_bottom.setBackground(bgColor);
 		label_title.setBackground(bgColor);
-		
+
 		label_title.setForeground(Color.WHITE);
 		label_title.setText("请摘下眼镜后平视摄像头");
-
-		// this.msgPanel.setVisible(false);
-		
-//		this.cameraPanel.setVisible(true);
-//		this.videoPanel.setVisible(true);
 
 		timeIntevel = 0;
 		timer.start();
@@ -428,23 +421,19 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		FaceTrackingScreen.getInstance().initUI();
 		FaceTrackingScreen.getInstance().repainFaceFrame();
 		
-		// label_title.setText("请平视摄像头 ");
-		panel_title.setBackground(Color.ORANGE);		
+		msgPanel.setVisible(false);
+		this.cameraPanel.setVisible(true);
+		this.videoPanel.setVisible(true);
+		
+		panel_title.setBackground(Color.ORANGE);
 		panel_bottom.setBackground(Color.ORANGE);
 		label_title.setBackground(Color.ORANGE);
 		label_title.setForeground(Color.BLACK);
 		label_title.setText("");
 
-//		this.cameraPanel.setVisible(true);
-//		this.videoPanel.setVisible(true);
-		
-		// msgPanel.setVisible(false);
-		// msgPanel.setBackground(null); // 把背景设置为空
-		// msgPanel.setOpaque(false); // 设置为透明
-		// msgTopLabel.setBorder(null);
-
 		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 		this.titleStrType = 2;
+		label_title.setText("请抬头看屏幕     "+timeIntevel);
 	}
 
 	// private void timeRefresh() {
@@ -461,33 +450,29 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 
 		if (timeIntevel > 0) {
 			if (this.titleStrType == 0) {
-				// msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-				// msgTopLabel.setText(
-				// "<html><div align='center'>人脸识别成功</div><div
-				// align='center'>请通过</div><div align='center'>"
-				// + (timeIntevel - 1) + "</di></html>");
+				// label_title.setText("人脸识别成功！请通过" + " " + (timeIntevel - 1));
+
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+				msgTopLabel.setText(
+						"<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>"
+								+ (timeIntevel - 1) + "</di></html>");
 			} else if (this.titleStrType == 1) {
-				label_title.setText("人脸识别失败#请从侧门离开" + "  " + (timeIntevel - 1));
-				// msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-				// msgTopLabel.setText(
-				// "<html><div align='center'>人脸识别失败</div><div
-				// align='center'>请从侧门离开</div><div align='center'>"
-				// + (timeIntevel - 1) + "</di></html>");
+				// label_title.setText("人脸识别失败！请从侧门离开" + " " + (timeIntevel -
+				// 1));
+
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+				msgTopLabel.setText(
+						"<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>"
+								+ (timeIntevel - 1) + "</di></html>");
 			} else if (this.titleStrType == 4) {
-				// msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-				// msgTopLabel.setText(displayMsg + "<div align='center'>" +
-				// (timeIntevel - 1) + "</div>" + "</html>");
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+				msgTopLabel.setText(displayMsg + "<div align='center'>" + (timeIntevel - 1) + "</div>" + "</html>");
 			} else if (this.titleStrType == 5) {
 				label_title.setText(displayMsg + "  " + (timeIntevel - 1));
 				// label_title.setBackground(null);
 			} else {
-				label_title.setText("请平视摄像头     " + (timeIntevel - 1));
+				label_title.setText("请抬头看屏幕     " + (timeIntevel - 1));
 			}
-
-			// msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
-			// msgTopLabel.setText(
-			// "<html><div align='center'>请平视摄像头!</div><div align='center'>" +
-			// (timeIntevel - 1) + "</di></html>");
 		}
 		if (timeIntevel == 0) {
 			this.showDefaultContent();

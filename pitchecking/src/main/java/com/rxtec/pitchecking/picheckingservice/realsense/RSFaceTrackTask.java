@@ -575,24 +575,13 @@ public class RSFaceTrackTask implements Runnable {
 	public void beginCheckingFace(IDCard idCard, Ticket ticket) {
 		currentIDCard = idCard;
 		currentTicket = ticket;
-		log.debug("/******beginCheckingFace*******/");
-//		log.debug("将心跳进程号置为空");
-//		Config.getInstance().setPITTrackPidstr("");
-//		pid = ProcessUtil.getCurrentProcessID();
-//		Config.getInstance().setTrackPidForKill(pid);
-//		log.debug("getPITTrackPidstr==" + Config.getInstance().getPITTrackPidstr());
-//		log.debug("getTrackPidForKill==" + Config.getInstance().getTrackPidForKill());
+		log.debug("/********beginCheckingFace*********/");
 	}
 
 	public void stopCheckingFace() {
 		currentIDCard = null;
 		currentTicket = null;
 		log.debug("stopCheckingFace......");
-//		pid = ProcessUtil.getCurrentProcessID();
-//		log.debug("开始写心跳日志,进程号：" + pid);
-//		Config.getInstance().setPITTrackPidstr(pid);
-//		log.debug("getPITTrackPidstr==" + Config.getInstance().getPITTrackPidstr());
-//		log.debug("getTrackPidForKill==" + Config.getInstance().getTrackPidForKill());
 		log.debug("/####################################/");
 	}
 

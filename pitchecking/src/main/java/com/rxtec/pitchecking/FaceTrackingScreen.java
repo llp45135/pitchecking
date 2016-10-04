@@ -35,14 +35,14 @@ public class FaceTrackingScreen {
 	}
 
 	private FaceTrackingScreen() {
-//		initUI();
+
 	}
 
 	public void initUI() {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice[] gs = ge.getScreenDevices();
 		GraphicsDevice gd = gs[DeviceConfig.getInstance().getFaceScreen()];
-		log.info("GraphicsDevice=="+gd);
+//		log.info("GraphicsDevice=="+gd);
 		if (gd != null) {
 			GraphicsConfiguration gc = gd.getDefaultConfiguration();
 			int xOff = gc.getBounds().x;
@@ -51,11 +51,6 @@ public class FaceTrackingScreen {
 			faceFrame.setLocation(xOff, yOff);
 
 		}
-
-		// gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
-		// faceFrame.setUndecorated(true);
-		// faceFrame.setVisible(true);
-		// faceFrame.setAlwaysOnTop(true);
 	}
 
 	public VideoPanel getVideoPanel() {

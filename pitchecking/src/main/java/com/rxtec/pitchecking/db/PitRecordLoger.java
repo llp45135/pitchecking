@@ -22,6 +22,7 @@ public class PitRecordLoger implements Runnable {
 	}
 	private PitRecordDAO dao;
 	private PitRecordLoger(){
+		log.info("初始化MongoDB存储Photos线程");
 		dao = new PitRecordDAO();
 	}
 	public void startThread(){
