@@ -58,14 +58,15 @@ public class RSFaceTrackingTestFrame {
 
 		FaceCheckingService.getInstance().beginFaceCheckerTask();
 
-		IDCard idCard = createIDCard("C:/pitchecking/llp.jpg");
+//		IDCard idCard = createIDCard("C:/pitchecking/llp.jpg");
 //		IDCard idCard = createIDCard("C:/pitchecking/zhaolin.jpg");
 		
 
-		while (true) {
-			CommUtil.sleep(500);
-			beginCheckFace(idCard);
-		}
+//		while (true) {
+//			CommUtil.sleep(500);
+//			beginCheckFace(idCard);
+//		}
+		
 
 	}
 
