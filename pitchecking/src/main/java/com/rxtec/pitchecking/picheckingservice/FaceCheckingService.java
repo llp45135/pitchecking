@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
 import com.rxtec.pitchecking.net.PTVerifyPublisher;
@@ -31,7 +32,7 @@ public class FaceCheckingService {
 
 	// 比对验证通过的队列
 	private LinkedBlockingQueue<PITVerifyData> passFaceDataQueue;
-	
+
 	// 比对未通过验证的List，按照分值排序，分值高的在前
 	private List<PITVerifyData> failedFaceDataList;
 
@@ -62,15 +63,16 @@ public class FaceCheckingService {
 		return _instance;
 	}
 
-	//从阻塞队列中返回比对成功的人脸
+	// 从阻塞队列中返回比对成功的人脸
 	public PITVerifyData pollPassFaceData(int delaySeconds) throws InterruptedException {
 		PITVerifyData fd = passFaceDataQueue.poll(delaySeconds, TimeUnit.SECONDS);
 		return fd;
 	}
-	
-	//返回人脸比对分值最高的,比对未通过的人脸数据
-	public PITVerifyData pollFailedFaceData(){
-		if(failedFaceDataList.size()>0) return failedFaceDataList.get(0);
+
+	// 返回人脸比对分值最高的,比对未通过的人脸数据
+	public PITVerifyData pollFailedFaceData() {
+		if (failedFaceDataList.size() > 0)
+			return failedFaceDataList.get(0);
 		return null;
 	}
 
@@ -87,20 +89,19 @@ public class FaceCheckingService {
 		return v;
 	}
 
-	//Offer 比对成功的人脸到阻塞队列
+	// Offer 比对成功的人脸到阻塞队列
 	public void offerPassFaceData(PITVerifyData fd) {
 		isCheck = passFaceDataQueue.offer(fd);
 		log.debug("offerPassFaceData...... " + isCheck);
 	}
 
-	//添加比对失败的人脸到队列，按照比对比对结果分值排序
+	// 添加比对失败的人脸到队列，按照比对比对结果分值排序
 	public void offerFailedFaceData(PITVerifyData fd) {
 		log.debug("offerFailedFaceData list length= " + failedFaceDataList.size());
 		failedFaceDataList.add(fd);
 		Collections.sort(failedFaceDataList);
 	}
 
-	
 	public void offerDetectedFaceData(PITData faceData) {
 		if (!detectedFaceDataQueue.offer(faceData)) {
 			detectedFaceDataQueue.poll();
@@ -114,8 +115,9 @@ public class FaceCheckingService {
 				faceVerifyDataQueue.poll();
 				faceVerifyDataQueue.offer(vd);
 			}
-		}else{
-			log.error("offerDetectedFaceData 输入数据不完整！ vd.getIdCardImg()="+vd.getIdCardImg() +" vd.getFrameImg()=" + vd.getFrameImg() + " vd.getFaceImg()=" + vd.getFaceImg() );
+		} else {
+			log.error("offerDetectedFaceData 输入数据不完整！ vd.getIdCardImg()=" + vd.getIdCardImg() + " vd.getFrameImg()="
+					+ vd.getFrameImg() + " vd.getFaceImg()=" + vd.getFaceImg());
 		}
 
 	}
@@ -143,8 +145,7 @@ public class FaceCheckingService {
 	ExecutorService executor = Executors.newCachedThreadPool();
 
 	/**
-	 * 启动人脸比对
-	 * 本函数由独立人脸检测进程执行
+	 * 启动人脸比对 本函数由独立人脸检测进程执行
 	 */
 	public void beginFaceCheckerTask() {
 		/**
@@ -158,8 +159,7 @@ public class FaceCheckingService {
 	}
 
 	/**
-	 * 单独比对人脸进程Task，通过共享内存通信
-	 * 此函数由独立人脸比对进程执行
+	 * 单独比对人脸进程Task，通过共享内存通信 此函数由独立人脸比对进程执行
 	 */
 	public void beginFaceCheckerStandaloneTask() {
 		ExecutorService executer = Executors.newCachedThreadPool();
@@ -170,6 +170,7 @@ public class FaceCheckingService {
 			executer.execute(task2);
 		}
 		log.info(".............Start " + Config.getInstance().getFaceVerifyThreads() + " FaceVerifyThreads");
+		log.info("softVersion==" + DeviceConfig.softVersion);
 		executer.shutdown();
 	}
 

@@ -18,34 +18,36 @@ import com.rxtec.pitchecking.gui.VideoPanel;
  */
 public class FaceTrackingScreen {
 
-	private Logger log = LoggerFactory.getLogger("FaceTrackingScreen");
+	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private static FaceTrackingScreen _instance = new FaceTrackingScreen();
 
-	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-	GraphicsDevice[] gs = ge.getScreenDevices();
+	FaceCheckFrame faceFrame;
 
-	FaceCheckFrame faceFrame = new FaceCheckFrame();
-
-	private FaceTrackingScreen() {
-		initUI();
+	public FaceCheckFrame getFaceFrame() {
+		return faceFrame;
 	}
 
-	public void initUI() {
+	public void setFaceFrame(FaceCheckFrame faceFrame) {
+		this.faceFrame = faceFrame;
+	}
 
-		GraphicsDevice gd = gs[DeviceConfig.getInstance().getFaceScreen()];
-		GraphicsConfiguration gc = gd.getDefaultConfiguration();
+	private FaceTrackingScreen() {
+
+	}
+
+	public void initUI(int screenNo) throws Exception {
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gs = ge.getScreenDevices();
+		GraphicsDevice gd = gs[screenNo];
+		// log.info("GraphicsDevice=="+gd);
 		if (gd != null) {
+			GraphicsConfiguration gc = gd.getDefaultConfiguration();
 			int xOff = gc.getBounds().x;
 			int yOff = gc.getBounds().y;
 			faceFrame.setVisible(true);
 			faceFrame.setLocation(xOff, yOff);
-
 		}
-
-		// gs[DeviceConfig.getInstance().getFaceScreen()].setFullScreenWindow(faceFrame);
-		// faceFrame.setUndecorated(true);
-		// faceFrame.setVisible(true);
-		// faceFrame.setAlwaysOnTop(true);
+		// log.info("当前的人脸检测屏位置：face.x=="+faceFrame.getBounds().x+",face.y=="+faceFrame.getBounds().y);
 	}
 
 	public VideoPanel getVideoPanel() {
@@ -70,13 +72,10 @@ public class FaceTrackingScreen {
 	private void processEventByType(ScreenElementModifyEvent e) {
 		if (e.getElementCmd() == ScreenCmdEnum.ShowBeginCheckFaceContent.getValue()) {
 			faceFrame.showBeginCheckFaceContent();
-
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckPass.getValue()) {
 			faceFrame.showFaceCheckPassContent();
-
 		} else if (e.getElementCmd() == ScreenCmdEnum.showFaceDefaultContent.getValue()) {
 			faceFrame.showDefaultContent();
-
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckFailed.getValue()) {
 			faceFrame.showCheckFailedContent();
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceDisplayFromTK.getValue()) {

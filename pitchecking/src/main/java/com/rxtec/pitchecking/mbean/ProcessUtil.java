@@ -35,6 +35,60 @@ public class ProcessUtil {
 		return pid;
 
 	}
+	
+	/**
+	 * 当检脸线程被杀死时，写入标志0
+	 * 当检脸线程被启动时，写入1
+	 * @param rebackFile
+	 * @param rebackFlag
+	 * @return
+	 */
+	public static boolean writeRebackTrackAppFlag(String rebackFile,String rebackFlag){
+		Date now = new Date();
+		String nowTime = CalUtils.getStringDateHaomiao();// Long.toString(now.getTime());
+		try {
+			File logFile = new File(rebackFile);
+			if (!logFile.exists()) {
+				logFile.createNewFile();
+			}
+			FileWriter fw = new FileWriter(logFile);
+			fw.write(rebackFlag);
+			fw.flush();
+			fw.close();
+			return true;
+
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static String getRebackTrackAppFlag(String rebackFile) {
+		String s = "";
+		try {
+			File f = new File(rebackFile);
+			if (!f.exists())
+				s = "";
+			else {
+				FileInputStream fis = new FileInputStream(f);
+				InputStreamReader reader = new InputStreamReader(fis);
+				BufferedReader bufferedReader = new BufferedReader(reader);
+				s = bufferedReader.readLine();
+				fis.close();
+				reader.close();
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			s = "";
+		}
+		return s;
+	}
 
 	public static boolean writeHeartbeat(String pid) {
 		Date now = new Date();

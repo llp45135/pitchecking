@@ -1,5 +1,7 @@
 package com.rxtec.pitchecking.mbean;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,8 +16,8 @@ import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
 
 /**
- * 由人脸比对进程启动
- * 检脸进程保护
+ * 由人脸比对进程启动 检脸进程保护
+ * 
  * @author llp_l
  *
  */
@@ -33,56 +35,80 @@ public class PITProcessDetect implements Runnable {
 		this.startStatus = startStatus;
 	}
 
+	public PITProcessDetect() {
+		log.info("初始化心跳侦测线程");
+	}
+
 	@Override
 	public void run() {
 		while (true) {
 			CommUtil.sleep(3000);
-			String hbs = "";
+			String HeartBeatStr = "";
 			try {
-				hbs = ProcessUtil.getLastHeartBeat();
+				HeartBeatStr = ProcessUtil.getLastHeartBeat();
 			} catch (Exception ex) {
-				log.error("", ex);
+				log.error("PITProcessDetect getLastHeartBeat：", ex);
 			}
-			log.debug("hbs==" + hbs + "##");
-			if (hbs != null) {
-				hbs = hbs.trim();
-				if (!hbs.equals("")) {
-					pid = hbs.split("@")[0];
-					String t = hbs.split("@")[1];
+			// log.debug("HeartBeatStr==" + HeartBeatStr + "##");
+			if (HeartBeatStr != null) {
+				HeartBeatStr = HeartBeatStr.trim();
+				if (!HeartBeatStr.equals("")) {
+					pid = HeartBeatStr.split("@")[0];
+					String t = HeartBeatStr.split("@")[1];
 					String nowHT = CalUtils.getStringDateHaomiao();// (new
 																	// Date()).getTime();
-					log.debug(pid + " last heartbeat time=" + t);
-					long ss = 0;
+					// log.debug(pid + " last heartbeat time=" + t);
+					long heartWaitTime = 0;
 					try {
-						ss = CalUtils.howLong("ms", t, nowHT);
+						heartWaitTime = CalUtils.howLong("ms", t, nowHT);
 					} catch (Exception ex) {
-						log.error("", ex);
+						log.error("Cal heartWaitTime:", ex);
 					}
-					log.debug("ss===" + ss);
-					if (ss > Config.HEART_BEAT_DELAY) {
+					// log.debug("heartWaitTime===" + heartWaitTime);
+					// log.info("rebackFlag=="+Config.getInstance().isRebackTrackFlag());
+					if (!Config.getInstance().isRebackTrackFlag()) {
+						try {
+							Config.getInstance().setRebackTrackFlag(true);
+							log.info("准备执行恢复检脸进程的批处理");
+							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
+							log.info("Resatrt PITTrackApp......");
+							this.setStartStatus(true);
+						} catch (Exception ex) {
+							log.error("Resatrt PITTrackApp......:", ex);
+						}
+						try {
+							File heartFile = new File(Config.getInstance().getHeartBeatLogFile());
+							heartFile.delete();
+							log.info("已经执行恢复检脸进程的批处理");
+							continue;
+						} catch (Exception ex) {
+							log.error("Resatrt PITTrackApp......:", ex);
+						}
+
+					}
+					/**
+					 * 超时未收到心跳，需要杀死当前检脸进程
+					 */
+					if (heartWaitTime > Config.getInstance().getHEART_BEAT_DELAY()) {
+						log.debug("heartWaitTime==" + heartWaitTime + ",pid==" + pid);
 						if (startStatus) {
 							this.setStartStatus(false);
 							try {
-								String cmd = "tskill " + pid;
-								Runtime.getRuntime().exec(cmd);
+								log.info("准备杀死进程 " + pid);
+								Config.getInstance().setRebackTrackFlag(false);
+								Runtime.getRuntime().exec("taskkill /F /PID " + pid);
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								log.error("PITProcessDetect taskkill:", e);
 							} catch (Exception ex) {
-								log.error("tskill:", ex);
-							}
-							try {
-//								Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
-								Runtime.getRuntime().exec(Config.AutoLogonCmd);
-								CommUtil.sleep(10 * 1000);
-								log.info("Resatrt PITCheckApp......");
-								this.setStartStatus(true);
-							} catch (Exception ex) {
-								log.error("Restart:", ex);
+								log.error("PITProcessDetect taskkill:", ex);
 							}
 						}
 					}
-				} else if (hbs.equals("null")) {
+				} else if (HeartBeatStr.equals("null")) {
 					if (startStatus) {
 						try {
-							Runtime.getRuntime().exec(Config.AutoLogonCmd);
+							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
 							CommUtil.sleep(10 * 1000);
 							log.info("Resatrt PITCheckApp......When hbs is null");
 							this.setStartStatus(true);
@@ -91,7 +117,7 @@ public class PITProcessDetect implements Runnable {
 						}
 					}
 				} else {
-					log.debug("未讀取到work log");
+					log.debug("未读取到 HEART work log");
 				}
 			}
 		}

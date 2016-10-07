@@ -64,6 +64,9 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 		
 		PITVerifyData fd = null;
 
+//		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音“请平视摄像头”
+		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); // 调用语音“请取走票证，走进通道，抬头看屏幕”
+		
 		FaceTrackingScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, fd));
 		/**
@@ -132,6 +135,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// }
 
 			faceTrackService.stopCheckingFace();
+			AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
 //			FaceTrackingScreen.getInstance().offerEvent(
 //					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
 			

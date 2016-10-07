@@ -16,7 +16,7 @@ public class FaceCheckingStandaloneTask implements Runnable {
 	PTVerifyResultPublisher publisher = PTVerifyResultPublisher.getInstance();
 	FaceVerifyInterface faceVerify = null;
 	private Logger log = LoggerFactory.getLogger("FaceCheckingStandaloneTask");
-	
+
 	private int initDllStatus = 0;
 
 	public FaceCheckingStandaloneTask() {
@@ -31,13 +31,13 @@ public class FaceCheckingStandaloneTask implements Runnable {
 
 	@Override
 	public void run() {
-		
-		if(initDllStatus <1){
+
+		if (initDllStatus < 1) {
 			log.error("!!!!!!!!!!!!!!!!!!VerifyDLL init failed!!!!!!!!!!!!!!!");
 			return;
 		}
 		while (true) {
-			
+
 			try {
 				Thread.sleep(50);
 				PITVerifyData fd = FaceCheckingService.getInstance().takeFaceVerifyData();// 从待验证人脸队列中取出人脸对象
@@ -61,17 +61,21 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					fd.setVerifyResult(resultValue);
 					int usingTime = (int) (Calendar.getInstance().getTimeInMillis() - nowMils);
 
-//					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
-//						publisher.publishResult(fd); // 比对结果公布
-//						FaceCheckingService.getInstance().resetFaceDataQueue();
-//					}
-					
-					log.info("Face verify result="+resultValue);
+					// if (resultValue >=
+					// Config.getInstance().getFaceCheckThreshold()) {
+					// publisher.publishResult(fd); // 比对结果公布
+					// FaceCheckingService.getInstance().resetFaceDataQueue();
+					// }
+
+					log.info("Face verify result=" + resultValue);
 					publisher.publishResult(fd); // 比对结果公布
 					FaceCheckingService.getInstance().resetFaceDataQueue();
-					
-//					PitRecordLoger.getInstance().offer(fd);
-//					FaceVerifyServiceStatistics.getInstance().update(resultValue, usingTime, fd.getFaceDistance());
+
+					// offer进mongodb的处理队列
+					if (Config.getInstance().getIsUseMongoDB() == 1) {
+						PitRecordLoger.getInstance().offer(fd);
+						FaceVerifyServiceStatistics.getInstance().update(resultValue, usingTime, fd.getFaceDistance());
+					}
 					FaceImageLog.saveFaceDataToDsk(fd);
 				}
 

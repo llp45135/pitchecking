@@ -38,18 +38,15 @@ public class Config {
 	public static int IRFrameWidth = 640;
 	public static int IRFrameHeigh = 480;
 	public static int FACE_TRACK_IR = 1;
-	public static int FACE_TRACK_COLOR_DEPTH=2;
-			
+	public static int FACE_TRACK_COLOR_DEPTH = 2;
 
 	public static int frameRate = 30;
-	
+
 	public static float FACE_POSE_YAW = 15;
 	public static float FACE_POSE_PITCH = 15;
 	public static float FACE_POSE_ROLL = 15;
-	
-	public static int Is_Check_RealFace = 1;
-	
 
+	public static int Is_Check_RealFace = 1;
 
 	public static float DValueMaxDepth = 100F;
 	public static float DValueMinDepth = 20F;
@@ -61,12 +58,13 @@ public class Config {
 	public static int MaxTrackedLandmark = 4;
 	public static int NumOfLandmarks = 78;
 
-	public static int PIVerify_Begin_STREAM_ID = 10;				//通知独立人脸比对进程开始人脸比对  用于睿新版本
-	public static int PIVerify_Result_STREAM_ID = 11;				//独立人脸比对进程发布比对结果  用于睿新版本
-	
-	public static int PIVerifyEvent_STREAM_ID = 12;					//通知独立人脸比对进程开始人脸比对  用于铁科版本
-	public static int PIVerifyResultEvent_STREAM_ID = 13;			//独立人脸比对进程发布比对结果  用于铁科版本
-	
+	public static int PIVerify_Begin_STREAM_ID = 10; // 通知独立人脸比对进程开始人脸比对 用于睿新版本
+	public static int PIVerify_Result_STREAM_ID = 11; // 独立人脸比对进程发布比对结果 用于睿新版本
+
+	public static int PIVerifyEvent_STREAM_ID = 12; // 通知独立人脸比对进程开始人脸比对 用于铁科版本
+	public static int PIVerifyResultEvent_STREAM_ID = 13; // 独立人脸比对进程发布比对结果
+															// 用于铁科版本
+
 	public static String PIVerify_CHANNEL = "aeron:ipc";
 	// public static String PIVerify_CHANNEL =
 	// "aeron:udp?endpoint=192.168.1.21:40456";
@@ -86,39 +84,37 @@ public class Config {
 	public static String MongoDBName = "pitcheck";
 	public static String PassedMongoCollectionName = "passed_record";
 	public static String FailedMongoCollectionName = "failed_record";
-	
-	public static String FaceVerifyMicro="MICRO";
-	public static String FaceVerifyPIXEL="PIXEL";
-	
-	public static int HEART_BEAT_DELAY = 10000;
-	
-	public static int ByPassMaxAge=65;
-	public static int ByPassMinAge=12;
-	
-	private String  heartBeatLogFile="C:/pitchecking/work/HEART.log";
-	private String startPITAppCmd = "C:/pitchecking/bin/start.bat";
-	public static String AutoRestartCmd= "C:/pitchecking/bin/autoRestartPC.bat";
-	public static String AutoLogonCmd= "C:/pitchecking/bin/autoLogonPC.bat";
-	
-	//人脸比对结果状态
+
+	public static String FaceVerifyMicro = "MICRO";
+	public static String FaceVerifyPIXEL = "PIXEL";
+
+	private int HEART_BEAT_DELAY = 15 * 1000;
+
+	public static int ByPassMaxAge = 65;
+	public static int ByPassMinAge = 12;
+
+	private String heartBeatLogFile = "D:/pitchecking/work/HEART.log";
+	private String rebackTrackFile = "D:/pitchecking/work/RebackFlag.log";
+	private String startPITAppCmd = "D:/pitchecking/work/RestartPITTrack.bat";
+	public static String AutoRestartCmd = "D:/pitchecking/work/autoRestartPC.bat";
+	public static String AutoLogonCmd = "D:/pitchecking/work/autoLogonPC.bat";
+
+	// 人脸比对结果状态
 	public static int VerifyPassedStatus = 0;
 	public static int VerifyFailedStatus = 1;
-	
 
-
-	
 	/************************************************************************************
 	 * 铁科主控程序通过Aeron MediaDriver 发过来的事件名称定义
 	 */
-	
+
 	public static String BeginVerifyFaceEvent = "CAM_Notify";
 	public static String GetVerifyFaceResultEvent = "CAM_GetPhotoInfo";
 	public static String GetVerifyFaceResultInnerEvent = "CAM_GetVerifyResult";
-	
-	
-	
-	/** ******************************************************************************* */
 
+	/**
+	 * *************************************************************************
+	 * ******
+	 */
 
 	private int faceVerifyThreads = 1; // 人脸比对线程数
 
@@ -127,11 +123,11 @@ public class Config {
 	/**
 	 * 总超时时间
 	 */
-	private int faceCheckDelayTime = 20;   //总超时时间
+	private int faceCheckDelayTime = 20; // 总超时时间
 	/**
 	 * 延时通过时间
 	 */
-	private int checkDelayPassTime = 8;   //延时通过时间
+	private int checkDelayPassTime = 8; // 延时通过时间
 	private int fastFaceDetect = 1;
 	private int faceCheckingInteval = 100;
 	private int defaultFaceCheckScreenDeley = 1000;
@@ -147,23 +143,22 @@ public class Config {
 	private int isUseMongoDB = 1;
 	private String mongoDBAddress = "localhost";
 	private int mongoDBPort = 27017;
-	private int isSaveFaceImageToLocaldisk=1;
-	private String faceVerifyType="MICRO";
-	private float faceFrameTransparency = (float)0.75;
-	
+	private int isSaveFaceImageToLocaldisk = 1;
+	private String faceVerifyType = "MICRO";
+	private float faceFrameTransparency = (float) 0.75;
+	private String PITTrackPidstr = "-1"; // 人脸检测进程号
+	private String trackPidForKill = "-1";
+	private boolean rebackTrackFlag = true;
+
 	/************************************************************
-	 * 人脸检测-比对任务 版本
-	 * 人脸检测-比对任务有两个版本：
-	 * RX=睿新版本用于睿新自有java版本闸机主控程序
-	 * TK=铁科版本主控程序
+	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
 	 */
-	
-	
+
 	public static String FaceVerifyTaskTKVersion = "TK";
 	public static String FaceVerifyTaskRXVersion = "RX";
-	
+
 	private String faceVerifyTaskVersion = "TK";
-	
+
 	public String getFaceVerifyTaskVersion() {
 		return faceVerifyTaskVersion;
 	}
@@ -173,13 +168,52 @@ public class Config {
 	}
 
 	/***********************************************************/
-	
-	
+
 	private float minAverageDepth = 400F;
 	private float maxAverageDepth = 1000F;
-	
-	private int faceTrackMode = 1;								//人臉追蹤模式 1 紅外，2 顔色+景深
-	
+
+	private int faceTrackMode = 1; // 人臉追蹤模式 1 紅外，2 顔色+景深
+
+	public boolean isRebackTrackFlag() {
+		return rebackTrackFlag;
+	}
+
+	public void setRebackTrackFlag(boolean rebackTrackFlag) {
+		this.rebackTrackFlag = rebackTrackFlag;
+	}
+
+	public String getRebackTrackFile() {
+		return rebackTrackFile;
+	}
+
+	public void setRebackTrackFile(String rebackTrackFile) {
+		this.rebackTrackFile = rebackTrackFile;
+	}
+
+	public int getHEART_BEAT_DELAY() {
+		return HEART_BEAT_DELAY;
+	}
+
+	public void setHEART_BEAT_DELAY(int hEART_BEAT_DELAY) {
+		HEART_BEAT_DELAY = hEART_BEAT_DELAY;
+	}
+
+	public String getTrackPidForKill() {
+		return trackPidForKill;
+	}
+
+	public void setTrackPidForKill(String trackPidForKill) {
+		this.trackPidForKill = trackPidForKill;
+	}
+
+	public String getPITTrackPidstr() {
+		return PITTrackPidstr;
+	}
+
+	public void setPITTrackPidstr(String pITTrackPidstr) {
+		PITTrackPidstr = pITTrackPidstr;
+	}
+
 	public float getFaceFrameTransparency() {
 		return faceFrameTransparency;
 	}
@@ -196,7 +230,8 @@ public class Config {
 		this.isUseMongoDB = isUseMongoDB;
 	}
 
-	private float faceDetectionScale = 1.5f;					//人臉放大倍數	
+	private float faceDetectionScale = 1.5f; // 人臉放大倍數
+
 	public float getFaceDetectionScale() {
 		return faceDetectionScale;
 	}
@@ -208,6 +243,7 @@ public class Config {
 	public void setStartPITAppCmd(String startPITAppCmd) {
 		this.startPITAppCmd = startPITAppCmd;
 	}
+
 	public void setFaceDetectionScale(float faceDetectionScale) {
 		this.faceDetectionScale = faceDetectionScale;
 	}
@@ -219,10 +255,6 @@ public class Config {
 	public void setHeartBeatLogFile(String heartBeatLogFile) {
 		this.heartBeatLogFile = heartBeatLogFile;
 	}
-
-
-	
-	
 
 	public int getFaceTrackMode() {
 		return faceTrackMode;
@@ -248,8 +280,6 @@ public class Config {
 		this.maxAverageDepth = maxAverageDepth;
 	}
 
-
-	
 	public String getFaceVerifyType() {
 		return faceVerifyType;
 	}
@@ -421,7 +451,7 @@ public class Config {
 	public void setVideoType(int videoType) {
 		this.videoType = videoType;
 	}
-	
+
 	public int getIsSaveFaceImageToLocaldisk() {
 		return isSaveFaceImageToLocaldisk;
 	}
@@ -430,13 +460,12 @@ public class Config {
 		this.isSaveFaceImageToLocaldisk = isSaveFaceImageToLocaldisk;
 	}
 
-
 	private static Config _instance = new Config();
 
 	private Config() {
 		Properties p = new Properties();
 		try {
-			
+
 			String filePath = Thread.currentThread().getContextClassLoader().getResource("").toString();
 			String fn = filePath + "conf/conf.properties";
 			URL url = new URL(fn);
@@ -445,7 +474,7 @@ public class Config {
 			this.faceCheckThreshold = Float.valueOf(p.getProperty("FaceCheckThreshold", "0.7"));
 			this.glassFaceCheckThreshold = Float.valueOf(p.getProperty("GlassFaceCheckThreshold", "0.68"));
 			this.faceCheckDelayTime = Integer.valueOf(p.getProperty("FaceCheckDelayTime", "20"));
-			this.checkDelayPassTime = Integer.valueOf(p.getProperty("CheckDelayPassTime","10"));
+			this.checkDelayPassTime = Integer.valueOf(p.getProperty("CheckDelayPassTime", "10"));
 			this.fastFaceDetect = Integer.valueOf(p.getProperty("FastFaceDetect", "1"));
 			this.faceCheckingInteval = Integer.valueOf(p.getProperty("faceCheckingInteval", "100"));
 			this.defaultFaceCheckScreenDeley = Integer.valueOf(p.getProperty("DefaultFaceCheckScreenDeley", "1000"));
@@ -468,15 +497,16 @@ public class Config {
 			this.faceTrackMode = Integer.valueOf(p.getProperty("FaceTrackMode", "1"));
 			this.faceDetectionScale = Float.valueOf(p.getProperty("FaceDetectionScale", "1.3"));
 			this.heartBeatLogFile = p.getProperty("HeartBeatLogFile", "C:/pitchecking/work/HEART.log");
+			this.rebackTrackFile = p.getProperty("rebackTrackFile", "D:/pitchecking/work/RebackFlag.log");
 			this.startPITAppCmd = p.getProperty("StartPITAppCmd", "C:/pitchecking/bin");
 			this.faceVerifyTaskVersion = p.getProperty("FaceVerifyTaskVersion", "TK");
 			this.faceFrameTransparency = Float.valueOf(p.getProperty("faceFrameTransparency", "0.75"));
+			this.HEART_BEAT_DELAY = Integer.valueOf(p.getProperty("HEART_BEAT_DELAY", "15000"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
 
 	public static synchronized Config getInstance() {
 		if (_instance == null)
@@ -487,6 +517,7 @@ public class Config {
 	public static void main(String[] args) {
 		Config.getInstance();
 		System.out.println("getIsCheckRealFace==" + Config.getInstance().getIsCheckRealFace());
+		System.out.println("getHEART_BEAT_DELAY=="+Config.getInstance().getHEART_BEAT_DELAY());
 	}
 
 }

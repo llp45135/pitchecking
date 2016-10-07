@@ -331,8 +331,11 @@ public class DeviceEventListener implements Runnable {
 		scheduler.scheduleWithFixedDelay(BarCodeReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		// 求助按钮事件处理线程
 		scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-		// 语音调用线程
-		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+//		// 语音调用线程
+//		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		
+		scheduler.scheduleWithFixedDelay(GATStatusQuery.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		
 		// mq sender线程
 		if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
 			scheduler.scheduleWithFixedDelay(JmsSenderTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
