@@ -72,11 +72,11 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					FaceCheckingService.getInstance().resetFaceDataQueue();
 
 					// offer进mongodb的处理队列
-					if (Config.getInstance().getIsUseMongoDB() == 1) {
-						PitRecordLoger.getInstance().offer(fd);
-						FaceVerifyServiceStatistics.getInstance().update(resultValue, usingTime, fd.getFaceDistance());
-					}
-					FaceImageLog.saveFaceDataToDsk(fd);
+//					if (Config.getInstance().getIsUseMongoDB() == 1) {
+//						PitRecordLoger.getInstance().offer(fd);
+//						FaceVerifyServiceStatistics.getInstance().update(resultValue, usingTime, fd.getFaceDistance());
+//					}
+					FaceImageLog.saveFaceDataToDskAndMongoDB(fd,usingTime);
 				}
 
 			} catch (Exception e) {
