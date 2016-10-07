@@ -32,7 +32,7 @@ public class TestFaceVerifyScreen {
 
 	public void initUI() {
 
-		gs[1].setFullScreenWindow(faceFrame);
+		gs[0].setFullScreenWindow(faceFrame);
 		// ticketFrame.setUndecorated(true);
 		// ticketFrame.setVisible(true);
 
