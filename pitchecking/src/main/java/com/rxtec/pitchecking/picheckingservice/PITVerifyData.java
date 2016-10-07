@@ -213,7 +213,7 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 			this.faceDistance = pd.getFaceDistance();
 			Date now = new Date();
 			this.pitDate = sf.format(now);
-			this.pitTime = sf.format(now);
+			this.pitTime = sf2.format(now);
 			this.pitStation = pd.getPitStation();
 			this.facePosePitch = pd.getFacePosePitch();
 			this.facePoseRoll = pd.getFacePoseRoll();
