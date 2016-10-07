@@ -73,7 +73,7 @@ public class PITrackingApp {
 
 		MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
 
-		FaceCheckingService.getInstance().beginFaceCheckerTask(); // 启动人脸比对
+		FaceCheckingService.getInstance().beginFaceCheckerTask(); // 启动人脸发布和比对结果订阅
 
 		// 语音调用线程
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);

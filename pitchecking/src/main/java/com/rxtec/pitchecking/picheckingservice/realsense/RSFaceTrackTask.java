@@ -25,6 +25,7 @@ import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
+import com.rxtec.pitchecking.task.FaceScreenListener;
 
 import intel.rssdk.PXCMBase;
 import intel.rssdk.PXCMCapture;
@@ -683,20 +684,24 @@ public class RSFaceTrackTask implements Runnable {
 		while (startCapture) {
 			sts = senseMgr.AcquireFrame(true);
 			if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0) {
-				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+//				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+				FaceScreenListener.getInstance().setPidStr(pid);  //设为允许写心跳
 			} else {
+				FaceScreenListener.getInstance().setPidStr("");//设为停止写心跳
 				log.error("senseMgr failed! sts=" + sts);
 			}
 
 			BufferedImage frameImage = null;
 			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
 			if (sample == null || sample.color == null) {
+				FaceScreenListener.getInstance().setPidStr("");//设为停止写心跳
 				log.error("QueryFaceSample failed! sample=" + sample);
 				senseMgr.ReleaseFrame();
 				continue;
 			} else {
 				frameImage = drawFrameImage(sample);
-				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+//				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+				FaceScreenListener.getInstance().setPidStr(pid);//设为允许写心跳
 			}
 
 

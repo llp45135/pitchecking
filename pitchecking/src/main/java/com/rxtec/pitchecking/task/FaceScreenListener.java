@@ -5,10 +5,12 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.FaceTrackingScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.mbean.ProcessUtil;
 
 public class FaceScreenListener implements Runnable {
 	private Logger log = LoggerFactory.getLogger("FaceScreenListener");
 	private Logger mainlog = LoggerFactory.getLogger("DeviceEventListener");
+	private String pidStr = null;
 	private static FaceScreenListener _instance;
 
 	public static synchronized FaceScreenListener getInstance() {
@@ -22,9 +24,28 @@ public class FaceScreenListener implements Runnable {
 		mainlog.info("初始化人脸检测屏位置监控");
 	}
 
+	public String getPidStr() {
+		return pidStr;
+	}
+
+	public void setPidStr(String pidStr) {
+		this.pidStr = pidStr;
+	}
+
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
+		if (pidStr == null) {
+			log.debug("检脸线程正在启动中,还未开始写心跳,pidStr==" + pidStr + "#");
+		} else {
+			if (!pidStr.equals("")) {
+				ProcessUtil.writeHeartbeat(pidStr); // 写心跳日志
+				// log.debug("写检脸心跳日志,pidStr==" + pidStr);
+			} else {
+				log.debug("检脸线程故障，停止写心跳日志,pidStr==" + pidStr + "#");
+			}
+		}
+
 		try {
 			int frameX = FaceTrackingScreen.getInstance().getFaceFrame().getX();
 			// int frameY =

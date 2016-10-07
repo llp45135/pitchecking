@@ -27,7 +27,7 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "161006.19.01";
+	public static String softVersion = "161007.21.01";
 	public static String softIdNo = "520203197912141118,440111197209283012";
 
 	public static int idDeviceSucc = 1;
