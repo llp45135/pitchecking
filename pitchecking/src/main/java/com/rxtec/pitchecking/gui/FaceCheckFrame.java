@@ -33,6 +33,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.FaceTrackingScreen;
@@ -56,7 +60,7 @@ import javax.swing.BoxLayout;
 import java.awt.CardLayout;
 
 public class FaceCheckFrame extends JFrame implements ActionListener {
-
+	private Logger log = LoggerFactory.getLogger("FaceScreenListener");
 	private JPanel contentPane;
 	private Timer timer = new Timer(1000, this);
 	private JLabel label_title = new JLabel("\u8BF7\u5E73\u89C6\u6444\u50CF\u5934");
@@ -68,6 +72,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	private JPanel cameraPanel;
 	private JPanel msgPanel;
 	private JLabel msgTopLabel;
+	private JLabel passImgLabel;
 	private String displayMsg = "";
 
 	private JLabel bootTimeLabel;
@@ -88,14 +93,14 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					FaceTrackingScreen.getInstance();
 					FaceCheckFrame frame = new FaceCheckFrame();
 					FaceTrackingScreen.getInstance().setFaceFrame(frame);
-					FaceTrackingScreen.getInstance().initUI();
+					FaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
 					frame.showDefaultContent();
 					// frame.setVisible(true);
-					MqttSenderBroker.getInstance().setFaceScreenDisplayTimeout(5);
-//					MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别成功#请通过");
-					MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
+					MqttSenderBroker.getInstance().setFaceScreenDisplayTimeout(10);
+					MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别成功#请通过");
+					// MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
 					frame.showFaceDisplayFromTK();
-//					frame.showBeginCheckFaceContent();
+					frame.showBeginCheckFaceContent();
 					// frame.showFaceCheckPassContent();
 					// frame.showCheckFailedContent();
 					// frame.showDefaultContent();
@@ -183,13 +188,19 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		contentPane.add(msgPanel, "name_1726792116426379");
 		msgPanel.setLayout(null);
 
-		msgTopLabel = new JLabel("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div></html>");
+		msgTopLabel = new JLabel(
+				"<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>10</div></html>");
 		msgTopLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		msgTopLabel.setForeground(Color.YELLOW);
-		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
 		msgTopLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		msgTopLabel.setBounds(10, 129, 1004, 495);
+		msgTopLabel.setBounds(10, 104, 1004, 553);
 		msgPanel.add(msgTopLabel);
+
+		// passImgLabel = new JLabel("New label");
+		// passImgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		// passImgLabel.setBounds(10, 277, 183, 215);
+		// msgPanel.add(passImgLabel);
 
 		cameraPanel = new JPanel();
 		contentPane.add(cameraPanel, "name_219670385833610");
@@ -276,6 +287,13 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	// //panel_idCardImage.repaint();
 	// }
 
+	public void showPassStatusImage(ImageIcon icon) {
+		passImgLabel.setText("");
+		// passImgLabel.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new
+		// Color(0, 0, 0)));
+		passImgLabel.setIcon(icon);
+	}
+
 	/**
 	 * 主控端通过调用dll接口方式传输
 	 */
@@ -306,7 +324,18 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		msgPanel.setBackground(null); // 把背景设置为空
 		msgPanel.setOpaque(false); // 设置为透明
 		msgTopLabel.setBorder(null);
-		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
+
+		if (displayStr.indexOf("成功") != -1) {
+			// ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
+			// this.showPassStatusImage(icon);
+			timeIntevel = 5; // 成功时的提示信息存在时间 暂时设置为5s
+		} else {
+			// ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
+			// this.showPassStatusImage(icon);
+			timeIntevel = MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout();
+		}
+		titleStrType = 4; // 4:覆盖一层panel 5：不覆盖
 
 		if (displayStr.indexOf("#") != -1) { // 由#号，分两行
 			int kk = displayStr.indexOf("#");
@@ -314,16 +343,11 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 			String displayMsg2 = displayStr.substring(kk + 1);
 			this.displayMsg = "<html><div align='center'>" + displayMsg1 + "</div>" + "<div align='center'>"
 					+ displayMsg2 + "</div>";
-			this.msgTopLabel.setText(displayMsg + "<div align='center'>"
-					+ MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout() + "</div>" + "</html>");
+			this.msgTopLabel.setText(displayMsg + "<div align='center'>" + timeIntevel + "</div>" + "</html>");
 		} else {
 			this.displayMsg = "<html><div align='center'>" + displayStr + "</div>";
-			this.msgTopLabel.setText(displayMsg + "<div align='center'>"
-					+ MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout() + "</div>" + "</html>");
+			this.msgTopLabel.setText(displayMsg + "<div align='center'>" + timeIntevel + "</div>" + "</html>");
 		}
-
-		timeIntevel = MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout();
-		titleStrType = 4;  //4:覆盖一层panel  5：不覆盖
 	}
 
 	/**
@@ -346,7 +370,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		msgPanel.setBackground(null); // 把背景设置为空
 		msgPanel.setOpaque(false); // 设置为透明
 		msgTopLabel.setBorder(null);
-		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
 
 		timeIntevel = 3;
 		titleStrType = 0;
@@ -377,7 +401,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		msgPanel.setBackground(null); // 把背景设置为空
 		msgPanel.setOpaque(false); // 设置为透明
 		msgTopLabel.setBorder(null);
-		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
 
 		timeIntevel = 5;
 		titleStrType = 1;
@@ -396,7 +420,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		// // TODO Auto-generated catch block
 		// e.printStackTrace();
 		// }
-		
+
 		this.msgPanel.setVisible(false);
 		this.cameraPanel.setVisible(true);
 		this.videoPanel.setVisible(true);
@@ -418,13 +442,16 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	 * 开始检脸
 	 */
 	public void showBeginCheckFaceContent() {
-		FaceTrackingScreen.getInstance().initUI();
-		FaceTrackingScreen.getInstance().repainFaceFrame();
-		
+//		try {
+//			FaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
+//			FaceTrackingScreen.getInstance().repainFaceFrame();
+//		} catch (Exception ex) {
+//			log.error("showBeginCheckFaceContent:", ex);
+//		}
 		msgPanel.setVisible(false);
 		this.cameraPanel.setVisible(true);
 		this.videoPanel.setVisible(true);
-		
+
 		panel_title.setBackground(Color.ORANGE);
 		panel_bottom.setBackground(Color.ORANGE);
 		label_title.setBackground(Color.ORANGE);
@@ -433,7 +460,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 
 		timeIntevel = Config.getInstance().getFaceCheckDelayTime();
 		this.titleStrType = 2;
-		label_title.setText("请抬头看屏幕     "+timeIntevel);
+		label_title.setText("请抬头看屏幕     " + timeIntevel);
 	}
 
 	// private void timeRefresh() {
@@ -452,7 +479,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 			if (this.titleStrType == 0) {
 				// label_title.setText("人脸识别成功！请通过" + " " + (timeIntevel - 1));
 
-				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
 				msgTopLabel.setText(
 						"<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>"
 								+ (timeIntevel - 1) + "</di></html>");
@@ -460,12 +487,12 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 				// label_title.setText("人脸识别失败！请从侧门离开" + " " + (timeIntevel -
 				// 1));
 
-				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
 				msgTopLabel.setText(
 						"<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>"
 								+ (timeIntevel - 1) + "</di></html>");
 			} else if (this.titleStrType == 4) {
-				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 120));
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
 				msgTopLabel.setText(displayMsg + "<div align='center'>" + (timeIntevel - 1) + "</div>" + "</html>");
 			} else if (this.titleStrType == 5) {
 				label_title.setText(displayMsg + "  " + (timeIntevel - 1));

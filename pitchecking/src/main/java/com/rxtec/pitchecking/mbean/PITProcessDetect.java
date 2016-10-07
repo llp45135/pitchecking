@@ -42,7 +42,7 @@ public class PITProcessDetect implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-			CommUtil.sleep(2500);
+			CommUtil.sleep(3000);
 			String HeartBeatStr = "";
 			try {
 				HeartBeatStr = ProcessUtil.getLastHeartBeat();

@@ -21,10 +21,7 @@ public class FaceTrackingScreen {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private static FaceTrackingScreen _instance = new FaceTrackingScreen();
 
-	
-
 	FaceCheckFrame faceFrame;
-	
 
 	public FaceCheckFrame getFaceFrame() {
 		return faceFrame;
@@ -38,19 +35,19 @@ public class FaceTrackingScreen {
 
 	}
 
-	public void initUI() {
+	public void initUI(int screenNo) throws Exception {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice[] gs = ge.getScreenDevices();
-		GraphicsDevice gd = gs[DeviceConfig.getInstance().getFaceScreen()];
-//		log.info("GraphicsDevice=="+gd);
+		GraphicsDevice gd = gs[screenNo];
+		// log.info("GraphicsDevice=="+gd);
 		if (gd != null) {
 			GraphicsConfiguration gc = gd.getDefaultConfiguration();
 			int xOff = gc.getBounds().x;
 			int yOff = gc.getBounds().y;
 			faceFrame.setVisible(true);
 			faceFrame.setLocation(xOff, yOff);
-
 		}
+		// log.info("当前的人脸检测屏位置：face.x=="+faceFrame.getBounds().x+",face.y=="+faceFrame.getBounds().y);
 	}
 
 	public VideoPanel getVideoPanel() {
@@ -75,13 +72,10 @@ public class FaceTrackingScreen {
 	private void processEventByType(ScreenElementModifyEvent e) {
 		if (e.getElementCmd() == ScreenCmdEnum.ShowBeginCheckFaceContent.getValue()) {
 			faceFrame.showBeginCheckFaceContent();
-
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckPass.getValue()) {
 			faceFrame.showFaceCheckPassContent();
-
 		} else if (e.getElementCmd() == ScreenCmdEnum.showFaceDefaultContent.getValue()) {
 			faceFrame.showDefaultContent();
-
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceCheckFailed.getValue()) {
 			faceFrame.showCheckFailedContent();
 		} else if (e.getElementCmd() == ScreenCmdEnum.ShowFaceDisplayFromTK.getValue()) {
