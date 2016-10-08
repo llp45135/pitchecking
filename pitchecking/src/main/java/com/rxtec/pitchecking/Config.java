@@ -518,6 +518,7 @@ public class Config {
 		Config.getInstance();
 		System.out.println("getIsCheckRealFace==" + Config.getInstance().getIsCheckRealFace());
 		System.out.println("getHEART_BEAT_DELAY=="+Config.getInstance().getHEART_BEAT_DELAY());
+		System.out.println("getImagesLogDir=="+Config.getInstance().getImagesLogDir());
 	}
 
 }
