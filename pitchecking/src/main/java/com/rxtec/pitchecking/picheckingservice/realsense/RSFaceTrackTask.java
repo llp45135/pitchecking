@@ -682,67 +682,72 @@ public class RSFaceTrackTask implements Runnable {
 		PXCMCapture.Device dev = senseMgr.QueryCaptureManager().QueryDevice();
 		setupColorCameraDevice(dev);
 		while (startCapture) {
-			sts = senseMgr.AcquireFrame(true);
-			if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0) {
-//				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
-				FaceScreenListener.getInstance().setPidStr(pid);  //设为允许写心跳
-			} else {
-				FaceScreenListener.getInstance().setPidStr("");//设为停止写心跳
-				log.error("senseMgr failed! sts=" + sts);
-			}
-
-			BufferedImage frameImage = null;
-			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
-			if (sample == null || sample.color == null) {
-				FaceScreenListener.getInstance().setPidStr("");//设为停止写心跳
-				log.error("QueryFaceSample failed! sample=" + sample);
-				senseMgr.ReleaseFrame();
-				continue;
-			} else {
-				frameImage = drawFrameImage(sample);
-//				ProcessUtil.writeHeartbeat(pid); // 写心跳日志
-				FaceScreenListener.getInstance().setPidStr(pid);//设为允许写心跳
-			}
-
-
-
-			sts = faceData.Update();
-			if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) != 0) {
-				log.error("faceData.Update() failed! sts=" + sts);
-				senseMgr.ReleaseFrame();
-				continue;
-			}
-
-			List<SortFace> sortFaces = sortFaceByDistence(faceData);
-			for (SortFace sf : sortFaces) {
-				PXCMFaceData.Face face = sf.face;
-				PXCMFaceData.DetectionData detection = face.QueryDetection();
-
-				drawLocation(detection);// 画脸部框
-				PXCMFaceData.PoseEulerAngles pae = checkFacePose(face.QueryPose());
-
-				boolean isRealFace = true;
-				if (Config.getInstance().getIsCheckRealFace() == Config.Is_Check_RealFace) {
-					isRealFace = checkRealFace(sf);
+			try {
+				sts = senseMgr.AcquireFrame(true);
+				if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0) {
+					// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+					FaceScreenListener.getInstance().setPidStr(pid); // 设为允许写心跳
+				} else {
+					FaceScreenListener.getInstance().setPidStr("");// 设为停止写心跳
+					log.error("senseMgr failed! sts=" + sts);
 				}
-				if (detection != null && isRealFace && pae != null) {
-					drawLandmark(face);
-					PITData fd = createFaceData(frameImage, detection);
-					fd.setFaceDistance(sf.distance);
-					if (fd != null) {
-						if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {
-							fd.setIdCard(currentIDCard);
-							fd.setTicket(currentTicket);
-							fd.setFacePosePitch(pae.pitch);
-							fd.setFacePoseRoll(pae.roll);
-							fd.setFacePoseYaw(pae.yaw);
-							// log.debug("Begin to verify face.........");
-							FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+
+				BufferedImage frameImage = null;
+				PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
+				if (sample == null || sample.color == null) {
+					FaceScreenListener.getInstance().setPidStr("");// 设为停止写心跳
+					log.error("QueryFaceSample failed! sample=" + sample);
+					senseMgr.ReleaseFrame();
+					continue;
+				} else {
+					frameImage = drawFrameImage(sample);
+					// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
+					FaceScreenListener.getInstance().setPidStr(pid);// 设为允许写心跳
+				}
+
+				sts = faceData.Update();
+				if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) != 0) {
+					log.error("faceData.Update() failed! sts=" + sts);
+					senseMgr.ReleaseFrame();
+					continue;
+				}
+
+				List<SortFace> sortFaces = sortFaceByDistence(faceData);
+				for (SortFace sf : sortFaces) {
+					PXCMFaceData.Face face = sf.face;
+					PXCMFaceData.DetectionData detection = face.QueryDetection();
+
+					drawLocation(detection);// 画脸部框
+					PXCMFaceData.PoseEulerAngles pae = checkFacePose(face.QueryPose());
+
+					boolean isRealFace = true;
+					if (Config.getInstance().getIsCheckRealFace() == Config.Is_Check_RealFace) {
+						isRealFace = checkRealFace(sf);
+					}
+					if (detection != null && isRealFace && pae != null) {
+						drawLandmark(face);
+						PITData fd = createFaceData(frameImage, detection);
+						fd.setFaceDistance(sf.distance);
+						if (fd != null) {
+							if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {
+								fd.setIdCard(currentIDCard);
+								fd.setTicket(currentTicket);
+								fd.setFacePosePitch(pae.pitch);
+								fd.setFacePoseRoll(pae.roll);
+								fd.setFacePoseYaw(pae.yaw);
+								// log.debug("Begin to verify face.........");
+								FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+							}
 						}
 					}
 				}
+				senseMgr.ReleaseFrame();
+			} catch (Exception ex) {
+				FaceScreenListener.getInstance().setPidStr("");// 设为停止写心跳
+				log.error("doTracking:", ex);
+				senseMgr.ReleaseFrame();
+				continue;
 			}
-			senseMgr.ReleaseFrame();
 		}
 	}
 

@@ -40,25 +40,29 @@ public class FaceScreenListener implements Runnable {
 		} else {
 			if (!pidStr.equals("")) {
 				ProcessUtil.writeHeartbeat(pidStr); // 写心跳日志
+				this.setPidStr("");
 				// log.debug("写检脸心跳日志,pidStr==" + pidStr);
 			} else {
 				log.debug("检脸线程故障，停止写心跳日志,pidStr==" + pidStr + "#");
 			}
 		}
 
-		try {
-			int frameX = FaceTrackingScreen.getInstance().getFaceFrame().getX();
-			// int frameY =
-			// FaceTrackingScreen.getInstance().getFaceFrame().getY();
-			// log.debug("faceFrame x==" + frameX + ",y==" + frameY);
-			if (frameX == 0) {
-				log.debug("重置人脸检测屏的位置，恢复至第二块屏");
-				FaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
-				FaceTrackingScreen.getInstance().repainFaceFrame();
+		int frameX = FaceTrackingScreen.getInstance().getFaceFrame().getX();
+		if (frameX == 0) {
+			for (int i = 0; i < 3; i++) {
+				try {
+					log.debug("Start 重置人脸检测屏的位置，恢复至第二块屏");
+					FaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
+					FaceTrackingScreen.getInstance().repainFaceFrame();
+				} catch (Exception ex) {
+					log.error("重置人脸检测屏的位置失败!再次重置...");
+					continue;
+				}
+				log.debug("重置人脸检测屏的位置成功!");
+				break;
 			}
-		} catch (Exception ex) {
-			log.error("repainFaceFrame:", ex);
 		}
+
 	}
 
 }

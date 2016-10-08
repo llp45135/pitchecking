@@ -78,7 +78,7 @@ public class PITrackingApp {
 		// 语音调用线程
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-		scheduler.scheduleWithFixedDelay(FaceScreenListener.getInstance(), 0, 1000, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(FaceScreenListener.getInstance(), 0, 1500, TimeUnit.MILLISECONDS);
 
 		Thread.sleep(1000);
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {
