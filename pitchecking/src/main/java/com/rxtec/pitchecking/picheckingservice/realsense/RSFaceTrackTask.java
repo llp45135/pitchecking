@@ -689,14 +689,14 @@ public class RSFaceTrackTask implements Runnable {
 					FaceScreenListener.getInstance().setPidStr(pid); // 设为允许写心跳
 				} else {
 					FaceScreenListener.getInstance().setPidStr("");// 设为停止写心跳
-					log.error("senseMgr failed! sts=" + sts);
+					log.info("senseMgr failed! sts=" + sts);
 				}
 
 				BufferedImage frameImage = null;
 				PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
 				if (sample == null || sample.color == null) {
 					FaceScreenListener.getInstance().setPidStr("");// 设为停止写心跳
-					log.error("QueryFaceSample failed! sample=" + sample);
+					log.info("QueryFaceSample failed! sample=" + sample);
 					senseMgr.ReleaseFrame();
 					continue;
 				} else {
@@ -707,7 +707,7 @@ public class RSFaceTrackTask implements Runnable {
 
 				sts = faceData.Update();
 				if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) != 0) {
-					log.error("faceData.Update() failed! sts=" + sts);
+					log.info("faceData.Update() failed! sts=" + sts);
 					senseMgr.ReleaseFrame();
 					continue;
 				}
@@ -744,7 +744,7 @@ public class RSFaceTrackTask implements Runnable {
 				senseMgr.ReleaseFrame();
 			} catch (Exception ex) {
 				FaceScreenListener.getInstance().setPidStr("");// 设为停止写心跳
-				log.error("doTracking:", ex);
+				log.info("doTracking:", ex);
 				senseMgr.ReleaseFrame();
 				continue;
 			}
