@@ -198,14 +198,15 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 	}
 
 	public PITVerifyData(PITData pd) {
+		if(pd == null) return;
 		SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd");
 		SimpleDateFormat sf2 = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+		this.frameImg = ImageToolkit.getImageBytes(pd.getFrame(), "JPEG");
 		
-		if (pd != null && pd.getIdCard() != null) {
+		if (pd.getIdCard() != null) {
 			this.idCardImg = pd.getIdCard().getCardImageBytes();
 			this.faceImg = ImageToolkit.getImageBytes(pd.getFaceImage(), "JPEG");
 			this.idNo = pd.getIdCard().getIdNo();
-			this.frameImg = ImageToolkit.getImageBytes(pd.getFrame(), "JPEG");
 			this.personName = pd.getIdCard().getPersonName();
 			this.age = pd.getIdCard().getAge();
 			this.gender = pd.getIdCard().getGender();

@@ -157,7 +157,7 @@ public class PITData implements Serializable{
 		return createTime;
 	}
 
-	public float faceCheckResult = -1;
+	public float faceCheckResult = 0;
 
 	public float getFaceCheckResult() {
 		return faceCheckResult;

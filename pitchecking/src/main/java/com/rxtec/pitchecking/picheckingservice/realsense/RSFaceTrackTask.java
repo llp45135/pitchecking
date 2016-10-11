@@ -23,9 +23,11 @@ import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
+import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.task.FaceScreenListener;
+import com.rxtec.pitchecking.utils.ImageToolkit;
 
 import intel.rssdk.PXCMBase;
 import intel.rssdk.PXCMCapture;
@@ -712,6 +714,11 @@ public class RSFaceTrackTask implements Runnable {
 					continue;
 				}
 
+				//通过MQ发送帧画面
+				RemoteMonitorPublisher.getInstance()
+					.offerFrameData(ImageToolkit.getImageBytes(frameImage, "jpeg"));
+
+				
 				List<SortFace> sortFaces = sortFaceByDistence(faceData);
 				for (SortFace sf : sortFaces) {
 					PXCMFaceData.Face face = sf.face;
@@ -727,6 +734,7 @@ public class RSFaceTrackTask implements Runnable {
 					if (detection != null && isRealFace && pae != null) {
 						drawLandmark(face);
 						PITData fd = createFaceData(frameImage, detection);
+						
 						fd.setFaceDistance(sf.distance);
 						if (fd != null) {
 							if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {
