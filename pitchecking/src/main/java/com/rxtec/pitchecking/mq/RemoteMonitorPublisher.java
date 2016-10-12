@@ -36,10 +36,10 @@ public class RemoteMonitorPublisher {
 	public void startService(){
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 		PITInfoTopicSender frameSender = new PITInfoTopicSender(frameQueue);
-//		PITInfoTopicSender verifySender = new PITInfoTopicSender(verifyDataQueue);
+		PITInfoTopicSender verifySender = new PITInfoTopicSender(verifyDataQueue);
 //		PITInfoTopicSender eventSender = new PITInfoTopicSender(eventQueue);
 		scheduler.scheduleWithFixedDelay(frameSender, 0, 500, TimeUnit.MILLISECONDS);
-//		scheduler.scheduleWithFixedDelay(verifySender, 0, 1000, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(verifySender, 0, 500, TimeUnit.MILLISECONDS);
 //		scheduler.scheduleWithFixedDelay(eventSender, 0, 1000, TimeUnit.MILLISECONDS);
 
 	}
@@ -49,8 +49,7 @@ public class RemoteMonitorPublisher {
 		try {
 			info = new PITInfoJson(d);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e);
 		}
 		if(info == null) return;
 		if (!verifyDataQueue.offer(info)) {

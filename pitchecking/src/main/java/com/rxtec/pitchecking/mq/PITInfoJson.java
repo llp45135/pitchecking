@@ -2,9 +2,11 @@ package com.rxtec.pitchecking.mq;
 
 import java.io.Serializable;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.BASE64;
 import com.rxtec.pitchecking.utils.JsonUtils;
+
 
 public class PITInfoJson implements Serializable {
 	/**
@@ -19,13 +21,24 @@ public class PITInfoJson implements Serializable {
 	public static int MSG_TYPE_FRAME = 1;
 	public static int MSG_TYPE_VERIFY = 2;
 	public static int MSG_TYPE_EVENT = 3;
-
+	public static int VERIFY_PASSED = 1;
+	public static int VERIFY_FAILED = 0;
+	
 	private int age = -1;
 	private String idPicImageBase64 = "";
 	private String faceImageBase64 = "";
 	private String frameImageBase64 = "";
 	private float similarity = 0;
 	private int msgType = -1;
+	private int isVerifyPassed = -1;
+
+	public int getIsVerifyPassed() {
+		return isVerifyPassed;
+	}
+
+	public void setIsVerifyPassed(int isVerifyPassed) {
+		this.isVerifyPassed = isVerifyPassed;
+	}
 
 	private String jsonStr = "";
 
@@ -99,6 +112,8 @@ public class PITInfoJson implements Serializable {
 
 	public void setSimilarity(float similarity) {
 		this.similarity = similarity;
+		if(similarity >= Config.getInstance().getFaceVerifyThreads()) this.isVerifyPassed = VERIFY_PASSED;
+		else this.isVerifyPassed = VERIFY_FAILED;
 	}
 
 	public PITInfoJson(PITVerifyData pitData) throws Exception {

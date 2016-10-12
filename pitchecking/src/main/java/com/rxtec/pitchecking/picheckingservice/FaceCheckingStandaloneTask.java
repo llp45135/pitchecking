@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.db.PitRecordLoger;
+import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
 import com.rxtec.pitchecking.net.PTVerifyResultPublisher;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -61,22 +62,23 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					fd.setVerifyResult(resultValue);
 					int usingTime = (int) (Calendar.getInstance().getTimeInMillis() - nowMils);
 
-					// if (resultValue >=
-					// Config.getInstance().getFaceCheckThreshold()) {
-					// publisher.publishResult(fd); // 比对结果公布
-					// FaceCheckingService.getInstance().resetFaceDataQueue();
-					// }
+					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
+						publisher.publishResult(fd); // 比对结果公布
+						FaceCheckingService.getInstance().resetFaceDataQueue();
+					}
 
 					log.info("Face verify result=" + resultValue);
-					publisher.publishResult(fd); // 比对结果公布
-					FaceCheckingService.getInstance().resetFaceDataQueue();
 
+					RemoteMonitorPublisher.getInstance().offerVerifyData(fd);
+					
+					
 					// offer进mongodb的处理队列
-//					if (Config.getInstance().getIsUseMongoDB() == 1) {
-//						PitRecordLoger.getInstance().offer(fd);
-//						FaceVerifyServiceStatistics.getInstance().update(resultValue, usingTime, fd.getFaceDistance());
-//					}
-					FaceImageLog.saveFaceDataToDskAndMongoDB(fd,usingTime);
+					// if (Config.getInstance().getIsUseMongoDB() == 1) {
+					// PitRecordLoger.getInstance().offer(fd);
+					// FaceVerifyServiceStatistics.getInstance().update(resultValue,
+					// usingTime, fd.getFaceDistance());
+					// }
+					FaceImageLog.saveFaceDataToDskAndMongoDB(fd, usingTime);
 				}
 
 			} catch (Exception e) {
