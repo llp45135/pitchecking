@@ -27,7 +27,7 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "161010.10.01";
+	public static String softVersion = "161012.13.01";
 	public static String softIdNo = "520203197912141118,440111197209283012";
 
 	public static int idDeviceSucc = 1;
@@ -94,6 +94,7 @@ public class DeviceConfig {
 	private String ipAddress = "127.0.0.1";
 	private String autoLogonCron = "0 0 5 * * ?";
 	private String MQTT_CONN_STR = "tcp://localhost:1883";
+	private String ManualCheck_MQURL= "failover://" + "tcp://127.0.0.1:61616";
 
 //	public static int TICKET_FRAME_TOPHEIGHT = 62;
 //	public static int TICKET_FRAME_HEIGHT = 720;
@@ -102,6 +103,14 @@ public class DeviceConfig {
 	public static int TICKET_FRAME_TOPHEIGHT = 100;
 	public static int TICKET_FRAME_HEIGHT = 768;
 	public static int TICKET_FRAME_BOTTOMHEIGHT = 60;
+
+	public String getManualCheck_MQURL() {
+		return ManualCheck_MQURL;
+	}
+
+	public void setManualCheck_MQURL(String manualCheck_MQURL) {
+		ManualCheck_MQURL = manualCheck_MQURL;
+	}
 
 	public String getMQTT_CONN_STR() {
 		return MQTT_CONN_STR;
@@ -462,6 +471,7 @@ public class DeviceConfig {
 			this.setTOPIC_RESULT(root.getChild("MQConfig").getAttributeValue("TOPIC_RESULT"));
 			this.setUSER(root.getChild("MQConfig").getAttributeValue("USER"));
 			this.setPASSWORD(root.getChild("MQConfig").getAttributeValue("PASSWORD"));
+			this.setManualCheck_MQURL(root.getChild("MQConfig").getAttributeValue("ManualCheck_MQURL"));
 		} catch (JDOMException | IOException ex) {
 			// TODO Auto-generated catch block
 			log.error("DeviceConfig readDeviceConfigFromFile:" + ex);
@@ -515,5 +525,6 @@ public class DeviceConfig {
 		System.out.println("getPASSWORD==" + dconfig.getPASSWORD());
 		System.out.println("ipAddress==" + dconfig.getIpAddress());
 		System.out.println("autoLogonCron==" + dconfig.getAutoLogonCron());
+		System.out.println("getManualCheck_MQURL==" + dconfig.getManualCheck_MQURL());
 	}
 }

@@ -13,6 +13,7 @@ public class PITInfoJson implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private int msgType = -1;
 	private int idHashCode = -1;
 	private int gender = 0;
 	public static int Male = 1;
@@ -29,7 +30,6 @@ public class PITInfoJson implements Serializable {
 	private String faceImageBase64 = "";
 	private String frameImageBase64 = "";
 	private float similarity = 0;
-	private int msgType = -1;
 	private int isVerifyPassed = -1;
 
 	public int getIsVerifyPassed() {
@@ -112,8 +112,10 @@ public class PITInfoJson implements Serializable {
 
 	public void setSimilarity(float similarity) {
 		this.similarity = similarity;
-		if(similarity >= Config.getInstance().getFaceVerifyThreads()) this.isVerifyPassed = VERIFY_PASSED;
-		else this.isVerifyPassed = VERIFY_FAILED;
+		if(similarity >= Config.getInstance().getFaceCheckThreshold()) 
+			this.isVerifyPassed = VERIFY_PASSED;
+		else 
+			this.isVerifyPassed = VERIFY_FAILED;
 	}
 
 	public PITInfoJson(PITVerifyData pitData) throws Exception {
@@ -139,7 +141,7 @@ public class PITInfoJson implements Serializable {
 	public PITInfoJson(byte[] frameImgBytes) throws Exception{
 		if(frameImgBytes == null) return;
 		this.frameImageBase64 = BASE64.encryptBASE64(frameImgBytes);
-		this.msgType = PITInfoJson.MSG_TYPE_VERIFY;
+		this.msgType = PITInfoJson.MSG_TYPE_FRAME;
 		jsonStr = JsonUtils.serialize(this);
 
 	}

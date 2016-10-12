@@ -149,6 +149,7 @@ public class Config {
 	private String PITTrackPidstr = "-1"; // 人脸检测进程号
 	private String trackPidForKill = "-1";
 	private boolean rebackTrackFlag = true;
+	private int isUseManualMQ=0;
 
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
@@ -460,6 +461,14 @@ public class Config {
 		this.isSaveFaceImageToLocaldisk = isSaveFaceImageToLocaldisk;
 	}
 
+	public int getIsUseManualMQ() {
+		return isUseManualMQ;
+	}
+
+	public void setIsUseManualMQ(int isUseManualMQ) {
+		this.isUseManualMQ = isUseManualMQ;
+	}
+
 	private static Config _instance = new Config();
 
 	private Config() {
@@ -502,6 +511,7 @@ public class Config {
 			this.faceVerifyTaskVersion = p.getProperty("FaceVerifyTaskVersion", "TK");
 			this.faceFrameTransparency = Float.valueOf(p.getProperty("faceFrameTransparency", "0.75"));
 			this.HEART_BEAT_DELAY = Integer.valueOf(p.getProperty("HEART_BEAT_DELAY", "15000"));
+			this.isUseManualMQ = Integer.valueOf(p.getProperty("isUseManualMQ", "0"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();

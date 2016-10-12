@@ -53,6 +53,10 @@ public class CalUtils {
 		return dateString;
 	}
 
+	/**
+	 * yyyy-MM-dd HH:mm:ss.SSS
+	 * @return
+	 */
 	public static String getStringDateHaomiao() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -539,6 +543,7 @@ public class CalUtils {
 		System.out.println("getAge==" + getAge("1980-12-14", "2016-07-16"));
 		System.out.println(getPreSerivalDaysShort(getStringDateShort(), 1));
 		System.out.println("hhmm==" + getStringTime());
+		System.out.println(""+howLong("ms", "2016-10-12 14:00:00.100", "2016-10-12 14:00:09.300"));
 	}
 
 }

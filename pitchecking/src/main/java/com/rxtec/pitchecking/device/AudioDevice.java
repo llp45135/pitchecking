@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rxtec.pitchecking.AudioPlayTask;
+import com.rxtec.pitchecking.utils.CalUtils;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 import sun.audio.AudioData;
@@ -31,7 +32,7 @@ import sun.audio.AudioStream;
 import sun.audio.ContinuousAudioDataStream;
 
 public class AudioDevice {
-	private Log log = LogFactory.getLog("RSFaceTrackTask");
+	private Log log = LogFactory.getLog("AudioDevice");
 	private static AudioDevice _instance = new AudioDevice();
 	File audioFile = null;
 	File emerAudioFile = null; // 应急门离开语音
@@ -42,12 +43,21 @@ public class AudioDevice {
 	AudioStream as = null;
 	AudioData ad = null;
 	ContinuousAudioDataStream cads = null;
+	private String startPlayTime = "";
 
 	public static synchronized AudioDevice getInstance() {
 		if (_instance == null) {
 			_instance = new AudioDevice();
 		}
 		return _instance;
+	}
+
+	public String getStartPlayTime() {
+		return startPlayTime;
+	}
+
+	public void setStartPlayTime(String startPlayTime) {
+		this.startPlayTime = startPlayTime;
 	}
 
 	public String getPidstr() {
@@ -174,22 +184,27 @@ public class AudioDevice {
 	/**
 	 * 中断当前语音
 	 */
-	private void cleanLastAudio() {
+	public void cleanLastAudio() {
 		try {
 			if (this.cads != null) {
 				AudioPlayer.player.stop(cads);
 				cads.close();
-				cads = null;
+				log.debug("中断当前循环语音");
 			}
 			if (this.as != null) {
 				AudioPlayer.player.stop(as);
 				as.close();
-				as = null;
+				if (cads == null) {
+					log.debug("中断当前主控语音");
+				}
 			}
 			if (this.fileIn != null) {
 				fileIn.close();
-				fileIn = null;
 			}
+			cads = null;
+			as = null;
+			fileIn = null;
+
 		} catch (Exception ex) {
 			log.error("AudioDevice:" + ex);
 		}
@@ -203,28 +218,31 @@ public class AudioDevice {
 		this.cleanLastAudio();
 		try {
 			if (audioFlag == DeviceConfig.cameraFlag) {
-				// log.debug("载入声音文件:" + audioFile);
+				log.info("开始播放语音" + DeviceConfig.cameraWav);
 				fileIn = new FileInputStream(DeviceConfig.cameraWav);
 			} else if (audioFlag == DeviceConfig.emerDoorFlag) {
-				// log.debug("载入声音文件:" + emerAudioFile);
+				log.info("开始播放语音" + DeviceConfig.emerDoorWav);
 				fileIn = new FileInputStream(DeviceConfig.emerDoorWav);
 			} else if (audioFlag == DeviceConfig.takeTicketFlag) {
-				// log.debug("载入声音文件:" + takeTicketAudioFile);
+				log.info("开始播放语音" + DeviceConfig.takeTicketWav);
 				fileIn = new FileInputStream(DeviceConfig.takeTicketWav);
 			} else if (audioFlag == DeviceConfig.checkSuccFlag) {
-				// log.debug("载入声音文件:" + takeTicketAudioFile);
+				log.info("开始播放语音" + DeviceConfig.checkSuccWav);
 				fileIn = new FileInputStream(DeviceConfig.checkSuccWav);
 			}
 
 			as = new AudioStream(fileIn);
 			if (audioFlag == DeviceConfig.takeTicketFlag) {
+				AudioDevice.getInstance().setStartPlayTime("");
 				AudioPlayer.player.start(as);
 			} else {
+				AudioDevice.getInstance().setStartPlayTime(CalUtils.getStringDateHaomiao());
 				ad = as.getData();
 				// 设置循环播放
 				cads = new ContinuousAudioDataStream(ad);
 				// 循环播放开始
 				AudioPlayer.player.start(cads);
+
 			}
 
 		} catch (Exception ex) {
@@ -254,7 +272,7 @@ public class AudioDevice {
 
 		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); // 调用语音“请平视摄像头”
 
-		CommUtil.sleep(10*1000);
+		CommUtil.sleep(10 * 1000);
 
 		AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag);
 		CommUtil.sleep(4000);
@@ -265,9 +283,9 @@ public class AudioDevice {
 		AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag);
 		CommUtil.sleep(4000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
+		// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
 		CommUtil.sleep(12 * 1000);
 
-		AudioDevice.getInstance().killpid(AudioDevice.getInstance().pidstr);
+		// AudioDevice.getInstance().killpid(AudioDevice.getInstance().pidstr);
 	}
 }

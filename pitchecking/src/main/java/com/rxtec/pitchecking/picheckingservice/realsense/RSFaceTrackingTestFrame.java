@@ -43,7 +43,7 @@ public class RSFaceTrackingTestFrame {
 	public static void main(String[] args) throws InterruptedException {
 
 		
-		RemoteMonitorPublisher.getInstance().startService();
+		RemoteMonitorPublisher.getInstance().startService(1);
 		TestFaceVerifyScreen frame = TestFaceVerifyScreen.getInstance();
 		frame.initUI();
 //		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();

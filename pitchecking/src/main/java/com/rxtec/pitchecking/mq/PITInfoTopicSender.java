@@ -14,6 +14,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rxtec.pitchecking.device.DeviceConfig;
 
 public class PITInfoTopicSender implements Runnable {
@@ -42,11 +43,13 @@ public class PITInfoTopicSender implements Runnable {
 	// 初始化
 	private void initialize() throws JMSException, Exception {
 		// 连接工厂
-//		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
-//				DeviceConfig.getInstance().getUSER(), DeviceConfig.getInstance().getPASSWORD(),
-//				DeviceConfig.getInstance().getMQURL());
-		
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory("tcp://127.0.0.1:61616");
+		// ActiveMQConnectionFactory connectionFactory = new
+		// ActiveMQConnectionFactory(
+		// DeviceConfig.getInstance().getUSER(),
+		// DeviceConfig.getInstance().getPASSWORD(),
+		// DeviceConfig.getInstance().getMQURL());
+
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(DeviceConfig.getInstance().getManualCheck_MQURL());
 		conn = connectionFactory.createConnection();
 		// 事务性会话，自动确认消息
 		session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -62,10 +65,11 @@ public class PITInfoTopicSender implements Runnable {
 	}
 
 	public void sendMessage(String strMsg) throws JMSException, Exception {
+		// log.info("starting send one Message...");
 		TextMessage msg = session.createTextMessage();
 		msg.setText(strMsg);
 		producer.send(msg);
-		log.debug(strMsg);
+		// log.info("send one Message####");
 	}
 
 	// 关闭连接
@@ -80,15 +84,19 @@ public class PITInfoTopicSender implements Runnable {
 
 	@Override
 	public void run() {
+		// while (true) {
 		PITInfoJson info = null;
 		try {
-			info = infoQueue.take();
-		} catch (InterruptedException e) {
+			info = infoQueue.poll();
+			// log.info("infoQueue.take=="+info);
+		} catch (Exception e) {
 			log.error("pitDataQueue take data error", e);
 		}
 
 		if (info != null) {
 			try {
+				if (info.getMsgType() == PITInfoJson.MSG_TYPE_VERIFY)
+					log.info("人脸图片准备发送至人工处置口");
 				String msg = info.getJsonStr();
 				if (msg != null && isInitOK)
 					sendMessage(msg);
@@ -96,6 +104,7 @@ public class PITInfoTopicSender implements Runnable {
 				log.error("buildPITDataJsonBytes error", e);
 			}
 		}
+		// }
 
 	}
 

@@ -63,15 +63,15 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					int usingTime = (int) (Calendar.getInstance().getTimeInMillis() - nowMils);
 
 					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
-						publisher.publishResult(fd); // 比对结果公布
 						FaceCheckingService.getInstance().resetFaceDataQueue();
 					}
+					publisher.publishResult(fd); // 比对结果公布
 
-					log.info("Face verify result=" + resultValue);
+					if (Config.getInstance().getIsUseManualMQ() == 1) {
+						log.info("Face verify result=" + resultValue);
+						RemoteMonitorPublisher.getInstance().offerVerifyData(fd);
+					}
 
-					RemoteMonitorPublisher.getInstance().offerVerifyData(fd);
-					
-					
 					// offer进mongodb的处理队列
 					// if (Config.getInstance().getIsUseMongoDB() == 1) {
 					// PitRecordLoger.getInstance().offer(fd);

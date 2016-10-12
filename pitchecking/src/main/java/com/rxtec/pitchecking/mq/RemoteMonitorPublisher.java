@@ -15,8 +15,6 @@ public class RemoteMonitorPublisher {
 	private LinkedBlockingQueue<PITInfoJson> frameQueue = new LinkedBlockingQueue<PITInfoJson>(3);
 	private LinkedBlockingQueue<PITInfoJson> verifyDataQueue = new LinkedBlockingQueue<PITInfoJson>(3);
 	private LinkedBlockingQueue<PITInfoJson> eventQueue = new LinkedBlockingQueue<PITInfoJson>(3);
-	
-
 
 	private Log log = LogFactory.getLog("RemoteMonitorPublisher");
 
@@ -29,18 +27,28 @@ public class RemoteMonitorPublisher {
 	}
 
 	private RemoteMonitorPublisher() {
-		
-		
+
 	}
-	
-	public void startService(){
+
+	public void startService(int msgType) {
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
-		PITInfoTopicSender frameSender = new PITInfoTopicSender(frameQueue);
-		PITInfoTopicSender verifySender = new PITInfoTopicSender(verifyDataQueue);
-//		PITInfoTopicSender eventSender = new PITInfoTopicSender(eventQueue);
-		scheduler.scheduleWithFixedDelay(frameSender, 0, 500, TimeUnit.MILLISECONDS);
-		scheduler.scheduleWithFixedDelay(verifySender, 0, 500, TimeUnit.MILLISECONDS);
-//		scheduler.scheduleWithFixedDelay(eventSender, 0, 1000, TimeUnit.MILLISECONDS);
+		if (msgType == 1) {
+			PITInfoTopicSender frameSender = new PITInfoTopicSender(frameQueue);
+			scheduler.scheduleWithFixedDelay(frameSender, 0, 100, TimeUnit.MILLISECONDS);
+		} else if (msgType == 2) {
+			PITInfoTopicSender verifySender = new PITInfoTopicSender(verifyDataQueue);
+			scheduler.scheduleWithFixedDelay(verifySender, 0, 100, TimeUnit.MILLISECONDS);
+		} else {
+
+		}
+		// PITInfoTopicSender eventSender = new PITInfoTopicSender(eventQueue);
+
+		// scheduler.scheduleWithFixedDelay(eventSender, 0, 1000,
+		// TimeUnit.MILLISECONDS);
+		// ExecutorService es = Executors.newFixedThreadPool(3);
+		// es.submit(frameSender);
+		// es.shutdown();
+		//
 
 	}
 
@@ -51,13 +59,14 @@ public class RemoteMonitorPublisher {
 		} catch (Exception e) {
 			log.error(e);
 		}
-		if(info == null) return;
+		if (info == null)
+			return;
 		if (!verifyDataQueue.offer(info)) {
 			verifyDataQueue.poll();
 			verifyDataQueue.offer(info);
 		}
 	}
-	
+
 	public void offerFrameData(byte[] imgBytes) {
 		PITInfoJson info = null;
 		try {
@@ -66,16 +75,16 @@ public class RemoteMonitorPublisher {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(info == null) return;
+		if (info == null)
+			return;
 		if (!frameQueue.offer(info)) {
 			frameQueue.poll();
 			frameQueue.offer(info);
 		}
 	}
-	
-	
-	public static void main(String[] args){
-		RemoteMonitorPublisher.getInstance().startService();
-		RemoteMonitorPublisher.getInstance().offerFrameData(new byte[]{1,0,2,3});
+
+	public static void main(String[] args) {
+		RemoteMonitorPublisher.getInstance().startService(1);
+		RemoteMonitorPublisher.getInstance().offerFrameData(new byte[] { 1, 0, 2, 3 });
 	}
 }

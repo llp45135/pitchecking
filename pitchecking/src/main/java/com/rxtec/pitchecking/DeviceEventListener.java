@@ -181,32 +181,25 @@ public class DeviceEventListener implements Runnable {
 		int ticketVerifyResult = ticketVerify.verify();// 票证核验结果
 
 		if (ticketVerifyResult == Config.TicketVerifySucc) { // 核验成功
-			// 停止寻卡
-			this.setDeviceReader(false);
+			this.setDeviceReader(false);// 停止寻卡
 			log.debug("票证核验通过，停止寻卡，打开第一道闸门，开始人证比对");
-			// 打开第一道门
-			FirstGateDevice.getInstance().openFirstDoor();
+
+			FirstGateDevice.getInstance().openFirstDoor();// 打开第一道门
 
 			TicketVerifyScreen.getInstance()
 					.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifySucc.getValue(),
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 
 			// 开始进行人脸检测和比对
-			if (verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket()) == 0) {
-				// 人脸比对通过
+			if (this.verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket()) == 0) { // 人脸比对通过
 				log.debug("人脸比对通过，开第三道闸门");
 				SecondGateDevice.getInstance().openThirdDoor(); //
 				CAMDevice.getInstance().CAM_ScreenDisplay("人脸识别成功#请通过", 3);
-			} else {
-				// 人脸比对失败
-
+			} else { // 人脸比对失败
 				log.debug("人脸比对失败，开第二道电磁门");
-				SecondGateDevice.getInstance().openSecondDoor(); //
+				SecondGateDevice.getInstance().openSecondDoor(); // 打开电磁门
+				CAMDevice.getInstance().CAM_ScreenDisplay("人脸识别失败#请从侧门离开&", 5);
 
-				CAMDevice.getInstance().CAM_ScreenDisplay("人脸识别失败#请从侧门离开", 3);
-
-				AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
-				// 人脸比对失败，开第二道电磁门
 				TicketVerifyScreen.getInstance()
 						.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(),
 								ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
@@ -261,8 +254,6 @@ public class DeviceEventListener implements Runnable {
 		int notifyRet = CAMDevice.getInstance().CAM_Notify(1, uuidStr, IDPhoto_str);
 		int getPhotoRet = -1;
 		if (notifyRet == 0) {
-			AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音“请平视摄像头”
-																		// 需要语音线程已启动
 			int delaySeconds = 10;
 			getPhotoRet = CAMDevice.getInstance().CAM_GetPhotoInfo(uuidStr, delaySeconds); // 此处传入的delaySeconds是为了控制检脸通过速率而设置
 		}
@@ -283,7 +274,7 @@ public class DeviceEventListener implements Runnable {
 			LightEntryLED(false);
 			return;
 		}
-		
+
 		if (this.OpenCAM() != 0) {
 			this.setDealDeviceEvent(false);// 停止处理新的事件
 			TicketVerifyScreen.getInstance().offerEvent(
@@ -291,7 +282,7 @@ public class DeviceEventListener implements Runnable {
 			LightEntryLED(false);
 			return;
 		}
-		
+
 		if (this.startIDDevice() != 1) {
 			LightEntryLED(false);
 			return;
@@ -303,13 +294,12 @@ public class DeviceEventListener implements Runnable {
 		// if (this.startLED() != 1) {
 		// FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
 		// return;
-		// }		
-		
-		
-		 if (this.addQuartzJobs() != 1) {
-		 FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
-		 return;
-		 }
+		// }
+
+		if (this.addQuartzJobs() != 1) {
+			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+			return;
+		}
 
 		/**
 		 * 连接mq服务，启动mq receiver线程
@@ -331,11 +321,13 @@ public class DeviceEventListener implements Runnable {
 		scheduler.scheduleWithFixedDelay(BarCodeReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		// 求助按钮事件处理线程
 		scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-//		// 语音调用线程
-//		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-		
-		scheduler.scheduleWithFixedDelay(GATStatusQuery.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-		
+		// // 语音调用线程
+		// scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100,
+		// TimeUnit.MILLISECONDS);
+
+		// scheduler.scheduleWithFixedDelay(GATStatusQuery.getInstance(), 0,
+		// 100, TimeUnit.MILLISECONDS);
+
 		// mq sender线程
 		if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
 			scheduler.scheduleWithFixedDelay(JmsSenderTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
@@ -346,6 +338,7 @@ public class DeviceEventListener implements Runnable {
 
 	/**
 	 * 控制入口LED灯的显示
+	 * 
 	 * @param isArrow
 	 * @return
 	 */

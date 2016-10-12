@@ -714,11 +714,11 @@ public class RSFaceTrackTask implements Runnable {
 					continue;
 				}
 
-				//通过MQ发送帧画面
-				RemoteMonitorPublisher.getInstance()
-					.offerFrameData(ImageToolkit.getImageBytes(frameImage, "jpeg"));
+				// 通过MQ发送帧画面
+				if (Config.getInstance().getIsUseManualMQ() == 1) {
+					RemoteMonitorPublisher.getInstance().offerFrameData(ImageToolkit.getImageBytes(frameImage, "jpeg"));
+				}
 
-				
 				List<SortFace> sortFaces = sortFaceByDistence(faceData);
 				for (SortFace sf : sortFaces) {
 					PXCMFaceData.Face face = sf.face;
@@ -734,7 +734,7 @@ public class RSFaceTrackTask implements Runnable {
 					if (detection != null && isRealFace && pae != null) {
 						drawLandmark(face);
 						PITData fd = createFaceData(frameImage, detection);
-						
+
 						fd.setFaceDistance(sf.distance);
 						if (fd != null) {
 							if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {

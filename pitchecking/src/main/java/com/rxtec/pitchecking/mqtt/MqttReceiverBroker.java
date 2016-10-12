@@ -162,6 +162,7 @@ public class MqttReceiverBroker {
 			String mqttMessage = new String(payload);
 
 			if (topicName.equals("pub_topic")) {
+				log.debug("mqttMessage==" + mqttMessage);
 				if (mqttMessage.indexOf("CAM_Open") != -1) {
 					ObjectMapper mapper = new ObjectMapper();
 					CAMOpenBean camOpenBean = mapper.readValue(mqttMessage, CAMOpenBean.class);
@@ -173,19 +174,8 @@ public class MqttReceiverBroker {
 					String camOpenResultJson = mapper.writeValueAsString(camOpenBean);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, camOpenResultJson);
 
-				} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
-//					logTrack.info("getPITTrackPidstr()=="+Config.getInstance().getPITTrackPidstr());
-//					if (Config.getInstance().getPITTrackPidstr() == null || Config.getInstance().getPITTrackPidstr().trim().equals("")) {
-//						try {
-//							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
-//
-//							AudioDevice.getInstance().killpid(Config.getInstance().getTrackPidForKill());
-//						} catch (Exception ex) {
-//							logTrack.error("killpid:", ex);
-//						}
-//					}
-					
-					
+				}
+				if (mqttMessage.indexOf("CAM_Notify") != -1) {
 					MqttSenderBroker.getInstance().setNotifyJson(mqttMessage); // 把notify保存起来
 
 					ObjectMapper mapper = new ObjectMapper();
@@ -195,9 +185,11 @@ public class MqttReceiverBroker {
 					b1.setIdPhoto(ss.getBytes());
 
 					String notifyResultJson = mapper.writeValueAsString(b1);
+					log.info("notifyResultJson==" + notifyResultJson);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, notifyResultJson);
 
-				} else if (mqttMessage.indexOf("CAM_GetPhotoInfo") != -1) {
+				}
+				if (mqttMessage.indexOf("CAM_GetPhotoInfo") != -1) {
 					// System.out.println("^^^^^^^^^^^^^^^^^^^");
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyRequestBean bean = mapper.readValue(mqttMessage, PIVerifyRequestBean.class);
@@ -218,8 +210,8 @@ public class MqttReceiverBroker {
 					} else {
 						MqttSenderBroker.getInstance().PublishWrongIDNo();
 					}
-				} else if (mqttMessage.indexOf("CAM_ScreenDisplay") != -1) {
-					// log.info("CAM_ScreenDisplay json==" + mqttMessage);
+				}
+				if (mqttMessage.indexOf("CAM_ScreenDisplay") != -1) {
 					ObjectMapper mapper = new ObjectMapper();
 					ScreenDisplayBean screenDisplayBean = mapper.readValue(mqttMessage, ScreenDisplayBean.class);
 					int displayTimeout = screenDisplayBean.getTimeout(); // 从CAM_ScreenDisplay输出的结构体获取到屏幕超时时间

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.LightControlBoard;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
+import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
 import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
 import com.rxtec.pitchecking.net.PIVerifyEventSubscriber;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
@@ -57,7 +58,7 @@ public class PITrackingApp {
 		} else {
 			return;
 		}
-		
+
 		int lightLedRet = -1;
 		log.info("准备点亮补光灯");
 		try {
@@ -80,6 +81,10 @@ public class PITrackingApp {
 		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		scheduler.scheduleWithFixedDelay(FaceScreenListener.getInstance(), 0, 1500, TimeUnit.MILLISECONDS);
 
+		if (Config.getInstance().getIsUseManualMQ() == 1) {
+			RemoteMonitorPublisher.getInstance().startService(1);
+		}
+
 		Thread.sleep(1000);
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {
 			RSFaceDetectionService.getInstance().setVideoPanel(faceTrackingScreen.getVideoPanel());
@@ -87,6 +92,6 @@ public class PITrackingApp {
 		} else {
 			FaceDetectionService.getInstance().setVideoPanel(faceTrackingScreen.getVideoPanel());
 			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
-		}		
+		}
 	}
 }
