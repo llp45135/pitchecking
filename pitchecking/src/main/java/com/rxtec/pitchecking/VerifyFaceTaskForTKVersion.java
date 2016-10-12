@@ -86,7 +86,9 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// 向闸机主控程序发布比对结果
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
 			mqttSenderBroker.publishResult(fd,Config.VerifyPassedStatus); // MQTT版本 比对结果发布
-
+			
+			AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); // 语音："验证成功，请通过"
+			
 //			log.debug("准备发布faceframe事件");
 //			FaceTrackingScreen.getInstance().offerEvent(
 //					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
@@ -135,9 +137,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// }
 
 			faceTrackService.stopCheckingFace();
-			AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckFailed.getValue(), null, null, fd));
+			AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 语音："验证失败，请从侧门离开通道"
 			
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
@@ -148,10 +148,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// mqttSenderBroker.testPublishFace();
 
 			faceTrackService.stopCheckingFace();
+			AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); // 语音："验证成功，请通过"
 //			FaceCheckingService.getInstance().setFailedFace(null);
-
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
 		}
 
 		return fd;

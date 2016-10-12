@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PitCheckMsg>
 	<GateConfig versionFlag="0" gateNo="01" belongStationCode="IZQ"
-		faceScreen="0" ticketScreen="0" checkTicketFlag="1" readerTimeDelay="6"
+		faceScreen="1" ticketScreen="0" checkTicketFlag="1" readerTimeDelay="6"
 		succTimeDelay="4" idDeviceType="H" qrDeviceType="H" autoLogonCron="0 0 5 * * ?" />
 	<GateCrtlConfig cameraLEDPort="1" firstGateCrtlPort="COM2"
 		secondGateCrtlPort="COM3" honeywellQRPort="COM3" gateCrtlRate="9600" />
 	<MQConfig mqStartFlag="1" MQURL="failover://tcp://localhost:61616"
-		TOPIC="Pitchecking" TOPIC_RESULT="PitcheckingResult" USER="pitchecking"	PASSWORD="pitchecking" 
-		
-	/>
+		TOPIC="Pitchecking" TOPIC_RESULT="PitcheckingResult" USER="pitchecking"
+		PASSWORD="pitchecking" />
 </PitCheckMsg>
