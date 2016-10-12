@@ -3,6 +3,7 @@ package com.rxtec.pitchecking.device;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +25,11 @@ import org.apache.commons.logging.LogFactory;
 import com.rxtec.pitchecking.AudioPlayTask;
 import com.rxtec.pitchecking.utils.CommUtil;
 
+import sun.audio.AudioData;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
+import sun.audio.ContinuousAudioDataStream;
+
 public class AudioDevice {
 	private Log log = LogFactory.getLog("RSFaceTrackTask");
 	private static AudioDevice _instance = new AudioDevice();
@@ -31,6 +37,11 @@ public class AudioDevice {
 	File emerAudioFile = null; // 应急门离开语音
 	File takeTicketAudioFile = null;
 	private String pidstr;
+
+	FileInputStream fileIn = null;
+	AudioStream as = null;
+	AudioData ad = null;
+	ContinuousAudioDataStream cads = null;
 
 	public static synchronized AudioDevice getInstance() {
 		if (_instance == null) {
@@ -75,13 +86,13 @@ public class AudioDevice {
 		byte[] audioSamples = null;
 		try {
 			if (audioFlag == DeviceConfig.cameraFlag) {
-//				log.debug("载入声音文件:" + audioFile);
+				// log.debug("载入声音文件:" + audioFile);
 				audioStream = AudioSystem.getAudioInputStream(audioFile);
 			} else if (audioFlag == DeviceConfig.emerDoorFlag) {
-//				log.debug("载入声音文件:" + emerAudioFile);
+				// log.debug("载入声音文件:" + emerAudioFile);
 				audioStream = AudioSystem.getAudioInputStream(emerAudioFile);
 			} else if (audioFlag == DeviceConfig.takeTicketFlag) {
-//				log.debug("载入声音文件:" + takeTicketAudioFile);
+				// log.debug("载入声音文件:" + takeTicketAudioFile);
 				audioStream = AudioSystem.getAudioInputStream(takeTicketAudioFile);
 			}
 			audioFormat = audioStream.getFormat();
@@ -139,7 +150,7 @@ public class AudioDevice {
 			audioInputStream.close();
 			audioBuffer = null;
 			audioSamples = null;
-//			log.debug("语音播放完毕..." + audioFile);
+			// log.debug("语音播放完毕..." + audioFile);
 		} catch (IOException ex) {
 			log.error("AudioDevice:" + ex);
 		} catch (Exception ex) {
@@ -157,6 +168,67 @@ public class AudioDevice {
 				// TODO Auto-generated catch block
 				log.error("AudioDevice:" + ex);
 			}
+		}
+	}
+
+	/**
+	 * 中断当前语音
+	 */
+	private void cleanLastAudio() {
+		try {
+			if (this.cads != null) {
+				AudioPlayer.player.stop(cads);
+				cads.close();
+				cads = null;
+			}
+			if (this.as != null) {
+				AudioPlayer.player.stop(as);
+				as.close();
+				as = null;
+			}
+			if (this.fileIn != null) {
+				fileIn.close();
+				fileIn = null;
+			}
+		} catch (Exception ex) {
+			log.error("AudioDevice:" + ex);
+		}
+	}
+
+	/**
+	 * 
+	 * @param audioFlag
+	 */
+	public void playAudio(int audioFlag) {
+		this.cleanLastAudio();
+		try {
+			if (audioFlag == DeviceConfig.cameraFlag) {
+				// log.debug("载入声音文件:" + audioFile);
+				fileIn = new FileInputStream(DeviceConfig.cameraWav);
+			} else if (audioFlag == DeviceConfig.emerDoorFlag) {
+				// log.debug("载入声音文件:" + emerAudioFile);
+				fileIn = new FileInputStream(DeviceConfig.emerDoorWav);
+			} else if (audioFlag == DeviceConfig.takeTicketFlag) {
+				// log.debug("载入声音文件:" + takeTicketAudioFile);
+				fileIn = new FileInputStream(DeviceConfig.takeTicketWav);
+			} else if (audioFlag == DeviceConfig.checkSuccFlag) {
+				// log.debug("载入声音文件:" + takeTicketAudioFile);
+				fileIn = new FileInputStream(DeviceConfig.checkSuccWav);
+			}
+
+			as = new AudioStream(fileIn);
+			if (audioFlag == DeviceConfig.takeTicketFlag) {
+				AudioPlayer.player.start(as);
+			} else {
+				ad = as.getData();
+				// 设置循环播放
+				cads = new ContinuousAudioDataStream(ad);
+				// 循环播放开始
+				AudioPlayer.player.start(cads);
+			}
+
+		} catch (Exception ex) {
+			log.error("AudioDevice:" + ex);
 		}
 	}
 
@@ -182,10 +254,20 @@ public class AudioDevice {
 
 		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); // 调用语音“请平视摄像头”
 
-		CommUtil.sleep(6500);
-		
-//		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag);
+		CommUtil.sleep(10*1000);
 
-//		AudioDevice.getInstance().killpid(AudioDevice.getInstance().pidstr);
+		AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag);
+		CommUtil.sleep(4000);
+
+		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
+		CommUtil.sleep(4500);
+
+		AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag);
+		CommUtil.sleep(4000);
+
+		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
+		CommUtil.sleep(12 * 1000);
+
+		AudioDevice.getInstance().killpid(AudioDevice.getInstance().pidstr);
 	}
 }

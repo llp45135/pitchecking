@@ -38,7 +38,8 @@ public class AudioPlayTask implements Runnable {
 	public void run() {
 		if (deviceStatus > Config.StopStatus) {
 			log.info("开始播放语音" + deviceStatus);
-			AudioDevice.getInstance().play(deviceStatus);
+//			AudioDevice.getInstance().play(deviceStatus);
+			AudioDevice.getInstance().playAudio(deviceStatus);
 			this.stop();
 		}
 	}

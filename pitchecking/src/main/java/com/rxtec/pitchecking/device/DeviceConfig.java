@@ -58,12 +58,14 @@ public class DeviceConfig {
 	public static String qrReaderWav = "./wav/talkforever16.wav";
 	public static String cameraWav = "./wav/camera_glasses.wav";// "./wav/12-35.wav";
 	public static String emerDoorWav = "./wav/emerDoor.wav";
+	public static String checkSuccWav = "./wav/checkSucc.wav";
 //	public static String takeTicketWav = "./wav/take_ticket.wav";
 //	public static String takeTicketWav = "./wav/take_hat_6s.wav";
 	public static String takeTicketWav = "./wav/bigfoot.wav";
 	public static int cameraFlag = 1;
 	public static int emerDoorFlag = 2;
 	public static int takeTicketFlag = 3;
+	public static int checkSuccFlag = 4;
 
 	private int versionFlag = 0;
 	private int readerTimeDelay = 10;
