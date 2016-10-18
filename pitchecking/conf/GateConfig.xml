@@ -7,5 +7,6 @@
 		secondGateCrtlPort="COM3" honeywellQRPort="COM3" gateCrtlRate="9600" />
 	<MQConfig mqStartFlag="1" MQURL="failover://tcp://localhost:61616"
 		TOPIC="Pitchecking" TOPIC_RESULT="PitcheckingResult" USER="pitchecking"
-		PASSWORD="pitchecking" ManualCheck_MQURL="failover://tcp://192.168.1.8:61616" />
+		PASSWORD="pitchecking" ManualCheck_Address="127.0.0.1" />
+	<AppConfig softIdNo="520203197912141118,440111197209283012,440881199502176714,452502198305034618" />
 </PitCheckMsg>
