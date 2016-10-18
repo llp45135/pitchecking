@@ -30,6 +30,11 @@ public class PITInfoTopicSender implements Runnable {
 
 	public PITInfoTopicSender(LinkedBlockingQueue<PITInfoJson> q) {
 		infoQueue = q;
+		this.connectMQ();
+	}
+
+	private void connectMQ() {
+		log.info("Sender准备连接人工控制台MQ..." + DeviceConfig.getInstance().getManualCheck_MQURL());
 		try {
 			initialize();
 			isInitOK = true;
@@ -37,7 +42,6 @@ public class PITInfoTopicSender implements Runnable {
 			log.error("RemoteMonitorPublisher init error!", e);
 			isInitOK = false;
 		}
-
 	}
 
 	// 初始化
@@ -49,7 +53,8 @@ public class PITInfoTopicSender implements Runnable {
 		// DeviceConfig.getInstance().getPASSWORD(),
 		// DeviceConfig.getInstance().getMQURL());
 
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(DeviceConfig.getInstance().getManualCheck_MQURL());
+		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(
+				DeviceConfig.getInstance().getManualCheck_MQURL());
 		conn = connectionFactory.createConnection();
 		// 事务性会话，自动确认消息
 		session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -61,7 +66,7 @@ public class PITInfoTopicSender implements Runnable {
 		producer = session.createProducer(destination);
 		// 不持久化消息
 		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-		log.info("initialize succ!");
+		log.info("Sender连接人工控制台MQ成功!");
 	}
 
 	public void sendMessage(String strMsg) throws JMSException, Exception {
@@ -69,7 +74,7 @@ public class PITInfoTopicSender implements Runnable {
 		TextMessage msg = session.createTextMessage();
 		msg.setText(strMsg);
 		producer.send(msg);
-		// log.info("send one Message####");
+		// log.info("send one Message####"+strMsg);
 	}
 
 	// 关闭连接

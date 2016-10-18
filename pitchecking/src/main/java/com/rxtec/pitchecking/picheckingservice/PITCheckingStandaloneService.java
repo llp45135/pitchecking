@@ -5,9 +5,14 @@ import java.util.concurrent.Executors;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.db.PitRecordLoger;
+import com.rxtec.pitchecking.db.mysql.PitRecordSqlLoger;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mbean.PITProcessDetect;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
+import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
+import com.rxtec.pitchecking.mqtt.ManualEventReceiverBroker;
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
+import com.rxtec.pitchecking.task.ManualCheckingTask;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 /**
@@ -16,7 +21,7 @@ import com.rxtec.pitchecking.utils.CommUtil;
  * @author ZhaoLin
  *
  */
-public class FaceCheckingStandaloneService {
+public class PITCheckingStandaloneService {
 
 	public static void main(String[] args) {
 		// 启动检脸进程保护的线程
@@ -41,13 +46,21 @@ public class FaceCheckingStandaloneService {
 			PitRecordLoger.getInstance().clearExpirationData();
 			PitRecordLoger.getInstance().startThread();
 		}
-
-		if (Config.getInstance().getIsUseManualMQ() == 1) {
-			RemoteMonitorPublisher.getInstance().startService(2);
+		
+		if(Config.getInstance().getIsUseMySQLDB()==1){
+			PitRecordSqlLoger.getInstance().startThread();
+		}
+		
+		if (Config.getInstance().getIsUseManualMQ() == 1) {// 是否连人工窗控制台
+			ExecutorService executorService = Executors.newSingleThreadExecutor();
+			ManualCheckingTask manualCheckingTask = new ManualCheckingTask(DeviceConfig.GAT_MQ_Standalone_CLIENT);
+			executorService.execute(manualCheckingTask);
 		}
 
+		GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);// 启动PITEventTopic本地监听
+
 		FaceCheckingService.getInstance().beginFaceCheckerStandaloneTask();
-		PIVerifySubscriber s = new PIVerifySubscriber();
+		PIVerifySubscriber piVerifySubscriber = new PIVerifySubscriber();
 
 	}
 

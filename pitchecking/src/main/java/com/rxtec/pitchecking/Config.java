@@ -39,6 +39,8 @@ public class Config {
 	public static int IRFrameHeigh = 480;
 	public static int FACE_TRACK_IR = 1;
 	public static int FACE_TRACK_COLOR_DEPTH = 2;
+	public static int FACE_TRACK_COLOR = 3;
+	
 
 	public static int frameRate = 30;
 
@@ -62,8 +64,9 @@ public class Config {
 	public static int PIVerify_Result_STREAM_ID = 11; // 独立人脸比对进程发布比对结果 用于睿新版本
 
 	public static int PIVerifyEvent_STREAM_ID = 12; // 通知独立人脸比对进程开始人脸比对 用于铁科版本
-	public static int PIVerifyResultEvent_STREAM_ID = 13; // 独立人脸比对进程发布比对结果
-															// 用于铁科版本
+	public static int PIVerifyResultEvent_STREAM_ID = 13; // 独立人脸比对进程发布比对结果, 用于铁科版本
+	
+	
 
 	public static String PIVerify_CHANNEL = "aeron:ipc";
 	// public static String PIVerify_CHANNEL =
@@ -110,6 +113,7 @@ public class Config {
 	public static String BeginVerifyFaceEvent = "CAM_Notify";
 	public static String GetVerifyFaceResultEvent = "CAM_GetPhotoInfo";
 	public static String GetVerifyFaceResultInnerEvent = "CAM_GetVerifyResult";
+	public static String ScreenDisplayEvent = "CAM_ScreenDisplay";
 
 	/**
 	 * *************************************************************************
@@ -150,6 +154,7 @@ public class Config {
 	private String trackPidForKill = "-1";
 	private boolean rebackTrackFlag = true;
 	private int isUseManualMQ=0;
+	private int isUseMySQLDB = 0;
 
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
@@ -469,6 +474,14 @@ public class Config {
 		this.isUseManualMQ = isUseManualMQ;
 	}
 
+	public int getIsUseMySQLDB() {
+		return isUseMySQLDB;
+	}
+
+	public void setIsUseMySQLDB(int isUseMySQLDB) {
+		this.isUseMySQLDB = isUseMySQLDB;
+	}
+
 	private static Config _instance = new Config();
 
 	private Config() {
@@ -512,6 +525,7 @@ public class Config {
 			this.faceFrameTransparency = Float.valueOf(p.getProperty("faceFrameTransparency", "0.75"));
 			this.HEART_BEAT_DELAY = Integer.valueOf(p.getProperty("HEART_BEAT_DELAY", "15000"));
 			this.isUseManualMQ = Integer.valueOf(p.getProperty("isUseManualMQ", "0"));
+			this.isUseMySQLDB = Integer.valueOf(p.getProperty("isUseMySQLDB", "0"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();

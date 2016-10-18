@@ -11,6 +11,10 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
+import com.rxtec.pitchecking.utils.ImageToolkit;
+
 public class VideoPanel extends JPanel{
 	private static final long serialVersionUID = 2362485545008256443L;
 	public BufferedImage image;
@@ -27,6 +31,11 @@ public class VideoPanel extends JPanel{
 //	
 	
 	public void paintImg(){
+		// 通过MQ发送帧画面
+		if (Config.getInstance().getIsUseManualMQ() == 1) {
+			RemoteMonitorPublisher.getInstance().offerFrameData(ImageToolkit.getImageBytes(image, "jpeg"));
+		}
+		
 		Graphics2D g = (Graphics2D) this.getGraphics();
 		g.drawImage(image, 0, 0, null);
 		g.dispose();

@@ -19,6 +19,7 @@ import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
 import com.rxtec.pitchecking.net.event.PIVerifyRequestBean;
 import com.rxtec.pitchecking.net.event.ScreenDisplayBean;
 import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.utils.JsonUtils;
 import com.rxtec.pitchecking.utils.CalUtils;
 
 /**
@@ -55,13 +56,18 @@ public class MqttReceiverBroker {
 	}
 
 	private MqttReceiverBroker() {
-		try {
-			if (mqttClient == null || !mqttClient.isConnected()) {
-				this.connect();
+		while (true) {
+			try {
+				if (mqttClient == null || !mqttClient.isConnected()) {
+					this.connect();
+				}
+			} catch (MqttException e) {
+				// TODO Auto-generated catch block
+				log.error("connect:",e);
+				CommUtil.sleep(5000);
+				continue;
 			}
-		} catch (MqttException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			break;
 		}
 	}
 
@@ -166,20 +172,32 @@ public class MqttReceiverBroker {
 				if (mqttMessage.indexOf("CAM_Open") != -1) {
 					ObjectMapper mapper = new ObjectMapper();
 					CAMOpenBean camOpenBean = mapper.readValue(mqttMessage, CAMOpenBean.class);
+
+					// CAMOpenBean camOpenBean = new CAMOpenBean();
+					// camOpenBean = (CAMOpenBean)
+					// JsonUtils.toJavaBean(camOpenBean,
+					// JsonUtils.toMap(mqttMessage));
 					int faceTimeout = camOpenBean.getTimeout(); // 从cam_open输出的结构体获取到总超时时间
 					Config.getInstance().setFaceCheckDelayTime(faceTimeout);
-					log.info("CAM_Open faceTimeout==" + faceTimeout);
-
+					log.info("CAM_Open faceTimeout==" + faceTimeout);//
 					camOpenBean.setEventDirection(2);
+
 					String camOpenResultJson = mapper.writeValueAsString(camOpenBean);
+					// String camOpenResultJson = "{\"eventDirection\" :
+					// 2,\"eventName\" : \"CAM_Open\", \"threshold\" : 77,
+					// \"timeout\" : 3000}";
+
+					// String camOpenResultJson =
+					// JsonUtils.toJSON(camOpenBean).toString();
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, camOpenResultJson);
 
-				}
-				if (mqttMessage.indexOf("CAM_Notify") != -1) {
+				} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
+					log.info("@@@@@@@@@@@@@@@收到CAM_Notify请求@@@@@@@@@@@@@@@@");
 					MqttSenderBroker.getInstance().setNotifyJson(mqttMessage); // 把notify保存起来
 
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyEventBean b1 = mapper.readValue(mqttMessage, PIVerifyEventBean.class);
+					b1.setEventName(Config.BeginVerifyFaceEvent);
 					b1.setEventDirection(2);
 					String ss = "";
 					b1.setIdPhoto(ss.getBytes());
@@ -188,8 +206,7 @@ public class MqttReceiverBroker {
 					log.info("notifyResultJson==" + notifyResultJson);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, notifyResultJson);
 
-				}
-				if (mqttMessage.indexOf("CAM_GetPhotoInfo") != -1) {
+				} else if (mqttMessage.indexOf("CAM_GetPhotoInfo") != -1) {
 					// System.out.println("^^^^^^^^^^^^^^^^^^^");
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyRequestBean bean = mapper.readValue(mqttMessage, PIVerifyRequestBean.class);
@@ -208,10 +225,10 @@ public class MqttReceiverBroker {
 							MqttSenderBroker.getInstance().testPublishFace();
 						}
 					} else {
+						log.info("########PublishWrongIDNo  身份号错误########");
 						MqttSenderBroker.getInstance().PublishWrongIDNo();
 					}
-				}
-				if (mqttMessage.indexOf("CAM_ScreenDisplay") != -1) {
+				} else if (mqttMessage.indexOf("CAM_ScreenDisplay") != -1) {
 					ObjectMapper mapper = new ObjectMapper();
 					ScreenDisplayBean screenDisplayBean = mapper.readValue(mqttMessage, ScreenDisplayBean.class);
 					int displayTimeout = screenDisplayBean.getTimeout(); // 从CAM_ScreenDisplay输出的结构体获取到屏幕超时时间
@@ -222,7 +239,9 @@ public class MqttReceiverBroker {
 					MqttSenderBroker.getInstance().setFaceScreenDisplay(faceScreenDisplay);
 					MqttSenderBroker.getInstance().setFaceScreenDisplayTimeout(displayTimeout);
 
+					screenDisplayBean.setEventName(Config.ScreenDisplayEvent);
 					screenDisplayBean.setEventDirection(2);
+
 					String screenDisplayResultJson = mapper.writeValueAsString(screenDisplayBean);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, screenDisplayResultJson);
 
@@ -237,6 +256,7 @@ public class MqttReceiverBroker {
 
 	public static void main(String[] args) {
 		MqttReceiverBroker mqttBroker = MqttReceiverBroker.getInstance();
+		MqttSenderBroker.getInstance().sendMessage("pub_topic", "DoorCmd12");
 
 	}
 }

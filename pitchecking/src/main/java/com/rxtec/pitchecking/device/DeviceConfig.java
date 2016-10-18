@@ -27,8 +27,8 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "161012.13.01";
-	public static String softIdNo = "520203197912141118,440111197209283012";
+	public static String softVersion = "161013.09.01";
+	private String softIdNo = "520203197912141118,440111197209283012,440881199502176714";
 
 	public static int idDeviceSucc = 1;
 	public static int qrDeviceSucc = 1;
@@ -48,10 +48,10 @@ public class DeviceConfig {
 	public static String qrReaderImgPath = "./img/qrreader.gif";
 	public static String idReaderImgPath = "./img/idreader.gif";
 
-//	public static String initImgPath = "./img/init2.gif";
+	// public static String initImgPath = "./img/init2.gif";
 	public static String initImgPath = "./img/initNew.gif";
 
-	public static String faceBgImgPath = "./img/bluebg.jpg";//"./img/bg.png";
+	public static String faceBgImgPath = "./img/bluebg.jpg";// "./img/bg.png";
 
 	// 语音文件
 	public static String idReaderWav = "./wav/thanks.wav";
@@ -59,13 +59,15 @@ public class DeviceConfig {
 	public static String cameraWav = "./wav/camera_glasses.wav";// "./wav/12-35.wav";
 	public static String emerDoorWav = "./wav/emerDoor.wav";
 	public static String checkSuccWav = "./wav/checkSucc.wav";
-//	public static String takeTicketWav = "./wav/take_ticket.wav";
-//	public static String takeTicketWav = "./wav/take_hat_6s.wav";
+	// public static String takeTicketWav = "./wav/take_ticket.wav";
+	// public static String takeTicketWav = "./wav/take_hat_6s.wav";
 	public static String takeTicketWav = "./wav/bigfoot.wav";
+	public static String useHelpWav = "./wav/useHelp.wav";
 	public static int cameraFlag = 1;
 	public static int emerDoorFlag = 2;
 	public static int takeTicketFlag = 3;
 	public static int checkSuccFlag = 4;
+	public static int useHelpFlag = 5;
 
 	private int versionFlag = 0;
 	private int readerTimeDelay = 10;
@@ -94,15 +96,69 @@ public class DeviceConfig {
 	private String ipAddress = "127.0.0.1";
 	private String autoLogonCron = "0 0 5 * * ?";
 	private String MQTT_CONN_STR = "tcp://localhost:1883";
-	private String ManualCheck_MQURL= "failover://" + "tcp://127.0.0.1:61616";
+	private String ManualCheck_Address = "127.0.0.1";
+	private String ManualCheck_MQTTURL = "tcp://" + ManualCheck_Address + ":1883";
+	private String ManualCheck_MQURL = "failover://" + "tcp://" + ManualCheck_Address + ":61616";
 
-//	public static int TICKET_FRAME_TOPHEIGHT = 62;
-//	public static int TICKET_FRAME_HEIGHT = 720;
-//	public static int TICKET_FRAME_BOTTOMHEIGHT = 40;
-	
+	// public static int TICKET_FRAME_TOPHEIGHT = 62;
+	// public static int TICKET_FRAME_HEIGHT = 720;
+	// public static int TICKET_FRAME_BOTTOMHEIGHT = 40;
+
 	public static int TICKET_FRAME_TOPHEIGHT = 100;
 	public static int TICKET_FRAME_HEIGHT = 768;
 	public static int TICKET_FRAME_BOTTOMHEIGHT = 60;
+
+	public static String GAT_MQ_Verify_CLIENT = "Verify";
+	public static String GAT_MQ_Track_CLIENT = "Track";
+	public static String GAT_MQ_Standalone_CLIENT = "Alone";
+	public static String OPEN_FIRSTDOOR = "{\"Event\": 1,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
+	// public static String CLOSE_FIRSTDOOR = "DoorCmd01";
+	public static String OPEN_SECONDDOOR = "{\"Event\": 2,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
+	// public static String CLOSE_SECONDDDOOR = "DoorCmd11";
+	public static String OPEN_THIRDDOOR = "{\"Event\": 3,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
+	// public static String CLOSE_THIRDDOOR = "DoorCmd21";
+
+	// 开关门
+	public static int Event_OpenFirstDoor = 1;
+	public static int Event_OpenSecondDoor = 2;
+	public static int Event_OpenThirdDoor = 3;
+	public static int Event_CloseFirstDoor = 4;
+	public static int Event_CloseSecondDoor = 5;
+	public static int Event_CloseThirdDoor = 6;
+
+	public static int Event_ErrorReadIDCard = 10; // 读二代证失败
+	public static int Event_ErrorReadQRCode = 11; // 读二维码失败
+	public static int Event_ErrorVerifyTicket = 12; // 票证不符
+	public static int Event_ErrorFindETicket = 13; // 找不到电子票
+	public static int Event_BeforeCheckinTime = 14; // 未到检票时间
+	public static int Event_HasPassedCheckinTime = 15; // 已过检票时间
+	public static int Event_NotThisCheckinStation = 16; // 非本站乘车
+
+	public static int Event_SecondDoorHasClosed = 20; // 第二道门已关
+
+	public String getSoftIdNo() {
+		return softIdNo;
+	}
+
+	public void setSoftIdNo(String softIdNo) {
+		this.softIdNo = softIdNo;
+	}
+
+	public String getManualCheck_Address() {
+		return ManualCheck_Address;
+	}
+
+	public void setManualCheck_Address(String manualCheck_Address) {
+		ManualCheck_Address = manualCheck_Address;
+	}
+
+	public String getManualCheck_MQTTURL() {
+		return ManualCheck_MQTTURL;
+	}
+
+	public void setManualCheck_MQTTURL(String manualCheck_MQTTURL) {
+		ManualCheck_MQTTURL = manualCheck_MQTTURL;
+	}
 
 	public String getManualCheck_MQURL() {
 		return ManualCheck_MQURL;
@@ -471,7 +527,10 @@ public class DeviceConfig {
 			this.setTOPIC_RESULT(root.getChild("MQConfig").getAttributeValue("TOPIC_RESULT"));
 			this.setUSER(root.getChild("MQConfig").getAttributeValue("USER"));
 			this.setPASSWORD(root.getChild("MQConfig").getAttributeValue("PASSWORD"));
-			this.setManualCheck_MQURL(root.getChild("MQConfig").getAttributeValue("ManualCheck_MQURL"));
+			this.setManualCheck_Address(root.getChild("MQConfig").getAttributeValue("ManualCheck_Address"));
+			this.setManualCheck_MQURL("failover://" + "tcp://" + ManualCheck_Address + ":61616");
+			this.setManualCheck_MQTTURL("tcp://" + ManualCheck_Address + ":1883");
+			this.setSoftIdNo(root.getChild("AppConfig").getAttributeValue("softIdNo"));
 		} catch (JDOMException | IOException ex) {
 			// TODO Auto-generated catch block
 			log.error("DeviceConfig readDeviceConfigFromFile:" + ex);
@@ -526,5 +585,7 @@ public class DeviceConfig {
 		System.out.println("ipAddress==" + dconfig.getIpAddress());
 		System.out.println("autoLogonCron==" + dconfig.getAutoLogonCron());
 		System.out.println("getManualCheck_MQURL==" + dconfig.getManualCheck_MQURL());
+		System.out.println("getManualCheck_MQTTURL==" + dconfig.getManualCheck_MQTTURL());
+		System.out.println("getSoftIdNo==" + dconfig.getSoftIdNo());
 	}
 }

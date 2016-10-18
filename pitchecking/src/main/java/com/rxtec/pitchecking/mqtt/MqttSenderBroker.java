@@ -3,6 +3,7 @@ package com.rxtec.pitchecking.mqtt;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
@@ -24,8 +25,12 @@ import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
-import sun.security.krb5.Config;
-
+/**
+ * 本类由人脸检测进程使用 同CAM_RXTa.dll通信，发送回执到sub_topic
+ * 
+ * @author ZhaoLin
+ *
+ */
 public class MqttSenderBroker {
 	// 连接参数
 	Logger log = LoggerFactory.getLogger("MqttSenderBroker");
@@ -78,13 +83,18 @@ public class MqttSenderBroker {
 	}
 
 	private MqttSenderBroker() {
-		try {
-			if (mqttClient == null || !mqttClient.isConnected()) {
-				this.connect();
+		while (true) {
+			try {
+				if (mqttClient == null || !mqttClient.isConnected()) {
+					this.connect();
+				}
+			} catch (MqttException e) {
+				// TODO Auto-generated catch block
+				log.error("connect:",e);
+				CommUtil.sleep(5000);
+				continue;
 			}
-		} catch (MqttException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			break;
 		}
 	}
 
@@ -105,6 +115,7 @@ public class MqttSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
+		
 		log.debug("connect to MqttSenderBroker.");
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
 		log.debug(
@@ -138,7 +149,11 @@ public class MqttSenderBroker {
 			// log.debug("send message to " + clientId + ", message is " +
 			// message);
 			// 发布自己的消息
+			if(message.indexOf("CAM_ScreenDisplay")!=-1){
+				log.info("CAM_ScreenDisplay:send message=="+message);
+			}
 			mqttClient.publish(clientId, message.getBytes(), 0, false);
+			log.debug("sendMessage ok");
 		} catch (MqttException e) {
 			log.error("MqttSenderBroker sendMessage", e);
 		} catch (Exception e) {
@@ -178,7 +193,7 @@ public class MqttSenderBroker {
 	}
 
 	/**
-	 * 
+	 * 测试用例
 	 */
 	public void testPublishFace() {
 		log.info("testPublishFace###############");
@@ -236,13 +251,6 @@ public class MqttSenderBroker {
 		if (data == null)
 			return false;
 		PIVerifyResultBean resultBean = new PIVerifyResultBean();
-
-		// log.info("data.getFaceImg().length==" + data.getFaceImg().length);
-		// log.info("data.getFrameImg().length==" + data.getFrameImg().length);
-		// log.info("data.getIdCardImg().length==" +
-		// data.getIdCardImg().length);
-		// log.info("getVerifyResult==" +
-		// String.valueOf(data.getVerifyResult()));
 		float faceResult = 1f;
 		try {
 			faceResult = CommUtil.round(2, data.getVerifyResult());
@@ -316,7 +324,7 @@ public class MqttSenderBroker {
 		@Override
 		public void publishArrived(String topicName, byte[] payload, int Qos, boolean retained) throws Exception {
 			// TODO Auto-generated method stub
-			log.debug("订阅主题: " + topicName);
+//			log.debug("订阅主题: " + topicName);
 			// log.debug("消息数据: " + new String(payload));
 			// log.debug("消息级别(0,1,2): " + Qos);
 //			log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);

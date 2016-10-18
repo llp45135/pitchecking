@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.device.CAMDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.device.SecondGateDevice;
 import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.event.IDeviceEvent;
@@ -144,7 +143,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getVerifyResult());
 			// 向闸机主控程序发布比对结果
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
-			mqttSenderBroker.publishResult(fd,Config.VerifyPassedStatus); // MQTT版本 比对结果发布 ,人脸比对失败！ 状态为0
+			mqttSenderBroker.publishResult(fd,Config.VerifyPassedStatus); // MQTT版本 比对结果发布 ,人脸比对成功！ 状态为0
 			// mqttSenderBroker.testPublishFace();
 
 			faceTrackService.stopCheckingFace();

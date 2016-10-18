@@ -8,6 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 
 public class RemoteMonitorPublisher {
@@ -39,12 +42,10 @@ public class RemoteMonitorPublisher {
 			PITInfoTopicSender verifySender = new PITInfoTopicSender(verifyDataQueue);
 			scheduler.scheduleWithFixedDelay(verifySender, 0, 100, TimeUnit.MILLISECONDS);
 		} else {
-
+			PITInfoTopicSender eventSender = new PITInfoTopicSender(eventQueue);
+			scheduler.scheduleWithFixedDelay(eventSender, 0, 1000, TimeUnit.MILLISECONDS);
 		}
-		// PITInfoTopicSender eventSender = new PITInfoTopicSender(eventQueue);
 
-		// scheduler.scheduleWithFixedDelay(eventSender, 0, 1000,
-		// TimeUnit.MILLISECONDS);
 		// ExecutorService es = Executors.newFixedThreadPool(3);
 		// es.submit(frameSender);
 		// es.shutdown();
@@ -52,6 +53,29 @@ public class RemoteMonitorPublisher {
 
 	}
 
+	/**
+	 * 
+	 * @param event
+	 */
+	public void offerEventData(int event) {
+		PITInfoJson info = null;
+		try {
+			info = new PITInfoJson(event);
+		} catch (Exception e) {
+			log.error(e);
+		}
+		if (info == null)
+			return;
+		if (!eventQueue.offer(info)) {
+			eventQueue.poll();
+			eventQueue.offer(info);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param d
+	 */
 	public void offerVerifyData(PITVerifyData d) {
 		PITInfoJson info = null;
 		try {
@@ -67,6 +91,10 @@ public class RemoteMonitorPublisher {
 		}
 	}
 
+	/**
+	 * 
+	 * @param imgBytes
+	 */
 	public void offerFrameData(byte[] imgBytes) {
 		PITInfoJson info = null;
 		try {
@@ -84,7 +112,11 @@ public class RemoteMonitorPublisher {
 	}
 
 	public static void main(String[] args) {
-		RemoteMonitorPublisher.getInstance().startService(1);
-		RemoteMonitorPublisher.getInstance().offerFrameData(new byte[] { 1, 0, 2, 3 });
+		RemoteMonitorPublisher.getInstance().startService(3);
+		GatCtrlReceiverBroker.getInstance("Alone");//启动PITEventTopic本地监听
+//		RemoteMonitorPublisher.getInstance().offerFrameData(new byte[] { 1, 0, 2, 3 });
+//		RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenFirstDoor);
+//		RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenSecondDoor);
+//		RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenThirdDoor);
 	}
 }
