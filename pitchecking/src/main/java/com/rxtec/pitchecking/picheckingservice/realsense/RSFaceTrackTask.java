@@ -147,6 +147,7 @@ public class RSFaceTrackTask implements Runnable {
 		PXCMRectI32 rect = new PXCMRectI32();
 		PITData fd = new PITData(frame);
 		boolean ret = detection.QueryBoundingRect(rect);
+//		log.debug("detection.QueryBoundingRect(rect)==" + ret + ",rect==" + rect);
 		if (ret) {
 			int x, y, w, h;
 			float xa = (rect.w * Config.getInstance().getFaceDetectionScale() - rect.w) / 2;
@@ -615,7 +616,6 @@ public class RSFaceTrackTask implements Runnable {
 		PXCMCapture.DeviceInfo info = new PXCMCapture.DeviceInfo();
 		dev.QueryDeviceInfo(info);
 		log.info("Using Camera: " + info.name);
-
 		dev.SetColorAutoExposure(true);
 		dev.SetColorAutoWhiteBalance(true);
 		dev.SetColorBackLightCompensation(true);
