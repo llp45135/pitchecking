@@ -32,12 +32,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.AudioPlayTask;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.FaceTrackingScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
@@ -90,16 +95,22 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					// 语音调用线程
+					ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+					scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+
 					FaceTrackingScreen.getInstance();
 					FaceCheckFrame frame = new FaceCheckFrame();
 					FaceTrackingScreen.getInstance().setFaceFrame(frame);
-					FaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
+					FaceTrackingScreen.getInstance().initUI(0);
 					frame.showDefaultContent();
+					CommUtil.sleep(10 * 1000);
 					// frame.setVisible(true);
 					MqttSenderBroker.getInstance().setFaceScreenDisplayTimeout(10);
 					MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别成功#请通过");
 					// MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
 					frame.showFaceDisplayFromTK();
+					AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
 					frame.showBeginCheckFaceContent();
 					// frame.showFaceCheckPassContent();
 					// frame.showCheckFailedContent();
@@ -329,7 +340,10 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		if (displayStr.indexOf("成功") != -1) {
 			// ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
 			// this.showPassStatusImage(icon);
-			timeIntevel = 5; // 成功时的提示信息存在时间 暂时设置为5s
+			timeIntevel = MqttSenderBroker.getInstance().getFaceScreenDisplayTimeout();// 5;
+																						// //
+																						// 成功时的提示信息存在时间
+																						// 暂时设置为5s
 		} else {
 			// ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
 			// this.showPassStatusImage(icon);
@@ -421,6 +435,16 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		// e.printStackTrace();
 		// }
 
+		if (this.titleStrType != 2) { // 类型为开始检脸，那么结束时不播放引导语音
+			String startPlayTime = CalUtils.getStringDateShort() + " " + "05:30:00";
+			String endPlayTime = CalUtils.getStringDateShort() + " " + "23:30:00";
+			if (CalUtils.isDateAfter(startPlayTime) && CalUtils.isDateBefore(endPlayTime)) {
+				AudioPlayTask.getInstance().start(DeviceConfig.useHelpFlag); // 循环播放引导使用语音
+			} else {
+				log.info("当前时间段不在" + startPlayTime + "--" + endPlayTime + "之间,不可以播放引导语音");
+			}
+		}
+
 		this.msgPanel.setVisible(false);
 		this.cameraPanel.setVisible(true);
 		this.videoPanel.setVisible(true);
@@ -431,7 +455,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		label_title.setBackground(bgColor);
 
 		label_title.setForeground(Color.WHITE);
-		label_title.setText("请摘下眼镜后平视摄像头");
+		label_title.setText("");
 
 		timeIntevel = 0;
 		timer.start();
@@ -442,12 +466,12 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	 * 开始检脸
 	 */
 	public void showBeginCheckFaceContent() {
-//		try {
-//			FaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
-//			FaceTrackingScreen.getInstance().repainFaceFrame();
-//		} catch (Exception ex) {
-//			log.error("showBeginCheckFaceContent:", ex);
-//		}
+		// try {
+		// FaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
+		// FaceTrackingScreen.getInstance().repainFaceFrame();
+		// } catch (Exception ex) {
+		// log.error("showBeginCheckFaceContent:", ex);
+		// }
 		msgPanel.setVisible(false);
 		this.cameraPanel.setVisible(true);
 		this.videoPanel.setVisible(true);

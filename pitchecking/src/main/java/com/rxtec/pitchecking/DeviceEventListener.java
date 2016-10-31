@@ -36,6 +36,7 @@ import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mq.JmsReceiverTask;
 import com.rxtec.pitchecking.mq.JmsSenderTask;
+import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.task.AutoLogonJob;
@@ -48,8 +49,17 @@ public class DeviceEventListener implements Runnable {
 	private static DeviceEventListener _instance = new DeviceEventListener();
 	// private IVerifyFaceTask verifyFaceTask ;
 	private TicketVerify ticketVerify = new TicketVerify();
+	private boolean isStartThread = true;
 	private boolean isDealDeviceEvent = true;
 	private LinkedBlockingQueue<IDeviceEvent> deviceEventQueue = new LinkedBlockingQueue<IDeviceEvent>(3);
+
+	public boolean isStartThread() {
+		return isStartThread;
+	}
+
+	public void setStartThread(boolean isStartThread) {
+		this.isStartThread = isStartThread;
+	}
 
 	public boolean isDealDeviceEvent() {
 		return isDealDeviceEvent;
@@ -132,15 +142,18 @@ public class DeviceEventListener implements Runnable {
 
 	@Override
 	public void run() {
+
 		IDeviceEvent e;
 		try {
 			if (isDealDeviceEvent) {
-				e = deviceEventQueue.take();
-				log.debug("e==" + e);
-				this.setDealDeviceEvent(false);// 停止处理新的事件
-				this.processEvent(e);
+				e = deviceEventQueue.poll();
+//				log.debug("e==" + e);
+				if (e != null) {
+					this.setDealDeviceEvent(false);// 停止处理新的事件
+					this.processEvent(e);
+				}
 			}
-		} catch (InterruptedException ex) {
+		} catch (Exception ex) {
 			log.error("DeviceEventListener", ex);
 		}
 	}
@@ -181,32 +194,41 @@ public class DeviceEventListener implements Runnable {
 		int ticketVerifyResult = ticketVerify.verify();// 票证核验结果
 
 		if (ticketVerifyResult == Config.TicketVerifySucc) { // 核验成功
-			// 停止寻卡
-			this.setDeviceReader(false);
+			this.setDeviceReader(false);// 停止寻卡
 			log.debug("票证核验通过，停止寻卡，打开第一道闸门，开始人证比对");
-			// 打开第一道门
-			FirstGateDevice.getInstance().openFirstDoor();
+
+			if (Config.getInstance().getIsUseManualMQ() == 0) {
+				FirstGateDevice.getInstance().openFirstDoor();// 打开第一道门
+			} else {
+				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+						.sendDoorCmd(DeviceConfig.OPEN_FIRSTDOOR);
+			}
 
 			TicketVerifyScreen.getInstance()
 					.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketVerifySucc.getValue(),
 							ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 
 			// 开始进行人脸检测和比对
-			if (verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket()) == 0) {
-				// 人脸比对通过
-				log.debug("人脸比对通过，开第三道闸门");
-				SecondGateDevice.getInstance().openThirdDoor(); //
-				CAMDevice.getInstance().CAM_ScreenDisplay("人脸识别成功#请通过", 3);
-			} else {
-				// 人脸比对失败
+			if (this.verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket()) == 0) { // 人脸比对通过
+				log.debug("人脸比对通过，开第二道闸门");
+				if (Config.getInstance().getIsUseManualMQ() == 0) {
+					SecondGateDevice.getInstance().openThirdDoor(); //
+				} else {
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+							.sendDoorCmd(DeviceConfig.OPEN_SECONDDOOR);
+				}
+				CAMDevice.getInstance().CAM_ScreenDisplay("身份核验成功#请通过", 3);
+			} else { // 人脸比对失败
+				log.debug("人脸比对失败，开第三道电磁门");
+				if (Config.getInstance().getIsUseManualMQ() == 0) {
+					SecondGateDevice.getInstance().openSecondDoor(); // 打开电磁门
+				} else {
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+							.sendDoorCmd(DeviceConfig.OPEN_THIRDDOOR);
+				}
+				CAMDevice.getInstance().CAM_ScreenDisplay("身份核验失败#请从侧门离开", 5);
 
-				log.debug("人脸比对失败，开第二道电磁门");
-				SecondGateDevice.getInstance().openSecondDoor(); //
-
-				CAMDevice.getInstance().CAM_ScreenDisplay("人脸识别失败#请从侧门离开", 3);
-
-				AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
-				// 人脸比对失败，开第二道电磁门
+				CommUtil.sleep(5 * 1000);
 				TicketVerifyScreen.getInstance()
 						.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(),
 								ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
@@ -261,8 +283,6 @@ public class DeviceEventListener implements Runnable {
 		int notifyRet = CAMDevice.getInstance().CAM_Notify(1, uuidStr, IDPhoto_str);
 		int getPhotoRet = -1;
 		if (notifyRet == 0) {
-			AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音“请平视摄像头”
-																		// 需要语音线程已启动
 			int delaySeconds = 10;
 			getPhotoRet = CAMDevice.getInstance().CAM_GetPhotoInfo(uuidStr, delaySeconds); // 此处传入的delaySeconds是为了控制检脸通过速率而设置
 		}
@@ -272,44 +292,69 @@ public class DeviceEventListener implements Runnable {
 
 	// 启动设备
 	private void startDevice() throws DeviceException {
-		if (this.startGateDevice() != 1) {
-			return;
+		String pauseFlagStr = ProcessUtil.getLastPauseFlag();
+		log.debug("pauseFlagStr==" + pauseFlagStr);
+		if (pauseFlagStr != null) {
+			if (pauseFlagStr.indexOf("kill") != -1) {
+				log.debug("启动暂停服务版本...");
+				TicketVerifyScreen.getInstance().offerEvent(
+						new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowStopCheckFault.getValue(), null, null, null));
+				ProcessUtil.writePauseLog(ProcessUtil.getCurrentProcessID());
+				this.isStartThread = false;
+				Config.getInstance().setIsUseManualMQ(0);
+				if (this.startGateDevice() != 1) {
+					return;
+				}
+				LightEntryLED(false);
+				return;
+			}
+		}
+
+		ProcessUtil.writePauseLog(ProcessUtil.getCurrentProcessID());
+
+		if (Config.getInstance().getIsUseManualMQ() == 0) {
+			if (this.startGateDevice() != 1) {
+				return;
+			}
 		}
 		log.debug("核验软件版本");
 		if (DeviceConfig.getInstance().getVersionFlag() != 1) {
 			log.debug("软件版本错误:" + DeviceConfig.getInstance().getVersionFlag());
 			TicketVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowVersionFault.getValue(), null, null, null));
+			this.isStartThread = false;
 			LightEntryLED(false);
 			return;
 		}
-		
+
 		if (this.OpenCAM() != 0) {
 			this.setDealDeviceEvent(false);// 停止处理新的事件
 			TicketVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowCamOpenException.getValue(), null, null, null));
+			this.isStartThread = false;
 			LightEntryLED(false);
 			return;
 		}
-		
+
 		if (this.startIDDevice() != 1) {
+			this.isStartThread = false;
 			LightEntryLED(false);
 			return;
 		}
 		if (this.startQRDevice() != 1) {
+			this.isStartThread = false;
 			LightEntryLED(false);
 			return;
 		}
-		// if (this.startLED() != 1) {
-		// FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+
+		/**
+		 * 启动定时任务
+		 */
+		// if (this.addQuartzJobs() != 1) {
+		// this.isStartThread = false;
+		// LightEntryLED(false);
 		// return;
-		// }		
-		
-		
-		 if (this.addQuartzJobs() != 1) {
-		 FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
-		 return;
-		 }
+		// }
 
 		/**
 		 * 连接mq服务，启动mq receiver线程
@@ -322,39 +367,48 @@ public class DeviceEventListener implements Runnable {
 
 		ScheduledExecutorService scheduler = null;
 		if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
-			scheduler = Executors.newScheduledThreadPool(5);
+			scheduler = Executors.newScheduledThreadPool(3);
 		} else {
-			scheduler = Executors.newScheduledThreadPool(4);
+			scheduler = Executors.newScheduledThreadPool(2);
 		}
 
 		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		scheduler.scheduleWithFixedDelay(BarCodeReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		// 求助按钮事件处理线程
-		scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-//		// 语音调用线程
-//		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-		
-		scheduler.scheduleWithFixedDelay(GATStatusQuery.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
-		
+		// scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0,
+		// 100, TimeUnit.MILLISECONDS);
+		// // 语音调用线程
+		// scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100,
+		// TimeUnit.MILLISECONDS);
+		// 门模块状态
+		// scheduler.scheduleWithFixedDelay(GATStatusQuery.getInstance(), 0,
+		// 100, TimeUnit.MILLISECONDS);
+
 		// mq sender线程
 		if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
 			scheduler.scheduleWithFixedDelay(JmsSenderTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		}
 
 		LightEntryLED(true);
+		log.debug("DeviceEventListener 初始化成功");
 	}
 
 	/**
 	 * 控制入口LED灯的显示
+	 * 
 	 * @param isArrow
 	 * @return
 	 */
 	private int LightEntryLED(boolean isArrow) {
 		int retval = -1;
-		if (isArrow) {
-			FirstGateDevice.getInstance().LightEntryArrow();// 启动成功点亮绿色通行箭头
+		if (Config.getInstance().getIsUseManualMQ() == 0) {
+			if (isArrow) {
+				FirstGateDevice.getInstance().LightEntryArrow();// 启动成功点亮绿色通行箭头
+			} else {
+				FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+			}
 		} else {
-			FirstGateDevice.getInstance().LightEntryCross(); // 启动失败点亮红色叉
+			retval = 0;
 		}
 		return retval;
 	}

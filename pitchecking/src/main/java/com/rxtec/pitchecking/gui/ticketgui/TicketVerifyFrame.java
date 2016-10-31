@@ -92,10 +92,9 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 					ticket.setTicketType("1");
 					ticket.setSeatCode("O");
 
-					frame.showTicketContent(deviceConfig, ticket, 3, 0);
+					// frame.showTicketContent(deviceConfig, ticket, 3, 0);
 
-					// frame.showFailedContent(deviceConfig, ticket, 4,
-					// "票证未通过核验，请重试!");
+					// frame.showFailedContent(deviceConfig, ticket, 4, 0);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -125,8 +124,8 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		setContentPane(contentPane);
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
-		Color bgcolor = new Color(0,113,205);
-		
+		Color bgcolor = new Color(0, 113, 205);
+
 		topPanel = new JPanel();
 		topPanel.setBackground(bgcolor);
 		topPanel.setMinimumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
@@ -194,14 +193,14 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		label_rq.setHorizontalAlignment(SwingConstants.CENTER);
 		label_rq.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		// label_rq.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		label_rq.setBounds(268, 190, 271, 72);
+		label_rq.setBounds(246, 190, 271, 72);
 		ticketPanel.add(label_rq);
 
-		labelTrainDate = new JLabel("2016年5月16日");
+		labelTrainDate = new JLabel("2016年10月16日");
 		labelTrainDate.setFont(new Font("微软雅黑", Font.PLAIN, 56));
 		// labelTrainDate.setBorder(new LineBorder(new Color(0, 0, 0), 1,
 		// true));
-		labelTrainDate.setBounds(600, 190, 404, 72);
+		labelTrainDate.setBounds(557, 190, 447, 72);
 		ticketPanel.add(labelTrainDate);
 
 		labelSeatType = new JLabel("二等软座");
@@ -530,7 +529,11 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		this.titleStrType = titleStrType;
 		try {
 			// ticket.printTicket();
-			labelTitle.setText("设备故障");
+			if (exMsg.equals("暂停服务")) {
+				labelTitle.setText("");
+			} else {
+				labelTitle.setText("设备故障");
+			}
 			labelTitle.setForeground(Color.RED);
 			labelFz.setText("");
 			this.labelZhi.setText("");

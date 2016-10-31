@@ -22,7 +22,7 @@ public class TicketVerify {
 		if (ticket == null || idCard == null) {
 			if (ticket != null) {
 				if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
-					if (DeviceConfig.softIdNo.indexOf(ticket.getCardNo()) != -1) {
+					if (DeviceConfig.getInstance().getSoftIdNo().indexOf(ticket.getCardNo()) != -1) {
 						return Config.TicketVerifyWaitInput;
 					} else if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、当日票
 						log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
@@ -36,36 +36,36 @@ public class TicketVerify {
 				} else {
 					return Config.TicketVerifyWaitInput;
 				}
-			}
-//			else if(idCard!=null){
-//				log.info("getIdNo=="+idCard.getIdNo());
-//				return Config.TicketVerifySucc;
-//			}
-//			else if (idCard!=null && DeviceConfig.softIdNo.indexOf(idCard.getIdNo()) != -1) {
-//				Ticket virualTicket = new Ticket();
-//				virualTicket.setCardNo(idCard.getIdNo());
-//				virualTicket.setCardType("1");
-//				virualTicket.setCoachNo("01");
-//				virualTicket.setEndStationCode("SZQ");
-//				virualTicket.setFromStationCode("IZQ");
-//				virualTicket.setSeatCode("001F");
-//				virualTicket.setTicketNo("T000006");
-//				virualTicket.setTicketPrice(99);
-//				virualTicket.setTicketType("1");
-//				virualTicket.setTrainCode("G1001");
-//				virualTicket.setTrainDate(DateUtils.getStringDateShort());
-//				virualTicket.setSeatCode("8");
-//				this.setTicket(virualTicket);
-//				return Config.TicketVerifySucc;
-//			} 
-			else
+			} else if (idCard != null) {
+				log.info("getSoftIdNo==" + DeviceConfig.getInstance().getSoftIdNo());
+				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1) { // 白名单
+					Ticket virualTicket = new Ticket();
+					virualTicket.setCardNo(idCard.getIdNo());
+					virualTicket.setCardType("1");
+					virualTicket.setCoachNo("01");
+					virualTicket.setEndStationCode("SZQ");
+					virualTicket.setFromStationCode("IZQ");
+					virualTicket.setSeatCode("001F");
+					virualTicket.setTicketNo("T000006");
+					virualTicket.setTicketPrice(99);
+					virualTicket.setTicketType("1");
+					virualTicket.setTrainCode("G1001");
+					virualTicket.setTrainDate(CalUtils.getStringDateShort());
+					virualTicket.setSeatCode("8");
+					this.setTicket(virualTicket);
+					return Config.TicketVerifySucc;
+				} else {
+					return Config.TicketVerifyWaitInput;
+				}
+			} else
 				return Config.TicketVerifyWaitInput;
 		} else {
 			// TODO 执行比对
 			// 校验车站验票规则
-//			log.info("idCard.getIdNo=="+idCard.getIdNo()+",ticket.getCardNo=="+ticket.getCardNo()+"##");
+			// log.info("idCard.getIdNo=="+idCard.getIdNo()+",ticket.getCardNo=="+ticket.getCardNo()+"##");
 			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
-				if (DeviceConfig.softIdNo.indexOf(idCard.getIdNo()) != -1 && ticket.getCardNo().equals(idCard.getIdNo())) {
+				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1
+						&& ticket.getCardNo().equals(idCard.getIdNo())) {  //白名单
 					return Config.TicketVerifySucc;
 				} else if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、非当日票
 					log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
@@ -75,8 +75,7 @@ public class TicketVerify {
 					return Config.TicketVerifyStationRuleFail;
 				} else if (!ticket.getCardNo().equals(idCard.getIdNo())) {// 1、票证比对
 					log.debug("TicketVerifyIDFail==" + Config.TicketVerifyIDFail);
-//					return Config.TicketVerifyIDFail;
-					return Config.TicketVerifySucc;
+					return Config.TicketVerifyIDFail;
 				}
 			}
 			return Config.TicketVerifySucc;

@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
 
@@ -70,7 +72,7 @@ public class PITProcessDetect implements Runnable {
 						try {
 							Config.getInstance().setRebackTrackFlag(true);
 							log.info("准备执行恢复检脸进程的批处理");
-							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
+							Runtime.getRuntime().exec(Config.getInstance().getStartPITTrackCmd());
 							log.info("Resatrt PITTrackApp......");
 							this.setStartStatus(true);
 						} catch (Exception ex) {
@@ -80,6 +82,8 @@ public class PITProcessDetect implements Runnable {
 							File heartFile = new File(Config.getInstance().getHeartBeatLogFile());
 							heartFile.delete();
 							log.info("已经执行恢复检脸进程的批处理");
+							GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT).sendDoorCmd("PITEventTopic", DeviceConfig.OPEN_SECONDDOOR);
+							DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
 							continue;
 						} catch (Exception ex) {
 							log.error("Resatrt PITTrackApp......:", ex);
@@ -97,6 +101,10 @@ public class PITProcessDetect implements Runnable {
 								log.info("准备杀死进程 " + pid);
 								Config.getInstance().setRebackTrackFlag(false);
 								Runtime.getRuntime().exec("taskkill /F /PID " + pid);
+
+								// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
+								// .sendDoorCmd("PITEventTopic",
+								// DeviceConfig.OPEN_SECONDDOOR);
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								log.error("PITProcessDetect taskkill:", e);
@@ -108,7 +116,7 @@ public class PITProcessDetect implements Runnable {
 				} else if (HeartBeatStr.equals("null")) {
 					if (startStatus) {
 						try {
-							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
+							Runtime.getRuntime().exec(Config.getInstance().getStartPITTrackCmd());
 							CommUtil.sleep(10 * 1000);
 							log.info("Resatrt PITCheckApp......When hbs is null");
 							this.setStartStatus(true);
@@ -117,7 +125,7 @@ public class PITProcessDetect implements Runnable {
 						}
 					}
 				} else {
-					log.debug("未读取到 HEART work log");
+					// log.debug("未读取到 HEART work log");
 				}
 			}
 		}

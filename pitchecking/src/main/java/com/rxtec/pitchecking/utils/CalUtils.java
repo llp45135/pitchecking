@@ -18,6 +18,10 @@ public class CalUtils {
 	public CalUtils() {
 	}
 
+	/**
+	 * yyyy-MM-dd HH:mm:ss
+	 * @return
+	 */
 	public static Date getNowDate() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -29,6 +33,10 @@ public class CalUtils {
 		return currentTime_2;
 	}
 
+	/**
+	 * yyyy-MM-dd
+	 * @return
+	 */
 	public static Date getNowDateShort() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -53,6 +61,10 @@ public class CalUtils {
 		return dateString;
 	}
 
+	/**
+	 * yyyy-MM-dd HH:mm:ss.SSS
+	 * @return
+	 */
 	public static String getStringDateHaomiao() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -62,6 +74,10 @@ public class CalUtils {
 		return dateString;
 	}
 
+	/**
+	 * HHmm
+	 * @return
+	 */
 	public static String getStringTime() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("HHmm");
@@ -71,6 +87,10 @@ public class CalUtils {
 		return dateString;
 	}
 
+	/**
+	 * HHmmss
+	 * @return
+	 */
 	public static String getStringFullTime() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("HHmmss");
@@ -80,6 +100,10 @@ public class CalUtils {
 		return dateString;
 	}
 
+	/**
+	 * yyyy-MM-dd
+	 * @return
+	 */
 	public static String getStringDateShort() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -89,6 +113,9 @@ public class CalUtils {
 		return dateString;
 	}
 
+	/*
+	 *yyyyMMdd
+	 */
 	public static String getStringDateShort2() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
@@ -98,6 +125,10 @@ public class CalUtils {
 		return dateString;
 	}
 
+	/**
+	 * yyyy-MM-dd EEEE
+	 * @return
+	 */
 	public static String getStringDateShort3() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd EEEE", java.util.Locale.CHINESE);
@@ -107,6 +138,10 @@ public class CalUtils {
 		return dateString;
 	}
 
+	/**
+	 * yyyyMMddHHmmss
+	 * @return
+	 */
 	public static String getStringDateLong() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -117,6 +152,11 @@ public class CalUtils {
 
 	}
 
+	/**
+	 * yyyy-MM-dd HH:mm:ss
+	 * @param strDate
+	 * @return
+	 */
 	public static Date strToDate(String strDate) {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		TimeZone timeZoneChina = TimeZone.getTimeZone("Asia/Shanghai"); // 获取时区
@@ -126,6 +166,11 @@ public class CalUtils {
 		return strtodate;
 	}
 
+	/**
+	 * yyyy-MM-dd HH:mm:ss
+	 * @param dateDate
+	 * @return
+	 */
 	public static String dateToStr(java.util.Date dateDate) {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		TimeZone timeZoneChina = TimeZone.getTimeZone("Asia/Shanghai"); // 获取时区
@@ -539,6 +584,7 @@ public class CalUtils {
 		System.out.println("getAge==" + getAge("1980-12-14", "2016-07-16"));
 		System.out.println(getPreSerivalDaysShort(getStringDateShort(), 1));
 		System.out.println("hhmm==" + getStringTime());
+		System.out.println(""+howLong("ms", "2016-10-12 14:00:00.100", "2016-10-12 14:00:09.300"));
 	}
 
 }

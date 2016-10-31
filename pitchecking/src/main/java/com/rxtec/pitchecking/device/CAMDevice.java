@@ -10,6 +10,8 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
+import com.rxtec.pitchecking.FaceTrackingScreen;
+import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -345,8 +347,33 @@ public class CAMDevice {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
-
+		Logger log = LoggerFactory.getLogger("DeviceEventListener");
+		 MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
+		FaceTrackingScreen faceTrackingScreen = FaceTrackingScreen.getInstance();
+		FaceCheckFrame faceCheckFrame = new FaceCheckFrame();
+		faceTrackingScreen.setFaceFrame(faceCheckFrame);
+		boolean initUIFlag = false;
+		try {
+			faceTrackingScreen.initUI(DeviceConfig.getInstance().getFaceScreen());
+			initUIFlag = true;
+		} catch (Exception ex) {
+			log.error("PITrackingApp:", ex);
+		}
+		if (!initUIFlag) {
+			try {
+				faceTrackingScreen.initUI(0);
+				initUIFlag = true;
+			} catch (Exception ex) {
+				// TODO Auto-generated catch block
+				log.error("PITrackingApp:", ex);
+			}
+		}
+		if (initUIFlag) {
+			faceTrackingScreen.getFaceFrame().showDefaultContent();
+		} else {
+			return;
+		}
+		
 		CAMDevice cam = CAMDevice.getInstance();
 
 		int[] region = { 0, 0, 640, 480, 77, 1, 3000 };
@@ -359,7 +386,7 @@ public class CAMDevice {
 				int getPhotoRet = cam.CAM_GetPhotoInfo(uuidStr, 20);
 				System.out.println("getPhotoRet==" + getPhotoRet);
 				if (getPhotoRet == 0) {
-					int ss = cam.CAM_ScreenDisplay("验证失败，请从边门离开", 3);
+					int ss = cam.CAM_ScreenDisplay("验证失败#请从边门离开", 3);
 					System.out.println("ss==" + ss);
 				}
 			}

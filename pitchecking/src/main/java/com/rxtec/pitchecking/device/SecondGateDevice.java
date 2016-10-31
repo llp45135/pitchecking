@@ -325,34 +325,42 @@ public class SecondGateDevice implements SerialPortEventListener {
 				if (ss.length() >= 8) {
 					if (ss.indexOf("2A040023") == 0) {
 						// log.debug("第三道闸门已经关闭");
-						TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-								ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
-						DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
-						DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
-						log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
+						if (DeviceEventListener.getInstance().isStartThread()) {
+							TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+									ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+							DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+							DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+							log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
+						}
 					} else if (ss.indexOf("2A040F23") == 0) {
-						// log.debug("第三道闸门超时关闭");
-						TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-								ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
-						DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
-						DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
-						log.debug("人证比对完成，第三道闸门超时关闭，重新寻卡");
+						if (DeviceEventListener.getInstance().isStartThread()) {
+							// log.debug("第三道闸门超时关闭");
+							TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+									ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+							DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+							DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+							log.debug("人证比对完成，第三道闸门超时关闭，重新寻卡");
+						}
 					} else if (ss.indexOf("2A510123") == 0) {
 						log.debug("点亮入口绿色箭头");
 					} else if (ss.indexOf("2A510023") == 0) {
 						log.debug("点亮入口红色叉叉");
 					} else if (ss.indexOf("2A550123") == 0) {
-						log.debug("旅客求助按钮被按下");
-						EmerButtonEvent embEvent = new EmerButtonEvent();
-						embEvent.setEventNo("01");
-						embEvent.setEventTime(CalUtils.getStringDateHaomiao());
-						EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
+						if (DeviceEventListener.getInstance().isStartThread()) {
+							log.debug("旅客求助按钮被按下");
+							EmerButtonEvent embEvent = new EmerButtonEvent();
+							embEvent.setEventNo("01");
+							embEvent.setEventTime(CalUtils.getStringDateHaomiao());
+							EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
+						}
 					} else if (ss.indexOf("2A560123") == 0) {
-						log.debug("客运求助按钮被按下");
-						EmerButtonEvent embEvent = new EmerButtonEvent();
-						embEvent.setEventNo("02");
-						embEvent.setEventTime(CalUtils.getStringDateHaomiao());
-						EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
+						if (DeviceEventListener.getInstance().isStartThread()) {
+							log.debug("客运求助按钮被按下");
+							EmerButtonEvent embEvent = new EmerButtonEvent();
+							embEvent.setEventNo("02");
+							embEvent.setEventTime(CalUtils.getStringDateHaomiao());
+							EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
+						}
 					} else if (ss.indexOf("2A58") == 0) {
 						log.debug("通道当前状态为：" + ss);
 					}

@@ -3,18 +3,21 @@ package com.rxtec.pitchecking.mq;
 import java.io.Serializable;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.BASE64;
 import com.rxtec.pitchecking.utils.JsonUtils;
-
 
 public class PITInfoJson implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private int msgType = -1;
 	private int idHashCode = -1;
 	private int gender = 0;
+	private int event = -1;
+	private String ipAddress = "";
 	public static int Male = 1;
 	public static int Female = 2;
 
@@ -23,14 +26,29 @@ public class PITInfoJson implements Serializable {
 	public static int MSG_TYPE_EVENT = 3;
 	public static int VERIFY_PASSED = 1;
 	public static int VERIFY_FAILED = 0;
-	
+
 	private int age = -1;
 	private String idPicImageBase64 = "";
 	private String faceImageBase64 = "";
 	private String frameImageBase64 = "";
 	private float similarity = 0;
-	private int msgType = -1;
 	private int isVerifyPassed = -1;
+
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+	public int getEvent() {
+		return event;
+	}
+
+	public void setEvent(int event) {
+		this.event = event;
+	}
 
 	public int getIsVerifyPassed() {
 		return isVerifyPassed;
@@ -112,8 +130,10 @@ public class PITInfoJson implements Serializable {
 
 	public void setSimilarity(float similarity) {
 		this.similarity = similarity;
-		if(similarity >= Config.getInstance().getFaceVerifyThreads()) this.isVerifyPassed = VERIFY_PASSED;
-		else this.isVerifyPassed = VERIFY_FAILED;
+		if (similarity >= Config.getInstance().getFaceCheckThreshold())
+			this.isVerifyPassed = VERIFY_PASSED;
+		else
+			this.isVerifyPassed = VERIFY_FAILED;
 	}
 
 	public PITInfoJson(PITVerifyData pitData) throws Exception {
@@ -132,16 +152,26 @@ public class PITInfoJson implements Serializable {
 		if (pitData.getFaceImg() != null)
 			setFaceImageBase64(BASE64.encryptBASE64(pitData.getFaceImg()));
 
+		this.ipAddress = DeviceConfig.getInstance().getIpAddress();
 		this.msgType = PITInfoJson.MSG_TYPE_VERIFY;
 		jsonStr = JsonUtils.serialize(this);
 	}
-	
-	public PITInfoJson(byte[] frameImgBytes) throws Exception{
-		if(frameImgBytes == null) return;
+
+	public PITInfoJson(byte[] frameImgBytes) throws Exception {
+		if (frameImgBytes == null)
+			return;
 		this.frameImageBase64 = BASE64.encryptBASE64(frameImgBytes);
-		this.msgType = PITInfoJson.MSG_TYPE_VERIFY;
+		this.ipAddress = DeviceConfig.getInstance().getIpAddress();
+		this.msgType = PITInfoJson.MSG_TYPE_FRAME;
 		jsonStr = JsonUtils.serialize(this);
 
+	}
+	
+	public PITInfoJson(int event) throws Exception {
+		this.ipAddress = DeviceConfig.getInstance().getIpAddress();
+		this.msgType = PITInfoJson.MSG_TYPE_EVENT;
+		this.event = event;
+		jsonStr = JsonUtils.serialize(this);
 	}
 
 }

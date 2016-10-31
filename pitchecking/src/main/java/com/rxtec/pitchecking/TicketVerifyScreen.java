@@ -7,6 +7,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.device.AudioDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
@@ -22,15 +23,30 @@ import com.rxtec.pitchecking.gui.ticketgui.TicketVerifyFrame;
  */
 public class TicketVerifyScreen {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
-	private static TicketVerifyScreen _instance = new TicketVerifyScreen();
+	private static TicketVerifyScreen _instance;
 
 	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	GraphicsDevice[] gs = ge.getScreenDevices();
 
-	TicketVerifyFrame ticketFrame = new TicketVerifyFrame();
+	TicketVerifyFrame ticketFrame;
+
+	public TicketVerifyFrame getTicketFrame() {
+		return ticketFrame;
+	}
+
+	public void setTicketFrame(TicketVerifyFrame ticketFrame) {
+		this.ticketFrame = ticketFrame;
+	}
 
 	private TicketVerifyScreen() {
 
+	}
+	
+	public static synchronized TicketVerifyScreen getInstance() {
+		if (_instance == null) {
+			_instance = new TicketVerifyScreen();
+		}
+		return _instance;
 	}
 
 	public void initUI() {
@@ -38,10 +54,6 @@ public class TicketVerifyScreen {
 		// ticketFrame.setUndecorated(true);
 		// ticketFrame.setVisible(true);
 
-	}
-
-	public static TicketVerifyScreen getInstance() {
-		return _instance;
 	}
 
 	private LinkedBlockingQueue<ScreenElementModifyEvent> screenEventQueue = new LinkedBlockingQueue<ScreenElementModifyEvent>();
@@ -103,6 +115,9 @@ public class TicketVerifyScreen {
 		} else if (cmdType == ScreenCmdEnum.ShowCamOpenException.getValue()) {
 			String exMsg = "摄像头连接故障!";
 			ticketFrame.showExceptionContent(DeviceConfig.getInstance(), -1, exMsg);
+		}else if (cmdType == ScreenCmdEnum.ShowStopCheckFault.getValue()) {
+			String exMsg = "暂停服务";
+			ticketFrame.showSuccWait(exMsg, "请走其他通道");
 		}
 	}
 

@@ -19,6 +19,7 @@ import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
 import com.rxtec.pitchecking.net.event.PIVerifyRequestBean;
 import com.rxtec.pitchecking.net.event.ScreenDisplayBean;
 import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.utils.JsonUtils;
 import com.rxtec.pitchecking.utils.CalUtils;
 
 /**
@@ -33,7 +34,7 @@ public class MqttReceiverBroker {
 	Logger logTrack = LoggerFactory.getLogger("RSFaceTrackTask");
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
-	private final static String CLIENT_ID = "PitcheckSubcriber";// 客户端标识
+	private String CLIENT_ID = "PITR";// 客户端标识
 	private final static int[] QOS_VALUES = { 0 };// 对应主题的消息级别
 	private final static String[] TOPICS = { "pub_topic" };
 	private String[] unsubscribeTopics = { "sub_topic" };
@@ -55,13 +56,19 @@ public class MqttReceiverBroker {
 	}
 
 	private MqttReceiverBroker() {
-		try {
-			if (mqttClient == null || !mqttClient.isConnected()) {
-				this.connect();
+		CLIENT_ID = CLIENT_ID + DeviceConfig.getInstance().getIpAddress();
+		while (true) {
+			try {
+				if (mqttClient == null || !mqttClient.isConnected()) {
+					this.connect();
+				}
+			} catch (MqttException e) {
+				// TODO Auto-generated catch block
+				log.error("connect:", e);
+				CommUtil.sleep(5000);
+				continue;
 			}
-		} catch (MqttException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			break;
 		}
 	}
 
@@ -82,18 +89,17 @@ public class MqttReceiverBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("connect to MqttReceiverBroker.");
+		log.info("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
+				+ this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
-		log.info("***********register Simple Handler " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "***********");
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
 		mqttClient.registerSimpleHandler(simpleCallbackHandler);// 注册接收消息方法
 		mqttClient.connect(CLIENT_ID, CLEAN_START, KEEP_ALIVE);
-		log.info("***********subscribe receiver topics***********");
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		mqttClient.unsubscribe(unsubscribeTopics);
 
-		log.info("***********CLIENT_ID:" + CLIENT_ID);
+		log.info("**" + this.CLIENT_ID + " 连接 " + DeviceConfig.getInstance().getMQTT_CONN_STR() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息
@@ -162,39 +168,42 @@ public class MqttReceiverBroker {
 			String mqttMessage = new String(payload);
 
 			if (topicName.equals("pub_topic")) {
+				// log.debug("mqttMessage==" + mqttMessage);
 				if (mqttMessage.indexOf("CAM_Open") != -1) {
 					ObjectMapper mapper = new ObjectMapper();
 					CAMOpenBean camOpenBean = mapper.readValue(mqttMessage, CAMOpenBean.class);
+
+					// CAMOpenBean camOpenBean = new CAMOpenBean();
+					// camOpenBean = (CAMOpenBean)
+					// JsonUtils.toJavaBean(camOpenBean,
+					// JsonUtils.toMap(mqttMessage));
 					int faceTimeout = camOpenBean.getTimeout(); // 从cam_open输出的结构体获取到总超时时间
 					Config.getInstance().setFaceCheckDelayTime(faceTimeout);
-					log.info("CAM_Open faceTimeout==" + faceTimeout);
-
+					log.info("CAM_Open faceTimeout==" + faceTimeout);//
 					camOpenBean.setEventDirection(2);
+
 					String camOpenResultJson = mapper.writeValueAsString(camOpenBean);
+					// String camOpenResultJson = "{\"eventDirection\" :
+					// 2,\"eventName\" : \"CAM_Open\", \"threshold\" : 77,
+					// \"timeout\" : 3000}";
+
+					// String camOpenResultJson =
+					// JsonUtils.toJSON(camOpenBean).toString();
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, camOpenResultJson);
 
 				} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
-//					logTrack.info("getPITTrackPidstr()=="+Config.getInstance().getPITTrackPidstr());
-//					if (Config.getInstance().getPITTrackPidstr() == null || Config.getInstance().getPITTrackPidstr().trim().equals("")) {
-//						try {
-//							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
-//
-//							AudioDevice.getInstance().killpid(Config.getInstance().getTrackPidForKill());
-//						} catch (Exception ex) {
-//							logTrack.error("killpid:", ex);
-//						}
-//					}
-					
-					
+					log.info("@@@@@@@@@@@@@@@收到CAM_Notify请求@@@@@@@@@@@@@@@@");
 					MqttSenderBroker.getInstance().setNotifyJson(mqttMessage); // 把notify保存起来
 
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyEventBean b1 = mapper.readValue(mqttMessage, PIVerifyEventBean.class);
+					b1.setEventName(Config.BeginVerifyFaceEvent);
 					b1.setEventDirection(2);
 					String ss = "";
 					b1.setIdPhoto(ss.getBytes());
 
 					String notifyResultJson = mapper.writeValueAsString(b1);
+					log.info("notifyResultJson==" + notifyResultJson);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, notifyResultJson);
 
 				} else if (mqttMessage.indexOf("CAM_GetPhotoInfo") != -1) {
@@ -208,18 +217,18 @@ public class MqttReceiverBroker {
 
 					if (idCardNo != null && idCardNo.trim().length() == 18) {
 						// 收到调用CAM_GetPhotoInfo方式的请求开始人脸检测
-						if (DeviceConfig.getInstance().getVersionFlag() == 1) {
-							eventHandler.InComeEventHandler(MqttSenderBroker.getInstance().getNotifyJson());
+						if (DeviceConfig.getInstance().getVersionFlag() == 1) {	
+							eventHandler.InComeEventHandler(MqttSenderBroker.getInstance().getNotifyJson());							
 						}
 
 						if (DeviceConfig.getInstance().getVersionFlag() == 0) {
 							MqttSenderBroker.getInstance().testPublishFace();
 						}
 					} else {
+						log.info("########PublishWrongIDNo  身份号错误########");
 						MqttSenderBroker.getInstance().PublishWrongIDNo();
 					}
 				} else if (mqttMessage.indexOf("CAM_ScreenDisplay") != -1) {
-					// log.info("CAM_ScreenDisplay json==" + mqttMessage);
 					ObjectMapper mapper = new ObjectMapper();
 					ScreenDisplayBean screenDisplayBean = mapper.readValue(mqttMessage, ScreenDisplayBean.class);
 					int displayTimeout = screenDisplayBean.getTimeout(); // 从CAM_ScreenDisplay输出的结构体获取到屏幕超时时间
@@ -230,7 +239,9 @@ public class MqttReceiverBroker {
 					MqttSenderBroker.getInstance().setFaceScreenDisplay(faceScreenDisplay);
 					MqttSenderBroker.getInstance().setFaceScreenDisplayTimeout(displayTimeout);
 
+					screenDisplayBean.setEventName(Config.ScreenDisplayEvent);
 					screenDisplayBean.setEventDirection(2);
+
 					String screenDisplayResultJson = mapper.writeValueAsString(screenDisplayBean);
 					MqttSenderBroker.getInstance().sendMessage(SEND_TOPIC, screenDisplayResultJson);
 
@@ -245,6 +256,7 @@ public class MqttReceiverBroker {
 
 	public static void main(String[] args) {
 		MqttReceiverBroker mqttBroker = MqttReceiverBroker.getInstance();
+		MqttSenderBroker.getInstance().sendMessage("pub_topic", "DoorCmd12");
 
 	}
 }

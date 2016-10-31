@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.LightControlBoard;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
+import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
+import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
 import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
 import com.rxtec.pitchecking.net.PIVerifyEventSubscriber;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
@@ -19,6 +21,7 @@ import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 import com.rxtec.pitchecking.task.FaceScreenListener;
+import com.rxtec.pitchecking.task.ManualCheckingTask;
 
 /**
  * 人脸检测独立进程入口
@@ -57,7 +60,7 @@ public class PITrackingApp {
 		} else {
 			return;
 		}
-		
+
 		int lightLedRet = -1;
 		log.info("准备点亮补光灯");
 		try {
@@ -71,7 +74,9 @@ public class PITrackingApp {
 		// 闸机主控程序发送事件的订阅者
 		// PTVerifyPublisher.getInstance();
 
-		MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
+		MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance(); // 同CAM_RXTa.dll通信
+
+		GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT);// 启动PITEventTopic本地监听
 
 		FaceCheckingService.getInstance().beginFaceCheckerTask(); // 启动人脸发布和比对结果订阅
 
@@ -80,6 +85,12 @@ public class PITrackingApp {
 		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		scheduler.scheduleWithFixedDelay(FaceScreenListener.getInstance(), 0, 1500, TimeUnit.MILLISECONDS);
 
+		if (Config.getInstance().getIsUseManualMQ() == 1) {// 是否连人工窗控制台
+			ExecutorService executorService = Executors.newSingleThreadExecutor();
+			ManualCheckingTask manualCheckingTask = new ManualCheckingTask(DeviceConfig.GAT_MQ_Track_CLIENT);
+			executorService.execute(manualCheckingTask);
+		}
+
 		Thread.sleep(1000);
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {
 			RSFaceDetectionService.getInstance().setVideoPanel(faceTrackingScreen.getVideoPanel());
@@ -87,6 +98,6 @@ public class PITrackingApp {
 		} else {
 			FaceDetectionService.getInstance().setVideoPanel(faceTrackingScreen.getVideoPanel());
 			FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
-		}		
+		}
 	}
 }

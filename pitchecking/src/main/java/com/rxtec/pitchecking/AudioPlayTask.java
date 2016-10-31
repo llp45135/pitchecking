@@ -1,11 +1,14 @@
 package com.rxtec.pitchecking;
 
+import java.text.ParseException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.device.AudioDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
+import com.rxtec.pitchecking.utils.CalUtils;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class AudioPlayTask implements Runnable {
@@ -36,10 +39,35 @@ public class AudioPlayTask implements Runnable {
 
 	@Override
 	public void run() {
+		if (CalUtils.getStringFullTime().equals("233500")) {
+			log.info("超过23:30:00,必须停止引导语音");
+			AudioDevice.getInstance().cleanLastAudio();
+			AudioDevice.getInstance().setStartPlayTime("");
+		}
+		if (AudioDevice.getInstance().getStartPlayTime() != null
+				&& !AudioDevice.getInstance().getStartPlayTime().equals("")) {
+			try {
+				long playtime = CalUtils.howLong("ms", AudioDevice.getInstance().getStartPlayTime(),
+						CalUtils.getStringDateHaomiao());
+				if (playtime >= AudioDevice.getInstance().getLastingTime()) {
+					AudioDevice.getInstance().cleanLastAudio();
+					AudioDevice.getInstance().setStartPlayTime("");
+				}
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				log.error("cleanLastAudio:", e);
+			}
+
+		}
+
 		if (deviceStatus > Config.StopStatus) {
-			log.info("开始播放语音" + deviceStatus);
-//			AudioDevice.getInstance().play(deviceStatus);
-			AudioDevice.getInstance().playAudio(deviceStatus);
+			if (deviceStatus == DeviceConfig.useHelpFlag) {
+				if (Config.getInstance().getIsPlayHelpAudio() == 1) {
+					AudioDevice.getInstance().playAudio(deviceStatus);
+				}
+			} else {
+				AudioDevice.getInstance().playAudio(deviceStatus);
+			}
 			this.stop();
 		}
 	}

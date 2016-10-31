@@ -23,7 +23,6 @@ import com.rxtec.pitchecking.ScreenCmdEnum;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.TicketCheckScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.device.SecondGateDevice;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
@@ -43,7 +42,7 @@ public class RSFaceTrackingTestFrame {
 	public static void main(String[] args) throws InterruptedException {
 
 		
-		RemoteMonitorPublisher.getInstance().startService();
+		RemoteMonitorPublisher.getInstance().startService(1);
 		TestFaceVerifyScreen frame = TestFaceVerifyScreen.getInstance();
 		frame.initUI();
 //		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();

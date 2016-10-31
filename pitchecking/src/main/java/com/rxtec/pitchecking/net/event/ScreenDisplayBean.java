@@ -1,10 +1,11 @@
 package com.rxtec.pitchecking.net.event;
 
 public class ScreenDisplayBean {
-	private String eventName = "CAM_GetPhotoInfo";
+	private String eventName = "CAM_ScreenDisplay";
 	private int eventDirection = 1;
 	private String screenDisplay;
 	private int timeout;
+	
 	public String getEventName() {
 		return eventName;
 	}
