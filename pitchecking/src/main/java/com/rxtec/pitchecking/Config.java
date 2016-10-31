@@ -98,9 +98,13 @@ public class Config {
 
 	private String heartBeatLogFile = "D:/pitchecking/work/HEART.log";
 	private String rebackTrackFile = "D:/pitchecking/work/RebackFlag.log";
-	private String startPITAppCmd = "D:/pitchecking/work/RestartPITTrack.bat";
+	private String pausePitcheckFile = "D:/pitchecking/work/PAUSE.log";
+	private String startPITVerifyCmd = "D:/pitchecking/work/RestartPITVerify.bat";
+	private String startPITTrackCmd = "D:/pitchecking/work/RestartPITTrack.bat";
 	public static String AutoRestartCmd = "D:/pitchecking/work/autoRestartPC.bat";
 	public static String AutoLogonCmd = "D:/pitchecking/work/autoLogonPC.bat";
+	private String KillTKExeCmd = "C:/AFC/shared/kill.exe";
+	private String StartTKExeCmd = "C:/AFC/gui/gui.exe";
 
 	// 人脸比对结果状态
 	public static int VerifyPassedStatus = 0;
@@ -155,6 +159,7 @@ public class Config {
 	private boolean rebackTrackFlag = true;
 	private int isUseManualMQ=0;
 	private int isUseMySQLDB = 0;
+	private int isPlayHelpAudio = 1;
 
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
@@ -179,6 +184,38 @@ public class Config {
 	private float maxAverageDepth = 1000F;
 
 	private int faceTrackMode = 1; // 人臉追蹤模式 1 紅外，2 顔色+景深
+
+	public int getIsPlayHelpAudio() {
+		return isPlayHelpAudio;
+	}
+
+	public void setIsPlayHelpAudio(int isPlayHelpAudio) {
+		this.isPlayHelpAudio = isPlayHelpAudio;
+	}
+
+	public String getKillTKExeCmd() {
+		return KillTKExeCmd;
+	}
+
+	public void setKillTKExeCmd(String killTKExeCmd) {
+		KillTKExeCmd = killTKExeCmd;
+	}
+
+	public String getStartTKExeCmd() {
+		return StartTKExeCmd;
+	}
+
+	public void setStartTKExeCmd(String startTKExeCmd) {
+		StartTKExeCmd = startTKExeCmd;
+	}
+
+	public String getPausePitcheckFile() {
+		return pausePitcheckFile;
+	}
+
+	public void setPausePitcheckFile(String pausePitcheckFile) {
+		this.pausePitcheckFile = pausePitcheckFile;
+	}
 
 	public boolean isRebackTrackFlag() {
 		return rebackTrackFlag;
@@ -242,12 +279,22 @@ public class Config {
 		return faceDetectionScale;
 	}
 
-	public String getStartPITAppCmd() {
-		return startPITAppCmd;
+
+
+	public String getStartPITTrackCmd() {
+		return startPITTrackCmd;
 	}
 
-	public void setStartPITAppCmd(String startPITAppCmd) {
-		this.startPITAppCmd = startPITAppCmd;
+	public void setStartPITTrackCmd(String startPITTrackCmd) {
+		this.startPITTrackCmd = startPITTrackCmd;
+	}
+
+	public String getStartPITVerifyCmd() {
+		return startPITVerifyCmd;
+	}
+
+	public void setStartPITVerifyCmd(String startPITVerifyCmd) {
+		this.startPITVerifyCmd = startPITVerifyCmd;
 	}
 
 	public void setFaceDetectionScale(float faceDetectionScale) {
@@ -518,14 +565,19 @@ public class Config {
 			this.minAverageDepth = Integer.valueOf(p.getProperty("MinAverageDepth", "400"));
 			this.faceTrackMode = Integer.valueOf(p.getProperty("FaceTrackMode", "1"));
 			this.faceDetectionScale = Float.valueOf(p.getProperty("FaceDetectionScale", "1.3"));
-			this.heartBeatLogFile = p.getProperty("HeartBeatLogFile", "C:/pitchecking/work/HEART.log");
+			this.pausePitcheckFile = p.getProperty("pausePitcheckFile", "D:/pitchecking/work/PAUSE.log");
+			this.heartBeatLogFile = p.getProperty("HeartBeatLogFile", "D:/pitchecking/work/HEART.log");
 			this.rebackTrackFile = p.getProperty("rebackTrackFile", "D:/pitchecking/work/RebackFlag.log");
-			this.startPITAppCmd = p.getProperty("StartPITAppCmd", "C:/pitchecking/bin");
+			this.startPITTrackCmd = p.getProperty("StartPITTrackCmd", "D:/pitchecking/work/RestartPITTrack.bat");
+			this.startPITVerifyCmd = p.getProperty("StartPITVerifyCmd", "D:/pitchecking/work/RestartPITVerify.bat");
+			this.KillTKExeCmd = p.getProperty("KillTKExeCmd", "C:/AFC/shared/kill.exe");
+			this.StartTKExeCmd = p.getProperty("StartTKExeCmd", "C:/AFC/gui/gui.exe");
 			this.faceVerifyTaskVersion = p.getProperty("FaceVerifyTaskVersion", "TK");
 			this.faceFrameTransparency = Float.valueOf(p.getProperty("faceFrameTransparency", "0.75"));
 			this.HEART_BEAT_DELAY = Integer.valueOf(p.getProperty("HEART_BEAT_DELAY", "15000"));
 			this.isUseManualMQ = Integer.valueOf(p.getProperty("isUseManualMQ", "0"));
 			this.isUseMySQLDB = Integer.valueOf(p.getProperty("isUseMySQLDB", "0"));
+			this.isPlayHelpAudio = Integer.valueOf(p.getProperty("isPlayHelpAudio", "1"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -543,6 +595,7 @@ public class Config {
 		System.out.println("getIsCheckRealFace==" + Config.getInstance().getIsCheckRealFace());
 		System.out.println("getHEART_BEAT_DELAY=="+Config.getInstance().getHEART_BEAT_DELAY());
 		System.out.println("getImagesLogDir=="+Config.getInstance().getImagesLogDir());
+		System.out.println("getPausePitcheckFile=="+Config.getInstance().getPausePitcheckFile());
 	}
 
 }

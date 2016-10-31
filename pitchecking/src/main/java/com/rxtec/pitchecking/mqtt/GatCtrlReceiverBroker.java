@@ -39,7 +39,7 @@ public class GatCtrlReceiverBroker {
 	Logger log = LoggerFactory.getLogger("GatCtrlReceiverBroker");
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
-	private String CLIENT_ID = "GatCtrlReceiver";// 客户端标识
+	private String CLIENT_ID = "GCR";// 客户端标识
 	private final static int[] QOS_VALUES = { 0 };// 对应主题的消息级别
 	private final static String[] TOPICS = { "PITEventTopic" };
 	private String[] unSubscribeTopics = { "PITInfoTopic" };
@@ -60,19 +60,20 @@ public class GatCtrlReceiverBroker {
 	}
 
 	private GatCtrlReceiverBroker(String pidname) {
-		CLIENT_ID += pidname;
+		CLIENT_ID = CLIENT_ID + DeviceConfig.getInstance().getIpAddress() + pidname;
 		while (true) {
 			try {
 				if (mqttClient == null || !mqttClient.isConnected()) {
 					this.connect();
 				}
+				break;
 			} catch (MqttException e) {
 				// TODO Auto-generated catch block
 				log.error("connect:", e);
 				CommUtil.sleep(5000);
 				continue;
 			}
-			break;
+			
 		}
 	}
 
@@ -93,18 +94,17 @@ public class GatCtrlReceiverBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("connect to GatCtrlReceiverBroker.");
+		log.info("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
+				+ this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
-		log.info("***********register Simple Handler " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "***********");
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
 		mqttClient.registerSimpleHandler(simpleCallbackHandler);// 注册接收消息方法
 		mqttClient.connect(CLIENT_ID, CLEAN_START, KEEP_ALIVE);
-		log.info("***********subscribe receiver topics***********");
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		mqttClient.unsubscribe(unSubscribeTopics);
 
-		log.info("***********CLIENT_ID:" + CLIENT_ID);
+		log.info("**" + this.CLIENT_ID + " 连接 " + DeviceConfig.getInstance().getMQTT_CONN_STR() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息
@@ -171,18 +171,19 @@ public class GatCtrlReceiverBroker {
 			// log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String mqttMessage = new String(payload);
-			log.info("mqttMessage==" + mqttMessage);
 			if (topicName.equals("PITEventTopic")) {
 				// log.info("mqttMessage==" + mqttMessage);
 				if (mqttMessage.toLowerCase().indexOf("eventsource") != -1) { // 收到门控制发回的指令
 					ObjectMapper mapper = new ObjectMapper();
 					GatCrtlBean gatCrtlBean = mapper.readValue(mqttMessage.toLowerCase(), GatCrtlBean.class);
-					log.debug("getEvent==" + gatCrtlBean.getEvent());
-					log.debug("getTarget==" + gatCrtlBean.getTarget());
-					log.debug("getEventsource==" + gatCrtlBean.getEventsource());
+					// log.debug("getEvent==" + gatCrtlBean.getEvent());
+					// log.debug("getTarget==" + gatCrtlBean.getTarget());
+					// log.debug("getEventsource==" +
+					// gatCrtlBean.getEventsource());
 					if (gatCrtlBean.getEventsource().equals("manual")) {
-						log.debug("来自人工窗消息");
-						if (CLIENT_ID.equals("GatCtrlReceiver" + DeviceConfig.GAT_MQ_Track_CLIENT)) {
+						log.debug("来自人工窗消息:" + mqttMessage);
+						if (CLIENT_ID.equals(
+								"GCR" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Track_CLIENT)) {
 							if (Config.getInstance().getIsUseManualMQ() == 1) { // 是否连人工窗
 								if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenSecondDoor) {
 									AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); // 语音："验证成功，请通过"
@@ -193,15 +194,29 @@ public class GatCtrlReceiverBroker {
 						}
 
 					} else if (gatCrtlBean.getEventsource().equals("tk")) {
-						log.debug("来自铁科主控端消息");
-						if (CLIENT_ID.equals("GatCtrlReceiver" + DeviceConfig.GAT_MQ_Standalone_CLIENT)) {
+						// log.debug("来自铁科主控端消息:" + mqttMessage);
+						if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+								+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) {
 							if (Config.getInstance().getIsUseManualMQ() == 1) { // 是否连人工窗
-								RemoteMonitorPublisher.getInstance().offerEventData(gatCrtlBean.getEvent());
+								// RemoteMonitorPublisher.getInstance().offerEventData(gatCrtlBean.getEvent());
+								mqttMessage = mqttMessage.replace("127.0.0.1",
+										DeviceConfig.getInstance().getIpAddress());
+								log.debug("来自铁科主控端消息:" + mqttMessage);
+
+								if (gatCrtlBean.getEvent() == 10010) {
+									DeviceConfig.getInstance().setInTracking(true);
+								}
+								if (gatCrtlBean.getEvent() == 10011 || gatCrtlBean.getEvent() == 10012) {
+									DeviceConfig.getInstance().setInTracking(false);
+								}
+								ManualEventSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
+										.sendDoorCmd(mqttMessage);
 							}
 						}
-					} else if (gatCrtlBean.getEventsource().equals("faceverify")) {
-						log.debug("来自检脸程序消息");
-						if (CLIENT_ID.equals("GatCtrlReceiver" + DeviceConfig.GAT_MQ_Verify_CLIENT)) {
+					} else if (gatCrtlBean.getEventsource().equals("faceverifyback")) {
+						log.debug("来自DLL的回执:" + mqttMessage);
+						if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+								+ DeviceConfig.GAT_MQ_Verify_CLIENT)) {
 							if (gatCrtlBean.getEvent() == DeviceConfig.Event_SecondDoorHasClosed) {
 								TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 										ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
@@ -209,6 +224,21 @@ public class GatCtrlReceiverBroker {
 								DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
 								log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
 							}
+						}
+					} else {
+						log.debug("该条消息暂时不做处理：" + mqttMessage);
+					}
+
+					if (gatCrtlBean.getEvent() == DeviceConfig.Event_SecondDoorHasClosed) {
+						DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+						log.debug("已收到第二道门的关门回执,允许重新转发手动开第二道门指令");
+						if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+								+ DeviceConfig.GAT_MQ_Verify_CLIENT)) {
+							TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+									ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+							DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+							DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+							log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
 						}
 					}
 				}
@@ -223,7 +253,7 @@ public class GatCtrlReceiverBroker {
 		// GatCtrlReceiverBroker.getInstance("Verify");
 		// GatCtrlReceiverBroker mqttBroker =
 		// GatCtrlReceiverBroker.getInstance("Track");
-		GatCtrlReceiverBroker mqttBroker = GatCtrlReceiverBroker.getInstance("Alone");
+		GatCtrlReceiverBroker mqttBroker = GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);// 启动PITEventTopic本地监听
 		System.out.println("$$");
 
 	}

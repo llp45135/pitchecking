@@ -17,7 +17,8 @@ public enum ScreenCmdEnum {
 	ShowQRDeviceException(-1),
 	ShowIDDeviceException(-2),
 	ShowVersionFault(-3),
-	ShowCamOpenException(-4)
+	ShowCamOpenException(-4),
+	ShowStopCheckFault(-5)
 	{
 		@Override
 		public boolean isRest() {

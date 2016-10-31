@@ -27,7 +27,7 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "161013.09.01";
+	public static String softVersion = "161029.22.01";
 	private String softIdNo = "520203197912141118,440111197209283012,440881199502176714";
 
 	public static int idDeviceSucc = 1;
@@ -117,14 +117,18 @@ public class DeviceConfig {
 	// public static String CLOSE_SECONDDDOOR = "DoorCmd11";
 	public static String OPEN_THIRDDOOR = "{\"Event\": 3,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
 	// public static String CLOSE_THIRDDOOR = "DoorCmd21";
+	public static String EventTopic = "PITEventTopic";
+	public static String Event_StartTracking = "{\"Event\": 10010,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}";  //人脸开始核验
+	public static String Event_VerifyFaceSucc = "{\"Event\": 10011,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}";  //人脸核验成功
+	public static String Event_VerifyFaceFailed = "{\"Event\": 10012,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; //人脸核验失败
 
 	// 开关门
-	public static int Event_OpenFirstDoor = 1;
-	public static int Event_OpenSecondDoor = 2;
-	public static int Event_OpenThirdDoor = 3;
-	public static int Event_CloseFirstDoor = 4;
-	public static int Event_CloseSecondDoor = 5;
-	public static int Event_CloseThirdDoor = 6;
+	public static int Event_OpenFirstDoor = 1;  //开前门
+	public static int Event_OpenSecondDoor = 2;  //开后门
+	public static int Event_OpenThirdDoor = 3;  //开边门
+	public static int Event_PauseService = 4;   //暂停服务
+	public static int Event_ContinueService = 5;  //恢复服务
+	public static int Event_ResetService = 6;     //重启闸机
 
 	public static int Event_ErrorReadIDCard = 10; // 读二代证失败
 	public static int Event_ErrorReadQRCode = 11; // 读二维码失败
@@ -135,6 +139,26 @@ public class DeviceConfig {
 	public static int Event_NotThisCheckinStation = 16; // 非本站乘车
 
 	public static int Event_SecondDoorHasClosed = 20; // 第二道门已关
+	
+	private boolean isAllowOpenSecondDoor = true;  //是否允许开第二道门
+	private boolean isInTracking = false;  //是否处于人脸核验中
+	
+
+	public boolean isInTracking() {
+		return isInTracking;
+	}
+
+	public void setInTracking(boolean isInTracking) {
+		this.isInTracking = isInTracking;
+	}
+
+	public boolean isAllowOpenSecondDoor() {
+		return isAllowOpenSecondDoor;
+	}
+
+	public void setAllowOpenSecondDoor(boolean isAllowOpenSecondDoor) {
+		this.isAllowOpenSecondDoor = isAllowOpenSecondDoor;
+	}
 
 	public String getSoftIdNo() {
 		return softIdNo;

@@ -36,7 +36,7 @@ public class GatCtrlSenderBroker {
 	Logger log = LoggerFactory.getLogger("GatCtrlSenderBroker");
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
-	private String CLIENT_ID = "GatCtrlSender";// 客户端标识
+	private String CLIENT_ID = "GCS";// 客户端标识
 	private final static int[] QOS_VALUES = { 0 };// 对应主题的消息级别
 	private final static String[] TOPICS = { "PITEventTopic" };
 //	private String[] UNSUB_TOPICS = { "sub_topic" };
@@ -85,7 +85,7 @@ public class GatCtrlSenderBroker {
 	}
 
 	private GatCtrlSenderBroker(String pidname) {
-		CLIENT_ID += pidname;
+		CLIENT_ID = CLIENT_ID + DeviceConfig.getInstance().getIpAddress() + pidname;
 		while (true) {
 			try {
 				if (mqttClient == null || !mqttClient.isConnected()) {
@@ -118,10 +118,8 @@ public class GatCtrlSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.debug("connect to GatCtrlSenderBroker.");
+		log.info("start connect to "+DeviceConfig.getInstance().getMQTT_CONN_STR()+"# MyClientID==" + this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
-		log.debug(
-				"***********register Simple Handler " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "***********");
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
 		mqttClient.registerSimpleHandler(simpleCallbackHandler);// 注册接收消息方法
@@ -130,7 +128,7 @@ public class GatCtrlSenderBroker {
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		// mqttClient.unsubscribe(UNSUB_TOPICS);
 
-		log.debug("***********CLIENT_ID:" + CLIENT_ID);
+		log.info("**" + this.CLIENT_ID + " 连接 " + DeviceConfig.getInstance().getMQTT_CONN_STR() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息

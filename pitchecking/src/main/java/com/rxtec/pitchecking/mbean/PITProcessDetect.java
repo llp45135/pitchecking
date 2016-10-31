@@ -72,7 +72,7 @@ public class PITProcessDetect implements Runnable {
 						try {
 							Config.getInstance().setRebackTrackFlag(true);
 							log.info("准备执行恢复检脸进程的批处理");
-							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
+							Runtime.getRuntime().exec(Config.getInstance().getStartPITTrackCmd());
 							log.info("Resatrt PITTrackApp......");
 							this.setStartStatus(true);
 						} catch (Exception ex) {
@@ -82,8 +82,8 @@ public class PITProcessDetect implements Runnable {
 							File heartFile = new File(Config.getInstance().getHeartBeatLogFile());
 							heartFile.delete();
 							log.info("已经执行恢复检脸进程的批处理");
-							GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
-									.sendDoorCmd("PITEventTopic", DeviceConfig.OPEN_SECONDDOOR);
+							GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT).sendDoorCmd("PITEventTopic", DeviceConfig.OPEN_SECONDDOOR);
+							DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
 							continue;
 						} catch (Exception ex) {
 							log.error("Resatrt PITTrackApp......:", ex);
@@ -116,7 +116,7 @@ public class PITProcessDetect implements Runnable {
 				} else if (HeartBeatStr.equals("null")) {
 					if (startStatus) {
 						try {
-							Runtime.getRuntime().exec(Config.getInstance().getStartPITAppCmd());
+							Runtime.getRuntime().exec(Config.getInstance().getStartPITTrackCmd());
 							CommUtil.sleep(10 * 1000);
 							log.info("Resatrt PITCheckApp......When hbs is null");
 							this.setStartStatus(true);

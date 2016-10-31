@@ -147,6 +147,7 @@ public class RSFaceTrackTask implements Runnable {
 		PXCMRectI32 rect = new PXCMRectI32();
 		PITData fd = new PITData(frame);
 		boolean ret = detection.QueryBoundingRect(rect);
+//		log.debug("detection.QueryBoundingRect(rect)==" + ret + ",rect==" + rect);
 		if (ret) {
 			int x, y, w, h;
 			float xa = (rect.w * Config.getInstance().getFaceDetectionScale() - rect.w) / 2;
@@ -269,7 +270,7 @@ public class RSFaceTrackTask implements Runnable {
 				if (Config.getInstance().getFaceTrackMode() == Config.FACE_TRACK_IR)
 					graphics.drawString("x", point.x * Config.FrameWidth / Config.IRFrameWidth,
 							point.y * Config.FrameHeigh / Config.IRFrameHeigh);
-				else  {
+				else {
 					graphics.drawString("x", point.x, point.y);
 
 				}
@@ -716,24 +717,24 @@ public class RSFaceTrackTask implements Runnable {
 				}
 
 				List<SortFace> sortFaces = sortFaceByDistence(faceData);
-				
+
 				for (SortFace sf : sortFaces) {
 					PXCMFaceData.Face face = sf.face;
 					PXCMFaceData.DetectionData detection = face.QueryDetection();
 
-					
 					drawLocation(detection);// 画脸部框
 					PXCMFaceData.PoseEulerAngles pae = checkFacePose(face.QueryPose());
 
 					boolean isRealFace = true;
-					//如果只是RGB检测人脸，则不需检测是否活脸和深度
+					// 如果只是RGB检测人脸，则不需检测是否活脸和深度
 					if (Config.FACE_TRACK_COLOR != Config.getInstance().getFaceTrackMode()) {
 						if (Config.getInstance().getIsCheckRealFace() == Config.Is_Check_RealFace) {
 							isRealFace = checkRealFace(sf);
 						}
-						isRealFace &=  (pae != null);
+						isRealFace &= (pae != null);
 					}
 
+//					log.debug("detection==" + detection);
 					if (detection != null && isRealFace) {
 						drawLandmark(face);
 						PITData fd = createFaceData(frameImage, detection);
@@ -743,9 +744,11 @@ public class RSFaceTrackTask implements Runnable {
 							if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {
 								fd.setIdCard(currentIDCard);
 								fd.setTicket(currentTicket);
-								fd.setFacePosePitch(pae.pitch);
-								fd.setFacePoseRoll(pae.roll);
-								fd.setFacePoseYaw(pae.yaw);
+								if (pae != null) {
+									fd.setFacePosePitch(pae.pitch);
+									fd.setFacePoseRoll(pae.roll);
+									fd.setFacePoseYaw(pae.yaw);
+								}
 								log.info("Begin to verify face........." + fd);
 								FaceCheckingService.getInstance().offerDetectedFaceData(fd);
 							}
@@ -770,13 +773,13 @@ public class RSFaceTrackTask implements Runnable {
 	private List<SortFace> sortFaceByDistence(PXCMFaceData faceData) {
 		List<SortFace> sortFaces = new ArrayList<SortFace>();
 		int faceCount = faceData.QueryNumberOfDetectedFaces();
-		if(Config.FACE_TRACK_COLOR == Config.getInstance().getFaceTrackMode()){
+		if (Config.FACE_TRACK_COLOR == Config.getInstance().getFaceTrackMode()) {
 			for (int i = 0; i < faceCount; i++) {
 				PXCMFaceData.Face face = faceData.QueryFaceByIndex(i);
 				SortFace sf = new SortFace(face, 0);
 				sortFaces.add(sf);
 			}
-		}else{
+		} else {
 			for (int i = 0; i < faceCount; i++) {
 				PXCMFaceData.Face face = faceData.QueryFaceByIndex(i);
 				PXCMRectI32 rect = new PXCMRectI32();
@@ -796,8 +799,6 @@ public class RSFaceTrackTask implements Runnable {
 				}
 			}
 		}
-		
-		
 
 		Collections.sort(sortFaces);
 		return sortFaces;

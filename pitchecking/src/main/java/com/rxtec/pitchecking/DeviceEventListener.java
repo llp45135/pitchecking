@@ -49,8 +49,17 @@ public class DeviceEventListener implements Runnable {
 	private static DeviceEventListener _instance = new DeviceEventListener();
 	// private IVerifyFaceTask verifyFaceTask ;
 	private TicketVerify ticketVerify = new TicketVerify();
+	private boolean isStartThread = true;
 	private boolean isDealDeviceEvent = true;
 	private LinkedBlockingQueue<IDeviceEvent> deviceEventQueue = new LinkedBlockingQueue<IDeviceEvent>(3);
+
+	public boolean isStartThread() {
+		return isStartThread;
+	}
+
+	public void setStartThread(boolean isStartThread) {
+		this.isStartThread = isStartThread;
+	}
 
 	public boolean isDealDeviceEvent() {
 		return isDealDeviceEvent;
@@ -133,15 +142,18 @@ public class DeviceEventListener implements Runnable {
 
 	@Override
 	public void run() {
+
 		IDeviceEvent e;
 		try {
 			if (isDealDeviceEvent) {
-				e = deviceEventQueue.take();
-				log.debug("e==" + e);
-				this.setDealDeviceEvent(false);// 停止处理新的事件
-				this.processEvent(e);
+				e = deviceEventQueue.poll();
+//				log.debug("e==" + e);
+				if (e != null) {
+					this.setDealDeviceEvent(false);// 停止处理新的事件
+					this.processEvent(e);
+				}
 			}
-		} catch (InterruptedException ex) {
+		} catch (Exception ex) {
 			log.error("DeviceEventListener", ex);
 		}
 	}
@@ -280,6 +292,26 @@ public class DeviceEventListener implements Runnable {
 
 	// 启动设备
 	private void startDevice() throws DeviceException {
+		String pauseFlagStr = ProcessUtil.getLastPauseFlag();
+		log.debug("pauseFlagStr==" + pauseFlagStr);
+		if (pauseFlagStr != null) {
+			if (pauseFlagStr.indexOf("kill") != -1) {
+				log.debug("启动暂停服务版本...");
+				TicketVerifyScreen.getInstance().offerEvent(
+						new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowStopCheckFault.getValue(), null, null, null));
+				ProcessUtil.writePauseLog(ProcessUtil.getCurrentProcessID());
+				this.isStartThread = false;
+				Config.getInstance().setIsUseManualMQ(0);
+				if (this.startGateDevice() != 1) {
+					return;
+				}
+				LightEntryLED(false);
+				return;
+			}
+		}
+
+		ProcessUtil.writePauseLog(ProcessUtil.getCurrentProcessID());
+
 		if (Config.getInstance().getIsUseManualMQ() == 0) {
 			if (this.startGateDevice() != 1) {
 				return;
@@ -290,6 +322,7 @@ public class DeviceEventListener implements Runnable {
 			log.debug("软件版本错误:" + DeviceConfig.getInstance().getVersionFlag());
 			TicketVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowVersionFault.getValue(), null, null, null));
+			this.isStartThread = false;
 			LightEntryLED(false);
 			return;
 		}
@@ -298,23 +331,30 @@ public class DeviceEventListener implements Runnable {
 			this.setDealDeviceEvent(false);// 停止处理新的事件
 			TicketVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowCamOpenException.getValue(), null, null, null));
+			this.isStartThread = false;
 			LightEntryLED(false);
 			return;
 		}
 
 		if (this.startIDDevice() != 1) {
+			this.isStartThread = false;
 			LightEntryLED(false);
 			return;
 		}
 		if (this.startQRDevice() != 1) {
+			this.isStartThread = false;
 			LightEntryLED(false);
 			return;
 		}
 
-		if (this.addQuartzJobs() != 1) {
-			LightEntryLED(false);
-			return;
-		}
+		/**
+		 * 启动定时任务
+		 */
+		// if (this.addQuartzJobs() != 1) {
+		// this.isStartThread = false;
+		// LightEntryLED(false);
+		// return;
+		// }
 
 		/**
 		 * 连接mq服务，启动mq receiver线程
@@ -327,9 +367,9 @@ public class DeviceEventListener implements Runnable {
 
 		ScheduledExecutorService scheduler = null;
 		if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
-			scheduler = Executors.newScheduledThreadPool(5);
+			scheduler = Executors.newScheduledThreadPool(3);
 		} else {
-			scheduler = Executors.newScheduledThreadPool(4);
+			scheduler = Executors.newScheduledThreadPool(2);
 		}
 
 		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
@@ -350,6 +390,7 @@ public class DeviceEventListener implements Runnable {
 		}
 
 		LightEntryLED(true);
+		log.debug("DeviceEventListener 初始化成功");
 	}
 
 	/**

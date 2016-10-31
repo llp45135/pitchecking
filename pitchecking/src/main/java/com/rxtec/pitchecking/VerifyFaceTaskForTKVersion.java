@@ -17,6 +17,7 @@ import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.mq.JmsSender;
 import com.rxtec.pitchecking.mq.JmsSenderTask;
+import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 import com.rxtec.pitchecking.mqtt.MqttSenderBroker;
 import com.rxtec.pitchecking.net.PTVerifyEventResultPublisher;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
@@ -60,12 +61,20 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 		log.info("$$$$$$$$$$$$$$$开始人脸检测$$$$$$$$$$$$$$$$");
 		int faceCheckTimeout = Config.getInstance().getFaceCheckDelayTime();
 		int checkPassTimeout = Config.getInstance().getCheckDelayPassTime();
-		
+
+		// 设置为处于人脸核验中
+		DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+		DeviceConfig.getInstance().setInTracking(true);
+
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
+				DeviceConfig.Event_StartTracking);
+
 		PITVerifyData fd = null;
 
-//		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音“请平视摄像头”
+		// AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); //
+		// 调用语音“请平视摄像头”
 		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); // 调用语音“请取走票证，走进通道，抬头看屏幕”
-		
+
 		FaceTrackingScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, fd));
 		/**
@@ -80,18 +89,26 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			fd.setFrameImg(idCard.getCardImageBytes());
 			fd.setVerifyResult(1);
 			log.debug("老人或小孩Age=" + idCard.getAge() + "：PITVerifyData==" + fd);
-			CommUtil.sleep(3000);
+			CommUtil.sleep(4000);
 
 			// 向闸机主控程序发布比对结果
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
-			mqttSenderBroker.publishResult(fd,Config.VerifyPassedStatus); // MQTT版本 比对结果发布
-			
+			mqttSenderBroker.publishResult(fd, Config.VerifyPassedStatus); // MQTT版本
+																			// 比对结果发布
+
 			AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); // 语音："验证成功，请通过"
-			
-//			log.debug("准备发布faceframe事件");
-//			FaceTrackingScreen.getInstance().offerEvent(
-//					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
-//			log.debug("faceframe事件已经发布");
+
+			// 通知人工控制台
+			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
+					DeviceConfig.Event_VerifyFaceSucc);
+
+			DeviceConfig.getInstance().setInTracking(false); // 设置人脸核验已经完成
+
+			// log.debug("准备发布faceframe事件");
+			// FaceTrackingScreen.getInstance().offerEvent(
+			// new ScreenElementModifyEvent(1,
+			// ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
+			// log.debug("faceframe事件已经发布");
 
 			return fd;
 		}
@@ -116,12 +133,15 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 		if (fd == null) {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.debug("pollPassFaceData, using " + usingTime + " value = null");
-			
+
 			PITVerifyData failedFd = FaceCheckingService.getInstance().pollFailedFaceData();
-			log.debug("Timeout return PITVerifyData = " + failedFd);	
-			if(failedFd != null) 
-				mqttSenderBroker.publishResult(failedFd,Config.VerifyFailedStatus); // MQTT版本 比对结果发布 ,人脸比对失败！ 状态为1
-			
+			log.debug("Timeout return PITVerifyData = " + failedFd);
+			if (failedFd != null)
+				mqttSenderBroker.publishResult(failedFd, Config.VerifyFailedStatus); // MQTT版本
+																						// 比对结果发布
+																						// ,人脸比对失败！
+																						// 状态为1
+
 			// // mq发送人脸
 			// if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
 			// FailedFace failedFace =
@@ -137,18 +157,31 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 
 			faceTrackService.stopCheckingFace();
 			AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 语音："验证失败，请从侧门离开通道"
-			
+			// 通知人工控制台
+			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
+					DeviceConfig.Event_VerifyFaceFailed);
+
+			DeviceConfig.getInstance().setInTracking(false); // 设置人脸核验已经完成
+
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getVerifyResult());
 			// 向闸机主控程序发布比对结果
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
-			mqttSenderBroker.publishResult(fd,Config.VerifyPassedStatus); // MQTT版本 比对结果发布 ,人脸比对成功！ 状态为0
+			mqttSenderBroker.publishResult(fd, Config.VerifyPassedStatus); // MQTT版本
+																			// 比对结果发布
+																			// ,人脸比对成功！
+																			// 状态为0
 			// mqttSenderBroker.testPublishFace();
 
 			faceTrackService.stopCheckingFace();
 			AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); // 语音："验证成功，请通过"
-//			FaceCheckingService.getInstance().setFailedFace(null);
+			// 通知人工控制台
+			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
+					DeviceConfig.Event_VerifyFaceSucc);
+
+			DeviceConfig.getInstance().setInTracking(false); // 设置人脸核验已经完成
+			// FaceCheckingService.getInstance().setFailedFace(null);
 		}
 
 		return fd;

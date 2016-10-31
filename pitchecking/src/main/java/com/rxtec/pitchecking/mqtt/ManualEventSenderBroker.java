@@ -8,6 +8,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.jasypt.commons.CommonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,7 @@ import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mq.PITInfoTopicSender;
 import com.rxtec.pitchecking.net.event.CAMOpenBean;
 import com.rxtec.pitchecking.net.event.EventHandler;
@@ -36,7 +38,7 @@ public class ManualEventSenderBroker {
 	Logger log = LoggerFactory.getLogger("ManualEventSenderBroker");
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
-	private String CLIENT_ID = "MEventSender";// 客户端标识
+	private String CLIENT_ID = "MES";// 客户端标识
 	private final static int[] QOS_VALUES = { 0 };// 对应主题的消息级别
 	private final static String[] TOPICS = { "PITEventTopic" };
 //	private String[] UNSUB_TOPICS = { "sub_topic" };
@@ -85,7 +87,7 @@ public class ManualEventSenderBroker {
 	}
 
 	private ManualEventSenderBroker(String pidname) {
-		CLIENT_ID += pidname;
+		CLIENT_ID = CLIENT_ID + DeviceConfig.getInstance().getIpAddress() + pidname;
 		while (true) {
 			try {
 				if (mqttClient == null || !mqttClient.isConnected()) {
@@ -93,7 +95,7 @@ public class ManualEventSenderBroker {
 				}
 			} catch (MqttException e) {
 				// TODO Auto-generated catch block
-				log.error("connect:",e);
+				log.error("connect failed!!");
 				CommUtil.sleep(5000);
 				continue;
 			}
@@ -108,7 +110,7 @@ public class ManualEventSenderBroker {
 			mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 			flag = 0;
 		} catch (MqttException ex) {
-			log.error("GatCtrlSenderBroker reconnect", ex);
+			log.error("ManualEventSenderBroker reconnect failed!");
 			flag = -1;
 		}
 		return flag;
@@ -118,19 +120,16 @@ public class ManualEventSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.debug("connect to ManualEventSenderBroker.");
+		log.info("start connect to "+DeviceConfig.getInstance().getManualCheck_MQTTURL()+"# MyClientID==" + this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getManualCheck_MQTTURL());
-		log.debug(
-				"***********register Simple Handler " + DeviceConfig.getInstance().getManualCheck_MQTTURL() + "***********");
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
 		mqttClient.registerSimpleHandler(simpleCallbackHandler);// 注册接收消息方法
 		mqttClient.connect(CLIENT_ID, CLEAN_START, KEEP_ALIVE);
-		log.debug("***********subscribe receiver topics***********");
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		// mqttClient.unsubscribe(UNSUB_TOPICS);
 
-		log.debug("***********CLIENT_ID:" + CLIENT_ID);
+		log.info("**ManualEventSenderBroker,连接 " + DeviceConfig.getInstance().getManualCheck_MQTTURL() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息
@@ -240,9 +239,22 @@ public class ManualEventSenderBroker {
 	}
 
 	public static void main(String[] args) {
-		ManualEventSenderBroker gatCtrlSenderBroker = ManualEventSenderBroker.getInstance("Verify");
-		gatCtrlSenderBroker.sendDoorCmd(DeviceConfig.OPEN_THIRDDOOR);
-
-
+//		String ss = "{\"Event\": 4,\"Target\": \""+DeviceConfig.getInstance().getIpAddress()+"\",\"EventSource\":\"Manual\"}";
+////		String ss = "{\"Event\": 5,\"Target\": \""+DeviceConfig.getInstance().getIpAddress()+"\",\"EventSource\":\"Manual\"}";
+//		ManualEventSenderBroker gatCtrlSenderBroker = ManualEventSenderBroker.getInstance("Verify");
+//		gatCtrlSenderBroker.sendDoorCmd(ss);
+//
+//		CommUtil.sleep(2000);
+//		String pid = ProcessUtil.getCurrentProcessID();
+//		try {
+//			Runtime.getRuntime().exec("taskkill /F /PID " + pid);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		String mqttMessage = "{\"Event\": 1,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
+		mqttMessage=mqttMessage.replace("127.0.0.1", DeviceConfig.getInstance().getIpAddress());
+		System.out.println("来自铁科主控端消息:" + mqttMessage);
 	}
 }

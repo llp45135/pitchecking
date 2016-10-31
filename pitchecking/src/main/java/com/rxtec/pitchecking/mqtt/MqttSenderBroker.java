@@ -36,7 +36,7 @@ public class MqttSenderBroker {
 	Logger log = LoggerFactory.getLogger("MqttSenderBroker");
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
-	private final static String CLIENT_ID = "ResultSubcriber";// 客户端标识
+	private String CLIENT_ID = "PITS";// 客户端标识
 	private final static int[] QOS_VALUES = { 0 };// 对应主题的消息级别
 	private final static String[] TOPICS = { "sub_topic" };
 	private String[] UNSUB_TOPICS = { "sub_topic" };
@@ -83,6 +83,7 @@ public class MqttSenderBroker {
 	}
 
 	private MqttSenderBroker() {
+		CLIENT_ID = CLIENT_ID + DeviceConfig.getInstance().getIpAddress();
 		while (true) {
 			try {
 				if (mqttClient == null || !mqttClient.isConnected()) {

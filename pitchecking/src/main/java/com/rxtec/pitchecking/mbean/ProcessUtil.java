@@ -90,6 +90,11 @@ public class ProcessUtil {
 		return s;
 	}
 
+	/**
+	 * 写检脸线程心跳日志
+	 * @param pid
+	 * @return
+	 */
 	public static boolean writeHeartbeat(String pid) {
 		Date now = new Date();
 		String nowTime = CalUtils.getStringDateHaomiao();// Long.toString(now.getTime());
@@ -112,7 +117,64 @@ public class ProcessUtil {
 			return false;
 		}
 	}
+	
+	/**
+	 * 写暂停服务标志
+	 * @param pid
+	 * @return
+	 */
+	public static boolean writePauseLog(String pid) {
+		String nowTime = CalUtils.getStringDateHaomiao();
+		try {
+			File logFile = new File(Config.getInstance().getPausePitcheckFile());
+			if (!logFile.exists()) {
+				logFile.createNewFile();
+			}
+			FileWriter fw = new FileWriter(logFile);
+			String pidStr = pid + "@" + nowTime;
+//			log.debug("pidStr==" + pidStr);
+			fw.write(pidStr);
+			fw.flush();
+			fw.close();
+			return true;
 
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
+	 * 读取上次的暂停服务日志
+	 * @return
+	 */
+	public static String getLastPauseFlag() {
+		String s = "";
+		try {
+			File f = new File(Config.getInstance().getPausePitcheckFile());
+			if (!f.exists())
+				s = "";
+			else {
+				FileInputStream fis = new FileInputStream(f);
+				InputStreamReader reader = new InputStreamReader(fis);
+				BufferedReader bufferedReader = new BufferedReader(reader);
+				s = bufferedReader.readLine();
+				fis.close();
+				reader.close();
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			s = "";
+		}
+		return s;
+	}
+
+	/**
+	 * 读取上次的检脸线程心跳日志
+	 * @return
+	 */
 	public static String getLastHeartBeat() {
 		String s = "";
 		try {

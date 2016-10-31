@@ -67,9 +67,9 @@ public class FaceImageLog {
 					fiFileName = getImageFileName("FI", passedDir, fd);
 					idFileName = getImageFileName("ID", passedDir, fd);
 
-					log.debug("vfFileName==" + vfFileName);
-					log.debug("fiFileName==" + fiFileName);
-					log.debug("idFileName==" + idFileName);
+//					log.debug("vfFileName==" + vfFileName);
+//					log.debug("fiFileName==" + fiFileName);
+//					log.debug("idFileName==" + idFileName);
 
 					saveFrameImage(passedDir, vfFileName, fd);
 					saveFaceImage(passedDir, fiFileName, fd);
@@ -79,9 +79,9 @@ public class FaceImageLog {
 					fiFileName = getImageFileName("FI", failedDir, fd);
 					idFileName = getImageFileName("ID", failedDir, fd);
 
-					log.debug("vfFileName==" + vfFileName);
-					log.debug("fiFileName==" + fiFileName);
-					log.debug("idFileName==" + idFileName);
+//					log.debug("vfFileName==" + vfFileName);
+//					log.debug("fiFileName==" + fiFileName);
+//					log.debug("idFileName==" + idFileName);
 
 					saveFrameImage(failedDir, vfFileName, fd);
 					saveFaceImage(failedDir, fiFileName, fd);
@@ -89,9 +89,9 @@ public class FaceImageLog {
 				}
 				// offer进mongodb的处理队列
 				if (Config.getInstance().getIsUseMongoDB() == 1) {
-					log.debug("offer mongoDB:vfFileName==" + vfFileName);
-					log.debug("offer mongoDB:fiFileName==" + fiFileName);
-					log.debug("offer mongoDB:idFileName==" + idFileName);
+//					log.debug("offer mongoDB:vfFileName==" + vfFileName);
+//					log.debug("offer mongoDB:fiFileName==" + fiFileName);
+//					log.debug("offer mongoDB:idFileName==" + idFileName);
 
 					fd.setFrameImg(vfFileName.getBytes());
 					fd.setFaceImg(fiFileName.getBytes());
@@ -99,17 +99,19 @@ public class FaceImageLog {
 					PitRecordLoger.getInstance().offer(fd);
 					FaceVerifyServiceStatistics.getInstance().update(result, usingTime, fd.getFaceDistance());
 				}
-				//offer into MySQL的处理队列
+				// offer into MySQL的处理队列
 				if (Config.getInstance().getIsUseMySQLDB() == 1) {
-					log.debug("offer MySQLDB:vfFileName==" + vfFileName);
-					log.debug("offer MySQLDB:fiFileName==" + fiFileName);
-					log.debug("offer MySQLDB:idFileName==" + idFileName);
+					if (result > 0) {
+//						log.debug("offer MySQLDB:vfFileName==" + vfFileName);
+//						log.debug("offer MySQLDB:fiFileName==" + fiFileName);
+//						log.debug("offer MySQLDB:idFileName==" + idFileName);
 
-					fd.setFrameImg(vfFileName.getBytes());
-					fd.setFaceImg(fiFileName.getBytes());
-					fd.setIdCardImg(idFileName.getBytes());
-					PitRecordSqlLoger.getInstance().offer(fd);
-					FaceVerifyServiceStatistics.getInstance().update(result, usingTime, fd.getFaceDistance());
+						fd.setFrameImg(vfFileName.getBytes());
+						fd.setFaceImg(fiFileName.getBytes());
+						fd.setIdCardImg(idFileName.getBytes());
+						PitRecordSqlLoger.getInstance().offer(fd);
+						FaceVerifyServiceStatistics.getInstance().update(result, usingTime, fd.getFaceDistance());
+					}
 				}
 			}
 		} catch (Exception ex) {

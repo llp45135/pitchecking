@@ -135,7 +135,7 @@ public class AudioDevice {
 			} else if (audioFlag == DeviceConfig.checkSuccFlag) {
 				log.info("开始播放语音" + DeviceConfig.checkSuccWav);
 				fileIn = new FileInputStream(DeviceConfig.checkSuccWav);
-				this.setLastingTime((long) (2.3 * 1000));
+				this.setLastingTime((long) (1.0 * 1000));
 			} else if (audioFlag == DeviceConfig.useHelpFlag) {
 				log.info("开始播放语音" + DeviceConfig.useHelpWav);
 				fileIn = new FileInputStream(DeviceConfig.useHelpWav);

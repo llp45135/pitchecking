@@ -25,7 +25,7 @@ public class PitRecordSqlDao {
 	 * connect to MySQL
 	 */
 	private void connSQLDB() {
-		String url = "jdbc:mysql://localhost:3306/pitcheck?characterEncoding=UTF-8";
+		String url = "jdbc:mysql://localhost:3306/pitcheck?autoReconnect=true";
 		String username = "root";
 		String password = "pitcheck61336956"; // 加载驱动程序以连接
 		try {

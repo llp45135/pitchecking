@@ -8,12 +8,9 @@ import com.rxtec.pitchecking.db.PitRecordLoger;
 import com.rxtec.pitchecking.db.mysql.PitRecordSqlLoger;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mbean.PITProcessDetect;
-import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
 import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
-import com.rxtec.pitchecking.mqtt.ManualEventReceiverBroker;
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
 import com.rxtec.pitchecking.task.ManualCheckingTask;
-import com.rxtec.pitchecking.utils.CommUtil;
 
 /**
  * 单独比对人脸进程

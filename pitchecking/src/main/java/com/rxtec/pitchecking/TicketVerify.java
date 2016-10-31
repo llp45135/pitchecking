@@ -36,14 +36,9 @@ public class TicketVerify {
 				} else {
 					return Config.TicketVerifyWaitInput;
 				}
-			}
-			// else if(idCard!=null){
-			// log.info("getIdNo=="+idCard.getIdNo());
-			// return Config.TicketVerifySucc;
-			// }
-			else if (idCard != null) {
-				log.info("getSoftIdNo=="+DeviceConfig.getInstance().getSoftIdNo());
-				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1) {
+			} else if (idCard != null) {
+				log.info("getSoftIdNo==" + DeviceConfig.getInstance().getSoftIdNo());
+				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1) { // 白名单
 					Ticket virualTicket = new Ticket();
 					virualTicket.setCardNo(idCard.getIdNo());
 					virualTicket.setCardType("1");
@@ -60,7 +55,7 @@ public class TicketVerify {
 					this.setTicket(virualTicket);
 					return Config.TicketVerifySucc;
 				} else {
-					return Config.TicketVerifySucc;
+					return Config.TicketVerifyWaitInput;
 				}
 			} else
 				return Config.TicketVerifyWaitInput;
@@ -70,7 +65,7 @@ public class TicketVerify {
 			// log.info("idCard.getIdNo=="+idCard.getIdNo()+",ticket.getCardNo=="+ticket.getCardNo()+"##");
 			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
 				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1
-						&& ticket.getCardNo().equals(idCard.getIdNo())) {
+						&& ticket.getCardNo().equals(idCard.getIdNo())) {  //白名单
 					return Config.TicketVerifySucc;
 				} else if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、非当日票
 					log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
@@ -80,8 +75,7 @@ public class TicketVerify {
 					return Config.TicketVerifyStationRuleFail;
 				} else if (!ticket.getCardNo().equals(idCard.getIdNo())) {// 1、票证比对
 					log.debug("TicketVerifyIDFail==" + Config.TicketVerifyIDFail);
-					// return Config.TicketVerifyIDFail;
-					return Config.TicketVerifySucc;
+					return Config.TicketVerifyIDFail;
 				}
 			}
 			return Config.TicketVerifySucc;
