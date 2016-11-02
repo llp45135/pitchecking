@@ -62,7 +62,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask{
 		// semEvent.setIdCard(idCard);
 		// TicketCheckScreen.getInstance().offerEvent(semEvent);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); // 调用语音
+		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); // 调用语音
 		PITVerifyData fd = null;
 
 		if (idCard.getAge() <= Config.ByPassMinAge) {
@@ -95,7 +95,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask{
 			log.debug("pollPassFaceData, using " + usingTime + " value = null");
 			faceTrackService.stopCheckingFace();
 
-			AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 调用应急门开启语音
+			AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag); // 调用应急门开启语音
 
 			log.debug("认证比对结果：picData==" + fd);
 			SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门

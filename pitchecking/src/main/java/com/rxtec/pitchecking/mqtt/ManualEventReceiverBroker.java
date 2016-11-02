@@ -187,9 +187,9 @@ public class ManualEventReceiverBroker {
 							log.debug("来自人工窗消息：" + mqttMessage);
 
 							if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenFirstDoor
-									|| gatCrtlBean.getEvent() == DeviceConfig.Event_OpenThirdDoor) {
+									|| gatCrtlBean.getEvent() == DeviceConfig.Event_OpenThirdDoor) { // 开1门或开3门指令
 								if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-										+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) {
+										+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) {  //由比对进程处理
 									log.debug("转发前门或者边门的开门指令==" + gatCrtlBean.getEvent());
 									GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
 											.sendDoorCmd("PITEventTopic", mqttMessage);
@@ -203,7 +203,7 @@ public class ManualEventReceiverBroker {
 									DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
 
 									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-											+ DeviceConfig.GAT_MQ_Track_CLIENT)) {
+											+ DeviceConfig.GAT_MQ_Track_CLIENT)) {  //由检脸进程处理
 
 										log.info("isInTracking==" + DeviceConfig.getInstance().isInTracking());
 
@@ -234,7 +234,7 @@ public class ManualEventReceiverBroker {
 
 							} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_PauseService) { // 暂停服务
 								if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-										+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) {
+										+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) {  //由比对进程处理
 									log.debug("准备执行暂停服务指令");
 									Runtime.getRuntime().exec(Config.getInstance().getKillTKExeCmd()); // 杀死中铁程gui.exe
 									CommUtil.sleep(3000);
@@ -243,7 +243,7 @@ public class ManualEventReceiverBroker {
 								}
 							} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_ContinueService) { // 恢复服务
 								if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-										+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) {
+										+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) {  //由比对进程处理
 									log.debug("准备执行恢复服务指令");
 									String pauseFlagStr = ProcessUtil.getLastPauseFlag();
 									if (pauseFlagStr != null && !pauseFlagStr.equals("")) {
@@ -255,9 +255,16 @@ public class ManualEventReceiverBroker {
 								}
 							} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_ResetService) { // 重启闸机
 								if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-										+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) {
+										+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) {  //由比对进程处理
 									log.debug("准备执行重启闸机指令");
 									Runtime.getRuntime().exec("shutdown -l");
+								}
+							} else { // 人工窗其他指令
+								if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
+										+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) {  //由比对进程处理
+									log.debug("转发人工窗其他指令==" + gatCrtlBean.getEvent());
+									GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
+											.sendDoorCmd("PITEventTopic", mqttMessage);
 								}
 							}
 						}

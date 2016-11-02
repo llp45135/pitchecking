@@ -156,7 +156,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// }
 
 			faceTrackService.stopCheckingFace();
-			AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag); // 语音："验证失败，请从侧门离开通道"
+			AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag); // 语音："验证失败，请从侧门离开通道"
 			// 通知人工控制台
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
 					DeviceConfig.Event_VerifyFaceFailed);

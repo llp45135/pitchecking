@@ -54,20 +54,39 @@ public class DeviceConfig {
 	public static String faceBgImgPath = "./img/bluebg.jpg";// "./img/bg.png";
 
 	// 语音文件
-	public static String idReaderWav = "./wav/thanks.wav";
-	public static String qrReaderWav = "./wav/talkforever16.wav";
-	public static String cameraWav = "./wav/camera_glasses.wav";// "./wav/12-35.wav";
-	public static String emerDoorWav = "./wav/emerDoor.wav";
-	public static String checkSuccWav = "./wav/checkSucc.wav";
+//	public static String idReaderWav = "./wav/thanks.wav";
+//	public static String qrReaderWav = "./wav/talkforever16.wav";
+//	public static String cameraWav = "./wav/camera_glasses.wav";// "./wav/12-35.wav";
+//	public static String emerDoorWav = "./wav/emerDoor.wav";
+	
 	// public static String takeTicketWav = "./wav/take_ticket.wav";
 	// public static String takeTicketWav = "./wav/take_hat_6s.wav";
-	public static String takeTicketWav = "./wav/bigfoot.wav";
+	
 	public static String useHelpWav = "./wav/useHelp.wav";
-	public static int cameraFlag = 1;
-	public static int emerDoorFlag = 2;
+	public static String takeTicketWav = "./wav/longCheck.wav";	
+	public static String checkFailedWav = "./wav/checkFailed.wav";
+	public static String checkSuccWav = "./wav/checkSucc.wav";
+	public static String failedIdCardWav = "./wav/failedIdCard.wav";
+	public static String failedQrcodeWav = "./wav/failedQrcode.wav";
+	public static String neverTimeWav = "./wav/neverTime.wav";
+	public static String passStationWav = "./wav/passStation.wav";
+	public static String passTimeWav = "./wav/passTime.wav";
+	public static String validIDandTicketWav = "./wav/validIDandTicket.wav";
+	public static String wrongStationWav = "./wav/wrongStation.wav";
+	
+	
+//	public static int cameraFlag = 1;
+	public static int checkFailedFlag = 2;
 	public static int takeTicketFlag = 3;
 	public static int checkSuccFlag = 4;
 	public static int useHelpFlag = 5;
+	public static int failedIdCardFlag = 6;
+	public static int failedQrcodeFlag = 7;
+	public static int neverTimeFlag = 8;
+	public static int passTimeFlag = 9;
+	public static int passStationFlag = 10;
+	public static int validIDandTicketFlag = 11;
+	public static int wrongStationFlag = 12;
 
 	private int versionFlag = 0;
 	private int readerTimeDelay = 10;

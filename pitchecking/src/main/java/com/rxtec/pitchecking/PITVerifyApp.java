@@ -28,32 +28,34 @@ public class PITVerifyApp {
 	static Logger log = LoggerFactory.getLogger("DeviceEventListener");
 
 	public static void main(String[] args) {
-		try {		
-			
+		try {
+
 			GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT); // 启动PITEventTopic本地监听
-			
-			DeviceEventListener eventListener = DeviceEventListener.getInstance();
+
 			TicketVerifyScreen ticketVerifyScreen = TicketVerifyScreen.getInstance();
+			TicketVerifyFrame tickFrame = new TicketVerifyFrame();
+			ticketVerifyScreen.setTicketFrame(tickFrame);
+			try {
+				ticketVerifyScreen.initUI(DeviceConfig.getInstance().getTicketScreen());
+			} catch (Exception ex) {
+				// TODO Auto-generated catch block
+				log.error("PITUserGuideApp:", ex);
+			}
+
+			DeviceEventListener eventListener = DeviceEventListener.getInstance();
 			// Thread.sleep(3000);
 			// MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
 			// TODO Auto-generated method stub
 			// 启动事件监听
-			
 
 			// eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
-			log.debug("准备初始化界面");
-//			CommUtil.sleep(10*1000);			
-			
-			TicketVerifyFrame tickFrame = new TicketVerifyFrame();
-			ticketVerifyScreen.setTicketFrame(tickFrame);
-			ticketVerifyScreen.initUI();
+			// log.debug("准备初始化界面");
+			// CommUtil.sleep(10*1000);
 
 			// ExecutorService executorService =
 			// Executors.newCachedThreadPool();
 			// executorService.execute(eventListener);
 
-			
-			
 			if (eventListener.isStartThread()) {
 				ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 				scheduler.scheduleWithFixedDelay(eventListener, 0, 200, TimeUnit.MILLISECONDS);

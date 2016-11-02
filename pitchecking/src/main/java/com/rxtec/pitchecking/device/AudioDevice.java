@@ -21,16 +21,17 @@ import sun.audio.ContinuousAudioDataStream;
 
 /**
  * 音频播放
+ * 
  * @author ZhaoLin
  *
  */
 public class AudioDevice {
 	private Log log = LogFactory.getLog("AudioDevice");
 	private static AudioDevice _instance = new AudioDevice();
-//	File audioFile = null;
-//	File emerAudioFile = null; // 应急门离开语音
-//	File takeTicketAudioFile = null;
-//	File useHelpAudioFile = null;
+	// File audioFile = null;
+	// File emerAudioFile = null; // 应急门离开语音
+	// File takeTicketAudioFile = null;
+	// File useHelpAudioFile = null;
 	private String pidstr;
 
 	FileInputStream fileIn = null;
@@ -72,10 +73,10 @@ public class AudioDevice {
 	}
 
 	private AudioDevice() {
-//		audioFile = new File(DeviceConfig.cameraWav);
-//		emerAudioFile = new File(DeviceConfig.emerDoorWav);
-//		takeTicketAudioFile = new File(DeviceConfig.takeTicketWav);
-//		useHelpAudioFile = new File(DeviceConfig.useHelpWav);
+		// audioFile = new File(DeviceConfig.cameraWav);
+		// emerAudioFile = new File(DeviceConfig.emerDoorWav);
+		// takeTicketAudioFile = new File(DeviceConfig.takeTicketWav);
+		// useHelpAudioFile = new File(DeviceConfig.useHelpWav);
 	}
 
 	public void killpid(String pidstr) {
@@ -125,21 +126,60 @@ public class AudioDevice {
 		this.cleanLastAudio();
 		try {
 			if (audioFlag == DeviceConfig.takeTicketFlag) {
-				log.info("开始播放语音" + DeviceConfig.takeTicketWav);
+				log.info("开始右声道播放语音" + DeviceConfig.takeTicketWav);
+				VolumeControl.getInstance().LeftClose();
 				fileIn = new FileInputStream(DeviceConfig.takeTicketWav);
 				this.setLastingTime((long) (8.2 * 1000));
-			} else if (audioFlag == DeviceConfig.emerDoorFlag) {
-				log.info("开始播放语音" + DeviceConfig.emerDoorWav);
-				fileIn = new FileInputStream(DeviceConfig.emerDoorWav);
-				this.setLastingTime((long) (7.3 * 1000));
+			} else if (audioFlag == DeviceConfig.checkFailedFlag) {
+				log.info("开始右声道播放语音" + DeviceConfig.checkFailedWav);
+				VolumeControl.getInstance().LeftClose();
+				fileIn = new FileInputStream(DeviceConfig.checkFailedWav);
+				this.setLastingTime((long) (5.6 * 1000));
 			} else if (audioFlag == DeviceConfig.checkSuccFlag) {
-				log.info("开始播放语音" + DeviceConfig.checkSuccWav);
+				log.info("开始右声道播放语音" + DeviceConfig.checkSuccWav);
+				VolumeControl.getInstance().LeftClose();
 				fileIn = new FileInputStream(DeviceConfig.checkSuccWav);
-				this.setLastingTime((long) (1.0 * 1000));
+				this.setLastingTime((long) (0.8 * 1000));
 			} else if (audioFlag == DeviceConfig.useHelpFlag) {
-				log.info("开始播放语音" + DeviceConfig.useHelpWav);
+				log.info("开始左声道播放语音" + DeviceConfig.useHelpWav);
+				VolumeControl.getInstance().RightClose();
 				fileIn = new FileInputStream(DeviceConfig.useHelpWav);
 				this.setLastingTime((long) (60 * 60 * 24 * 1000));
+			} else if (audioFlag == DeviceConfig.failedIdCardFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.failedIdCardWav);
+				VolumeControl.getInstance().RightClose();
+				fileIn = new FileInputStream(DeviceConfig.failedIdCardWav);
+				this.setLastingTime((long) (4.1 * 1000));
+			} else if (audioFlag == DeviceConfig.failedQrcodeFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.failedQrcodeWav);
+				VolumeControl.getInstance().RightClose();
+				fileIn = new FileInputStream(DeviceConfig.failedQrcodeWav);
+				this.setLastingTime((long) (4 * 1000));
+			} else if (audioFlag == DeviceConfig.neverTimeFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.neverTimeWav);
+				VolumeControl.getInstance().RightClose();
+				fileIn = new FileInputStream(DeviceConfig.neverTimeWav);
+				this.setLastingTime((long) (2.9 * 1000));
+			} else if (audioFlag == DeviceConfig.passTimeFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.passTimeWav);
+				VolumeControl.getInstance().RightClose();
+				fileIn = new FileInputStream(DeviceConfig.passTimeWav);
+				this.setLastingTime((long) (2.9 * 1000));
+			} else if (audioFlag == DeviceConfig.passStationFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.passStationWav);
+				VolumeControl.getInstance().RightClose();
+				fileIn = new FileInputStream(DeviceConfig.passStationWav);
+				this.setLastingTime((long) (2.2 * 1000));
+			} else if (audioFlag == DeviceConfig.validIDandTicketFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.validIDandTicketWav);
+				VolumeControl.getInstance().RightClose();
+				fileIn = new FileInputStream(DeviceConfig.validIDandTicketWav);
+				this.setLastingTime((long) (3.3 * 1000));
+			} else if (audioFlag == DeviceConfig.wrongStationFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.wrongStationWav);
+				VolumeControl.getInstance().RightClose();
+				fileIn = new FileInputStream(DeviceConfig.wrongStationWav);
+				this.setLastingTime((long) (2.4 * 1000));
 			}
 
 			as = new AudioStream(fileIn);
@@ -180,21 +220,45 @@ public class AudioDevice {
 
 		CommUtil.sleep(1000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); // 调用语音“请平视摄像头”
-
-		CommUtil.sleep(10 * 1000);
-
-		AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag);
-		CommUtil.sleep(10 * 1000);
-
-		// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
+		// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); //
+		//// 调用语音“请平视摄像头”
+		//
 		// CommUtil.sleep(10 * 1000);
+		//
+		 
+		
+		 AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
+		 CommUtil.sleep(20 * 1000);
+		 
+		 AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag);
+		 CommUtil.sleep(3 * 1000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.emerDoorFlag);
+		AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag);
 		CommUtil.sleep(10 * 1000);
 
 		AudioPlayTask.getInstance().start(DeviceConfig.useHelpFlag);
-		CommUtil.sleep(32 * 1000);
+		CommUtil.sleep(10 * 1000);
+
+		AudioPlayTask.getInstance().start(DeviceConfig.failedIdCardFlag);
+		CommUtil.sleep(5 * 1000);
+
+		AudioPlayTask.getInstance().start(DeviceConfig.failedQrcodeFlag);
+		CommUtil.sleep(5 * 1000);
+
+		AudioPlayTask.getInstance().start(DeviceConfig.neverTimeFlag);
+		CommUtil.sleep(5 * 1000);
+
+		AudioPlayTask.getInstance().start(DeviceConfig.passTimeFlag);
+		CommUtil.sleep(5 * 1000);
+
+		AudioPlayTask.getInstance().start(DeviceConfig.passStationFlag);
+		CommUtil.sleep(5 * 1000);
+
+		AudioPlayTask.getInstance().start(DeviceConfig.validIDandTicketFlag);
+		CommUtil.sleep(5 * 1000);
+		
+		AudioPlayTask.getInstance().start(DeviceConfig.wrongStationFlag);
+		CommUtil.sleep(5 * 1000);
 
 		AudioDevice.getInstance().killpid(AudioDevice.getInstance().pidstr);
 	}

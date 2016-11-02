@@ -263,6 +263,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		bottomPanel.add(bootTime);
 
 		setUndecorated(true);
+		setAlwaysOnTop(true);
 
 		showDefaultContent();
 

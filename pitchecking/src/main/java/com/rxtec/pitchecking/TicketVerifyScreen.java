@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking;
 
+import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,8 +26,8 @@ public class TicketVerifyScreen {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private static TicketVerifyScreen _instance;
 
-	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-	GraphicsDevice[] gs = ge.getScreenDevices();
+//	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+//	GraphicsDevice[] gs = ge.getScreenDevices();
 
 	TicketVerifyFrame ticketFrame;
 
@@ -49,11 +50,26 @@ public class TicketVerifyScreen {
 		return _instance;
 	}
 
-	public void initUI() {
-		gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
-		// ticketFrame.setUndecorated(true);
-		// ticketFrame.setVisible(true);
-
+//	public void initUI() {
+//		gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
+//		// ticketFrame.setUndecorated(true);
+//		// ticketFrame.setVisible(true);
+//
+//	}
+	
+	public void initUI(int screenNo) throws Exception {
+		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] gs = ge.getScreenDevices();
+		GraphicsDevice gd = gs[screenNo];
+		// log.info("GraphicsDevice=="+gd);
+		if (gd != null) {
+			GraphicsConfiguration gc = gd.getDefaultConfiguration();
+			int xOff = gc.getBounds().x;
+			int yOff = gc.getBounds().y;
+			ticketFrame.setVisible(true);
+			ticketFrame.setLocation(xOff, yOff);
+		}
+		// log.info("当前的人脸检测屏位置：face.x=="+faceFrame.getBounds().x+",face.y=="+faceFrame.getBounds().y);
 	}
 
 	private LinkedBlockingQueue<ScreenElementModifyEvent> screenEventQueue = new LinkedBlockingQueue<ScreenElementModifyEvent>();
