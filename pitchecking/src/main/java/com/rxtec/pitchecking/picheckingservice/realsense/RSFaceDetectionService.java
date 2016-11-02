@@ -113,6 +113,12 @@ public class RSFaceDetectionService implements IFaceTrackService{
 	}
 
 
+	
+	public void setDeviceProperties(RealsenseDeviceProperties props){
+		if(trackTask != null){
+			trackTask.setupColorCameraDevice(props);
+		}
+	}
 
 	public void beginVideoCaptureAndTracking() {
 //		ExecutorService executer = Executors.newCachedThreadPool();

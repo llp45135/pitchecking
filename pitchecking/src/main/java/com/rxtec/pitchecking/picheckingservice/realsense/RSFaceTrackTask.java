@@ -68,7 +68,7 @@ public class RSFaceTrackTask implements Runnable {
 	private IDCard currentIDCard = null;
 	private Ticket currentTicket = null;
 	private String pid = "";
-
+	private PXCMCapture.Device dev;
 	private static int LandmarkAlignment = 10;
 
 	// private RSModuleStatus rsStatus;
@@ -611,26 +611,26 @@ public class RSFaceTrackTask implements Runnable {
 	 * SetColorExposure 设置曝光值 范围 -8,0 step 1.0 ,系统缺省值 -6 。值越小曝光值越小 。强背光的时候曝光值放大，正面直射的时候曝光值减少  
 	 * SetColorBrightness 设置亮度 范围 -64，64 step 1.0 ,系统缺省值 0。 值越小越暗。
 	 * 
-	 * @param dev
+	 * @param RealsenseDeviceProperties 设备参数
 	 */
-	private void setupColorCameraDevice(PXCMCapture.Device dev) {
+	public void setupColorCameraDevice(RealsenseDeviceProperties properties) {
 		if (dev == null)
 			return;
 		PXCMCapture.DeviceInfo info = new PXCMCapture.DeviceInfo();
 		dev.QueryDeviceInfo(info);
 		log.info("Using Camera: " + info.name);
 		
-		dev.SetColorAutoExposure(false);
-		dev.SetColorAutoWhiteBalance(false);
-		dev.SetColorBackLightCompensation(true);
+		dev.SetColorAutoExposure(properties.isColorAutoExposure());
+		dev.SetColorAutoWhiteBalance(properties.isColorAutoWhiteBalance());
+		dev.SetColorBackLightCompensation(properties.isColorBackLightCompensation());
 	
 		
-		dev.SetColorBrightness(32);
-		dev.SetColorExposure(-3);
+		dev.SetColorBrightness(properties.getColorBrightness());
+		dev.SetColorExposure(properties.getColorExposure());
 		
-		PropertyInfo pColorBrightness = dev.QueryColorBrightnessInfo();
-		PropertyInfo pColorExposure = dev.QueryColorExposureInfo();
-		PropertyInfo pBackLight =  dev.QueryColorBackLightCompensationInfo();
+//		PropertyInfo pColorBrightness = dev.QueryColorBrightnessInfo();
+//		PropertyInfo pColorExposure = dev.QueryColorExposureInfo();
+//		PropertyInfo pBackLight =  dev.QueryColorBackLightCompensationInfo();
 
 	}
 
@@ -696,8 +696,8 @@ public class RSFaceTrackTask implements Runnable {
 			return;
 		}
 
-		PXCMCapture.Device dev = senseMgr.QueryCaptureManager().QueryDevice();
-		setupColorCameraDevice(dev);
+		dev = senseMgr.QueryCaptureManager().QueryDevice();
+		setupColorCameraDevice(new RealsenseDeviceProperties());
 		while (startCapture) {
 			try {
 				sts = senseMgr.AcquireFrame(true);
