@@ -17,6 +17,7 @@ import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mq.PITInfoTopicSender;
 import com.rxtec.pitchecking.net.event.CAMOpenBean;
 import com.rxtec.pitchecking.net.event.EventHandler;
@@ -28,6 +29,7 @@ import com.rxtec.pitchecking.utils.ImageToolkit;
 
 /**
  * 本类用来向本地PITEventTopic发送门控消息,同GAT_RXTa.dll通信，间接控制门模块
+ * 
  * @author ZhaoLin
  *
  */
@@ -39,7 +41,7 @@ public class GatCtrlSenderBroker {
 	private String CLIENT_ID = "GCS";// 客户端标识
 	private final static int[] QOS_VALUES = { 0 };// 对应主题的消息级别
 	private final static String[] TOPICS = { "PITEventTopic" };
-//	private String[] UNSUB_TOPICS = { "sub_topic" };
+	// private String[] UNSUB_TOPICS = { "sub_topic" };
 	private final static String SEND_TOPIC = "PITEventTopic";
 	private static GatCtrlSenderBroker _instance;
 	private ObjectMapper mapper = new ObjectMapper();
@@ -93,7 +95,7 @@ public class GatCtrlSenderBroker {
 				}
 			} catch (MqttException e) {
 				// TODO Auto-generated catch block
-				log.error("connect:",e);
+				log.error("connect:", e);
 				CommUtil.sleep(5000);
 				continue;
 			}
@@ -118,7 +120,8 @@ public class GatCtrlSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("start connect to "+DeviceConfig.getInstance().getMQTT_CONN_STR()+"# MyClientID==" + this.CLIENT_ID);
+		log.info("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
+				+ this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
@@ -173,13 +176,14 @@ public class GatCtrlSenderBroker {
 			log.error("GatCtrlSenderBroker sendMessage", e);
 		}
 	}
-	
+
 	/**
-	 *  给底层发门控制指令
+	 * 给底层发门控制指令
+	 * 
 	 * @param clientId
 	 * @param cmdstr
 	 */
-	public void sendDoorCmd(String clientId,String cmdstr) {
+	public void sendDoorCmd(String clientId, String cmdstr) {
 		try {
 			mqttClient.publish(clientId, cmdstr.getBytes(), 0, false);
 			log.debug("sendDoorCmd ok");
@@ -231,16 +235,19 @@ public class GatCtrlSenderBroker {
 			String mqttMessage = new String(payload);
 			if (mqttMessage.indexOf("CAM_Open") != -1) {
 
-			} 
+			}
 			payload = null;
 		}
 
 	}
 
 	public static void main(String[] args) {
-		GatCtrlSenderBroker gatCtrlSenderBroker = GatCtrlSenderBroker.getInstance("Track");
-		gatCtrlSenderBroker.sendDoorCmd("PITEventTopic","{\"Event\": 2,\"Target\": \"192.168.1.79\",\"EventSource\":\"Manual\"}");
+		// GatCtrlSenderBroker gatCtrlSenderBroker =
+		// GatCtrlSenderBroker.getInstance("Track");
+		// gatCtrlSenderBroker.sendDoorCmd("PITEventTopic","{\"Event\":
+		// 2,\"Target\": \"192.168.1.79\",\"EventSource\":\"Manual\"}");
 
-
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag));
 	}
 }

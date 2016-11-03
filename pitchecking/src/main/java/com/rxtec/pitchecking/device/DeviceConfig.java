@@ -62,31 +62,31 @@ public class DeviceConfig {
 	// public static String takeTicketWav = "./wav/take_ticket.wav";
 	// public static String takeTicketWav = "./wav/take_hat_6s.wav";
 	
-	public static String useHelpWav = "./wav/useHelp.wav";
-	public static String takeTicketWav = "./wav/longCheck.wav";	
-	public static String checkFailedWav = "./wav/checkFailed.wav";
-	public static String checkSuccWav = "./wav/checkSucc.wav";
-	public static String failedIdCardWav = "./wav/failedIdCard.wav";
-	public static String failedQrcodeWav = "./wav/failedQrcode.wav";
-	public static String neverTimeWav = "./wav/neverTime.wav";
-	public static String passStationWav = "./wav/passStation.wav";
-	public static String passTimeWav = "./wav/passTime.wav";
-	public static String validIDandTicketWav = "./wav/validIDandTicket.wav";
-	public static String wrongStationWav = "./wav/wrongStation.wav";
+	public static String AudioUseHelpWav = "./wav/useHelp.wav";
+	public static String AudioTakeTicketWav = "./wav/longCheck.wav";	
+	public static String AudioCheckFailedWav = "./wav/checkFailed.wav";
+	public static String AudioCheckSuccWav = "./wav/checkSucc.wav";
+	public static String AudioFailedIdCardWav = "./wav/failedIdCard.wav";
+	public static String AudioFailedQrcodeWav = "./wav/failedQrcode.wav";
+	public static String AudioNeverTimeWav = "./wav/neverTime.wav";
+	public static String AudioPassStationWav = "./wav/passStation.wav";
+	public static String AudioPassTimeWav = "./wav/passTime.wav";
+	public static String AudioValidIDandTicketWav = "./wav/validIDandTicket.wav";
+	public static String AudioWrongStationWav = "./wav/wrongStation.wav";
 	
 	
-//	public static int cameraFlag = 1;
-	public static int checkFailedFlag = 2;
-	public static int takeTicketFlag = 3;
-	public static int checkSuccFlag = 4;
-	public static int useHelpFlag = 5;
-	public static int failedIdCardFlag = 6;
-	public static int failedQrcodeFlag = 7;
-	public static int neverTimeFlag = 8;
-	public static int passTimeFlag = 9;
-	public static int passStationFlag = 10;
-	public static int validIDandTicketFlag = 11;
-	public static int wrongStationFlag = 12;
+//	public static int AudiocameraFlag = 201;
+	public static int AudioCheckFailedFlag = 202;
+	public static int AudioTakeTicketFlag = 203;
+	public static int AudioCheckSuccFlag = 204;
+	public static int AudioUseHelpFlag = 205;
+	public static int AudioFailedIdCardFlag = 206;
+	public static int AudioFailedQrcodeFlag = 207;
+	public static int AudioNeverTimeFlag = 208;
+	public static int AudioPassTimeFlag = 209;
+	public static int AudioPassStationFlag = 210;
+	public static int AudioValidIDandTicketFlag = 211;
+	public static int AudioWrongStationFlag = 212;
 
 	private int versionFlag = 0;
 	private int readerTimeDelay = 10;

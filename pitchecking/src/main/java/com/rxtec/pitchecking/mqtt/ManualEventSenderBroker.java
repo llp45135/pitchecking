@@ -239,10 +239,12 @@ public class ManualEventSenderBroker {
 	}
 
 	public static void main(String[] args) {
-//		String ss = "{\"Event\": 4,\"Target\": \""+DeviceConfig.getInstance().getIpAddress()+"\",\"EventSource\":\"Manual\"}";
-////		String ss = "{\"Event\": 5,\"Target\": \""+DeviceConfig.getInstance().getIpAddress()+"\",\"EventSource\":\"Manual\"}";
-//		ManualEventSenderBroker gatCtrlSenderBroker = ManualEventSenderBroker.getInstance("Verify");
-//		gatCtrlSenderBroker.sendDoorCmd(ss);
+		String ss = "{\"Event\": 80004,\"Target\": \""+DeviceConfig.getInstance().getIpAddress()+"\",\"EventSource\":\"Manual\"}";
+//		String ss = "{\"Event\": 5,\"Target\": \""+DeviceConfig.getInstance().getIpAddress()+"\",\"EventSource\":\"Manual\"}";
+		
+//		String ss = "{ \"Event\": \"123321\",  \"Target\": \"192.168.85.1\",  \"EventSource\": \"Manual\",  \"ColorAutoExposure\": true,  \"ColorAutoWhiteBalance\": true,  \"ColorBackLightCompensation\": true,  \"ColorBrightness\": -16,  \"ColorExposure\": -6 }";
+		ManualEventSenderBroker gatCtrlSenderBroker = ManualEventSenderBroker.getInstance("Verify");
+		gatCtrlSenderBroker.sendDoorCmd(ss);
 //
 //		CommUtil.sleep(2000);
 //		String pid = ProcessUtil.getCurrentProcessID();
@@ -253,8 +255,8 @@ public class ManualEventSenderBroker {
 //			e.printStackTrace();
 //		}
 		
-		String mqttMessage = "{\"Event\": 1,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
-		mqttMessage=mqttMessage.replace("127.0.0.1", DeviceConfig.getInstance().getIpAddress());
-		System.out.println("来自铁科主控端消息:" + mqttMessage);
+//		String mqttMessage = "{\"Event\": 1,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
+//		mqttMessage=mqttMessage.replace("127.0.0.1", DeviceConfig.getInstance().getIpAddress());
+//		System.out.println("来自铁科主控端消息:" + mqttMessage);
 	}
 }

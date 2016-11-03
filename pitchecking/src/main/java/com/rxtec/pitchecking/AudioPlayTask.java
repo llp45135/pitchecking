@@ -61,7 +61,7 @@ public class AudioPlayTask implements Runnable {
 		}
 
 		if (deviceStatus > Config.StopStatus) {
-			if (deviceStatus == DeviceConfig.useHelpFlag) {
+			if (deviceStatus == DeviceConfig.AudioUseHelpFlag) {
 				if (Config.getInstance().getIsPlayHelpAudio() == 1) {
 					AudioDevice.getInstance().playAudio(deviceStatus);
 				}

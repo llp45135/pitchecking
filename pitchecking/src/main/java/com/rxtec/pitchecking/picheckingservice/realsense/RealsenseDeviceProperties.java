@@ -10,8 +10,8 @@ public class RealsenseDeviceProperties {
 	private boolean ColorAutoExposure = true;
 	private boolean ColorAutoWhiteBalance = true;
 	private boolean ColorBackLightCompensation = true;
-	private int ColorBrightness = 0;
-	private int ColorExposure = -6;
+	private int ColorBrightness = 9;  //0
+	private int ColorExposure = -3;   //-6
 	
 	public boolean isColorAutoExposure() {
 		return ColorAutoExposure;

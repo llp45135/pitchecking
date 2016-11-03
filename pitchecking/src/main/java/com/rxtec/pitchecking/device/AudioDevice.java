@@ -125,65 +125,65 @@ public class AudioDevice {
 	public void playAudio(int audioFlag) {
 		this.cleanLastAudio();
 		try {
-			if (audioFlag == DeviceConfig.takeTicketFlag) {
-				log.info("开始右声道播放语音" + DeviceConfig.takeTicketWav);
+			if (audioFlag == DeviceConfig.AudioTakeTicketFlag) {
+				log.info("开始右声道播放语音" + DeviceConfig.AudioTakeTicketWav);
 				VolumeControl.getInstance().LeftClose();
-				fileIn = new FileInputStream(DeviceConfig.takeTicketWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioTakeTicketWav);
 				this.setLastingTime((long) (8.2 * 1000));
-			} else if (audioFlag == DeviceConfig.checkFailedFlag) {
-				log.info("开始右声道播放语音" + DeviceConfig.checkFailedWav);
+			} else if (audioFlag == DeviceConfig.AudioCheckFailedFlag) {
+				log.info("开始右声道播放语音" + DeviceConfig.AudioCheckFailedWav);
 				VolumeControl.getInstance().LeftClose();
-				fileIn = new FileInputStream(DeviceConfig.checkFailedWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioCheckFailedWav);
 				this.setLastingTime((long) (5.6 * 1000));
-			} else if (audioFlag == DeviceConfig.checkSuccFlag) {
-				log.info("开始右声道播放语音" + DeviceConfig.checkSuccWav);
+			} else if (audioFlag == DeviceConfig.AudioCheckSuccFlag) {
+				log.info("开始右声道播放语音" + DeviceConfig.AudioCheckSuccWav);
 				VolumeControl.getInstance().LeftClose();
-				fileIn = new FileInputStream(DeviceConfig.checkSuccWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioCheckSuccWav);
 				this.setLastingTime((long) (0.8 * 1000));
-			} else if (audioFlag == DeviceConfig.useHelpFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.useHelpWav);
+			} else if (audioFlag == DeviceConfig.AudioUseHelpFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.AudioUseHelpWav);
 				VolumeControl.getInstance().RightClose();
-				fileIn = new FileInputStream(DeviceConfig.useHelpWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioUseHelpWav);
 				this.setLastingTime((long) (60 * 60 * 24 * 1000));
-			} else if (audioFlag == DeviceConfig.failedIdCardFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.failedIdCardWav);
+			} else if (audioFlag == DeviceConfig.AudioFailedIdCardFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.AudioFailedIdCardWav);
 				VolumeControl.getInstance().RightClose();
-				fileIn = new FileInputStream(DeviceConfig.failedIdCardWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioFailedIdCardWav);
 				this.setLastingTime((long) (4.1 * 1000));
-			} else if (audioFlag == DeviceConfig.failedQrcodeFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.failedQrcodeWav);
+			} else if (audioFlag == DeviceConfig.AudioFailedQrcodeFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.AudioFailedQrcodeWav);
 				VolumeControl.getInstance().RightClose();
-				fileIn = new FileInputStream(DeviceConfig.failedQrcodeWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioFailedQrcodeWav);
 				this.setLastingTime((long) (4 * 1000));
-			} else if (audioFlag == DeviceConfig.neverTimeFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.neverTimeWav);
+			} else if (audioFlag == DeviceConfig.AudioNeverTimeFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.AudioNeverTimeWav);
 				VolumeControl.getInstance().RightClose();
-				fileIn = new FileInputStream(DeviceConfig.neverTimeWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioNeverTimeWav);
 				this.setLastingTime((long) (2.9 * 1000));
-			} else if (audioFlag == DeviceConfig.passTimeFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.passTimeWav);
+			} else if (audioFlag == DeviceConfig.AudioPassTimeFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.AudioPassTimeWav);
 				VolumeControl.getInstance().RightClose();
-				fileIn = new FileInputStream(DeviceConfig.passTimeWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioPassTimeWav);
 				this.setLastingTime((long) (2.9 * 1000));
-			} else if (audioFlag == DeviceConfig.passStationFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.passStationWav);
+			} else if (audioFlag == DeviceConfig.AudioPassStationFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.AudioPassStationWav);
 				VolumeControl.getInstance().RightClose();
-				fileIn = new FileInputStream(DeviceConfig.passStationWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioPassStationWav);
 				this.setLastingTime((long) (2.2 * 1000));
-			} else if (audioFlag == DeviceConfig.validIDandTicketFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.validIDandTicketWav);
+			} else if (audioFlag == DeviceConfig.AudioValidIDandTicketFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.AudioValidIDandTicketWav);
 				VolumeControl.getInstance().RightClose();
-				fileIn = new FileInputStream(DeviceConfig.validIDandTicketWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioValidIDandTicketWav);
 				this.setLastingTime((long) (3.3 * 1000));
-			} else if (audioFlag == DeviceConfig.wrongStationFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.wrongStationWav);
+			} else if (audioFlag == DeviceConfig.AudioWrongStationFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.AudioWrongStationWav);
 				VolumeControl.getInstance().RightClose();
-				fileIn = new FileInputStream(DeviceConfig.wrongStationWav);
+				fileIn = new FileInputStream(DeviceConfig.AudioWrongStationWav);
 				this.setLastingTime((long) (2.4 * 1000));
 			}
 
 			as = new AudioStream(fileIn);
-			if (audioFlag == DeviceConfig.takeTicketFlag) {
+			if (audioFlag == DeviceConfig.AudioTakeTicketFlag) {
 				AudioDevice.getInstance().setStartPlayTime("");
 				AudioPlayer.player.start(as);
 			} else {
@@ -227,37 +227,37 @@ public class AudioDevice {
 		//
 		 
 		
-		 AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioTakeTicketFlag);
 		 CommUtil.sleep(20 * 1000);
 		 
-		 AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag);
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckSuccFlag);
 		 CommUtil.sleep(3 * 1000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag);
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckFailedFlag);
 		CommUtil.sleep(10 * 1000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.useHelpFlag);
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioUseHelpFlag);
 		CommUtil.sleep(10 * 1000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.failedIdCardFlag);
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedIdCardFlag);
 		CommUtil.sleep(5 * 1000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.failedQrcodeFlag);
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedQrcodeFlag);
 		CommUtil.sleep(5 * 1000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.neverTimeFlag);
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioNeverTimeFlag);
 		CommUtil.sleep(5 * 1000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.passTimeFlag);
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioPassTimeFlag);
 		CommUtil.sleep(5 * 1000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.passStationFlag);
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioPassStationFlag);
 		CommUtil.sleep(5 * 1000);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.validIDandTicketFlag);
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioValidIDandTicketFlag);
 		CommUtil.sleep(5 * 1000);
 		
-		AudioPlayTask.getInstance().start(DeviceConfig.wrongStationFlag);
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioWrongStationFlag);
 		CommUtil.sleep(5 * 1000);
 
 		AudioDevice.getInstance().killpid(AudioDevice.getInstance().pidstr);

@@ -59,16 +59,7 @@ public class PITrackingApp {
 			faceTrackingScreen.getFaceFrame().showDefaultContent();
 		} else {
 			return;
-		}
-
-		int lightLedRet = -1;
-		log.info("准备点亮补光灯");
-		try {
-			lightLedRet = LightControlBoard.getInstance().startLED(); // 点亮补光灯
-		} catch (Exception ex) {
-			log.error("PITrackingApp:", ex);
-		}
-		log.info("点亮补光灯,lightLedRet==" + lightLedRet);
+		}		
 
 		// PIVerifyEventSubscriber.getInstance().startSubscribing(); //启动
 		// 闸机主控程序发送事件的订阅者
@@ -81,8 +72,8 @@ public class PITrackingApp {
 		FaceCheckingService.getInstance().beginFaceCheckerTask(); // 启动人脸发布和比对结果订阅
 
 		// 语音调用线程
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
-		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//		scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100, TimeUnit.MILLISECONDS);
 		scheduler.scheduleWithFixedDelay(FaceScreenListener.getInstance(), 0, 1500, TimeUnit.MILLISECONDS);
 
 		if (Config.getInstance().getIsUseManualMQ() == 1) {// 是否连人工窗控制台

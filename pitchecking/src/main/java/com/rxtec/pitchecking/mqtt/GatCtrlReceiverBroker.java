@@ -182,27 +182,27 @@ public class GatCtrlReceiverBroker {
 					// gatCrtlBean.getEventsource());
 					if (gatCrtlBean.getEventsource().equals("manual")) { // 来自人工窗消息
 						log.debug("来自人工窗消息:" + mqttMessage);
-						if (CLIENT_ID.equals(
-								"GCR" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Track_CLIENT)) { // 人脸检测进程
+						if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+								+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由独立比对进程处理
 							if (Config.getInstance().getIsUseManualMQ() == 1) { // 是否连人工窗
 								if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenSecondDoor) {
-									AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); // 语音："验证成功，请通过"
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckSuccFlag); // 语音："验证成功，请通过"
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenThirdDoor) {
-									AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag); // 语音："验证失败，请从侧门离开通道"
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckFailedFlag); // 语音："验证失败，请从侧门离开通道"
 								} else if (gatCrtlBean.getEvent() == 80004) { // 读二代证失败
-									AudioPlayTask.getInstance().start(DeviceConfig.failedIdCardFlag);
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedIdCardFlag);
 								} else if (gatCrtlBean.getEvent() == 80001 || gatCrtlBean.getEvent() == 90202) { // 读二维码失败/无电子票
-									AudioPlayTask.getInstance().start(DeviceConfig.failedQrcodeFlag);
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedQrcodeFlag);
 								} else if (gatCrtlBean.getEvent() == 80002) { // 票证不符
-									AudioPlayTask.getInstance().start(DeviceConfig.validIDandTicketFlag);
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioValidIDandTicketFlag);
 								} else if (gatCrtlBean.getEvent() == 51681 || gatCrtlBean.getEvent() == 90238) { // 已过进站时间
-									AudioPlayTask.getInstance().start(DeviceConfig.passTimeFlag);
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioPassTimeFlag);
 								} else if (gatCrtlBean.getEvent() == 51682 || gatCrtlBean.getEvent() == 90236) { // 未到进站时间
-									AudioPlayTask.getInstance().start(DeviceConfig.neverTimeFlag);
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioNeverTimeFlag);
 								} else if (gatCrtlBean.getEvent() == 51605) { // 越站乘车
-									AudioPlayTask.getInstance().start(DeviceConfig.passStationFlag);
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioPassStationFlag);
 								} else if (gatCrtlBean.getEvent() == 51666) { // 票不符
-									AudioPlayTask.getInstance().start(DeviceConfig.wrongStationFlag);
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioWrongStationFlag);
 								}
 							}
 						}
@@ -219,30 +219,25 @@ public class GatCtrlReceiverBroker {
 
 								if (gatCrtlBean.getEvent() == 10010) {
 									DeviceConfig.getInstance().setInTracking(true);
-								}
-								if (gatCrtlBean.getEvent() == 10011 || gatCrtlBean.getEvent() == 10012) {
+								} else if (gatCrtlBean.getEvent() == 10011 || gatCrtlBean.getEvent() == 10012) {
 									DeviceConfig.getInstance().setInTracking(false);
+								} else if (gatCrtlBean.getEvent() == 80004) { // 读二代证失败
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedIdCardFlag);
+								} else if (gatCrtlBean.getEvent() == 80001 || gatCrtlBean.getEvent() == 90202) { // 读二维码失败/无电子票
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedQrcodeFlag);
+								} else if (gatCrtlBean.getEvent() == 80002) { // 票证不符
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioValidIDandTicketFlag);
+								} else if (gatCrtlBean.getEvent() == 51681 || gatCrtlBean.getEvent() == 90238) { // 已过进站时间
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioPassTimeFlag);
+								} else if (gatCrtlBean.getEvent() == 51682 || gatCrtlBean.getEvent() == 90236) { // 未到进站时间
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioNeverTimeFlag);
+								} else if (gatCrtlBean.getEvent() == 51605) { // 越站乘车
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioPassStationFlag);
+								} else if (gatCrtlBean.getEvent() == 51666) { // 票不符
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioWrongStationFlag);
 								}
 								ManualEventSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
 										.sendDoorCmd(mqttMessage);
-							}
-						} else if (CLIENT_ID.equals(
-								"GCR" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Track_CLIENT)) { // 人脸检测进程
-
-							if (gatCrtlBean.getEvent() == 80004) { // 读二代证失败
-								AudioPlayTask.getInstance().start(DeviceConfig.failedIdCardFlag);
-							} else if (gatCrtlBean.getEvent() == 80001 || gatCrtlBean.getEvent() == 90202) { // 读二维码失败/无电子票
-								AudioPlayTask.getInstance().start(DeviceConfig.failedQrcodeFlag);
-							} else if (gatCrtlBean.getEvent() == 80002) { // 票证不符
-								AudioPlayTask.getInstance().start(DeviceConfig.validIDandTicketFlag);
-							} else if (gatCrtlBean.getEvent() == 51681 || gatCrtlBean.getEvent() == 90238) { // 已过进站时间
-								AudioPlayTask.getInstance().start(DeviceConfig.passTimeFlag);
-							} else if (gatCrtlBean.getEvent() == 51682 || gatCrtlBean.getEvent() == 90236) { // 未到进站时间
-								AudioPlayTask.getInstance().start(DeviceConfig.neverTimeFlag);
-							} else if (gatCrtlBean.getEvent() == 51605) { // 越站乘车
-								AudioPlayTask.getInstance().start(DeviceConfig.passStationFlag);
-							} else if (gatCrtlBean.getEvent() == 51666) { // 票不符
-								AudioPlayTask.getInstance().start(DeviceConfig.wrongStationFlag);
 							}
 						}
 					} else if (gatCrtlBean.getEventsource().equals("faceverifyback")) {
@@ -255,6 +250,35 @@ public class GatCtrlReceiverBroker {
 								DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
 								DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
 								log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
+							}
+						}
+					} else if (gatCrtlBean.getEventsource().equals("faceaudio")) {
+						log.debug("来自检脸进程的语音事件消息:" + mqttMessage);
+						if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+								+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由独立比对进程处理
+							
+							if (gatCrtlBean.getEvent() == DeviceConfig.AudioCheckSuccFlag) {// 语音："验证成功，请通过"
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckSuccFlag);
+							} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioCheckFailedFlag) {// 语音："验证失败，请从侧门离开通道"
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckFailedFlag);
+							} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioTakeTicketFlag) {  //走入通道
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioTakeTicketFlag);
+							} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioUseHelpFlag) {   //引导帮助
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioUseHelpFlag);
+							} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioFailedIdCardFlag) { // 读二代证失败
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedIdCardFlag);
+							} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioFailedQrcodeFlag) { // 读二维码失败/无电子票
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedQrcodeFlag);
+							} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioValidIDandTicketFlag) { // 票证不符
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioValidIDandTicketFlag);
+							} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioPassTimeFlag) { // 已过进站时间
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioPassTimeFlag);
+							} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioNeverTimeFlag) { // 未到进站时间
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioNeverTimeFlag);
+							} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioPassStationFlag) { // 越站乘车
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioPassStationFlag);
+							} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioWrongStationFlag) { // 票不符
+								AudioPlayTask.getInstance().start(DeviceConfig.AudioWrongStationFlag);
 							}
 						}
 					} else {

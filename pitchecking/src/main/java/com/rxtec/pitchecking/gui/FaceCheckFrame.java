@@ -46,6 +46,8 @@ import com.rxtec.pitchecking.AudioPlayTask;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.FaceTrackingScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.mbean.ProcessUtil;
+import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 import com.rxtec.pitchecking.mqtt.MqttSenderBroker;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.utils.CommUtil;
@@ -110,7 +112,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别成功#请通过");
 					// MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
 					frame.showFaceDisplayFromTK();
-					AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
+					// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag));
 					frame.showBeginCheckFaceContent();
 					// frame.showFaceCheckPassContent();
 					// frame.showCheckFailedContent();
@@ -439,7 +443,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 			String startPlayTime = CalUtils.getStringDateShort() + " " + "05:30:00";
 			String endPlayTime = CalUtils.getStringDateShort() + " " + "23:30:00";
 			if (CalUtils.isDateAfter(startPlayTime) && CalUtils.isDateBefore(endPlayTime)) {
-				AudioPlayTask.getInstance().start(DeviceConfig.useHelpFlag); // 循环播放引导使用语音
+//				AudioPlayTask.getInstance().start(DeviceConfig.useHelpFlag); // 循环播放引导使用语音
+				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioUseHelpFlag));
 			} else {
 				log.info("当前时间段不在" + startPlayTime + "--" + endPlayTime + "之间,不可以播放引导语音");
 			}

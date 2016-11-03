@@ -16,7 +16,10 @@ import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.net.event.GatCrtlBean;
 import com.rxtec.pitchecking.utils.CalUtils;
 
 public class ProcessUtil {
@@ -195,6 +198,28 @@ public class ProcessUtil {
 			s = "";
 		}
 		return s;
+	}
+	
+	
+	/**
+	 * 生成语音事件json
+	 * @param audioEventType
+	 * @return
+	 */
+	public static String createAudioJson(int audioEventType){
+		ObjectMapper mapper = new ObjectMapper();
+		GatCrtlBean gcBean  = new GatCrtlBean();
+		String json = "";
+		try {
+			gcBean.setEvent(audioEventType);
+			gcBean.setEventsource("FaceAudio");
+			gcBean.setTarget("127.0.0.1");
+			json = mapper.writeValueAsString(gcBean);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return json;
 	}
 
 }

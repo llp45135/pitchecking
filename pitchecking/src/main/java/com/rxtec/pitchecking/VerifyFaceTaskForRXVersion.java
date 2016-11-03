@@ -15,8 +15,10 @@ import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mq.JmsSender;
 import com.rxtec.pitchecking.mq.JmsSenderTask;
+import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.IFaceTrackService;
@@ -27,13 +29,12 @@ import com.rxtec.pitchecking.task.RunningStatus;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 /**
- * 人脸比对处理任务
- * 本类用于睿新java版本主控闸机程序
+ * 人脸比对处理任务 本类用于睿新java版本主控闸机程序
  * 
  * @author ZhaoLin
  *
  */
-public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask{
+public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 
 	IDCardReaderEvent event;
@@ -52,7 +53,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask{
 	 * @param ticket
 	 * @return
 	 */
-	public PITVerifyData beginCheckFace(IDCard idCard, Ticket ticket,int delaySeconds) {
+	public PITVerifyData beginCheckFace(IDCard idCard, Ticket ticket, int delaySeconds) {
 		TicketCheckScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, null));
 
@@ -62,7 +63,10 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask{
 		// semEvent.setIdCard(idCard);
 		// TicketCheckScreen.getInstance().offerEvent(semEvent);
 
-		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); // 调用语音
+		// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); //
+		// 调用语音
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag));
 		PITVerifyData fd = null;
 
 		if (idCard.getAge() <= Config.ByPassMinAge) {
@@ -82,8 +86,8 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask{
 
 		long nowMils = Calendar.getInstance().getTimeInMillis();
 
-		try {			
-			fd = FaceCheckingService.getInstance().pollPassFaceData(delaySeconds);   //此处设置了超时等待时间
+		try {
+			fd = FaceCheckingService.getInstance().pollPassFaceData(delaySeconds); // 此处设置了超时等待时间
 		} catch (InterruptedException ex) {
 			log.error("pollPassFaceData call", ex);
 		} catch (Exception ex) {
@@ -95,7 +99,10 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask{
 			log.debug("pollPassFaceData, using " + usingTime + " value = null");
 			faceTrackService.stopCheckingFace();
 
-			AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag); // 调用应急门开启语音
+			// AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag);
+			// // 调用应急门开启语音
+			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag));
 
 			log.debug("认证比对结果：picData==" + fd);
 			SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门
@@ -122,7 +129,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask{
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 			DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
-			DeviceEventListener.getInstance().setDealDeviceEvent(true);  //允许处理新的事件
+			DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
 			log.debug("人证比对完成，验证超时失败，重新寻卡");
 		} else {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;

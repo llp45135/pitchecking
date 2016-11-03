@@ -117,14 +117,33 @@ public class JsonTest {
 		
 	}
 	
+	public static void testEventJson(){
+		ObjectMapper mapper = new ObjectMapper();
+		GatCrtlBean gcBean  = new GatCrtlBean();
+		String json;
+		try {
+			gcBean.setEvent(20001);
+			gcBean.setEventsource("FaceAudio");
+			gcBean.setTarget("127.0.0.1");
+			json = mapper.writeValueAsString(gcBean);
+			System.out.println("json=="+json);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 	
 	public static void testMapPIVerifyResultBean() throws IOException{
-		ObjectMapper mapper = new ObjectMapper(); 
-		InputStreamReader fr = new InputStreamReader(new FileInputStream(new File("D:/tmp/a.json")));
-		BufferedReader br = new BufferedReader(fr);
-		String jsonString = br.readLine();
-		PIVerifyResultBean b1 = mapper.readValue(jsonString,PIVerifyResultBean.class);
-		System.out.println(b1);
+//		ObjectMapper mapper = new ObjectMapper(); 
+//		InputStreamReader fr = new InputStreamReader(new FileInputStream(new File("D:/tmp/a.json")));
+//		BufferedReader br = new BufferedReader(fr);
+//		String jsonString = br.readLine();
+//		PIVerifyResultBean b1 = mapper.readValue(jsonString,PIVerifyResultBean.class);
+//		System.out.println(b1);
+		
+		testEventJson();
 	}
 
 	

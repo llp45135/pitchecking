@@ -18,14 +18,17 @@ import com.rxtec.pitchecking.utils.CommUtil;
 public class VolumeControl {
 	private Logger log = LoggerFactory.getLogger("VolumeControl");
 
-	private static VolumeControl _instance = new VolumeControl();
+	private static VolumeControl _instance;
 	private String dllName = "SetVolume.dll";
 	private JNative jnativeSetDevice = null;
 	private JNative jnativeLeftClose = null;
 	private JNative jnativeRightClose = null;
 	private JNative jnativeAllOpen = null;
 
-	public static VolumeControl getInstance() {
+	public static synchronized VolumeControl getInstance() {
+		if (_instance == null) {
+			_instance = new VolumeControl();
+		}
 		return _instance;
 	}
 

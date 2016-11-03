@@ -15,6 +15,7 @@ import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mq.JmsSender;
 import com.rxtec.pitchecking.mq.JmsSenderTask;
 import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
@@ -71,9 +72,10 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 
 		PITVerifyData fd = null;
 
-		// AudioPlayTask.getInstance().start(DeviceConfig.cameraFlag); //
-		// 调用语音“请平视摄像头”
-		AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); // 调用语音“请取走票证，走进通道，抬头看屏幕”
+		// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); //
+		// 调用语音“请取走票证，走进通道，抬头看屏幕”
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag));
 
 		FaceTrackingScreen.getInstance().offerEvent(
 				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, fd));
@@ -96,7 +98,10 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			mqttSenderBroker.publishResult(fd, Config.VerifyPassedStatus); // MQTT版本
 																			// 比对结果发布
 
-			AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); // 语音："验证成功，请通过"
+			// AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); //
+			// 语音："验证成功，请通过"
+			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag));
 
 			// 通知人工控制台
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
@@ -156,7 +161,10 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// }
 
 			faceTrackService.stopCheckingFace();
-			AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag); // 语音："验证失败，请从侧门离开通道"
+			// AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag);
+			// // 语音："验证失败，请从侧门离开通道"
+			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag));
 			// 通知人工控制台
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
 					DeviceConfig.Event_VerifyFaceFailed);
@@ -175,7 +183,10 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// mqttSenderBroker.testPublishFace();
 
 			faceTrackService.stopCheckingFace();
-			AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); // 语音："验证成功，请通过"
+			// AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); //
+			// 语音："验证成功，请通过"
+			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag));
 			// 通知人工控制台
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
 					DeviceConfig.Event_VerifyFaceSucc);
