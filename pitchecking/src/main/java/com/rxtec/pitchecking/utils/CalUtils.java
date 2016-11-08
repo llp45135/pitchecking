@@ -113,8 +113,9 @@ public class CalUtils {
 		return dateString;
 	}
 
-	/*
-	 *yyyyMMdd
+	/**
+	 * yyyyMMdd
+	 * @return
 	 */
 	public static String getStringDateShort2() {
 		Date currentTime = new Date();
@@ -485,7 +486,51 @@ public class CalUtils {
 		int days = rightNow.getActualMaximum(Calendar.DAY_OF_YEAR);
 		return days;
 	}
+	
+	
+	/**
+	 * 时间之间的天数  yyyyMMdd
+	 * @param dateBegin
+	 * @param dateEnd
+	 * @return
+	 */
+	public static int getCalcDateShort(String dateBegin, String dateEnd) {
+		int distance = 0; // 时间之间的天数
+		String db = dateBegin; // 开始日期
+		String de = dateEnd; // 结束日期
 
+		int strby = 0; // substring of begin date year 开始日期的年份
+		int strbm = 0; // 开始日期的月份
+		int strbd = 0; // 开始日期的日子
+		int strey = 0;
+		int strem = 0;
+		int stred = 0;
+		// 类型转换
+		strby = Integer.parseInt(db.substring(0, 4));
+		strbm = Integer.parseInt(db.substring(4, 6));
+		strbd = Integer.parseInt(db.substring(6, 8));
+		strey = Integer.parseInt(de.substring(0, 4));
+		strem = Integer.parseInt(de.substring(4, 6));
+		stred = Integer.parseInt(de.substring(6, 8));
+		if (stred < strbd) {
+			stred = stred + 30;
+			strem = strem - 1;
+		}
+
+		if (strem < strbm) {
+			strem = strem + 12;
+			strey = strey - 1;
+		}
+		distance = (strey - strby) * 365 + (strem - strbm) * 30 + stred - strbd;
+		return distance;
+	}
+
+	/**
+	 * 时间之间的天数  yyyy-MM-dd
+	 * @param dateBegin
+	 * @param dateEnd
+	 * @return
+	 */
 	public static int getCalcDate(String dateBegin, String dateEnd) {
 		int distance = 0; // 时间之间的天数
 		String db = dateBegin; // 开始日期
@@ -517,6 +562,12 @@ public class CalUtils {
 		return distance;
 	}
 
+	/**
+	 * 时间之间的天数 yyyy-MM-dd
+	 * @param dateBegin
+	 * @param dateEnd
+	 * @return
+	 */
 	public static int getAge(String dateBegin, String dateEnd) {
 		int distance = 0; // 时间之间的天数
 		String db = dateBegin; // 开始日期

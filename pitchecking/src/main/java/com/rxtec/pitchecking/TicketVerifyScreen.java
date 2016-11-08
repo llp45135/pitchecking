@@ -26,8 +26,9 @@ public class TicketVerifyScreen {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private static TicketVerifyScreen _instance;
 
-//	GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-//	GraphicsDevice[] gs = ge.getScreenDevices();
+	// GraphicsEnvironment ge =
+	// GraphicsEnvironment.getLocalGraphicsEnvironment();
+	// GraphicsDevice[] gs = ge.getScreenDevices();
 
 	TicketVerifyFrame ticketFrame;
 
@@ -42,7 +43,7 @@ public class TicketVerifyScreen {
 	private TicketVerifyScreen() {
 
 	}
-	
+
 	public static synchronized TicketVerifyScreen getInstance() {
 		if (_instance == null) {
 			_instance = new TicketVerifyScreen();
@@ -50,13 +51,13 @@ public class TicketVerifyScreen {
 		return _instance;
 	}
 
-//	public void initUI() {
-//		gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
-//		// ticketFrame.setUndecorated(true);
-//		// ticketFrame.setVisible(true);
-//
-//	}
-	
+	// public void initUI() {
+	// gs[DeviceConfig.getInstance().getTicketScreen()].setFullScreenWindow(ticketFrame);
+	// // ticketFrame.setUndecorated(true);
+	// // ticketFrame.setVisible(true);
+	//
+	// }
+
 	public void initUI(int screenNo) throws Exception {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice[] gs = ge.getScreenDevices();
@@ -80,6 +81,11 @@ public class TicketVerifyScreen {
 				processEventByTicketCmdType(e);
 			}
 		}
+	}
+	
+	public void repainFaceFrame() {
+		// faceFrame.showIDCardImage(null);
+		ticketFrame.getContentPane().repaint();
 	}
 
 	/**
@@ -115,7 +121,7 @@ public class TicketVerifyScreen {
 			ticketFrame.showFailedContent(DeviceConfig.getInstance(), ticket, 4, 0, msg);
 		} else if (cmdType == ScreenCmdEnum.ShowTicketVerifySucc.getValue()) {
 			log.debug("收到ShowTicketVerifySucc屏幕事件，重画屏幕");
-			ticketFrame.showTicketContent(DeviceConfig.getInstance(), ticket, 3, 1);
+			ticketFrame.showTicketContent(DeviceConfig.getInstance(), ticket, 3, 2);
 		} else if (cmdType == ScreenCmdEnum.ShowTicketDefault.getValue()) {
 			log.debug("收到ShowTicketDefault屏幕事件，重画屏幕");
 			ticketFrame.showDefaultContent();
@@ -131,9 +137,39 @@ public class TicketVerifyScreen {
 		} else if (cmdType == ScreenCmdEnum.ShowCamOpenException.getValue()) {
 			String exMsg = "摄像头连接故障!";
 			ticketFrame.showExceptionContent(DeviceConfig.getInstance(), -1, exMsg);
-		}else if (cmdType == ScreenCmdEnum.ShowStopCheckFault.getValue()) {
+		} else if (cmdType == ScreenCmdEnum.ShowStopCheckFault.getValue()) {
 			String exMsg = "暂停服务";
 			ticketFrame.showSuccWait(exMsg, "请走其他通道");
+		} else if (cmdType == ScreenCmdEnum.showFailedIDCard.getValue()) {
+			String exMsg = "读二代证失败";
+			ticketFrame.showTKInfo(exMsg, "请将二代证摆在验票区", 1);
+		} else if (cmdType == ScreenCmdEnum.showFailedQRCode.getValue()) {
+			String exMsg = "无电子票或二维码模糊";
+			ticketFrame.showTKInfo(exMsg, "请走人工通道", 1);
+		} else if (cmdType == ScreenCmdEnum.showNoETicket.getValue()) {
+			String exMsg = "无电子票或二维码模糊";
+			ticketFrame.showTKInfo(exMsg, "请走人工通道", 1);
+		} else if (cmdType == ScreenCmdEnum.showInvalidTicketAndIDCard.getValue()) {
+			String exMsg = "票证不符";
+			ticketFrame.showTKInfo(exMsg, "请核对是否本人票证", 1);
+		} else if (cmdType == ScreenCmdEnum.showPassTime.getValue()) {
+			String exMsg = "已过检票时间";
+			ticketFrame.showTKInfo(exMsg, "请到售票处改签", 1);
+		} else if (cmdType == ScreenCmdEnum.showETicketPassTime.getValue()) {
+			String exMsg = "已过检票时间";
+			ticketFrame.showTKInfo(exMsg, "请到售票处改签", 1);
+		} else if (cmdType == ScreenCmdEnum.showNotInTime.getValue()) {
+			String exMsg = "未到检票时间";
+			ticketFrame.showTKInfo(exMsg, "请稍候再来验票", 1);
+		} else if (cmdType == ScreenCmdEnum.showETicketNotInTime.getValue()) {
+			String exMsg = "未到检票时间";
+			ticketFrame.showTKInfo(exMsg, "请稍候再来验票", 1);
+		} else if (cmdType == ScreenCmdEnum.showPassStation.getValue()) {
+			String exMsg = "越站乘车";
+			ticketFrame.showTKInfo(exMsg, "请走人工通道", 1);
+		} else if (cmdType == ScreenCmdEnum.showWrongStation.getValue()) {
+			String exMsg = "非本站乘车";
+			ticketFrame.showTKInfo(exMsg, "请核对车票", 1);
 		}
 	}
 

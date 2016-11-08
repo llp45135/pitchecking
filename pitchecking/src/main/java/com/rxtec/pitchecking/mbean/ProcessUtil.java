@@ -206,13 +206,13 @@ public class ProcessUtil {
 	 * @param audioEventType
 	 * @return
 	 */
-	public static String createAudioJson(int audioEventType){
+	public static String createAudioJson(int audioEventType,String eventSource){
 		ObjectMapper mapper = new ObjectMapper();
 		GatCrtlBean gcBean  = new GatCrtlBean();
 		String json = "";
 		try {
 			gcBean.setEvent(audioEventType);
-			gcBean.setEventsource("FaceAudio");
+			gcBean.setEventsource(eventSource);
 			gcBean.setTarget("127.0.0.1");
 			json = mapper.writeValueAsString(gcBean);
 		} catch (JsonProcessingException e) {

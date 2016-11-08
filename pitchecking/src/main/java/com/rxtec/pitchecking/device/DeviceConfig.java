@@ -95,6 +95,8 @@ public class DeviceConfig {
 	private String belongStationCode = "IZQ";
 	private int faceScreen = 0;
 	private int ticketScreen = 1;
+	private int guideScreen = 2;
+	
 	private String gateNo = "00";
 	private String idDeviceType = "X";
 	private String qrDeviceType = "V";
@@ -130,6 +132,8 @@ public class DeviceConfig {
 	public static String GAT_MQ_Verify_CLIENT = "Verify";
 	public static String GAT_MQ_Track_CLIENT = "Track";
 	public static String GAT_MQ_Standalone_CLIENT = "Alone";
+	public static String GAT_MQ_Guide_CLIENT = "Guide";
+	
 	public static String OPEN_FIRSTDOOR = "{\"Event\": 1,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
 	// public static String CLOSE_FIRSTDOOR = "DoorCmd01";
 	public static String OPEN_SECONDDOOR = "{\"Event\": 2,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
@@ -162,6 +166,14 @@ public class DeviceConfig {
 	private boolean isAllowOpenSecondDoor = true;  //是否允许开第二道门
 	private boolean isInTracking = false;  //是否处于人脸核验中
 	
+
+	public int getGuideScreen() {
+		return guideScreen;
+	}
+
+	public void setGuideScreen(int guideScreen) {
+		this.guideScreen = guideScreen;
+	}
 
 	public boolean isInTracking() {
 		return isInTracking;
@@ -554,6 +566,8 @@ public class DeviceConfig {
 			this.setGateNo(root.getChild("GateConfig").getAttributeValue("gateNo"));
 			this.setFaceScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("faceScreen")));
 			this.setTicketScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("ticketScreen")));
+			this.setGuideScreen(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("guideScreen")));
+			
 			this.setReaderTimeDelay(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("readerTimeDelay")));
 			this.setSuccTimeDelay(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("succTimeDelay")));
 			this.setIdDeviceType(root.getChild("GateConfig").getAttributeValue("idDeviceType"));

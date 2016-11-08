@@ -248,6 +248,6 @@ public class GatCtrlSenderBroker {
 		// 2,\"Target\": \"192.168.1.79\",\"EventSource\":\"Manual\"}");
 
 		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag));
+				.sendDoorCmd(ProcessUtil.createAudioJson(90202,"TK"));
 	}
 }

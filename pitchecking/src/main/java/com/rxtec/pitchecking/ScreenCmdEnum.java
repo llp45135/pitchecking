@@ -18,7 +18,17 @@ public enum ScreenCmdEnum {
 	ShowIDDeviceException(-2),
 	ShowVersionFault(-3),
 	ShowCamOpenException(-4),
-	ShowStopCheckFault(-5)
+	ShowStopCheckFault(-5),
+	showFailedIDCard(80004),
+	showFailedQRCode(80001),
+	showNoETicket(90202),
+	showInvalidTicketAndIDCard(80002),
+	showPassTime(51681),
+	showETicketPassTime(90238),
+	showNotInTime(51682),
+	showETicketNotInTime(90236),
+	showPassStation(51605),
+	showWrongStation(51666)
 	{
 		@Override
 		public boolean isRest() {

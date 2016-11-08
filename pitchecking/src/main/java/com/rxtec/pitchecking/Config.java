@@ -159,7 +159,8 @@ public class Config {
 	private boolean rebackTrackFlag = true;
 	private int isUseManualMQ=0;
 	private int isUseMySQLDB = 0;
-	private int isPlayHelpAudio = 1;
+	private int isPlayHelpAudio = 1;  //是否播放引导语音
+	private int isStartMainListener = 1;  //是否允许启动睿新版本的主控线程
 
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
@@ -184,6 +185,14 @@ public class Config {
 	private float maxAverageDepth = 1000F;
 
 	private int faceTrackMode = 1; // 人臉追蹤模式 1 紅外，2 顔色+景深
+
+	public int getIsStartMainListener() {
+		return isStartMainListener;
+	}
+
+	public void setIsStartMainListener(int isStartMainListener) {
+		this.isStartMainListener = isStartMainListener;
+	}
 
 	public int getIsPlayHelpAudio() {
 		return isPlayHelpAudio;
@@ -578,6 +587,7 @@ public class Config {
 			this.isUseManualMQ = Integer.valueOf(p.getProperty("isUseManualMQ", "0"));
 			this.isUseMySQLDB = Integer.valueOf(p.getProperty("isUseMySQLDB", "0"));
 			this.isPlayHelpAudio = Integer.valueOf(p.getProperty("isPlayHelpAudio", "1"));
+			this.isStartMainListener = Integer.valueOf(p.getProperty("isStartMainListener", "1"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();

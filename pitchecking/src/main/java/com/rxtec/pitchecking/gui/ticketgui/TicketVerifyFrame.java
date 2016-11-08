@@ -262,7 +262,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		bootTime.setBounds(357, 0, 367, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
 		bottomPanel.add(bootTime);
 
-		setUndecorated(true);
+		 setUndecorated(true);
 		setAlwaysOnTop(true);
 
 		showDefaultContent();
@@ -471,7 +471,37 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
 
+	/**
+	 * 还原Tk信息
+	 * @param msg1
+	 * @param msg2
+	 * @param backPanelType
+	 */
+	public void showTKInfo(String msg1, String msg2, int backPanelType) {
+		try {
+			this.titleStrType = 5;
+			this.backPanelType = backPanelType;
+
+			verifyWaitPanel.showWaitMsg(msg1, msg2);
+
+			ticketPanel.setVisible(false);
+			verifyWaitPanel.setVisible(true);
+			readedPanel.setVisible(false);
+			verifyInitPanel.setVisible(false);
+			contentPane.remove(verifyInitPanel);
+			contentPane.remove(readedPanel);
+			contentPane.remove(ticketPanel);
+			contentPane.remove(bottomPanel);
+			contentPane.add(verifyWaitPanel);
+			contentPane.add(bottomPanel);
+			contentPane.repaint();
+
+			timeIntevel = 3;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -590,6 +620,8 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 			} else if (this.titleStrType == 4) {
 				labelTitle.setText("票证核验失败   " + (timeIntevel - 1));
 				labelTitle.setForeground(Color.YELLOW);
+			} else if (this.titleStrType == 5) {
+				labelTitle.setText("");
 			}
 		}
 
@@ -604,6 +636,8 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 						log.error("TicketVerifyFrame showDefaultContent:", ex);
 					}
 				}
+				showDefaultContent();
+			} else if(this.backPanelType==1){
 				showDefaultContent();
 			} else {
 				this.showSuccWait("人脸核验中", "后面的旅客切勿刷票");

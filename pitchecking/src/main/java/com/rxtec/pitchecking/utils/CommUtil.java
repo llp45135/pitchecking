@@ -402,8 +402,13 @@ public class CommUtil {
 		else
 			return true;
 	}
+	
 
-	// 递归删除目录
+	/**
+	 * 递归删除目录
+	 * @param dir
+	 * @return
+	 */
 	public static boolean deleteDir(File dir) {
 		if (dir.isDirectory()) {
 			String[] children = dir.list();
@@ -418,6 +423,11 @@ public class CommUtil {
 		return dir.delete();
 	}
 
+	/**
+	 * 创建目录
+	 * @param destDirName
+	 * @return
+	 */
 	public static int createDir(String destDirName) {
 		File dir = new File(destDirName);
 		if (dir.exists()) {

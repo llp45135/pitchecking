@@ -114,7 +114,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					frame.showFaceDisplayFromTK();
 					// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
 					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag));
+							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag,"FaceAudio"));
 					frame.showBeginCheckFaceContent();
 					// frame.showFaceCheckPassContent();
 					// frame.showCheckFailedContent();
@@ -445,7 +445,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 			if (CalUtils.isDateAfter(startPlayTime) && CalUtils.isDateBefore(endPlayTime)) {
 //				AudioPlayTask.getInstance().start(DeviceConfig.useHelpFlag); // 循环播放引导使用语音
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioUseHelpFlag));
+				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioUseHelpFlag,"FaceAudio"));
 			} else {
 				log.info("当前时间段不在" + startPlayTime + "--" + endPlayTime + "之间,不可以播放引导语音");
 			}

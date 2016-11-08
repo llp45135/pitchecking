@@ -66,7 +66,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask {
 		// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); //
 		// 调用语音
 		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag));
+				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag,"FaceAudio"));
 		PITVerifyData fd = null;
 
 		if (idCard.getAge() <= Config.ByPassMinAge) {
@@ -102,7 +102,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask {
 			// AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag);
 			// // 调用应急门开启语音
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag));
+					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag,"FaceAudio"));
 
 			log.debug("认证比对结果：picData==" + fd);
 			SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门

@@ -16,6 +16,9 @@ import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
+import com.rxtec.pitchecking.task.FaceScreenListener;
+import com.rxtec.pitchecking.task.GuideScreenListener;
+import com.rxtec.pitchecking.task.VerifyScreenListener;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 /**
@@ -30,8 +33,6 @@ public class PITVerifyApp {
 	public static void main(String[] args) {
 		try {
 
-			GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT); // 启动PITEventTopic本地监听
-
 			TicketVerifyScreen ticketVerifyScreen = TicketVerifyScreen.getInstance();
 			TicketVerifyFrame tickFrame = new TicketVerifyFrame();
 			ticketVerifyScreen.setTicketFrame(tickFrame);
@@ -39,26 +40,35 @@ public class PITVerifyApp {
 				ticketVerifyScreen.initUI(DeviceConfig.getInstance().getTicketScreen());
 			} catch (Exception ex) {
 				// TODO Auto-generated catch block
-				log.error("PITUserGuideApp:", ex);
+				log.error("PITVerifyApp:", ex);
 			}
+			
+			ScheduledExecutorService screenScheduler = Executors.newScheduledThreadPool(1);
+			VerifyScreenListener verifyScreenListener = VerifyScreenListener.getInstance();
+			verifyScreenListener.setScreenNo(DeviceConfig.getInstance().getTicketScreen());
+			screenScheduler.scheduleWithFixedDelay(verifyScreenListener, 0, 1500, TimeUnit.MILLISECONDS);
 
-			DeviceEventListener eventListener = DeviceEventListener.getInstance();
-			// Thread.sleep(3000);
-			// MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
-			// TODO Auto-generated method stub
-			// 启动事件监听
+			if (Config.getInstance().getIsStartMainListener() == 1) {
+				GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT); // 启动PITEventTopic本地监听
 
-			// eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
-			// log.debug("准备初始化界面");
-			// CommUtil.sleep(10*1000);
+				DeviceEventListener eventListener = DeviceEventListener.getInstance();
+				// Thread.sleep(3000);
+				// MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
+				// TODO Auto-generated method stub
+				// 启动事件监听
 
-			// ExecutorService executorService =
-			// Executors.newCachedThreadPool();
-			// executorService.execute(eventListener);
+				// eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
+				// log.debug("准备初始化界面");
+				// CommUtil.sleep(10*1000);
 
-			if (eventListener.isStartThread()) {
-				ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-				scheduler.scheduleWithFixedDelay(eventListener, 0, 200, TimeUnit.MILLISECONDS);
+				// ExecutorService executorService =
+				// Executors.newCachedThreadPool();
+				// executorService.execute(eventListener);
+
+				if (eventListener.isStartThread()) {
+					ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+					scheduler.scheduleWithFixedDelay(eventListener, 0, 200, TimeUnit.MILLISECONDS);
+				}
 			}
 		} catch (Exception ex) {
 			log.error("", ex);

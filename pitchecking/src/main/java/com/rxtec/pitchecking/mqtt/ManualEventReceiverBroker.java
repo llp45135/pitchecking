@@ -274,21 +274,32 @@ public class ManualEventReceiverBroker {
 											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 										log.debug("准备执行暂停服务指令");
 										Runtime.getRuntime().exec(Config.getInstance().getKillTKExeCmd()); // 杀死中铁程gui.exe
-										CommUtil.sleep(3000);
-										ProcessUtil.writePauseLog("kill");
-										Runtime.getRuntime().exec(Config.getInstance().getStartPITVerifyCmd());
+										
+//										CommUtil.sleep(3000);										
+//										ProcessUtil.writePauseLog("kill");
+//										Runtime.getRuntime().exec(Config.getInstance().getStartPITVerifyCmd());
+										
+										mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(),"127.0.0.1");
+										GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
+										.sendDoorCmd("PITEventTopic", mqttMessage);
 									}
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_ContinueService) { // 恢复服务
 									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
 											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 										log.debug("准备执行恢复服务指令");
-										String pauseFlagStr = ProcessUtil.getLastPauseFlag();
-										if (pauseFlagStr != null && !pauseFlagStr.equals("")) {
-											String pid = pauseFlagStr.split("@")[0];
-											Runtime.getRuntime().exec("taskkill /F /PID " + pid);
-											CommUtil.sleep(1000);
-											Runtime.getRuntime().exec(Config.getInstance().getStartTKExeCmd()); // 启动gui.exe
-										}
+//										String pauseFlagStr = ProcessUtil.getLastPauseFlag();
+//										if (pauseFlagStr != null && !pauseFlagStr.equals("")) {
+//											String pid = pauseFlagStr.split("@")[0];
+//											Runtime.getRuntime().exec("taskkill /F /PID " + pid);
+//											CommUtil.sleep(1000);
+//											Runtime.getRuntime().exec(Config.getInstance().getStartTKExeCmd()); // 启动gui.exe
+//										}
+										
+										Runtime.getRuntime().exec(Config.getInstance().getStartTKExeCmd()); // 启动gui.exe
+										CommUtil.sleep(3000);
+										mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(),"127.0.0.1");
+										GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
+										.sendDoorCmd("PITEventTopic", mqttMessage);
 									}
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_ResetService) { // 重启闸机
 									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
