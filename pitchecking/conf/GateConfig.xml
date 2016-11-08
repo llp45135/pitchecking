@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PitCheckMsg>
-	<GateConfig versionFlag="0" gateNo="01" belongStationCode="IZQ"
-		faceScreen="1" ticketScreen="0" checkTicketFlag="1" readerTimeDelay="6"
+	<GateConfig versionFlag="1" gateNo="01" belongStationCode="IZQ"
+		faceScreen="1" ticketScreen="0" guideScreen="0" checkTicketFlag="1" readerTimeDelay="6"
 		succTimeDelay="4" idDeviceType="H" qrDeviceType="H" autoLogonCron="0 0 5 * * ?" />
 	<GateCrtlConfig cameraLEDPort="1" firstGateCrtlPort="COM2"
 		secondGateCrtlPort="COM3" honeywellQRPort="COM3" gateCrtlRate="9600" />
