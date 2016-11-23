@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.rxtec.pitchecking.device.DeviceConfig;
 
 /**
  * Json序列化工具
@@ -223,5 +225,38 @@ public class JsonUtils {
 
 		toJavaBean(javabean, map);
 
+	}
+
+	public static void main(String[] args) {
+		try {
+			// Map map = JsonUtils.toMap(DeviceConfig.Close_SECONDDOOR_Jms);
+
+			System.out.println(DeviceConfig.Close_SECONDDOOR_Jms.replace(" ", ""));
+			String ss = DeviceConfig.Close_SECONDDOOR_Jms.replace(" ", "");
+
+			ss = ss.replace("{", "");
+			ss = ss.replace("}", "");
+			StringTokenizer st = new StringTokenizer(ss, ",");
+			while (st.hasMoreTokens()) {
+				String tt = st.nextToken();
+				System.out.println("" + tt);
+				if (tt.indexOf("Event") != -1) {
+					System.out.println("event==" + tt.substring(tt.indexOf(":") + 1).replace("\"", ""));
+				} else if (tt.indexOf("Target") != -1) {
+					System.out.println("Target==" + tt.substring(tt.indexOf(":") + 1).replace("\"", ""));
+				} else if (tt.indexOf("EventSource") != -1) {
+					System.out.println("EventSource==" + tt.substring(tt.indexOf(":") + 1).replace("\"", ""));
+				}
+			}
+
+			// System.out.println(ss.indexOf("Event"));
+			// Map map = JsonUtils.toMap(ss);
+			// System.out.println("Event=="+map.get("Event"));
+			// System.out.println("Target=="+map.get("Target"));
+			// System.out.println("EventSource=="+map.get("EventSource"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

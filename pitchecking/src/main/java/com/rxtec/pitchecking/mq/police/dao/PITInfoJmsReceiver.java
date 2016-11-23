@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.device.SecondGateDevice;
 import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mq.PITInfoJson;

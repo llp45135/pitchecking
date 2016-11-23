@@ -183,7 +183,7 @@ public class ManualEventReceiverBroker {
 					// log.info("mqttMessage==" + mqttMessage);
 					if (mqttMessage.toLowerCase().indexOf("eventsource") != -1) { // 收到门控制发回的指令
 
-						if (mqttMessage.toLowerCase().indexOf("123321") != -1) { // 设置颜色模式
+						if (mqttMessage.toLowerCase().indexOf("123321") != -1) { // 设置摄像头曝光度等模式
 							ObjectMapper mapper = new ObjectMapper();
 							CameraColorBean cameraColorBean = mapper.readValue(mqttMessage.toLowerCase(),
 									CameraColorBean.class);
@@ -273,33 +273,43 @@ public class ManualEventReceiverBroker {
 									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
 											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 										log.debug("准备执行暂停服务指令");
-										Runtime.getRuntime().exec(Config.getInstance().getKillTKExeCmd()); // 杀死中铁程gui.exe
-										
-//										CommUtil.sleep(3000);										
-//										ProcessUtil.writePauseLog("kill");
-//										Runtime.getRuntime().exec(Config.getInstance().getStartPITVerifyCmd());
-										
-										mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(),"127.0.0.1");
+										if (Config.getInstance().getIsUseGatDll() == 1) {
+											Runtime.getRuntime().exec(Config.getInstance().getKillTKExeCmd()); // 杀死中铁程gui.exe
+										}
+
+										// CommUtil.sleep(3000);
+										// ProcessUtil.writePauseLog("kill");
+										// Runtime.getRuntime().exec(Config.getInstance().getStartPITVerifyCmd());
+
+										mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(),
+												"127.0.0.1");
 										GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
-										.sendDoorCmd("PITEventTopic", mqttMessage);
+												.sendDoorCmd("PITEventTopic", mqttMessage);
 									}
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_ContinueService) { // 恢复服务
 									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
 											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 										log.debug("准备执行恢复服务指令");
-//										String pauseFlagStr = ProcessUtil.getLastPauseFlag();
-//										if (pauseFlagStr != null && !pauseFlagStr.equals("")) {
-//											String pid = pauseFlagStr.split("@")[0];
-//											Runtime.getRuntime().exec("taskkill /F /PID " + pid);
-//											CommUtil.sleep(1000);
-//											Runtime.getRuntime().exec(Config.getInstance().getStartTKExeCmd()); // 启动gui.exe
-//										}
-										
-										Runtime.getRuntime().exec(Config.getInstance().getStartTKExeCmd()); // 启动gui.exe
-										CommUtil.sleep(3000);
-										mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(),"127.0.0.1");
+										// String pauseFlagStr =
+										// ProcessUtil.getLastPauseFlag();
+										// if (pauseFlagStr != null &&
+										// !pauseFlagStr.equals("")) {
+										// String pid =
+										// pauseFlagStr.split("@")[0];
+										// Runtime.getRuntime().exec("taskkill
+										// /F /PID " + pid);
+										// CommUtil.sleep(1000);
+										// Runtime.getRuntime().exec(Config.getInstance().getStartTKExeCmd());
+										// // 启动gui.exe
+										// }
+										if (Config.getInstance().getIsUseGatDll() == 1) {
+											Runtime.getRuntime().exec(Config.getInstance().getStartTKExeCmd()); // 启动gui.exe
+											CommUtil.sleep(3000);
+										}
+										mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(),
+												"127.0.0.1");
 										GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
-										.sendDoorCmd("PITEventTopic", mqttMessage);
+												.sendDoorCmd("PITEventTopic", mqttMessage);
 									}
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_ResetService) { // 重启闸机
 									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
@@ -329,7 +339,7 @@ public class ManualEventReceiverBroker {
 
 	public static void main(String[] args) {
 		// ManualEventReceiverBroker mer1 =
-//		 ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT);
+		// ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT);
 
 		ManualEventReceiverBroker mer2 = ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);
 		System.out.println("$$");

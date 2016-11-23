@@ -101,9 +101,9 @@ public class JmsReceiver implements MessageListener {
 						}
 					} else {
 						if (backMsg.startsWith("Y")) {
-							SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
+							SecondGateDevice.getInstance().openTheSecondDoor(); // 人脸比对通过，开第三道闸门
 						} else {
-							SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门
+							SecondGateDevice.getInstance().openEmerDoor(); // 人脸比对失败，开第二道电磁门
 						}
 					}
 				}

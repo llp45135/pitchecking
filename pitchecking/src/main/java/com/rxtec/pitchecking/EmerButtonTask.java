@@ -47,10 +47,10 @@ public class EmerButtonTask implements Runnable {
 			if (embe != null) {
 				if (embe.getEventNo().equals("01")) {
 					log.debug("旅客按下求助按钮事件被触发，打开紧急电磁门。触发时间：" + embe.getEventTime());
-					SecondGateDevice.getInstance().openSecondDoor();
+					SecondGateDevice.getInstance().openEmerDoor();
 				} else {
 					log.debug("客运员按下求助按钮事件被触发，打开第二道闸门。触发时间：" + embe.getEventTime());
-					SecondGateDevice.getInstance().openThirdDoor();
+					SecondGateDevice.getInstance().openTheSecondDoor();
 				}
 			}
 		} catch (InterruptedException e) {

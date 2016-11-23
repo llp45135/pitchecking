@@ -147,7 +147,7 @@ public class DeviceEventListener implements Runnable {
 		try {
 			if (isDealDeviceEvent) {
 				e = deviceEventQueue.poll();
-//				log.debug("e==" + e);
+				// log.debug("e==" + e);
 				if (e != null) {
 					this.setDealDeviceEvent(false);// 停止处理新的事件
 					this.processEvent(e);
@@ -197,7 +197,7 @@ public class DeviceEventListener implements Runnable {
 			this.setDeviceReader(false);// 停止寻卡
 			log.debug("票证核验通过，停止寻卡，打开第一道闸门，开始人证比对");
 
-			if (Config.getInstance().getIsUseManualMQ() == 0) {
+			if (Config.getInstance().getIsUseGatDll() == 0) {
 				FirstGateDevice.getInstance().openFirstDoor();// 打开第一道门
 			} else {
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
@@ -211,8 +211,8 @@ public class DeviceEventListener implements Runnable {
 			// 开始进行人脸检测和比对
 			if (this.verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket()) == 0) { // 人脸比对通过
 				log.debug("人脸比对通过，开第二道闸门");
-				if (Config.getInstance().getIsUseManualMQ() == 0) {
-					SecondGateDevice.getInstance().openThirdDoor(); //
+				if (Config.getInstance().getIsUseGatDll() == 0) {  //不调用门控dll
+					SecondGateDevice.getInstance().openTheSecondDoor(); //
 				} else {
 					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 							.sendDoorCmd(DeviceConfig.OPEN_SECONDDOOR);
@@ -220,8 +220,8 @@ public class DeviceEventListener implements Runnable {
 				CAMDevice.getInstance().CAM_ScreenDisplay("身份核验成功#请通过", 3);
 			} else { // 人脸比对失败
 				log.debug("人脸比对失败，开第三道电磁门");
-				if (Config.getInstance().getIsUseManualMQ() == 0) {
-					SecondGateDevice.getInstance().openSecondDoor(); // 打开电磁门
+				if (Config.getInstance().getIsUseGatDll() == 0) {//不调用门控dll
+					SecondGateDevice.getInstance().openEmerDoor(); // 打开电磁门
 				} else {
 					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 							.sendDoorCmd(DeviceConfig.OPEN_THIRDDOOR);
@@ -292,31 +292,28 @@ public class DeviceEventListener implements Runnable {
 
 	// 启动设备
 	private void startDevice() throws DeviceException {
-		String pauseFlagStr = ProcessUtil.getLastPauseFlag();
-		log.debug("pauseFlagStr==" + pauseFlagStr);
-		if (pauseFlagStr != null) {
-			if (pauseFlagStr.indexOf("kill") != -1) {
-				log.debug("启动暂停服务版本...");
-				TicketVerifyScreen.getInstance().offerEvent(
-						new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowStopCheckFault.getValue(), null, null, null));
-				ProcessUtil.writePauseLog(ProcessUtil.getCurrentProcessID());
-				this.isStartThread = false;
-				Config.getInstance().setIsUseManualMQ(0);
-				if (this.startGateDevice() != 1) {
-					return;
-				}
-				LightEntryLED(false);
-				return;
-			}
-		}
 
-		ProcessUtil.writePauseLog(ProcessUtil.getCurrentProcessID());
+		// String pauseFlagStr = ProcessUtil.getLastPauseFlag();
+		// log.debug("pauseFlagStr==" + pauseFlagStr);
+		// if (pauseFlagStr != null) {
+		// if (pauseFlagStr.indexOf("kill") != -1) {
+		// log.debug("启动暂停服务版本...");
+		// TicketVerifyScreen.getInstance().offerEvent(
+		// new ScreenElementModifyEvent(0,
+		// ScreenCmdEnum.ShowStopCheckFault.getValue(), null, null, null));
+		// ProcessUtil.writePauseLog(ProcessUtil.getCurrentProcessID());
+		// this.isStartThread = false;
+		// Config.getInstance().setIsUseManualMQ(0);
+		// if (this.startGateDevice() != 1) {
+		// return;
+		// }
+		// LightEntryLED(false);
+		// return;
+		// }
+		// }
+		//
+		// ProcessUtil.writePauseLog(ProcessUtil.getCurrentProcessID());
 
-		if (Config.getInstance().getIsUseManualMQ() == 0) {
-			if (this.startGateDevice() != 1) {
-				return;
-			}
-		}
 		log.debug("核验软件版本");
 		if (DeviceConfig.getInstance().getVersionFlag() != 1) {
 			log.debug("软件版本错误:" + DeviceConfig.getInstance().getVersionFlag());
@@ -325,6 +322,13 @@ public class DeviceEventListener implements Runnable {
 			this.isStartThread = false;
 			LightEntryLED(false);
 			return;
+		}
+
+		if (Config.getInstance().getIsUseGatDll() == 0) {// 不使用门控dll时，需要启动串口设备
+			if (this.startGateDevice() != 1) {
+				this.isStartThread = false;
+				return;
+			}
 		}
 
 		if (this.OpenCAM() != 0) {
@@ -357,7 +361,7 @@ public class DeviceEventListener implements Runnable {
 		// }
 
 		/**
-		 * 连接mq服务，启动mq receiver线程
+		 * 连接mq服务，启动mq receiver线程 传输数据至平板
 		 */
 		if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
 			ExecutorService executer = Executors.newCachedThreadPool();
@@ -401,7 +405,7 @@ public class DeviceEventListener implements Runnable {
 	 */
 	private int LightEntryLED(boolean isArrow) {
 		int retval = -1;
-		if (Config.getInstance().getIsUseManualMQ() == 0) {
+		if (Config.getInstance().getIsUseGatDll() == 0) { // 不使用门控 dll
 			if (isArrow) {
 				FirstGateDevice.getInstance().LightEntryArrow();// 启动成功点亮绿色通行箭头
 			} else {

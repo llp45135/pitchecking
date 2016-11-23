@@ -14,6 +14,7 @@ import com.rxtec.pitchecking.TicketCheckScreen;
 import com.rxtec.pitchecking.TicketVerifyScreen;
 import com.rxtec.pitchecking.domain.EmerButtonEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
 
@@ -96,7 +97,7 @@ public class SecondGateDevice implements SerialPortEventListener {
 	 * 
 	 * @return
 	 */
-	public int openSecondDoor() {
+	public int openEmerDoor() {
 		try {
 			String cmd = "2A500123";
 			log.debug("openSecondDoor cmd==" + cmd);
@@ -112,11 +113,11 @@ public class SecondGateDevice implements SerialPortEventListener {
 	}
 
 	/**
-	 * 开第三道门
+	 * 开第二道门
 	 * 
 	 * @return
 	 */
-	public int openThirdDoor() {
+	public int openTheSecondDoor() {
 		try {
 			String cmd = "2A040123";
 			log.debug("openThirdDoor cmd==" + cmd);
@@ -324,22 +325,39 @@ public class SecondGateDevice implements SerialPortEventListener {
 
 				if (ss.length() >= 8) {
 					if (ss.indexOf("2A040023") == 0) {
-						// log.debug("第三道闸门已经关闭");
+						// log.debug("第二道闸门已经关闭");
 						if (DeviceEventListener.getInstance().isStartThread()) {
+
 							TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 									ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 							DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
 							DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
-							log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
+							
+							if(!DeviceConfig.getInstance().isAllowOpenSecondDoor()){
+								GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+								.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
+								DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+							}
+							log.debug("人证比对完成，第二道闸门已经关闭，重新寻卡");
 						}
 					} else if (ss.indexOf("2A040F23") == 0) {
 						if (DeviceEventListener.getInstance().isStartThread()) {
-							// log.debug("第三道闸门超时关闭");
+							// log.debug("第二道闸门超时关闭");							
+
 							TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 									ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 							DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
 							DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
-							log.debug("人证比对完成，第三道闸门超时关闭，重新寻卡");
+							
+							if(!DeviceConfig.getInstance().isAllowOpenSecondDoor()){
+								GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+								.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
+								DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+							}
+							
+							log.debug("人证比对完成，第二道闸门超时关闭，重新寻卡");
+							
+							
 						}
 					} else if (ss.indexOf("2A510123") == 0) {
 						log.debug("点亮入口绿色箭头");
@@ -378,9 +396,9 @@ public class SecondGateDevice implements SerialPortEventListener {
 		SecondGateDevice gateDevice = SecondGateDevice.getInstance();
 		try {
 			gateDevice.connect(DeviceConfig.getInstance().getSecondGateCrtlPort());
-			gateDevice.openThirdDoor();
+			gateDevice.openEmerDoor();
 			CommUtil.sleep(1000);
-			gateDevice.openSecondDoor();
+			gateDevice.openTheSecondDoor();
 			// gateDevice.close();
 			// System.exit(0);
 		} catch (Exception e) {

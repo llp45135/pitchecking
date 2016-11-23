@@ -147,6 +147,8 @@ public class DeviceConfig {
 	// public static String CLOSE_SECONDDDOOR = "DoorCmd11";
 	public static String OPEN_THIRDDOOR = "{\"Event\": 3,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
 	// public static String CLOSE_THIRDDOOR = "DoorCmd21";
+	public static String Close_SECONDDOOR_Jms = "{\"Event\": 20,\"Target\": \"127.0.0.1\",\"EventSource\":\"MainVerify\"}";
+	
 	public static String EventTopic = "PITEventTopic";
 	public static String Event_StartTracking = "{\"Event\": 10010,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸开始核验
 	public static String Event_VerifyFaceSucc = "{\"Event\": 10011,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验成功

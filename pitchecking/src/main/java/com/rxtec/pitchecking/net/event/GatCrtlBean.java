@@ -1,6 +1,10 @@
 package com.rxtec.pitchecking.net.event;
 
-public class GatCrtlBean {
+public class GatCrtlBean implements java.io.Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int event = -1;
 	private String target;
 	private String eventsource;

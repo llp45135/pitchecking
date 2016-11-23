@@ -72,7 +72,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask {
 		if (idCard.getAge() <= Config.ByPassMinAge) {
 			log.debug("该旅客小于" + Config.ByPassMinAge + "岁：picData==" + fd);
 			CommUtil.sleep(2000);
-			SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
+			SecondGateDevice.getInstance().openTheSecondDoor(); // 人脸比对通过，开第三道闸门
 
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));
@@ -105,7 +105,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask {
 					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag,"FaceAudio"));
 
 			log.debug("认证比对结果：picData==" + fd);
-			SecondGateDevice.getInstance().openSecondDoor(); // 人脸比对失败，开第二道电磁门
+			SecondGateDevice.getInstance().openEmerDoor(); // 人脸比对失败，开第二道电磁门
 
 			// mq发送人脸
 			if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
@@ -138,7 +138,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask {
 			FaceCheckingService.getInstance().setFailedFace(null);
 
 			log.debug("认证比对结果：picData==" + fd);
-			SecondGateDevice.getInstance().openThirdDoor(); // 人脸比对通过，开第三道闸门
+			SecondGateDevice.getInstance().openTheSecondDoor(); // 人脸比对通过，开第三道闸门
 
 			TicketCheckScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowFaceCheckPass.getValue(), null, null, fd));

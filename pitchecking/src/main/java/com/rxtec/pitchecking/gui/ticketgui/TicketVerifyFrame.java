@@ -262,7 +262,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		bootTime.setBounds(357, 0, 367, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
 		bottomPanel.add(bootTime);
 
-		 setUndecorated(true);
+//		 setUndecorated(true);
 		setAlwaysOnTop(true);
 
 		showDefaultContent();
@@ -607,21 +607,19 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		// TODO Auto-generated method stub
 		timeRefresh();
 		// log.debug("TicketVerifyFrame 计时开始==" + (timeIntevel - 1));
-		if (timeIntevel > 0) {
+		if (timeIntevel >= 0) {
 			if (this.titleStrType == 1) {
 				labelTitle.setText("还需扫火车票二维码   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.YELLOW);
+				labelTitle.setForeground(Color.RED);
 			} else if (this.titleStrType == 2) {
 				labelTitle.setText("还需刷第二代身份证   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.YELLOW);
+				labelTitle.setForeground(Color.RED);
 			} else if (this.titleStrType == 3) {
 				labelTitle.setText("票证核验成功   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.YELLOW);
+				labelTitle.setForeground(Color.GREEN);
 			} else if (this.titleStrType == 4) {
 				labelTitle.setText("票证核验失败   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.YELLOW);
-			} else if (this.titleStrType == 5) {
-				labelTitle.setText("");
+				labelTitle.setForeground(Color.RED);
 			}
 		}
 

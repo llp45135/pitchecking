@@ -27,32 +27,32 @@ public class PitCheckingApp {
 	static TicketCheckScreen ticketCheckScreen = TicketCheckScreen.getInstance();
 
 	public static void main(String[] args) throws InterruptedException {
-		ticketCheckScreen.initUI();
-
-		Thread.sleep(1000);
-
-		// TODO Auto-generated method stub
-		// 启动事件监听
-
-		FaceCheckingService.getInstance().beginFaceCheckerTask();  //启动人脸比对线程
-
-		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {
-			RSFaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
-			RSFaceDetectionService.getInstance().beginVideoCaptureAndTracking();  //启动人脸检测线程
-		} else {
-			 FaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
-			 FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
-		}
-
-
-
-		eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
-
-//		ExecutorService executorService = Executors.newCachedThreadPool();
-//		executorService.execute(eventListener);
-
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-		scheduler.scheduleWithFixedDelay(eventListener, 0, 200, TimeUnit.MILLISECONDS);
+//		ticketCheckScreen.initUI();
+//
+//		Thread.sleep(1000);
+//
+//		// TODO Auto-generated method stub
+//		// 启动事件监听
+//
+//		FaceCheckingService.getInstance().beginFaceCheckerTask();  //启动人脸比对线程
+//
+//		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {
+//			RSFaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
+//			RSFaceDetectionService.getInstance().beginVideoCaptureAndTracking();  //启动人脸检测线程
+//		} else {
+//			 FaceDetectionService.getInstance().setVideoPanel(ticketCheckScreen.getVideoPanel());
+//			 FaceDetectionService.getInstance().beginVideoCaptureAndTracking();
+//		}
+//
+//
+//
+//		eventListener.setPitStatus(PITStatusEnum.DefaultStatus.getValue());
+//
+////		ExecutorService executorService = Executors.newCachedThreadPool();
+////		executorService.execute(eventListener);
+//
+//		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//		scheduler.scheduleWithFixedDelay(eventListener, 0, 200, TimeUnit.MILLISECONDS);
 
 	}
 
