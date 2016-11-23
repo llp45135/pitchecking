@@ -16,8 +16,8 @@ public class BASE64 {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String data = BASE64.encryptBASE64("http://aub.iteye.com/".getBytes());
-		System.out.println("加密前：" + data);
+		String data = BASE64.encryptBASE64("520203197912181117".getBytes());
+		System.out.println("加密后：" + data);
 		byte[] byteArray = BASE64.decryptBASE64(data);
 		System.out.println("解密后：" + new String(byteArray));
 	}

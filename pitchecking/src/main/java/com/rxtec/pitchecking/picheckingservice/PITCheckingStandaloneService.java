@@ -18,6 +18,7 @@ import com.rxtec.pitchecking.mbean.PITProcessDetect;
 import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
 import com.rxtec.pitchecking.task.ManualCheckingTask;
+import com.rxtec.pitchecking.task.PoliceSendingTask;
 
 /**
  * 单独比对人脸进程
@@ -75,6 +76,12 @@ public class PITCheckingStandaloneService {
 			ExecutorService executorService = Executors.newSingleThreadExecutor();
 			ManualCheckingTask manualCheckingTask = new ManualCheckingTask(DeviceConfig.GAT_MQ_Standalone_CLIENT);
 			executorService.execute(manualCheckingTask);
+		}
+		
+		if (Config.getInstance().getIsUsePoliceMQ() == 1) {// 是否连公安处
+			ExecutorService executorService = Executors.newSingleThreadExecutor();
+			PoliceSendingTask policeSendingTask = new PoliceSendingTask(DeviceConfig.GAT_MQ_Standalone_CLIENT);
+			executorService.execute(policeSendingTask);
 		}
 
 		GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);// 启动PITEventTopic本地监听

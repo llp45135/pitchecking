@@ -99,6 +99,19 @@ public class CalUtils {
 		String dateString = formatter.format(currentTime);
 		return dateString;
 	}
+	
+	/**
+	 * HHmmss.SSS
+	 * @return
+	 */
+	public static String getStringFullTimeHaomiao() {
+		Date currentTime = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("HHmmss.SSS");
+		TimeZone timeZoneChina = TimeZone.getTimeZone("Asia/Shanghai"); // 获取时区
+		formatter.setTimeZone(timeZoneChina); // 设置系统时区
+		String dateString = formatter.format(currentTime);
+		return dateString;
+	}
 
 	/**
 	 * yyyy-MM-dd
@@ -634,7 +647,7 @@ public class CalUtils {
 		System.out.println("nowYearDays==" + getNowYearDays("2009"));
 		System.out.println("getAge==" + getAge("1980-12-14", "2016-07-16"));
 		System.out.println(getPreSerivalDaysShort(getStringDateShort(), 1));
-		System.out.println("hhmm==" + getStringTime());
+		System.out.println("hhmm==" + getStringFullTimeHaomiao());
 		System.out.println(""+howLong("ms", "2016-10-12 14:00:00.100", "2016-10-12 14:00:09.300"));
 	}
 

@@ -47,33 +47,6 @@ public class ManualEventSenderBroker {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	private MqttClient mqttClient;
-	private String notifyJson;
-	private String faceScreenDisplay = "";
-	private int faceScreenDisplayTimeout = 0;
-
-	public String getFaceScreenDisplay() {
-		return faceScreenDisplay;
-	}
-
-	public void setFaceScreenDisplay(String faceScreenDisplay) {
-		this.faceScreenDisplay = faceScreenDisplay;
-	}
-
-	public int getFaceScreenDisplayTimeout() {
-		return faceScreenDisplayTimeout;
-	}
-
-	public void setFaceScreenDisplayTimeout(int faceScreenDisplayTimeout) {
-		this.faceScreenDisplayTimeout = faceScreenDisplayTimeout;
-	}
-
-	public String getNotifyJson() {
-		return notifyJson;
-	}
-
-	public void setNotifyJson(String notifyJson) {
-		this.notifyJson = notifyJson;
-	}
 
 	/**
 	 * 返回实例对象

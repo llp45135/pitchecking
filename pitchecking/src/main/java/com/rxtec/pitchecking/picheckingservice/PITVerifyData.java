@@ -40,8 +40,18 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 	private float facePoseRoll;
 	private float facePoseYaw;
 	
+
+	private String gateIp;
 	
 	
+	public String getGateIp() {
+		return gateIp;
+	}
+
+	public void setGateIp(String gateIp) {
+		this.gateIp = gateIp;
+	}
+
 	public String getEventName() {
 		return eventName;
 	}

@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.db.PitRecordLoger;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
+import com.rxtec.pitchecking.mq.police.PITInfoPolicePublisher;
 import com.rxtec.pitchecking.net.PTVerifyResultPublisher;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -50,6 +52,8 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					byte[] extractFaceImageBytes = fd.getFaceImg();
 					if (extractFaceImageBytes == null)
 						continue;
+					
+					fd.setGateIp(DeviceConfig.getInstance().getIpAddress());
 					if (fd.getAge() <= Config.ByPassMinAge || fd.getAge() >= Config.ByPassMaxAge) {
 						CommUtil.sleep(2000);
 						fd.setVerifyResult(0.8f);
@@ -67,9 +71,15 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					}
 					publisher.publishResult(fd); // 比对结果公布
 
-					if (Config.getInstance().getIsUseManualMQ() == 1) {
+					if (Config.getInstance().getIsUseManualMQ() == 1) { // 将人脸数据传输至人工验证台
 						log.info("Face verify result=" + resultValue);
 						RemoteMonitorPublisher.getInstance().offerVerifyData(fd);
+					}
+
+					if (Config.getInstance().getIsUsePoliceMQ() == 1) { // 将人脸数据传输至公安处
+						log.info("Face verify result=" + resultValue);
+//						PITInfoPolicePublisher.getInstance().offerFrameData(fd.getFrameImg());
+						PITInfoPolicePublisher.getInstance().offerVerifyData(fd);
 					}
 
 					// offer进mongodb的处理队列

@@ -122,6 +122,32 @@ public class ProcessUtil {
 	}
 	
 	/**
+	 * 将字符串写成文件
+	 * @param fileName
+	 * @param fileContent
+	 * @return
+	 */
+	public static boolean writeFileContent(String fileName,String fileContent) {
+		try {
+			File logFile = new File(fileName);
+			if (!logFile.exists()) {
+				logFile.createNewFile();
+			}
+			FileWriter fw = new FileWriter(logFile);
+//			log.debug("pidStr==" + pidStr);
+			fw.write(fileContent);
+			fw.flush();
+			fw.close();
+			return true;
+
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return false;
+		}
+	}
+	
+	/**
 	 * 写暂停服务标志
 	 * @param pid
 	 * @return

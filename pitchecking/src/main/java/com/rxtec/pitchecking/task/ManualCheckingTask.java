@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
+import com.rxtec.pitchecking.mq.police.PITInfoPolicePublisher;
 import com.rxtec.pitchecking.mqtt.ManualEventReceiverBroker;
 
 public class ManualCheckingTask implements Runnable {
@@ -19,13 +20,14 @@ public class ManualCheckingTask implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		if (Config.getInstance().getIsUseManualMQ() == 1) {// 是否连人工窗
-			if (taskType.equals(DeviceConfig.GAT_MQ_Standalone_CLIENT)) {
+		if (Config.getInstance().getIsUseManualMQ() == 1) {// 是否连人工控制台MQ
+			if (taskType.equals(DeviceConfig.GAT_MQ_Standalone_CLIENT)) { //人脸比对进程
 				RemoteMonitorPublisher.getInstance().startService(2);
 				RemoteMonitorPublisher.getInstance().startService(3);// 启动Event转发线程
+				RemoteMonitorPublisher.getInstance().startService(4);// 启动Event转发线程
 				ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);
 			}
-			if (taskType.equals(DeviceConfig.GAT_MQ_Track_CLIENT)) {
+			if (taskType.equals(DeviceConfig.GAT_MQ_Track_CLIENT)) {  //人脸检测进程
 				RemoteMonitorPublisher.getInstance().startService(1); // 启动整帧图片转发线程
 				ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT);
 			}

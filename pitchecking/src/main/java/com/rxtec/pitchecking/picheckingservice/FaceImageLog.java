@@ -44,6 +44,82 @@ public class FaceImageLog {
 		}
 
 	}
+	
+	
+	/**
+	 * 将人脸数据存储在个公安处
+	 * @param fd
+	 * @param usingTime
+	 */
+	public static void saveFaceDataToPoliceDsk(PITVerifyData fd) {
+		try {
+			if ((Config.getInstance().getIsSaveFaceImageToLocaldisk() == 1)) {
+				String dirName = Config.getInstance().getImagesLogDir();
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+				dirName += formatter.format(new Date());
+				String trackedDir = dirName + "/Tracked";
+				String passedDir = dirName + "/Passed";
+				String failedDir = dirName + "/Failed";
+
+				float result = fd.getVerifyResult();
+				String vfFileName = "", fiFileName = "", idFileName = "";
+				if (result >= Config.getInstance().getFaceCheckThreshold()) {
+					vfFileName = getPoliceImageFileName("VF", passedDir, fd);
+					fiFileName = getPoliceImageFileName("FA", passedDir, fd);
+					idFileName = getPoliceImageFileName("ID", passedDir, fd);
+
+//					log.debug("vfFileName==" + vfFileName);
+//					log.debug("fiFileName==" + fiFileName);
+//					log.debug("idFileName==" + idFileName);
+
+					saveFrameImage(passedDir, vfFileName, fd);
+					saveFaceImage(passedDir, fiFileName, fd);
+					saveIDCardImage(passedDir, idFileName, fd);
+				} else if (result < Config.getInstance().getFaceCheckThreshold() && result > 0) {
+					vfFileName = getPoliceImageFileName("VF", failedDir, fd);
+					fiFileName = getPoliceImageFileName("FA", failedDir, fd);
+					idFileName = getPoliceImageFileName("ID", failedDir, fd);
+
+//					log.debug("vfFileName==" + vfFileName);
+//					log.debug("fiFileName==" + fiFileName);
+//					log.debug("idFileName==" + idFileName);
+
+					saveFrameImage(failedDir, vfFileName, fd);
+					saveFaceImage(failedDir, fiFileName, fd);
+					saveIDCardImage(failedDir, idFileName, fd);
+				}
+				// offer进mongodb的处理队列
+				if (Config.getInstance().getIsUseMongoDB() == 1) {
+//					log.debug("offer mongoDB:vfFileName==" + vfFileName);
+//					log.debug("offer mongoDB:fiFileName==" + fiFileName);
+//					log.debug("offer mongoDB:idFileName==" + idFileName);
+
+					fd.setFrameImg(vfFileName.getBytes());
+					fd.setFaceImg(fiFileName.getBytes());
+					fd.setIdCardImg(idFileName.getBytes());
+					PitRecordLoger.getInstance().offer(fd);
+					FaceVerifyServiceStatistics.getInstance().update(result, 600, fd.getFaceDistance());
+				}
+				// offer into MySQL的处理队列
+				if (Config.getInstance().getIsUseMySQLDB() == 1) {
+					if (result > 0) {
+//						log.debug("offer MySQLDB:vfFileName==" + vfFileName);
+//						log.debug("offer MySQLDB:fiFileName==" + fiFileName);
+//						log.debug("offer MySQLDB:idFileName==" + idFileName);
+
+						fd.setFrameImg(vfFileName.getBytes());
+						fd.setFaceImg(fiFileName.getBytes());
+						fd.setIdCardImg(idFileName.getBytes());
+						PitRecordSqlLoger.getInstance().offer(fd);
+						FaceVerifyServiceStatistics.getInstance().update(result, 600, fd.getFaceDistance());
+					}
+				}
+			}
+		} catch (Exception ex) {
+			log.error("saveFaceDataToDskAndMongoDB:", ex);
+		}
+	}
+	
 
 	/**
 	 * 将人脸数据存盘和存mongodb
@@ -382,6 +458,59 @@ public class FaceImageLog {
 			sb.append(dirName);
 			sb.append("/ID");
 			sb.append(fd.getIdNo().hashCode());
+			sb.append(".jpg");
+			fileName = sb.toString();
+		} else {
+			fileName = "";
+		}
+		return fileName;
+	}
+	
+	
+	/**
+	 * 公安处文件名取名
+	 * @param imageFlag
+	 * @param dirName
+	 * @param fd
+	 * @return
+	 */
+	public static String getPoliceImageFileName(String imageFlag, String dirName, PITVerifyData fd) {
+		String fileName = "";
+		if (imageFlag.equals("VF")) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss-SSS");
+			StringBuffer sb = new StringBuffer();
+			sb.append(dirName);
+			sb.append("/VF");
+			if (fd.getIdNo() != null)
+				sb.append(fd.getIdNo());
+			else
+				sb.append("--");
+			sb.append("@");
+			sb.append(formatter.format(new Date()));
+			sb.append(".jpg");
+			fileName = sb.toString();
+		} else if (imageFlag.equals("FA")) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss-SSS");
+			DecimalFormat df = (DecimalFormat) NumberFormat.getInstance();
+			df.setMaximumFractionDigits(2);
+			StringBuffer sb = new StringBuffer();
+			sb.append(dirName);
+			sb.append("/FA");
+			if (fd.getIdNo() != null)
+				sb.append(fd.getIdNo());
+			else
+				sb.append("--");
+			sb.append("@");
+			sb.append(formatter.format(new Date()));
+			sb.append("$");
+			sb.append(df.format(fd.getVerifyResult()));
+			sb.append(".jpg");
+			fileName = sb.toString();
+		} else if (imageFlag.equals("ID")) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(dirName);
+			sb.append("/ID");
+			sb.append(fd.getIdNo());
 			sb.append(".jpg");
 			fileName = sb.toString();
 		} else {

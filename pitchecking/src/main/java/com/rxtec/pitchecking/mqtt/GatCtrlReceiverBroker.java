@@ -26,6 +26,7 @@ import com.rxtec.pitchecking.net.event.GatCrtlBean;
 import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
 import com.rxtec.pitchecking.net.event.PIVerifyRequestBean;
 import com.rxtec.pitchecking.net.event.ScreenDisplayBean;
+import com.rxtec.pitchecking.task.SendPITEventTask;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.JsonUtils;
 import com.rxtec.pitchecking.utils.CalUtils;
@@ -249,9 +250,12 @@ public class GatCtrlReceiverBroker {
 										AudioPlayTask.getInstance().start(DeviceConfig.AudioPassStationFlag);
 									} else if (gatCrtlBean.getEvent() == 51666) { // 票不符
 										AudioPlayTask.getInstance().start(DeviceConfig.AudioWrongStationFlag);
-									}
-									ManualEventSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
-											.sendDoorCmd(mqttMessage);
+									}	
+									
+									SendPITEventTask.getInstance().offerEventData(mqttMessage);
+									
+//									ManualEventSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
+//											.sendDoorCmd(mqttMessage);
 								}
 							} else if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
 									+ DeviceConfig.GAT_MQ_Guide_CLIENT)) { // 由用户引导进程处理
@@ -260,7 +264,12 @@ public class GatCtrlReceiverBroker {
 								if (gatCrtlBean.getEvent() == 10010) { // 开始检脸
 									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 											ScreenCmdEnum.ShowTicketVerifySucc.getValue(), null, null, null));
-								} else if (gatCrtlBean.getEvent() == 10011 || gatCrtlBean.getEvent() == 10012) { // 检脸失败或成功
+								} else if (gatCrtlBean.getEvent() == 10011) { // 检脸成功
+									CommUtil.sleep(3 * 1000);
+									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+											ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null));
+								} else if (gatCrtlBean.getEvent() == 10012) { // 检脸失败
+									CommUtil.sleep(5 * 1000);
 									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 											ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null));
 								} else if (gatCrtlBean.getEvent() == 80004) { // 读二代证失败
@@ -317,7 +326,9 @@ public class GatCtrlReceiverBroker {
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioCheckFailedFlag) {// 语音："验证失败，请从侧门离开通道"
 									AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckFailedFlag);
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioTakeTicketFlag) { // 走入通道
-									AudioPlayTask.getInstance().start(DeviceConfig.AudioTakeTicketFlag);
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioTakeCardFlag);
+									CommUtil.sleep((long) (2.2 * 1000));
+									AudioPlayTask.getInstance().start(DeviceConfig.AudioTrackFaceFlag);
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioUseHelpFlag) { // 引导帮助
 									AudioPlayTask.getInstance().start(DeviceConfig.AudioUseHelpFlag);
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioFailedIdCardFlag) { // 读二代证失败

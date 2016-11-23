@@ -76,7 +76,7 @@ public class PitRecordSqlDao {
 
 	public String createInsertSqlstr(PitFaceRecord rec) {
 		String sqlstr = "";
-		sqlstr = "insert into pit_face_verify(idNo,personName,gender,age,verifyResult,pitDate,pitStation,pitTime,gateNo,faceId,faceDistance,useTime,faceImgPath,frameImgPath,idCardImgPath,facePosePitch,facePoseRoll,facePoseYaw)";
+		sqlstr = "insert into pit_face_verify(idNo,personName,gender,age,verifyResult,pitDate,pitStation,pitTime,gateNo,faceId,faceDistance,useTime,idCardImgPath,faceImgPath,frameImgPath,facePosePitch,facePoseRoll,facePoseYaw)";
 		sqlstr += " values (";
 		sqlstr += "'" + rec.getIdNo() + "'";
 		if (rec.getPersonName() != null)

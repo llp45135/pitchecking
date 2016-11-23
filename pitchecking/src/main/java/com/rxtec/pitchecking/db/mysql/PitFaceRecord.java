@@ -76,7 +76,7 @@ public class PitFaceRecord {
 		this.facePoseRoll = pd.getFacePoseRoll();
 		this.facePoseYaw = pd.getFacePoseYaw();
 		this.useTime = pd.getUseTime();
-		this.gateNo = DeviceConfig.getInstance().getIpAddress();
+		this.gateNo = pd.getGateIp();
 	}
 
 	public String getId() {

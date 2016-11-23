@@ -1,4 +1,4 @@
-package com.rxtec.pitchecking.mq;
+package com.rxtec.pitchecking.mq.police;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,44 +10,37 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.mq.PITInfoJson;
 import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
-import com.rxtec.pitchecking.task.SendPITEventTask;
 
-public class RemoteMonitorPublisher {
+public class PITInfoPolicePublisher {
 
 	private LinkedBlockingQueue<PITInfoJson> frameQueue = new LinkedBlockingQueue<PITInfoJson>(3);
 	private LinkedBlockingQueue<PITInfoJson> verifyDataQueue = new LinkedBlockingQueue<PITInfoJson>(3);
-	private LinkedBlockingQueue<PITInfoJson> eventQueue = new LinkedBlockingQueue<PITInfoJson>(3);
 
-	private Log log = LogFactory.getLog("RemoteMonitorPublisher");
+	private Log log = LogFactory.getLog("PITInfoPolicePublisher");
 
-	private static RemoteMonitorPublisher _instance = new RemoteMonitorPublisher();
+	private static PITInfoPolicePublisher _instance = new PITInfoPolicePublisher();
 
-	public static synchronized RemoteMonitorPublisher getInstance() {
+	public static synchronized PITInfoPolicePublisher getInstance() {
 		if (_instance == null)
-			_instance = new RemoteMonitorPublisher();
+			_instance = new PITInfoPolicePublisher();
 		return _instance;
 	}
 
-	private RemoteMonitorPublisher() {
+	private PITInfoPolicePublisher() {
 
 	}
 
 	public void startService(int msgType) {
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 		if (msgType == 1) {
-			PITInfoTopicSender frameSender = new PITInfoTopicSender(frameQueue);
+			PITInfoPoliceTopicSender frameSender = new PITInfoPoliceTopicSender(frameQueue);
 			scheduler.scheduleWithFixedDelay(frameSender, 0, 100, TimeUnit.MILLISECONDS);
 		} else if (msgType == 2) {
-			PITInfoTopicSender verifySender = new PITInfoTopicSender(verifyDataQueue);
+			PITInfoPoliceTopicSender verifySender = new PITInfoPoliceTopicSender(verifyDataQueue);
 			scheduler.scheduleWithFixedDelay(verifySender, 0, 100, TimeUnit.MILLISECONDS);
-		} else if (msgType == 3) {
-			PITInfoTopicSender eventSender = new PITInfoTopicSender(eventQueue);
-			scheduler.scheduleWithFixedDelay(eventSender, 0, 1000, TimeUnit.MILLISECONDS);
-		} else {
-			SendPITEventTask sendPITEventTask = SendPITEventTask.getInstance();
-			scheduler.scheduleWithFixedDelay(sendPITEventTask, 0, 1000, TimeUnit.MILLISECONDS);
 		}
 
 		// ExecutorService es = Executors.newFixedThreadPool(3);
@@ -57,29 +50,9 @@ public class RemoteMonitorPublisher {
 
 	}
 
-	/**
-	 * 将事件数据转成json并offer进eventQueue
-	 * 
-	 * @param event
-	 */
-	public void offerEventData(int event) {
-		PITInfoJson info = null;
-		try {
-			info = new PITInfoJson(event);
-		} catch (Exception e) {
-			log.error(e);
-		}
-		if (info == null)
-			return;
-		if (!eventQueue.offer(info)) {
-			eventQueue.poll();
-			eventQueue.offer(info);
-		}
-	}
-
+		
 	/**
 	 * 将人脸数据转成json并offer进verifyDataQueue
-	 * 
 	 * @param d
 	 */
 	public void offerVerifyData(PITVerifyData d) {
@@ -99,7 +72,6 @@ public class RemoteMonitorPublisher {
 
 	/**
 	 * 将通道帧图片转成json并offer进frameQueue
-	 * 
 	 * @param imgBytes
 	 */
 	public void offerFrameData(byte[] imgBytes) {
@@ -119,12 +91,11 @@ public class RemoteMonitorPublisher {
 	}
 
 	public static void main(String[] args) {
-		RemoteMonitorPublisher.getInstance().startService(3);
-		GatCtrlReceiverBroker.getInstance("Alone");// 启动PITEventTopic本地监听
-		// RemoteMonitorPublisher.getInstance().offerFrameData(new byte[] { 1,
-		// 0, 2, 3 });
-		// RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenFirstDoor);
-		// RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenSecondDoor);
-		// RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenThirdDoor);
+		PITInfoPolicePublisher.getInstance().startService(3);
+		GatCtrlReceiverBroker.getInstance("Alone");//启动PITEventTopic本地监听
+//		RemoteMonitorPublisher.getInstance().offerFrameData(new byte[] { 1, 0, 2, 3 });
+//		RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenFirstDoor);
+//		RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenSecondDoor);
+//		RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenThirdDoor);
 	}
 }

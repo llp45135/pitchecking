@@ -130,6 +130,16 @@ public class AudioDevice {
 				VolumeControl.getInstance().LeftClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioTakeTicketWav);
 				this.setLastingTime((long) (8.2 * 1000));
+			} else if (audioFlag == DeviceConfig.AudioTakeCardFlag) {
+				log.info("开始左声道播放语音" + DeviceConfig.AudioTakeCardWav);
+				VolumeControl.getInstance().RightClose();
+				fileIn = new FileInputStream(DeviceConfig.AudioTakeCardWav);
+				this.setLastingTime((long) (2 * 1000));
+			} else if (audioFlag == DeviceConfig.AudioTrackFaceFlag) {
+				log.info("开始右声道播放语音" + DeviceConfig.AudioTrackFaceWav);
+				VolumeControl.getInstance().LeftClose();
+				fileIn = new FileInputStream(DeviceConfig.AudioTrackFaceWav);
+				this.setLastingTime((long) (12.5 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioCheckFailedFlag) {
 				log.info("开始右声道播放语音" + DeviceConfig.AudioCheckFailedWav);
 				VolumeControl.getInstance().LeftClose();
@@ -183,7 +193,8 @@ public class AudioDevice {
 			}
 
 			as = new AudioStream(fileIn);
-			if (audioFlag == DeviceConfig.AudioTakeTicketFlag) {
+			if (audioFlag == DeviceConfig.AudioTakeTicketFlag || audioFlag == DeviceConfig.AudioTakeCardFlag
+					|| audioFlag == DeviceConfig.AudioTrackFaceFlag) {
 				AudioDevice.getInstance().setStartPlayTime("");
 				AudioPlayer.player.start(as);
 			} else {
@@ -225,40 +236,45 @@ public class AudioDevice {
 		//
 		// CommUtil.sleep(10 * 1000);
 		//
-		 
-		
-		 AudioPlayTask.getInstance().start(DeviceConfig.AudioTakeTicketFlag);
-		 CommUtil.sleep(20 * 1000);
-		 
+
+		// AudioPlayTask.getInstance().start(DeviceConfig.AudioTakeTicketFlag);
+		// CommUtil.sleep(20 * 1000);
+
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioTakeCardFlag);
+		CommUtil.sleep((long) (2.2 * 1000));
+
+		AudioPlayTask.getInstance().start(DeviceConfig.AudioTrackFaceFlag);
+		CommUtil.sleep(15 * 1000);
+
 		 AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckSuccFlag);
 		 CommUtil.sleep(3 * 1000);
-
-		AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckFailedFlag);
-		CommUtil.sleep(10 * 1000);
-
-		AudioPlayTask.getInstance().start(DeviceConfig.AudioUseHelpFlag);
-		CommUtil.sleep(10 * 1000);
-
-		AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedIdCardFlag);
-		CommUtil.sleep(5 * 1000);
-
-		AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedQrcodeFlag);
-		CommUtil.sleep(5 * 1000);
-
-		AudioPlayTask.getInstance().start(DeviceConfig.AudioNeverTimeFlag);
-		CommUtil.sleep(5 * 1000);
-
-		AudioPlayTask.getInstance().start(DeviceConfig.AudioPassTimeFlag);
-		CommUtil.sleep(5 * 1000);
-
-		AudioPlayTask.getInstance().start(DeviceConfig.AudioPassStationFlag);
-		CommUtil.sleep(5 * 1000);
-
-		AudioPlayTask.getInstance().start(DeviceConfig.AudioValidIDandTicketFlag);
-		CommUtil.sleep(5 * 1000);
 		
-		AudioPlayTask.getInstance().start(DeviceConfig.AudioWrongStationFlag);
-		CommUtil.sleep(5 * 1000);
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckFailedFlag);
+		 CommUtil.sleep(10 * 1000);
+		
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioUseHelpFlag);
+		 CommUtil.sleep(10 * 1000);
+		
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedIdCardFlag);
+		 CommUtil.sleep(5 * 1000);
+		
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioFailedQrcodeFlag);
+		 CommUtil.sleep(5 * 1000);
+		
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioNeverTimeFlag);
+		 CommUtil.sleep(5 * 1000);
+		
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioPassTimeFlag);
+		 CommUtil.sleep(5 * 1000);
+		
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioPassStationFlag);
+		 CommUtil.sleep(5 * 1000);
+		
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioValidIDandTicketFlag);
+		 CommUtil.sleep(5 * 1000);
+		
+		 AudioPlayTask.getInstance().start(DeviceConfig.AudioWrongStationFlag);
+		 CommUtil.sleep(5 * 1000);
 
 		AudioDevice.getInstance().killpid(AudioDevice.getInstance().pidstr);
 	}

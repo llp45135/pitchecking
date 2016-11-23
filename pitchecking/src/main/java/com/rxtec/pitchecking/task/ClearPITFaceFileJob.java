@@ -41,7 +41,7 @@ public class ClearPITFaceFileJob implements Job {
 				log.debug("第" + i + "个==" + children[i]);
 				int days = CalUtils.getCalcDateShort(children[i], CalUtils.getStringDateShort2());
 				// log.debug("days==" + days);
-				if (days >= 10) {
+				if (days >= Config.getInstance().getFaceLogRemainDays()) {
 					log.debug("开始定时删除人脸文件夹:" + Config.getInstance().getImagesLogDir() + children[i]);
 					CommUtil.deleteDir(new File(Config.getInstance().getImagesLogDir() + children[i]));
 				}

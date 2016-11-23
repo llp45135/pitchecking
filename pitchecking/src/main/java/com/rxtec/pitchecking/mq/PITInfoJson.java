@@ -15,6 +15,7 @@ public class PITInfoJson implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int msgType = -1;
 	private int idHashCode = -1;
+	private String idCardNo = "";
 	private int gender = 0;
 	private int event = -1;
 	private String ipAddress = "";
@@ -33,6 +34,14 @@ public class PITInfoJson implements Serializable {
 	private String frameImageBase64 = "";
 	private float similarity = 0;
 	private int isVerifyPassed = -1;
+
+	public String getIdCardNo() {
+		return idCardNo;
+	}
+
+	public void setIdCardNo(String idCardNo) {
+		this.idCardNo = idCardNo;
+	}
 
 	public String getIpAddress() {
 		return ipAddress;
@@ -136,21 +145,27 @@ public class PITInfoJson implements Serializable {
 			this.isVerifyPassed = VERIFY_FAILED;
 	}
 
+	/**
+	 * 
+	 * @param pitData
+	 * @throws Exception
+	 */
 	public PITInfoJson(PITVerifyData pitData) throws Exception {
 		if (pitData == null)
 			return;
 		if (pitData.getFrameImg() != null)
-			setFrameImageBase64(BASE64.encryptBASE64(pitData.getFrameImg()));
+			this.setFrameImageBase64(BASE64.encryptBASE64(pitData.getFrameImg()));
 
-		setGender(pitData.getGender());
-		setAge(pitData.getAge());
-		setIdHashCode(pitData.getIdNo().hashCode());
+		this.setIdCardNo(BASE64.encryptBASE64(pitData.getIdNo().getBytes()));
+		this.setGender(pitData.getGender());
+		this.setAge(pitData.getAge());
+		this.setIdHashCode(pitData.getIdNo().hashCode());
 		if (pitData.getIdCardImg() != null)
-			setIdPicImageBase64(BASE64.encryptBASE64(pitData.getIdCardImg()));
-		setSimilarity(pitData.getVerifyResult());
+			this.setIdPicImageBase64(BASE64.encryptBASE64(pitData.getIdCardImg()));
+		this.setSimilarity(pitData.getVerifyResult());
 
 		if (pitData.getFaceImg() != null)
-			setFaceImageBase64(BASE64.encryptBASE64(pitData.getFaceImg()));
+			this.setFaceImageBase64(BASE64.encryptBASE64(pitData.getFaceImg()));
 
 		this.ipAddress = DeviceConfig.getInstance().getIpAddress();
 		this.msgType = PITInfoJson.MSG_TYPE_VERIFY;
@@ -166,7 +181,7 @@ public class PITInfoJson implements Serializable {
 		jsonStr = JsonUtils.serialize(this);
 
 	}
-	
+
 	public PITInfoJson(int event) throws Exception {
 		this.ipAddress = DeviceConfig.getInstance().getIpAddress();
 		this.msgType = PITInfoJson.MSG_TYPE_EVENT;
