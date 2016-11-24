@@ -8,23 +8,170 @@ public class PITInfoJmsObj implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	private int msgType;
-	private String idCardNo;
-	private int idHashCode;
-	private int gender;
-	private int event;
-	private String ipAddress;
-	private int age;               
-	private String idPicImageBase64;
-	private String faceImageBase64;
-	private String frameImageBase64;
-	private float similarity;
-	private int isVerifyPassed;
-	private String jsonStr;
+
+	private int msgType = -1;
+	private String idCardNo = "";
+	private int idHashCode = -1;
+	private int gender = 0;
+	private int event = -1;
+	private String ipAddress = "";
+	private int age = 0;
+	private String pitTime = "";
+	private String idPicImageBase64 = "";
+	private String faceImageBase64 = "";
+	private String frameImageBase64 = "";
+	private float similarity = -1;
+	private int isVerifyPassed = -1;
+	private String jsonStr = "";
+	/**
+	 * 票面信息
+	 */
+	private String ticketNo = "";
+	private String fromStationCode = "";
+	private String endStationCode = "";
+	private String changeStationCode = "";
+	private String trainCode = "";
+	private String coachNo = "";
+	private String seatCode = "";
+	private String ticketType = "";
+	private String seatNo = "";
+	private String trainDate = "";
+	private String cardNo = "";
+	private String passengerName = "";
+	private String saleOfficeNo = "";// 售票处
+	private String saleWindowNo = "";
+	private String saleDate = "";
 
 	public PITInfoJmsObj() {
 		// TODO Auto-generated constructor stub
+	}
+
+	public String getTicketNo() {
+		return ticketNo;
+	}
+
+	public void setTicketNo(String ticketNo) {
+		this.ticketNo = ticketNo;
+	}
+
+	public String getFromStationCode() {
+		return fromStationCode;
+	}
+
+	public void setFromStationCode(String fromStationCode) {
+		this.fromStationCode = fromStationCode;
+	}
+
+	public String getEndStationCode() {
+		return endStationCode;
+	}
+
+	public void setEndStationCode(String endStationCode) {
+		this.endStationCode = endStationCode;
+	}
+
+	public String getChangeStationCode() {
+		return changeStationCode;
+	}
+
+	public void setChangeStationCode(String changeStationCode) {
+		this.changeStationCode = changeStationCode;
+	}
+
+	public String getTrainCode() {
+		return trainCode;
+	}
+
+	public void setTrainCode(String trainCode) {
+		this.trainCode = trainCode;
+	}
+
+	public String getCoachNo() {
+		return coachNo;
+	}
+
+	public void setCoachNo(String coachNo) {
+		this.coachNo = coachNo;
+	}
+
+	public String getSeatCode() {
+		return seatCode;
+	}
+
+	public void setSeatCode(String seatCode) {
+		this.seatCode = seatCode;
+	}
+
+	public String getTicketType() {
+		return ticketType;
+	}
+
+	public void setTicketType(String ticketType) {
+		this.ticketType = ticketType;
+	}
+
+	public String getSeatNo() {
+		return seatNo;
+	}
+
+	public void setSeatNo(String seatNo) {
+		this.seatNo = seatNo;
+	}
+
+	public String getTrainDate() {
+		return trainDate;
+	}
+
+	public void setTrainDate(String trainDate) {
+		this.trainDate = trainDate;
+	}
+
+	public String getCardNo() {
+		return cardNo;
+	}
+
+	public void setCardNo(String cardNo) {
+		this.cardNo = cardNo;
+	}
+
+	public String getPassengerName() {
+		return passengerName;
+	}
+
+	public void setPassengerName(String passengerName) {
+		this.passengerName = passengerName;
+	}
+
+	public String getSaleOfficeNo() {
+		return saleOfficeNo;
+	}
+
+	public void setSaleOfficeNo(String saleOfficeNo) {
+		this.saleOfficeNo = saleOfficeNo;
+	}
+
+	public String getSaleWindowNo() {
+		return saleWindowNo;
+	}
+
+	public void setSaleWindowNo(String saleWindowNo) {
+		this.saleWindowNo = saleWindowNo;
+	}
+
+	public String getSaleDate() {
+		return saleDate;
+	}
+
+	public void setSaleDate(String saleDate) {
+		this.saleDate = saleDate;
+	}
+
+	public String getPitTime() {
+		return pitTime;
+	}
+
+	public void setPitTime(String pitTime) {
+		this.pitTime = pitTime;
 	}
 
 	public String getIdCardNo() {
@@ -106,8 +253,6 @@ public class PITInfoJmsObj implements Serializable {
 	public void setFrameImageBase64(String frameImageBase64) {
 		this.frameImageBase64 = frameImageBase64;
 	}
-
-
 
 	public float getSimilarity() {
 		return similarity;

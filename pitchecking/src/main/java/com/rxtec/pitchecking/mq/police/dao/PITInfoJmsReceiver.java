@@ -95,43 +95,60 @@ public class PITInfoJmsReceiver implements MessageListener {
 
 				ObjectMapper mapper = new ObjectMapper();
 				try {
-					PITInfoJmsObj pitInfoJson = mapper.readValue(pitInfoMsg, PITInfoJmsObj.class);
-					log.info("getMsgType==" + pitInfoJson.getMsgType());
-					if (pitInfoJson.getMsgType() == 2) {
+					PITInfoJmsObj pitInfoJsonBean = mapper.readValue(pitInfoMsg, PITInfoJmsObj.class);
+					log.info("getMsgType==" + pitInfoJsonBean.getMsgType());
+					if (pitInfoJsonBean.getMsgType() == 2) {
 						// log.info("getIdCardNo==" + new
 						// String(BASE64.decryptBASE64(pitInfoJson.getIdCardNo())));
 						// log.info("getEvent==" + pitInfoJson.getEvent());
-						log.info("IpAddress==" + pitInfoJson.getIpAddress());
+						log.info("IpAddress==" + pitInfoJsonBean.getIpAddress());
 						// log.info("getAge==" + pitInfoJson.getAge());
 						// log.info("getGender==" + pitInfoJson.getGender());
 						// log.info("getIdHashCode==" +
 						// pitInfoJson.getIdHashCode());
-						log.info("IsVerifyPassed==" + pitInfoJson.getIsVerifyPassed());
-						log.info("Similarity==" + pitInfoJson.getSimilarity());
+						log.info("IsVerifyPassed==" + pitInfoJsonBean.getIsVerifyPassed());
+						log.info("Similarity==" + pitInfoJsonBean.getSimilarity());
 
-						String idNo = new String(BASE64.decryptBASE64(pitInfoJson.getIdCardNo()));
-						String dirName = Config.getInstance().getPoliceJsonDir() + CalUtils.getStringDateShort2() + "/";						
-						int ret = CommUtil.createDir(dirName);
-						if (ret == 0 || ret == 1) {
-							String fileName = dirName + idNo + "_" + CalUtils.getStringFullTimeHaomiao() + ".json";
-							log.info("fileName==" + fileName);
-							ProcessUtil.writeFileContent(fileName, pitInfoMsg);
+						if (pitInfoJsonBean.getSimilarity() > 0) {
+							String idNo = new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdCardNo()));
+
+							PITVerifyData fd = new PITVerifyData();
+							fd.setIdNo(new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdCardNo())));
+							fd.setVerifyResult(pitInfoJsonBean.getSimilarity());
+							fd.setFaceDistance((float) 1.3);
+							fd.setFaceImg(BASE64.decryptBASE64(pitInfoJsonBean.getFaceImageBase64()));
+							fd.setFrameImg(BASE64.decryptBASE64(pitInfoJsonBean.getFrameImageBase64()));
+							fd.setIdCardImg(BASE64.decryptBASE64(pitInfoJsonBean.getIdPicImageBase64()));
+							fd.setPitDate(CalUtils.getStringDateShort2());
+							fd.setPitStation("IZQ");
+							fd.setAge(pitInfoJsonBean.getAge());
+							fd.setGender(pitInfoJsonBean.getGender());
+							fd.setGateIp(pitInfoJsonBean.getIpAddress());
+
+							PITInfoImgPath imgPath = new PITInfoImgPath();
+							FaceImageLog.saveFaceDataToPoliceDsk(fd, imgPath);
+							
+							
+							pitInfoJsonBean.setIdCardNo(idNo);
+							pitInfoJsonBean.setPitTime(CalUtils.getStringDateHaomiao());
+							pitInfoJsonBean.setFrameImageBase64(
+									new String(BASE64.decryptBASE64(pitInfoJsonBean.getFrameImageBase64())));
+							pitInfoJsonBean.setFaceImageBase64(
+									new String(BASE64.decryptBASE64(pitInfoJsonBean.getFaceImageBase64())));
+							pitInfoJsonBean.setIdPicImageBase64(
+									new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdPicImageBase64())));
+
+							String pitInfoNewJson = mapper.writeValueAsString(pitInfoJsonBean);
+
+							String dirName = Config.getInstance().getPoliceJsonDir() + CalUtils.getStringDateShort2()
+									+ "/";
+							int ret = CommUtil.createDir(dirName);
+							if (ret == 0 || ret == 1) {
+								String fileName = dirName + idNo + "_" + CalUtils.getStringFullTimeHaomiao() + ".json";
+								log.info("fileName==" + fileName);
+								ProcessUtil.writeFileContent(fileName, pitInfoNewJson);
+							}
 						}
-
-						PITVerifyData fd = new PITVerifyData();
-						fd.setIdNo(new String(BASE64.decryptBASE64(pitInfoJson.getIdCardNo())));
-						fd.setVerifyResult(pitInfoJson.getSimilarity());
-						fd.setFaceDistance((float) 1.3);
-						fd.setFaceImg(BASE64.decryptBASE64(pitInfoJson.getFaceImageBase64()));
-						fd.setFrameImg(BASE64.decryptBASE64(pitInfoJson.getFrameImageBase64()));
-						fd.setIdCardImg(BASE64.decryptBASE64(pitInfoJson.getIdPicImageBase64()));
-						fd.setPitDate(CalUtils.getStringDateShort2());
-						fd.setPitStation("IZQ");
-						fd.setAge(pitInfoJson.getAge());
-						fd.setGender(pitInfoJson.getGender());
-						fd.setGateIp(pitInfoJson.getIpAddress());
-
-						FaceImageLog.saveFaceDataToPoliceDsk(fd);
 					}
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
