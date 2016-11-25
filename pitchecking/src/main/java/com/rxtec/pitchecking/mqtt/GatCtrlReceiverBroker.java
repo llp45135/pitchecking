@@ -36,7 +36,6 @@ import com.rxtec.pitchecking.task.SendPITEventTask;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.JsonUtils;
 
-
 import com.rxtec.pitchecking.utils.CalUtils;
 
 /**
@@ -182,16 +181,18 @@ public class GatCtrlReceiverBroker {
 			// log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String mqttMessage = new String(payload);
+			log.info("orign mqttMessage==" + mqttMessage);
 			mqttMessage = mqttMessage.replace("\r\n", "");
 			mqttMessage = mqttMessage.replace(" ", "");
 			mqttMessage = mqttMessage.toLowerCase();
-			
+
 			try {
 				if (topicName.equals("PITEventTopic")) {
 					if (mqttMessage.toLowerCase().indexOf("eventsource") != -1) { // 收到门控制发回的指令
-//						ObjectMapper mapper = new ObjectMapper();
-//						GatCrtlBean gatCrtlBean = mapper.readValue(mqttMessage, GatCrtlBean.class);		
-						
+						// ObjectMapper mapper = new ObjectMapper();
+						// GatCrtlBean gatCrtlBean =
+						// mapper.readValue(mqttMessage, GatCrtlBean.class);
+
 						GatCrtlBean gatCrtlBean = new GatCrtlBean();
 						mqttMessage = mqttMessage.replace("{", "");
 						mqttMessage = mqttMessage.replace("}", "");
@@ -212,7 +213,6 @@ public class GatCtrlReceiverBroker {
 								gatCrtlBean.setEventsource(eventsource);
 							}
 						}
-											
 
 						log.info("mqttMessage===" + mqttMessage);
 						// log.debug("getEvent==" + gatCrtlBean.getEvent());
@@ -426,16 +426,19 @@ public class GatCtrlReceiverBroker {
 								}
 							}
 						}
+						
 						if (gatCrtlBean.getEvent() == DeviceConfig.Event_SecondDoorHasClosed) { // 第二道门关闭
 							DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
 							log.debug("已收到第二道门的关门回执,允许重新转发手动开第二道门指令");
-
-							if (Config.getInstance().getIsUseGatDll() == 1) { // 调用门控Dll
-								TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-										ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
-								DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
-								DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
-								log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
+							if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+									+ DeviceConfig.GAT_MQ_Verify_CLIENT)) { // java版主控进程
+								if (Config.getInstance().getIsUseGatDll() == 1) { // 调用门控Dll
+									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+											ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+									DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+									DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+									log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
+								}
 							}
 						}
 

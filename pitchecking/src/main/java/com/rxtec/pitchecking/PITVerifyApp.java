@@ -43,11 +43,13 @@ public class PITVerifyApp {
 				// TODO Auto-generated catch block
 				log.error("PITVerifyApp:", ex);
 			}
-			
-//			ScheduledExecutorService screenScheduler = Executors.newScheduledThreadPool(1);
-//			VerifyScreenListener verifyScreenListener = VerifyScreenListener.getInstance();
-//			verifyScreenListener.setScreenNo(DeviceConfig.getInstance().getTicketScreen());
-//			screenScheduler.scheduleWithFixedDelay(verifyScreenListener, 0, 1500, TimeUnit.MILLISECONDS);
+
+			if (Config.getInstance().getIsResetVerifyScreen() == 1) {
+				ScheduledExecutorService screenScheduler = Executors.newScheduledThreadPool(1);
+				VerifyScreenListener verifyScreenListener = VerifyScreenListener.getInstance();
+				verifyScreenListener.setScreenNo(DeviceConfig.getInstance().getTicketScreen());
+				screenScheduler.scheduleWithFixedDelay(verifyScreenListener, 0, 1500, TimeUnit.MILLISECONDS);
+			}
 
 			if (Config.getInstance().getIsStartMainListener() == 1) {
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT);
