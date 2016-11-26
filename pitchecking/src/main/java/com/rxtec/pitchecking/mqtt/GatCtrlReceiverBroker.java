@@ -181,7 +181,8 @@ public class GatCtrlReceiverBroker {
 			// log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String mqttMessage = new String(payload);
-			log.info("orign mqttMessage==" + mqttMessage);
+			String orignMqttMessage = mqttMessage;
+			log.info("orign mqttMessage==" + orignMqttMessage);
 			mqttMessage = mqttMessage.replace("\r\n", "");
 			mqttMessage = mqttMessage.replace(" ", "");
 			mqttMessage = mqttMessage.toLowerCase();
@@ -286,7 +287,9 @@ public class GatCtrlReceiverBroker {
 									// RemoteMonitorPublisher.getInstance().offerEventData(gatCrtlBean.getEvent());
 									mqttMessage = mqttMessage.replace("127.0.0.1",
 											DeviceConfig.getInstance().getIpAddress());
-									log.debug("来自铁科主控端消息:" + mqttMessage);
+									orignMqttMessage = orignMqttMessage.replace("127.0.0.1",
+											DeviceConfig.getInstance().getIpAddress());
+									log.debug("来自铁科主控端消息:" + orignMqttMessage);
 
 									if (gatCrtlBean.getEvent() == 10010) {
 										DeviceConfig.getInstance().setInTracking(true);
@@ -308,7 +311,7 @@ public class GatCtrlReceiverBroker {
 										AudioPlayTask.getInstance().start(DeviceConfig.AudioWrongStationFlag);
 									}
 
-									SendPITEventTask.getInstance().offerEventData(mqttMessage);
+									SendPITEventTask.getInstance().offerEventData(orignMqttMessage);  //塞进队列，准备发送至控制台
 
 									// ManualEventSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
 									// .sendDoorCmd(mqttMessage);
