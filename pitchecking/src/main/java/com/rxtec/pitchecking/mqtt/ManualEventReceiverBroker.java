@@ -178,7 +178,7 @@ public class ManualEventReceiverBroker {
 			// log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 			try {
 				String mqttMessage = new String(payload);
-				 log.info("mqttMessage==" + mqttMessage);
+//				 log.info("mqttMessage==" + mqttMessage);
 				if (topicName.equals("PITEventTopic")) {
 					// log.info("mqttMessage==" + mqttMessage);
 					if (mqttMessage.toLowerCase().indexOf("eventsource") != -1) { // 收到门控制发回的指令

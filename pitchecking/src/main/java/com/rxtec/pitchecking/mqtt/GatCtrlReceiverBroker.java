@@ -182,7 +182,7 @@ public class GatCtrlReceiverBroker {
 
 			String mqttMessage = new String(payload);
 			String orignMqttMessage = mqttMessage;
-			log.info("orign mqttMessage==" + orignMqttMessage);
+//			log.info("orign mqttMessage==" + orignMqttMessage);
 			mqttMessage = mqttMessage.replace("\r\n", "");
 			mqttMessage = mqttMessage.replace(" ", "");
 			mqttMessage = mqttMessage.toLowerCase();
@@ -202,20 +202,20 @@ public class GatCtrlReceiverBroker {
 							String tt = st.nextToken();
 							if (tt.indexOf("\"event\"") != -1) {
 								String event = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
-								log.info("event==" + event);
+//								log.info("event==" + event);
 								gatCrtlBean.setEvent(Integer.parseInt(event));
 							} else if (tt.indexOf("\"target\"") != -1) {
 								String target = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
-								log.info("target==" + target);
+//								log.info("target==" + target);
 								gatCrtlBean.setTarget(target);
 							} else if (tt.indexOf("\"eventsource\"") != -1) {
 								String eventsource = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
-								log.info("eventsource==" + eventsource);
+//								log.info("eventsource==" + eventsource);
 								gatCrtlBean.setEventsource(eventsource);
 							}
 						}
 
-						log.info("mqttMessage===" + mqttMessage);
+//						log.info("mqttMessage===" + mqttMessage);
 						// log.debug("getEvent==" + gatCrtlBean.getEvent());
 						// log.debug("getTarget==" + gatCrtlBean.getTarget());
 						// log.debug("getEventsource==" +

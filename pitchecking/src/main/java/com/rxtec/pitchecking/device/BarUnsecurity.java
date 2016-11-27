@@ -182,4 +182,21 @@ public class BarUnsecurity {
 		}
 		return outStrArray;
 	}
+	
+	public static void main(String[] args) {
+		BarUnsecurity barUnsecurity = BarUnsecurity.getInstance();
+		Ticket ticket = null;
+		String barCode = "030662841131798439349199142258828536855229283991646592935582752300596297631667652340997372666399185220905450514101092520636404597435822209499692";
+		try {
+			ticket = barUnsecurity.buildTicket(barUnsecurity.uncompress(barCode, "2016"));
+			if(ticket!=null){
+				System.out.println("TrainCode=="+ticket.getTrainCode());
+				System.out.println("CardNo=="+ticket.getCardNo());
+				System.out.println("PassengerName=="+ticket.getPassengerName());
+			}
+		} catch (NumberFormatException | UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
