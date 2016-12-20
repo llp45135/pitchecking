@@ -168,6 +168,7 @@ public class GatCtrlSenderBroker {
 	 */
 	public void sendDoorCmd(String cmdstr) {
 		try {
+			log.debug("cmdstr=="+cmdstr);
 			mqttClient.publish(SEND_TOPIC, cmdstr.getBytes(), 0, false);
 			log.debug("sendDoorCmd ok");
 		} catch (MqttException e) {

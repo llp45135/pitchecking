@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking.picheckingservice;
 
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,6 +23,9 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 	private byte[] faceImg;
 	private byte[] idCardImg;
 	private byte[] frameImg;
+//	private BufferedImage idCardBufImg;
+//	private BufferedImage faceBufImg;
+//	private BufferedImage frameBufImg;
 
 	private float verifyResult = 0f;
 
@@ -29,6 +33,7 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 	private String personName;
 	private int gender;
 	private int age;
+	private String qrCode;
 	private Ticket ticket;
 	private float faceDistance;
 	private int useTime;
@@ -40,6 +45,14 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 	private float facePoseRoll;
 	private float facePoseYaw;
 	
+
+	public String getQrCode() {
+		return qrCode;
+	}
+
+	public void setQrCode(String qrCode) {
+		this.qrCode = qrCode;
+	}
 
 	private String gateIp;
 	
@@ -207,6 +220,30 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 		this.idCardImg = idCardImg;
 	}
 
+//	public BufferedImage getIdCardBufImg() {
+//		return idCardBufImg;
+//	}
+//
+//	public void setIdCardBufImg(BufferedImage idCardBufImg) {
+//		this.idCardBufImg = idCardBufImg;
+//	}
+//
+//	public BufferedImage getFaceBufImg() {
+//		return faceBufImg;
+//	}
+//
+//	public void setFaceBufImg(BufferedImage faceBufImg) {
+//		this.faceBufImg = faceBufImg;
+//	}
+//
+//	public BufferedImage getFrameBufImg() {
+//		return frameBufImg;
+//	}
+//
+//	public void setFrameBufImg(BufferedImage frameBufImg) {
+//		this.frameBufImg = frameBufImg;
+//	}
+
 	public PITVerifyData(PITData pd) {
 		if(pd == null) return;
 		SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd");
@@ -214,6 +251,10 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 		this.frameImg = ImageToolkit.getImageBytes(pd.getFrame(), "JPEG");
 		
 		if (pd.getIdCard() != null) {
+//			this.idCardBufImg = pd.getIdCard().getCardImage();
+//			this.frameBufImg = pd.getFrame();
+//			this.faceBufImg = pd.getFaceImage();
+			
 			this.idCardImg = pd.getIdCard().getCardImageBytes();
 			this.faceImg = ImageToolkit.getImageBytes(pd.getFaceImage(), "JPEG");
 			this.idNo = pd.getIdCard().getIdNo();

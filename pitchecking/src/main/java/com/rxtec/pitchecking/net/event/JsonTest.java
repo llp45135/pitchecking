@@ -26,10 +26,10 @@ public class JsonTest {
 	public static void main(String[] args) {
 
 		try {
-//			testPIVerifyEventBean();
+			testPIVerifyEventBean();
 //			testPIVerifyResultBean();
 //			testPIVerifyRequestBean();
-			testMapPIVerifyResultBean();
+//			testMapPIVerifyResultBean();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -33,15 +33,26 @@ import com.rxtec.pitchecking.utils.ImageToolkit;
  *
  */
 
-public class PITData implements Serializable{
+public class PITData implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8362192728485137547L;
-	
+
+	private IDCard idCard;
 	private Ticket ticket;
-	
-	
+	private BufferedImage frame = null;
+	private BufferedImage faceImage = null;
+	private FaceLocation faceLocation = null;
+	private long createTime;
+	public float faceCheckResult = 0;
+	private float faceDistance = 0;
+	private boolean isDetectedFace = false;
+	private String pitStation;
+	private float facePosePitch;
+	private float facePoseRoll;
+	private float facePoseYaw;
+
 	public Ticket getTicket() {
 		return ticket;
 	}
@@ -50,8 +61,6 @@ public class PITData implements Serializable{
 		this.ticket = ticket;
 	}
 
-	private BufferedImage frame = null;
-
 	public BufferedImage getFrame() {
 		return frame;
 	}
@@ -59,9 +68,6 @@ public class PITData implements Serializable{
 	public void setFrame(BufferedImage frame) {
 		this.frame = frame;
 	}
-
-	private BufferedImage faceImage = null;
-	private FaceLocation faceLocation = null;
 
 	public FaceLocation getFaceLocation() {
 		return faceLocation;
@@ -108,8 +114,8 @@ public class PITData implements Serializable{
 		public Rectangle getFaceBounds() {
 			return new Rectangle(x, y, width, height);
 		}
-		
-		public void setLocation(int x,int y,int w,int h){
+
+		public void setLocation(int x, int y, int w, int h) {
 			this.x = x;
 			this.y = y;
 			this.width = w;
@@ -141,8 +147,6 @@ public class PITData implements Serializable{
 		this.faceDetectedResult = fdr;
 	}
 
-	private IDCard idCard;
-
 	public IDCard getIdCard() {
 		return idCard;
 	}
@@ -151,13 +155,9 @@ public class PITData implements Serializable{
 		this.idCard = idCard;
 	}
 
-	private long createTime;
-
 	public long getCreateTime() {
 		return createTime;
 	}
-
-	public float faceCheckResult = 0;
 
 	public float getFaceCheckResult() {
 		return faceCheckResult;
@@ -167,8 +167,6 @@ public class PITData implements Serializable{
 		this.faceCheckResult = faceCheckResult;
 
 	}
-	
-	private float faceDistance = 0;
 
 	public float getFaceDistance() {
 		return faceDistance;
@@ -208,7 +206,7 @@ public class PITData implements Serializable{
 		if (!isDetectedFace || faceImage == null)
 			return null;
 
-//		BufferedImage bi = ImageToolkit.scale(faceImage, 120, 140, true);
+		// BufferedImage bi = ImageToolkit.scale(faceImage, 120, 140, true);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		try {
 			ImageIO.write(faceImage, "JPEG", ImageIO.createImageOutputStream(os));
@@ -224,28 +222,28 @@ public class PITData implements Serializable{
 		String dirName = Config.getInstance().getImagesLogDir();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 		dirName += formatter.format(new Date());
-		String trackedDir = dirName +"/Tracked";
-		String passedDir = dirName +"/Passed";
-		String failedDir = dirName +"/Failed";
-		
+		String trackedDir = dirName + "/Tracked";
+		String passedDir = dirName + "/Passed";
+		String failedDir = dirName + "/Failed";
 
-		if(faceCheckResult == 0){
+		if (faceCheckResult == 0) {
 			saveFrameImage(trackedDir);
 			saveFaceImage(trackedDir);
-		}else if(faceCheckResult >= Config.getInstance().getFaceCheckThreshold()){
+		} else if (faceCheckResult >= Config.getInstance().getFaceCheckThreshold()) {
 			saveFrameImage(passedDir);
 			saveFaceImage(passedDir);
 			saveIDCardImage(passedDir);
-		}else{
+		} else {
 			saveFrameImage(failedDir);
 			saveFaceImage(failedDir);
 			saveIDCardImage(failedDir);
-			
+
 		}
 	}
 
 	private void saveFrameImage(String dirName) {
-		if (frame == null) return;
+		if (frame == null)
+			return;
 		int ret = CommUtil.createDir(dirName);
 		if (ret == 0 || ret == 1) {
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss-SSS");
@@ -269,13 +267,14 @@ public class PITData implements Serializable{
 			}
 		}
 	}
-	
+
 	private void saveFaceImage(String dirName) {
-		if (faceImage == null) return;
+		if (faceImage == null)
+			return;
 		int ret = CommUtil.createDir(dirName);
 		if (ret == 0 || ret == 1) {
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss-SSS");
-			DecimalFormat df=(DecimalFormat)NumberFormat.getInstance(); 
+			DecimalFormat df = (DecimalFormat) NumberFormat.getInstance();
 			df.setMaximumFractionDigits(2);
 			StringBuffer sb = new StringBuffer();
 			sb.append(dirName);
@@ -321,8 +320,6 @@ public class PITData implements Serializable{
 		}
 	}
 
-	private boolean isDetectedFace = false;
-
 	public boolean isDetectedFace() {
 		return isDetectedFace;
 	}
@@ -330,11 +327,7 @@ public class PITData implements Serializable{
 	public void setDetectedFace(boolean isDetectedFace) {
 		this.isDetectedFace = isDetectedFace;
 	}
-	
-	
-	private String pitStation;
 
-	
 	public String getPitStation() {
 		return pitStation;
 	}
@@ -342,11 +335,6 @@ public class PITData implements Serializable{
 	public void setPitStation(String pitStation) {
 		this.pitStation = pitStation;
 	}
-	
-	
-	private float facePosePitch;
-	private float facePoseRoll;
-	private float facePoseYaw;
 
 	public float getFacePosePitch() {
 		return facePosePitch;
@@ -372,13 +360,11 @@ public class PITData implements Serializable{
 		this.facePoseYaw = facePoseYaw;
 	}
 
-	
-
 	@Override
-	public String toString(){
+	public String toString() {
 		return "VerifyResult=" + this.faceCheckResult;
 	}
-	
+
 }
 
 class FaceDataComparator implements Comparator {

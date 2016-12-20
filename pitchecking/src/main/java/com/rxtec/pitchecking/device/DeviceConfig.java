@@ -27,8 +27,11 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "161029.22.01";
+	public static String softVersion = "161205.11.01";
 	private String softIdNo = "520203197912141118,440111197209283012,440881199502176714";
+
+	public static int SINGLEDOOR = 1;
+	public static int DOUBLEDOOR = 2;
 
 	public static int idDeviceSucc = 1;
 	public static int qrDeviceSucc = 1;
@@ -136,10 +139,10 @@ public class DeviceConfig {
 	public static int TICKET_FRAME_HEIGHT = 768;
 	public static int TICKET_FRAME_BOTTOMHEIGHT = 60;
 
-	public static String GAT_MQ_Verify_CLIENT = "Verify";
-	public static String GAT_MQ_Track_CLIENT = "Track";
-	public static String GAT_MQ_Standalone_CLIENT = "Alone";
-	public static String GAT_MQ_Guide_CLIENT = "Guide";
+	public static String GAT_MQ_Verify_CLIENT ="V";// "Verify";
+	public static String GAT_MQ_Track_CLIENT = "T";//"Track";
+	public static String GAT_MQ_Standalone_CLIENT ="A";// "Alone";
+	public static String GAT_MQ_Guide_CLIENT = "G";//"Guide";
 
 	public static String OPEN_FIRSTDOOR = "{\"Event\": 1,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
 	// public static String CLOSE_FIRSTDOOR = "DoorCmd01";
@@ -148,11 +151,21 @@ public class DeviceConfig {
 	public static String OPEN_THIRDDOOR = "{\"Event\": 3,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
 	// public static String CLOSE_THIRDDOOR = "DoorCmd21";
 	public static String Close_SECONDDOOR_Jms = "{\"Event\": 20,\"Target\": \"127.0.0.1\",\"EventSource\":\"MainVerify\"}";
-	
+
 	public static String EventTopic = "PITEventTopic";
 	public static String Event_StartTracking = "{\"Event\": 10010,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸开始核验
 	public static String Event_VerifyFaceSucc = "{\"Event\": 10011,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验成功
 	public static String Event_VerifyFaceFailed = "{\"Event\": 10012,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验失败
+	public static String Event_ReadIDCardFailed = "{\"Event\": 80004,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 读二代证失败
+	public static String Event_ReadTicketFailed = "{\"Event\": 80001,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 读二维码失败
+	public static String Event_InvalidCardAndTicket = "{\"Event\": 80002,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 票证不符
+	public static String Event_InvalidStation = "{\"Event\": 51605,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 非本站乘车
+	public static String Event_InvalidTrainDate = "{\"Event\": 51666,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 非当日乘车
+	public static String Event_QRDeviceException = "{\"Event\": -1,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 二维码读卡器故障
+	public static String Event_IDDeviceException = "{\"Event\": -2,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 二代证读卡器故障
+	public static String Event_DeviceStartupSucc = "{\"Event\": 10000,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 设备启动成功
+
+	public static String Clear_QrCode_Jms = "{\"EventSource\":\"QRDevice\",\"QRCode\":\"\",\"Target\":\"127.0.0.1\"}";
 
 	// 开关门
 	public static int Event_OpenFirstDoor = 1; // 开前门
@@ -174,6 +187,16 @@ public class DeviceConfig {
 
 	private boolean isAllowOpenSecondDoor = true; // 是否允许开第二道门
 	private boolean isInTracking = false; // 是否处于人脸核验中
+	
+	private String gateIPList = "192.168.0.2,192.168.0.3,192.168.0.4,192.168.0.5";
+
+	public String getGateIPList() {
+		return gateIPList;
+	}
+
+	public void setGateIPList(String gateIPList) {
+		this.gateIPList = gateIPList;
+	}
 
 	public int getGuideScreen() {
 		return guideScreen;
@@ -620,6 +643,7 @@ public class DeviceConfig {
 			this.setManualCheck_MQURL("failover://" + "tcp://" + ManualCheck_Address + ":61616");
 			this.setManualCheck_MQTTURL("tcp://" + ManualCheck_Address + ":1883");
 			this.setSoftIdNo(root.getChild("AppConfig").getAttributeValue("softIdNo"));
+			this.setGateIPList(root.getChild("AppConfig").getAttributeValue("gateIPList"));
 
 			this.setPoliceServer_Address(root.getChild("MQConfig").getAttributeValue("PoliceServer_Address"));
 			this.setPoliceServerPort(root.getChild("MQConfig").getAttributeValue("PoliceServerPort"));

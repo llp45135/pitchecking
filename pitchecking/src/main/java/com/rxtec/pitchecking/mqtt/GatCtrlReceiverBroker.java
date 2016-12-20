@@ -1,9 +1,13 @@
 package com.rxtec.pitchecking.mqtt;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,23 +19,26 @@ import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.AudioPlayTask;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.DeviceEventListener;
-import com.rxtec.pitchecking.FaceTrackingScreen;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.ScreenCmdEnum;
+import com.rxtec.pitchecking.SingleFaceTrackingScreen;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.TicketVerifyScreen;
 import com.rxtec.pitchecking.device.AudioDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.FirstGateDevice;
 import com.rxtec.pitchecking.device.SecondGateDevice;
+import com.rxtec.pitchecking.device.easen.EasenVerifyResult;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
+import com.rxtec.pitchecking.mq.police.PITInfoPolicePublisher;
 import com.rxtec.pitchecking.net.event.CAMOpenBean;
 import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.net.event.GatCrtlBean;
 import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
 import com.rxtec.pitchecking.net.event.PIVerifyRequestBean;
 import com.rxtec.pitchecking.net.event.ScreenDisplayBean;
+import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.task.SendPITEventTask;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.JsonUtils;
@@ -182,12 +189,13 @@ public class GatCtrlReceiverBroker {
 
 			String mqttMessage = new String(payload);
 			String orignMqttMessage = mqttMessage;
-//			log.info("orign mqttMessage==" + orignMqttMessage);
+			// log.info("orign mqttMessage==" + orignMqttMessage);
 			mqttMessage = mqttMessage.replace("\r\n", "");
 			mqttMessage = mqttMessage.replace(" ", "");
 			mqttMessage = mqttMessage.toLowerCase();
 
 			try {
+				String qrcode = "";
 				if (topicName.equals("PITEventTopic")) {
 					if (mqttMessage.toLowerCase().indexOf("eventsource") != -1) { // 收到门控制发回的指令
 						// ObjectMapper mapper = new ObjectMapper();
@@ -202,20 +210,25 @@ public class GatCtrlReceiverBroker {
 							String tt = st.nextToken();
 							if (tt.indexOf("\"event\"") != -1) {
 								String event = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
-//								log.info("event==" + event);
+								// log.info("event==" + event);
 								gatCrtlBean.setEvent(Integer.parseInt(event));
 							} else if (tt.indexOf("\"target\"") != -1) {
 								String target = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
-//								log.info("target==" + target);
+								// log.info("target==" + target);
 								gatCrtlBean.setTarget(target);
 							} else if (tt.indexOf("\"eventsource\"") != -1) {
 								String eventsource = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
-//								log.info("eventsource==" + eventsource);
+								// log.info("eventsource==" + eventsource);
 								gatCrtlBean.setEventsource(eventsource);
+							} else if (tt.indexOf("qrcode") != -1) {
+								qrcode = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
+								if (qrcode.length() > 144) {
+									qrcode = qrcode.substring(0, 144);
+								}
 							}
 						}
 
-//						log.info("mqttMessage===" + mqttMessage);
+						// log.info("mqttMessage===" + mqttMessage);
 						// log.debug("getEvent==" + gatCrtlBean.getEvent());
 						// log.debug("getTarget==" + gatCrtlBean.getTarget());
 						// log.debug("getEventsource==" +
@@ -293,6 +306,23 @@ public class GatCtrlReceiverBroker {
 
 									if (gatCrtlBean.getEvent() == 10010) {
 										DeviceConfig.getInstance().setInTracking(true);
+										if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyEASEN)) {
+											File easenIdcardZp = new File(
+													Config.getInstance().getEasenConfigPath() + "/easenzp.jpg");
+											BufferedImage easenIdcardZpBufferedImage = ImageIO.read(easenIdcardZp);
+											FaceCheckingService.getInstance().getFaceVerify().setIDCardPhoto(easenIdcardZpBufferedImage);
+											/**
+											 * 以下代码仅供测试
+											 */
+//											File faceFile1 = new File(Config.getInstance().getEasenConfigPath() + "/wxs1.jpg");
+//											BufferedImage faceImg1 = ImageIO.read(faceFile1);
+//											float result = 0;
+//											result = FaceCheckingService.getInstance().getFaceVerify().verify(faceImg1);
+//											log.info("result==" + result);
+											/**
+											 * 
+											 */
+										}
 									} else if (gatCrtlBean.getEvent() == 10011 || gatCrtlBean.getEvent() == 10012) {
 										DeviceConfig.getInstance().setInTracking(false);
 									} else if (gatCrtlBean.getEvent() == 80004) { // 读二代证失败
@@ -311,11 +341,72 @@ public class GatCtrlReceiverBroker {
 										AudioPlayTask.getInstance().start(DeviceConfig.AudioWrongStationFlag);
 									}
 
-									SendPITEventTask.getInstance().offerEventData(orignMqttMessage);  //塞进队列，准备发送至控制台
+									SendPITEventTask.getInstance().offerEventData(orignMqttMessage); // 塞进队列，准备发送至控制台
 
 									// ManualEventSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
 									// .sendDoorCmd(mqttMessage);
 								}
+							} else if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+									+ DeviceConfig.GAT_MQ_Track_CLIENT)) { // 由检脸进程处理
+								log.debug("检脸进程处理来自铁科主控端的消息:" + mqttMessage);
+								if (Config.getInstance().getDoorCountMode() == DeviceConfig.SINGLEDOOR) { // 单门模式
+									if (gatCrtlBean.getEvent() == 10000) { // 设备启动成功
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 10010) { // 开始检脸
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.ShowTicketVerifySucc.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 10011) { // 检脸成功
+										CommUtil.sleep(3 * 1000);
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 10012) { // 检脸失败
+										CommUtil.sleep(5 * 1000);
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 80004) { // 读二代证失败
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.showFailedIDCard.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 80001) { // 读二维码失败/无电子票
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.showFailedQRCode.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 90202) { // 读二维码失败/无电子票
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.showNoETicket.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 80002) { // 票证不符
+										SingleFaceTrackingScreen.getInstance()
+												.offerEvent(new ScreenElementModifyEvent(0,
+														ScreenCmdEnum.showInvalidTicketAndIDCard.getValue(), null, null,
+														null));
+									} else if (gatCrtlBean.getEvent() == 51681) { // 已过进站时间
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.showPassTime.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 90238) { // 电子票已过进站时间
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.showETicketPassTime.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 51682) { // 未到进站时间
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.showNotInTime.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 90236) { // 电子票未到进站时间
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.showETicketNotInTime.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 51605) { // 越站乘车
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.showPassStation.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == 51666) { // 票不符
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.showWrongStation.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == ScreenCmdEnum.ShowQRDeviceException
+											.getValue()) { // 二维码读卡器故障
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.ShowQRDeviceException.getValue(), null, null, null));
+									} else if (gatCrtlBean.getEvent() == ScreenCmdEnum.ShowIDDeviceException
+											.getValue()) { // 二代证读卡器故障
+										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
+												0, ScreenCmdEnum.ShowIDDeviceException.getValue(), null, null, null));
+									}
+								}
+
 							} else if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
 									+ DeviceConfig.GAT_MQ_Guide_CLIENT)) { // 由用户引导进程处理
 								log.debug("UserGuide进程处理来自铁科主控端的消息:" + mqttMessage);
@@ -332,14 +423,36 @@ public class GatCtrlReceiverBroker {
 									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 											ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null));
 								} else if (gatCrtlBean.getEvent() == 80004) { // 读二代证失败
-									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-											ScreenCmdEnum.showFailedIDCard.getValue(), null, null, null));
+
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0,
+													ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue(), new Ticket(),
+													null, null));
+
+									// TicketVerifyScreen.getInstance().offerEvent(new
+									// ScreenElementModifyEvent(0,
+									// ScreenCmdEnum.showFailedIDCard.getValue(),
+									// null, null, null));
 								} else if (gatCrtlBean.getEvent() == 80001) { // 读二维码失败/无电子票
-									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-											ScreenCmdEnum.showFailedQRCode.getValue(), null, null, null));
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0,
+													ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue(), null,
+													new IDCard(), null));
+
+									// TicketVerifyScreen.getInstance().offerEvent(new
+									// ScreenElementModifyEvent(0,
+									// ScreenCmdEnum.showFailedQRCode.getValue(),
+									// null, null, null));
 								} else if (gatCrtlBean.getEvent() == 90202) { // 读二维码失败/无电子票
-									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-											ScreenCmdEnum.showNoETicket.getValue(), null, null, null));
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0,
+													ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue(), null,
+													new IDCard(), null));
+
+									// TicketVerifyScreen.getInstance().offerEvent(new
+									// ScreenElementModifyEvent(0,
+									// ScreenCmdEnum.showNoETicket.getValue(),
+									// null, null, null));
 								} else if (gatCrtlBean.getEvent() == 80002) { // 票证不符
 									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 											ScreenCmdEnum.showInvalidTicketAndIDCard.getValue(), null, null, null));
@@ -408,28 +521,65 @@ public class GatCtrlReceiverBroker {
 									AudioPlayTask.getInstance().start(DeviceConfig.AudioWrongStationFlag);
 								}
 							}
+						} else if (gatCrtlBean.getEventsource().equals("qrdevice")) { // 二维码消息
+							log.debug("来自二维码消息:" + mqttMessage);
+							if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+									+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由独立比对进程处理
+								PITInfoPolicePublisher.getInstance().setQrCode(qrcode);
+							}
+						} else if (gatCrtlBean.getEventsource().equals("faceverify")) {
+							if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenFirstDoor) {
+								if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+										+ DeviceConfig.GAT_MQ_Track_CLIENT)) {
+
+								}
+							}
 						} else {
 							log.debug("该条消息暂时不做处理：" + mqttMessage);
 						}
 
 						if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
 								+ DeviceConfig.GAT_MQ_Verify_CLIENT)) { // java版主控进程
-							if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenFirstDoor) { // 开1门
-								if (Config.getInstance().getIsUseGatDll() == 0) {
-									FirstGateDevice.getInstance().openFirstDoor();// 打开第一道门
+							if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
+								if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenFirstDoor) { // 开1门
+									if (Config.getInstance().getIsUseGatDll() == 0) {
+										DeviceEventListener.getInstance().setReceiveOpenFirstDoorCmd(false);
+										// FirstGateDevice.getInstance().openFirstDoor();//
+										// 打开第一道门
+										for (int rc = 0; rc < 3; rc++) {
+											if (!DeviceEventListener.getInstance().isReceiveOpenFirstDoorCmd()) {
+												FirstGateDevice.getInstance().openFirstDoor();
+											} else {
+												break;
+											}
+											CommUtil.sleep(100);
+										}
+									}
+								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenThirdDoor) { // 开3门指令
+									if (Config.getInstance().getIsUseGatDll() == 0) {
+										SecondGateDevice.getInstance().openEmerDoor(); //
+									}
 								}
-							} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenThirdDoor) { // 开3门指令
-								if (Config.getInstance().getIsUseGatDll() == 0) {
-									SecondGateDevice.getInstance().openEmerDoor(); //
-								}
-							} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenSecondDoor) { // 开2门指令
+							}
+
+							if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenSecondDoor) { // 开2门指令
 								if (Config.getInstance().getIsUseGatDll() == 0) {
 									DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
-									SecondGateDevice.getInstance().openTheSecondDoor(); // 开2门
+									DeviceEventListener.getInstance().setReceiveOpenSecondDoorCmd(false);
+									// SecondGateDevice.getInstance().openTheSecondDoor();
+									// //
+									for (int rc = 0; rc < 3; rc++) {
+										if (!DeviceEventListener.getInstance().isReceiveOpenSecondDoorCmd()) {
+											SecondGateDevice.getInstance().openTheSecondDoor();
+										} else {
+											break;
+										}
+										CommUtil.sleep(100);
+									}
 								}
 							}
 						}
-						
+
 						if (gatCrtlBean.getEvent() == DeviceConfig.Event_SecondDoorHasClosed) { // 第二道门关闭
 							DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
 							log.debug("已收到第二道门的关门回执,允许重新转发手动开第二道门指令");

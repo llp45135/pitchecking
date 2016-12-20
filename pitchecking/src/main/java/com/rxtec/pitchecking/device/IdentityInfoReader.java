@@ -6,6 +6,9 @@ import org.xvolks.jnative.Type;
 import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
+
+import com.rxtec.pitchecking.utils.CommUtil;
+
 import java.awt.*;
 import javax.imageio.ImageIO;
 import java.io.*;
@@ -68,6 +71,7 @@ public class IdentityInfoReader extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == readJB) {
 			read();
+
 		}
 		if (event.getSource() == exitJB) {
 			System.exit(0);
@@ -92,6 +96,9 @@ public class IdentityInfoReader extends JFrame implements ActionListener {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public void read() { // throws NativeException,IllegalAccessException,
 							// UnsupportedEncodingException{
 		try {

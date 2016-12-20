@@ -576,7 +576,7 @@ public class CalUtils {
 	}
 
 	/**
-	 * 时间之间的天数 yyyy-MM-dd
+	 * 计算年龄，时间之间的年数 yyyy-MM-dd
 	 * @param dateBegin
 	 * @param dateEnd
 	 * @return
@@ -645,7 +645,7 @@ public class CalUtils {
 	public static void main(String[] args) throws ParseException {
 		System.out.println("nowMonthDays==" + getNowMonthDays("2008-02"));
 		System.out.println("nowYearDays==" + getNowYearDays("2009"));
-		System.out.println("getAge==" + getAge("1980-12-14", "2016-07-16"));
+		System.out.println("getAge==" + getCalcDate("2016-07-19", "2016-12-07"));
 		System.out.println(getPreSerivalDaysShort(getStringDateShort(), 1));
 		System.out.println("hhmm==" + getStringFullTimeHaomiao());
 		System.out.println(""+howLong("ms", "2016-10-12 14:00:00.100", "2016-10-12 14:00:09.300"));

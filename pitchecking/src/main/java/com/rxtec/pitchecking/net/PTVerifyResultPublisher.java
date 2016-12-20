@@ -106,7 +106,7 @@ public class PTVerifyResultPublisher {
 			}
 			return false;
 		} else {
-			log.debug("FaceVerifyResult has sended! data length=" + buf.length);
+			log.info("FaceVerifyResult has sended! data length=" + buf.length);
 			return true;
 		}
 	}

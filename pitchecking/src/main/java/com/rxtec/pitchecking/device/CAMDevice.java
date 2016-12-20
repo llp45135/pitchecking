@@ -10,9 +10,13 @@ import org.xvolks.jnative.exceptions.NativeException;
 import org.xvolks.jnative.pointers.Pointer;
 import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rxtec.pitchecking.FaceTrackingScreen;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
+import com.rxtec.pitchecking.mqtt.MqttSenderBroker;
+import com.rxtec.pitchecking.net.event.CAMOpenBean;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class CAMDevice {
@@ -39,7 +43,7 @@ public class CAMDevice {
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("init CAMDevice:", e);
-		} catch(Exception ex){
+		} catch (Exception ex) {
 			log.error("init CAMDevice:", ex);
 		}
 	}
@@ -348,7 +352,7 @@ public class CAMDevice {
 	 */
 	public static void main(String[] args) {
 		Logger log = LoggerFactory.getLogger("DeviceEventListener");
-		 MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance();
+		MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT);
 		FaceTrackingScreen faceTrackingScreen = FaceTrackingScreen.getInstance();
 		FaceCheckFrame faceCheckFrame = new FaceCheckFrame();
 		faceTrackingScreen.setFaceFrame(faceCheckFrame);
@@ -373,7 +377,28 @@ public class CAMDevice {
 		} else {
 			return;
 		}
-		
+
+		// while (true) {
+		// ObjectMapper mapper = new ObjectMapper();
+		// CAMOpenBean camOpenBean = new CAMOpenBean();
+		// camOpenBean.setEventDirection(1);
+		// camOpenBean.setThreshold(65);
+		// camOpenBean.setTimeout(3000);
+		// try {
+		// String camOpenRequestJson = mapper.writeValueAsString(camOpenBean);
+		// MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendMessage("pub_topic",
+		// camOpenRequestJson);
+		// } catch (JsonProcessingException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// CommUtil.sleep(100);
+		// if(MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).getCamOpenRetval()==0){
+		// break;
+		// }
+		// CommUtil.sleep(2000);
+		// }
+
 		CAMDevice cam = CAMDevice.getInstance();
 
 		int[] region = { 0, 0, 640, 480, 77, 1, 3000 };

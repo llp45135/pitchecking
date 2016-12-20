@@ -148,7 +148,8 @@ public class RSFaceTrackTask implements Runnable {
 		PXCMRectI32 rect = new PXCMRectI32();
 		PITData fd = new PITData(frame);
 		boolean ret = detection.QueryBoundingRect(rect);
-//		log.debug("detection.QueryBoundingRect(rect)==" + ret + ",rect==" + rect);
+		// log.debug("detection.QueryBoundingRect(rect)==" + ret + ",rect==" +
+		// rect);
 		if (ret) {
 			int x, y, w, h;
 			float xa = (rect.w * Config.getInstance().getFaceDetectionScale() - rect.w) / 2;
@@ -543,7 +544,7 @@ public class RSFaceTrackTask implements Runnable {
 		cData.ToIntArray(0, cBuff);
 		videoPanel.image.setRGB(0, 0, cWidth, cHeight, cBuff, 0, cData.pitches[0] / 4);
 
-		videoPanel.paintImg();
+		videoPanel.paintImg();   //截图  并发送至人工台
 		sts = sample.color.ReleaseAccess(cData);
 		if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) < 0) {
 			log.error("Failed to ReleaseAccess of color image data");
@@ -607,11 +608,12 @@ public class RSFaceTrackTask implements Runnable {
 	}
 
 	/**
-	 * 设置摄像头参数
-	 * SetColorExposure 设置曝光值 范围 -8,0 step 1.0 ,系统缺省值 -6 。值越小曝光值越小 。强背光的时候曝光值放大，正面直射的时候曝光值减少  
-	 * SetColorBrightness 设置亮度 范围 -64，64 step 1.0 ,系统缺省值 0。 值越小越暗。
+	 * 设置摄像头参数 SetColorExposure 设置曝光值 范围 -8,0 step 1.0 ,系统缺省值 -6 。值越小曝光值越小
+	 * 。强背光的时候曝光值放大，正面直射的时候曝光值减少 SetColorBrightness 设置亮度 范围 -64，64 step 1.0
+	 * ,系统缺省值 0。 值越小越暗。
 	 * 
-	 * @param RealsenseDeviceProperties 设备参数
+	 * @param RealsenseDeviceProperties
+	 *            设备参数
 	 */
 	public void setupColorCameraDevice(RealsenseDeviceProperties properties) {
 		if (dev == null)
@@ -619,18 +621,17 @@ public class RSFaceTrackTask implements Runnable {
 		PXCMCapture.DeviceInfo info = new PXCMCapture.DeviceInfo();
 		dev.QueryDeviceInfo(info);
 		log.info("Using Camera: " + info.name);
-		
+
 		dev.SetColorAutoExposure(properties.isColorAutoExposure());
 		dev.SetColorAutoWhiteBalance(properties.isColorAutoWhiteBalance());
 		dev.SetColorBackLightCompensation(properties.isColorBackLightCompensation());
-	
-		
+
 		dev.SetColorBrightness(properties.getColorBrightness());
 		dev.SetColorExposure(properties.getColorExposure());
-		
-//		PropertyInfo pColorBrightness = dev.QueryColorBrightnessInfo();
-//		PropertyInfo pColorExposure = dev.QueryColorExposureInfo();
-//		PropertyInfo pBackLight =  dev.QueryColorBackLightCompensationInfo();
+
+		// PropertyInfo pColorBrightness = dev.QueryColorBrightnessInfo();
+		// PropertyInfo pColorExposure = dev.QueryColorExposureInfo();
+		// PropertyInfo pBackLight = dev.QueryColorBackLightCompensationInfo();
 
 	}
 
@@ -697,7 +698,10 @@ public class RSFaceTrackTask implements Runnable {
 		}
 
 		dev = senseMgr.QueryCaptureManager().QueryDevice();
-		setupColorCameraDevice(new RealsenseDeviceProperties());
+		RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
+		realsenseProp.setColorExposure(Config.getInstance().getInitColorExposure());
+		realsenseProp.setColorBrightness(Config.getInstance().getInitColorBrightness());
+		setupColorCameraDevice(realsenseProp);
 		while (startCapture) {
 			try {
 				sts = senseMgr.AcquireFrame(true);
@@ -717,7 +721,7 @@ public class RSFaceTrackTask implements Runnable {
 					senseMgr.ReleaseFrame();
 					continue;
 				} else {
-					frameImage = drawFrameImage(sample);
+					frameImage = drawFrameImage(sample);   //截图
 					// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 					FaceScreenListener.getInstance().setPidStr(pid);// 设为允许写心跳
 				}
@@ -747,7 +751,7 @@ public class RSFaceTrackTask implements Runnable {
 						isRealFace &= (pae != null);
 					}
 
-//					log.debug("detection==" + detection);
+					// log.debug("detection==" + detection);
 					if (detection != null && isRealFace) {
 						drawLandmark(face);
 						PITData fd = createFaceData(frameImage, detection);
@@ -763,7 +767,7 @@ public class RSFaceTrackTask implements Runnable {
 									fd.setFacePoseYaw(pae.yaw);
 								}
 								log.info("Begin to verify face........." + fd);
-								FaceCheckingService.getInstance().offerDetectedFaceData(fd);
+								FaceCheckingService.getInstance().offerDetectedFaceData(fd);  //将人脸插入待检队列
 							}
 						}
 					}

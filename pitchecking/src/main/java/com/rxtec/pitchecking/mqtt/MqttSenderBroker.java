@@ -36,18 +36,28 @@ public class MqttSenderBroker {
 	Logger log = LoggerFactory.getLogger("MqttSenderBroker");
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
-	private String CLIENT_ID = "PITS";// 客户端标识
+	private String CLIENT_ID = "PIS";// 客户端标识
 	private final static int[] QOS_VALUES = { 0 };// 对应主题的消息级别
 	private final static String[] TOPICS = { "sub_topic" };
 	private String[] UNSUB_TOPICS = { "sub_topic" };
 	private final static String SEND_TOPIC = "sub_topic";
-	private static MqttSenderBroker _instance = new MqttSenderBroker();
+	private static MqttSenderBroker _instance;
 	private ObjectMapper mapper = new ObjectMapper();
 
 	private MqttClient mqttClient;
 	private String notifyJson;
 	private String faceScreenDisplay = "";
-	private int faceScreenDisplayTimeout =0;
+	private int faceScreenDisplayTimeout = 0;
+	
+	private int camOpenRetval = -1;
+
+	public int getCamOpenRetval() {
+		return camOpenRetval;
+	}
+
+	public void setCamOpenRetval(int camOpenRetval) {
+		this.camOpenRetval = camOpenRetval;
+	}
 
 	public String getFaceScreenDisplay() {
 		return faceScreenDisplay;
@@ -78,12 +88,14 @@ public class MqttSenderBroker {
 	 * 
 	 * @return
 	 */
-	public static synchronized MqttSenderBroker getInstance() {
+	public static synchronized MqttSenderBroker getInstance(String pidname) {
+		if (_instance == null)
+			_instance = new MqttSenderBroker(pidname);
 		return _instance;
 	}
 
-	private MqttSenderBroker() {
-		CLIENT_ID = CLIENT_ID + DeviceConfig.getInstance().getIpAddress();
+	private MqttSenderBroker(String pidname) {
+		CLIENT_ID = CLIENT_ID + DeviceConfig.getInstance().getIpAddress() + pidname;
 		while (true) {
 			try {
 				if (mqttClient == null || !mqttClient.isConnected()) {
@@ -91,7 +103,7 @@ public class MqttSenderBroker {
 				}
 			} catch (MqttException e) {
 				// TODO Auto-generated catch block
-				log.error("connect:",e);
+				log.error("connect:", e);
 				CommUtil.sleep(5000);
 				continue;
 			}
@@ -116,7 +128,8 @@ public class MqttSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		
+		log.info("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
+				+ this.CLIENT_ID);
 		log.debug("connect to MqttSenderBroker.");
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
 		log.debug(
@@ -150,11 +163,19 @@ public class MqttSenderBroker {
 			// log.debug("send message to " + clientId + ", message is " +
 			// message);
 			// 发布自己的消息
-			if(message.indexOf("CAM_ScreenDisplay")!=-1){
-				log.info("CAM_ScreenDisplay:send message=="+message);
+			if (message.indexOf("CAM_GetPhotoInfo") != -1) {
+				log.info("准备发送 CAM_GetPhotoInfo消息...");
+			} else if (message.indexOf("CAM_ScreenDisplay") != -1) {
+				log.info("准备发送 CAM_ScreenDisplay:send message==" + message);
 			}
 			mqttClient.publish(clientId, message.getBytes(), 0, false);
-			log.debug("sendMessage ok");
+			if (message.indexOf("CAM_GetPhotoInfo") != -1) {
+				log.info("sendMessage CAM_GetPhotoInfo消息 is OK!");
+			} else if (message.indexOf("CAM_ScreenDisplay") != -1) {
+				log.info("sendMessage CAM_ScreenDisplay消息 is OK!");
+			} else {
+				log.debug("sendMessage ok");
+			}
 		} catch (MqttException e) {
 			log.error("MqttSenderBroker sendMessage", e);
 		} catch (Exception e) {
@@ -183,7 +204,7 @@ public class MqttSenderBroker {
 			PIVBean.setVerifyStatus(1);
 
 			String jsonString = mapper.writeValueAsString(PIVBean);
-			log.info("PublishWrongIDNo json=="+jsonString);
+			log.info("PublishWrongIDNo json==" + jsonString);
 
 			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
 
@@ -311,7 +332,7 @@ public class MqttSenderBroker {
 			while (true) {
 				log.debug("3s后开始尝试重新连接...");
 				Thread.sleep(3000);
-				int flag = MqttSenderBroker.getInstance().reconnect();
+				int flag = reconnect();
 				if (flag == 0) {
 					log.debug("重新连接mq服务成功,退出重连循环!");
 					break;
@@ -325,14 +346,19 @@ public class MqttSenderBroker {
 		@Override
 		public void publishArrived(String topicName, byte[] payload, int Qos, boolean retained) throws Exception {
 			// TODO Auto-generated method stub
-//			log.debug("订阅主题: " + topicName);
+			// log.debug("订阅主题: " + topicName);
 			// log.debug("消息数据: " + new String(payload));
 			// log.debug("消息级别(0,1,2): " + Qos);
-//			log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
+			// log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String mqttMessage = new String(payload);
 			if (mqttMessage.indexOf("CAM_Open") != -1) {
-
+				log.debug("mqttMessage==" + mqttMessage);
+				ObjectMapper mapper = new ObjectMapper();
+				CAMOpenBean camOpenBean = mapper.readValue(mqttMessage, CAMOpenBean.class);
+				if(camOpenBean.getEventDirection()==2){
+					setCamOpenRetval(0);
+				}
 			} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
 
 			} else if (mqttMessage.indexOf("CAM_GetPhotoInfo") != -1) {

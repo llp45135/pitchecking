@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking.picheckingservice;
 
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Calendar;
@@ -109,6 +110,18 @@ public class MICROPFaceVerifyJNIEntry implements FaceVerifyInterface{
 
 	@Override
 	public int getInitStatus() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int setIDCardPhoto(BufferedImage idCardImg) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public float verify(byte[] faceImgBytes) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

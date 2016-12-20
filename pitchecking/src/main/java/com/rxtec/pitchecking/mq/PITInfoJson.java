@@ -16,6 +16,7 @@ public class PITInfoJson implements Serializable {
 	private int msgType = -1;
 	private int idHashCode = -1;
 	private String idCardNo = "";
+	private String qrCode="";
 	private int gender = 0;
 	private int event = -1;
 	private String ipAddress = "";
@@ -34,6 +35,14 @@ public class PITInfoJson implements Serializable {
 	private String frameImageBase64 = "";
 	private float similarity = 0;
 	private int isVerifyPassed = -1;
+
+	public String getQrCode() {
+		return qrCode;
+	}
+
+	public void setQrCode(String qrCode) {
+		this.qrCode = qrCode;
+	}
 
 	public String getIdCardNo() {
 		return idCardNo;
@@ -157,6 +166,7 @@ public class PITInfoJson implements Serializable {
 			this.setFrameImageBase64(BASE64.encryptBASE64(pitData.getFrameImg()));
 
 		this.setIdCardNo(BASE64.encryptBASE64(pitData.getIdNo().getBytes()));
+		this.setQrCode(pitData.getQrCode());
 		this.setGender(pitData.getGender());
 		this.setAge(pitData.getAge());
 		this.setIdHashCode(pitData.getIdNo().hashCode());
@@ -168,7 +178,7 @@ public class PITInfoJson implements Serializable {
 			this.setFaceImageBase64(BASE64.encryptBASE64(pitData.getFaceImg()));
 
 		this.ipAddress = DeviceConfig.getInstance().getIpAddress();
-		this.msgType = PITInfoJson.MSG_TYPE_VERIFY;
+		this.msgType = PITInfoJson.MSG_TYPE_VERIFY;		
 		jsonStr = JsonUtils.serialize(this);
 	}
 

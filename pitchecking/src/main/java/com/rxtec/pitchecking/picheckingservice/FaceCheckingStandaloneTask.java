@@ -9,6 +9,7 @@ import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.db.PitRecordLoger;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.device.easen.EasenVerifyResult;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
 import com.rxtec.pitchecking.mq.police.PITInfoPolicePublisher;
 import com.rxtec.pitchecking.net.PTVerifyResultPublisher;
@@ -29,6 +30,9 @@ public class FaceCheckingStandaloneTask implements Runnable {
 		} else if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyMicro)) {
 			faceVerify = new MICROPFaceVerifyJNIEntry(Config.MICROFaceVerifyCloneDLLName);
 			initDllStatus = faceVerify.getInitStatus();
+		} else if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyEASEN)) {
+			faceVerify = new EASENFaceVerifyJNAEntry();
+			initDllStatus = faceVerify.getInitStatus();
 		}
 	}
 
@@ -38,6 +42,8 @@ public class FaceCheckingStandaloneTask implements Runnable {
 		if (initDllStatus < 1) {
 			log.error("!!!!!!!!!!!!!!!!!!VerifyDLL init failed!!!!!!!!!!!!!!!");
 			return;
+		} else {
+			FaceCheckingService.getInstance().setFaceVerify(faceVerify);
 		}
 		while (true) {
 
@@ -52,7 +58,7 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					byte[] extractFaceImageBytes = fd.getFaceImg();
 					if (extractFaceImageBytes == null)
 						continue;
-					
+
 					fd.setGateIp(DeviceConfig.getInstance().getIpAddress());
 					if (fd.getAge() <= Config.ByPassMinAge || fd.getAge() >= Config.ByPassMaxAge) {
 						CommUtil.sleep(2000);
@@ -62,7 +68,11 @@ public class FaceCheckingStandaloneTask implements Runnable {
 						FaceImageLog.saveFaceDataToDsk(fd);
 						continue;
 					}
-					resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCardImg());// 比对人脸
+					if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyEASEN)) {
+						resultValue = faceVerify.verify(fd.getFrameImg());
+					} else {
+						resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCardImg());// 比对人脸
+					}
 					fd.setVerifyResult(resultValue);
 					int usingTime = (int) (Calendar.getInstance().getTimeInMillis() - nowMils);
 
@@ -78,7 +88,7 @@ public class FaceCheckingStandaloneTask implements Runnable {
 
 					if (Config.getInstance().getIsUsePoliceMQ() == 1) { // 将人脸数据传输至公安处
 						log.info("Face verify result=" + resultValue);
-//						PITInfoPolicePublisher.getInstance().offerFrameData(fd.getFrameImg());
+						// PITInfoPolicePublisher.getInstance().offerFrameData(fd.getFrameImg());
 						PITInfoPolicePublisher.getInstance().offerVerifyData(fd);
 					}
 

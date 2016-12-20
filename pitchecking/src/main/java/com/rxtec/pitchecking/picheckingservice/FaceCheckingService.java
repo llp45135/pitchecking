@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.domain.FailedFace;
+import com.rxtec.pitchecking.mq.police.PITInfoPolicePublisher;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
 import com.rxtec.pitchecking.net.PTVerifyPublisher;
 
@@ -23,6 +24,8 @@ public class FaceCheckingService {
 	private boolean isCheck = true;
 
 	private static FaceCheckingService _instance = new FaceCheckingService();
+
+	private FaceVerifyInterface faceVerify = null;
 
 	// 已经检测人脸质量，待验证的队列
 	private LinkedBlockingQueue<PITData> detectedFaceDataQueue;
@@ -54,13 +57,21 @@ public class FaceCheckingService {
 		detectedFaceDataQueue = new LinkedBlockingQueue<PITData>(Config.getInstance().getDetectededFaceQueueLen());
 		faceVerifyDataQueue = new LinkedBlockingQueue<PITVerifyData>(Config.getInstance().getDetectededFaceQueueLen());
 		passFaceDataQueue = new LinkedBlockingQueue<PITVerifyData>(1);
-		failedFaceDataList = new LinkedList<PITVerifyData>();
+		failedFaceDataList = new LinkedList<PITVerifyData>();		
 	}
 
 	public static synchronized FaceCheckingService getInstance() {
 		if (_instance == null)
 			_instance = new FaceCheckingService();
 		return _instance;
+	}
+
+	public void setFaceVerify(FaceVerifyInterface faceVerify) {
+		this.faceVerify = faceVerify;
+	}
+
+	public FaceVerifyInterface getFaceVerify() {
+		return faceVerify;
 	}
 
 	// 从阻塞队列中返回比对成功的人脸

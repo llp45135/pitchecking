@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking.mq.police.dao;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 
@@ -23,6 +24,8 @@ import org.apache.commons.logging.LogFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.Ticket;
+import com.rxtec.pitchecking.device.BarUnsecurity;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
@@ -98,8 +101,7 @@ public class PITInfoJmsReceiver implements MessageListener {
 					PITInfoJmsObj pitInfoJsonBean = mapper.readValue(pitInfoMsg, PITInfoJmsObj.class);
 					log.info("getMsgType==" + pitInfoJsonBean.getMsgType());
 					if (pitInfoJsonBean.getMsgType() == 2) {
-						// log.info("getIdCardNo==" + new
-						// String(BASE64.decryptBASE64(pitInfoJson.getIdCardNo())));
+
 						// log.info("getEvent==" + pitInfoJson.getEvent());
 						log.info("IpAddress==" + pitInfoJsonBean.getIpAddress());
 						// log.info("getAge==" + pitInfoJson.getAge());
@@ -108,6 +110,7 @@ public class PITInfoJmsReceiver implements MessageListener {
 						// pitInfoJson.getIdHashCode());
 						log.info("IsVerifyPassed==" + pitInfoJsonBean.getIsVerifyPassed());
 						log.info("Similarity==" + pitInfoJsonBean.getSimilarity());
+						log.info("idcard.CardNo==" + new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdCardNo())));
 
 						if (pitInfoJsonBean.getSimilarity() > 0) {
 							String idNo = new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdCardNo()));
@@ -127,18 +130,48 @@ public class PITInfoJmsReceiver implements MessageListener {
 
 							PITInfoImgPath imgPath = new PITInfoImgPath();
 							FaceImageLog.saveFaceDataToPoliceDsk(fd, imgPath);
-							
-							
+
+							log.info("getQrCode==" + pitInfoJsonBean.getQrCode());
+							Ticket ticket = null;
+							if (pitInfoJsonBean.getQrCode() != null
+									&& pitInfoJsonBean.getQrCode().trim().length() == 144) {
+								ticket = BarUnsecurity.getInstance().buildTicket(BarUnsecurity.getInstance().uncompress(
+										pitInfoJsonBean.getQrCode(), CalUtils.getStringDateShort2().substring(0, 4)));
+								log.info("ticket.TrainCode==" + ticket.getTrainCode());
+								log.info("ticket.CardNo==" + ticket.getCardNo());
+								log.info("ticket.PassengerName==" + ticket.getPassengerName());
+
+								pitInfoJsonBean.setFromStationCode(ticket.getFromStationCode());
+								pitInfoJsonBean.setEndStationCode(ticket.getEndStationCode());
+								pitInfoJsonBean.setChangeStationCode(ticket.getChangeStationCode());
+								pitInfoJsonBean.setTicketNo(ticket.getTicketNo());
+								pitInfoJsonBean.setTrainCode(ticket.getTrainCode());
+								pitInfoJsonBean.setCoachNo(ticket.getCoachNo());
+								pitInfoJsonBean.setSeatCode(ticket.getSeatCode());
+								pitInfoJsonBean.setTicketType(ticket.getTicketType());
+								pitInfoJsonBean.setSeatNo(ticket.getSeatNo());
+								pitInfoJsonBean.setTrainDate(ticket.getTrainDate());
+								pitInfoJsonBean.setCardNo(ticket.getCardNo());
+								pitInfoJsonBean.setPassengerName(ticket.getPassengerName());
+								pitInfoJsonBean.setSaleOfficeNo(ticket.getSaleOfficeNo());
+								pitInfoJsonBean.setSaleWindowNo(ticket.getSaleWindowNo());
+								pitInfoJsonBean.setSaleDate(ticket.getSaleDate());
+							}
+
 							pitInfoJsonBean.setIdCardNo(idNo);
 							pitInfoJsonBean.setPitTime(CalUtils.getStringDateHaomiao());
-							pitInfoJsonBean.setFrameImageBase64(
-									new String(BASE64.decryptBASE64(pitInfoJsonBean.getFrameImageBase64())));
-							pitInfoJsonBean.setFaceImageBase64(
-									new String(BASE64.decryptBASE64(pitInfoJsonBean.getFaceImageBase64())));
-							pitInfoJsonBean.setIdPicImageBase64(
-									new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdPicImageBase64())));
+							// pitInfoJsonBean.setFrameImageBase64(
+							// new
+							// String(BASE64.decryptBASE64(pitInfoJsonBean.getFrameImageBase64())));
+							// pitInfoJsonBean.setFaceImageBase64(
+							// new
+							// String(BASE64.decryptBASE64(pitInfoJsonBean.getFaceImageBase64())));
+							// pitInfoJsonBean.setIdPicImageBase64(
+							// new
+							// String(BASE64.decryptBASE64(pitInfoJsonBean.getIdPicImageBase64())));
 
 							String pitInfoNewJson = mapper.writeValueAsString(pitInfoJsonBean);
+							pitInfoNewJson = pitInfoNewJson.replace("\\r\\n", "");
 
 							String dirName = Config.getInstance().getPoliceJsonDir() + CalUtils.getStringDateShort2()
 									+ "/";
@@ -146,7 +179,14 @@ public class PITInfoJmsReceiver implements MessageListener {
 							if (ret == 0 || ret == 1) {
 								String fileName = dirName + idNo + "_" + CalUtils.getStringFullTimeHaomiao() + ".json";
 								log.info("fileName==" + fileName);
-								ProcessUtil.writeFileContent(fileName, pitInfoNewJson);
+//								 ProcessUtil.writeFileContent(fileName, pitInfoNewJson);
+								ProcessUtil.writeFileContent(fileName, pitInfoNewJson, "utf-8");
+
+//								File logFile = new File(fileName);
+//								if (!logFile.exists()) {
+//									logFile.createNewFile();
+//								}
+//								mapper.writeValue(logFile, pitInfoJsonBean);
 							}
 						}
 					}

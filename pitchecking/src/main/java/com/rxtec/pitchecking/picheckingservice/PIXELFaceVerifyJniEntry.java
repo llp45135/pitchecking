@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking.picheckingservice;
 
+import java.awt.image.BufferedImage;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -115,6 +116,20 @@ public class PIXELFaceVerifyJniEntry implements FaceVerifyInterface {
 			}
 		}
 		return result;
+	}
+
+
+	@Override
+	public int setIDCardPhoto(BufferedImage idCardImg) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+
+	@Override
+	public float verify(byte[] faceImgBytes) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 

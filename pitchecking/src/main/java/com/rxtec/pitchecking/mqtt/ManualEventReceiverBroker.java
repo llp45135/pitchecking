@@ -8,7 +8,6 @@ import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.FaceTrackingScreen;
 import com.rxtec.pitchecking.ScreenCmdEnum;
 import com.rxtec.pitchecking.device.AudioDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
@@ -178,7 +177,7 @@ public class ManualEventReceiverBroker {
 			// log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 			try {
 				String mqttMessage = new String(payload);
-//				 log.info("mqttMessage==" + mqttMessage);
+				// log.info("mqttMessage==" + mqttMessage);
 				if (topicName.equals("PITEventTopic")) {
 					// log.info("mqttMessage==" + mqttMessage);
 					if (mqttMessage.toLowerCase().indexOf("eventsource") != -1) { // 收到门控制发回的指令
@@ -275,6 +274,7 @@ public class ManualEventReceiverBroker {
 										log.debug("准备执行暂停服务指令");
 										if (Config.getInstance().getIsUseGatDll() == 1) {
 											Runtime.getRuntime().exec(Config.getInstance().getKillTKExeCmd()); // 杀死中铁程gui.exe
+											log.debug("已经执行暂停服务指令KillTKExeCmd");
 										}
 
 										// CommUtil.sleep(3000);
@@ -305,6 +305,8 @@ public class ManualEventReceiverBroker {
 										if (Config.getInstance().getIsUseGatDll() == 1) {
 											Runtime.getRuntime().exec(Config.getInstance().getStartTKExeCmd()); // 启动gui.exe
 											CommUtil.sleep(3000);
+											log.debug("已经执行恢复服务指令StartTKExeCmd=="
+													+ Config.getInstance().getStartTKExeCmd());
 										}
 										mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(),
 												"127.0.0.1");

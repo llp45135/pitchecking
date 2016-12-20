@@ -324,7 +324,11 @@ public class SecondGateDevice implements SerialPortEventListener {
 				log.debug("retData==" + ss);
 
 				if (ss.length() >= 8) {
-					if (ss.indexOf("2A040023") == 0) {
+					if (ss.indexOf("2A040123") == 0) {
+						log.debug("控制板已收到开二门指令");
+						DeviceEventListener.getInstance().setReceiveOpenSecondDoorCmd(true);
+						
+					} else if (ss.indexOf("2A040023") == 0) {
 						// log.debug("第二道闸门已经关闭");
 						if (DeviceEventListener.getInstance().isStartThread()) {
 
@@ -332,32 +336,31 @@ public class SecondGateDevice implements SerialPortEventListener {
 									ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 							DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
 							DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
-							
-							if(!DeviceConfig.getInstance().isAllowOpenSecondDoor()){
+
+							if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
 								GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-								.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
+										.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
 								DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
 							}
 							log.debug("人证比对完成，第二道闸门已经关闭，重新寻卡");
 						}
 					} else if (ss.indexOf("2A040F23") == 0) {
 						if (DeviceEventListener.getInstance().isStartThread()) {
-							// log.debug("第二道闸门超时关闭");							
+							// log.debug("第二道闸门超时关闭");
 
 							TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
 									ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 							DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
 							DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
-							
-							if(!DeviceConfig.getInstance().isAllowOpenSecondDoor()){
+
+							if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
 								GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-								.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
+										.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
 								DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
 							}
-							
+
 							log.debug("人证比对完成，第二道闸门超时关闭，重新寻卡");
-							
-							
+
 						}
 					} else if (ss.indexOf("2A510123") == 0) {
 						log.debug("点亮入口绿色箭头");

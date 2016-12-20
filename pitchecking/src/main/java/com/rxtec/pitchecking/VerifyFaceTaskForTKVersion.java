@@ -43,7 +43,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 	IFaceTrackService faceTrackService = null;
 	// PTVerifyEventResultPublisher eventResultPublisher =
 	// PTVerifyEventResultPublisher.getInstance();
-	MqttSenderBroker mqttSenderBroker = MqttSenderBroker.getInstance();
+	MqttSenderBroker mqttSenderBroker = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT);
 
 	public VerifyFaceTaskForTKVersion() {
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo)
@@ -75,10 +75,15 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 		// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); //
 		// 调用语音“请取走票证，走进通道，抬头看屏幕”
 		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag,"FaceAudio"));
+				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag, "FaceAudio"));
 
-		FaceTrackingScreen.getInstance().offerEvent(
-				new ScreenElementModifyEvent(1, ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, fd));
+		if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
+			FaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(1,
+					ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, fd));
+		} else {
+			SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(1,
+					ScreenCmdEnum.ShowBeginCheckFaceContent.getValue(), null, null, fd));
+		}
 		/**
 		 * 小孩及老人的特殊处理
 		 */
@@ -93,6 +98,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			log.debug("老人或小孩Age=" + idCard.getAge() + "：PITVerifyData==" + fd);
 			CommUtil.sleep(4000);
 
+//			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
+			
 			// 向闸机主控程序发布比对结果
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
 			mqttSenderBroker.publishResult(fd, Config.VerifyPassedStatus); // MQTT版本
@@ -101,7 +108,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); //
 			// 语音："验证成功，请通过"
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag,"FaceAudio"));
+					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag, "FaceAudio"));
 
 			// 通知人工控制台
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
@@ -139,14 +146,13 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.debug("pollPassFaceData, using " + usingTime + " value = null");
 
+//			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
+
 			PITVerifyData failedFd = FaceCheckingService.getInstance().pollFailedFaceData();
 			log.debug("Timeout return PITVerifyData = " + failedFd);
-			if (failedFd != null)
-				mqttSenderBroker.publishResult(failedFd, Config.VerifyFailedStatus); // MQTT版本
-																						// 比对结果发布
-																						// ,人脸比对失败！
-																						// 状态为1
-
+			if (failedFd != null) {
+				mqttSenderBroker.publishResult(failedFd, Config.VerifyFailedStatus); // MQTT版本,比对结果发布,人脸比对失败！状态为1
+			}
 			// // mq发送人脸
 			// if (DeviceConfig.getInstance().getMqStartFlag() == 1) {
 			// FailedFace failedFace =
@@ -164,7 +170,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag);
 			// // 语音："验证失败，请从侧门离开通道"
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag,"FaceAudio"));
+					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag, "FaceAudio"));
 			// 通知人工控制台
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
 					DeviceConfig.Event_VerifyFaceFailed);
@@ -175,6 +181,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getVerifyResult());
 			// 向闸机主控程序发布比对结果
+//			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
+			
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
 			mqttSenderBroker.publishResult(fd, Config.VerifyPassedStatus); // MQTT版本
 																			// 比对结果发布
@@ -186,7 +194,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); //
 			// 语音："验证成功，请通过"
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag,"FaceAudio"));
+					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag, "FaceAudio"));
 			// 通知人工控制台
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
 					DeviceConfig.Event_VerifyFaceSucc);

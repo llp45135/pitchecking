@@ -3,7 +3,9 @@ package com.rxtec.pitchecking.task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.FaceTrackingScreen;
+import com.rxtec.pitchecking.SingleFaceTrackingScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
 
@@ -39,7 +41,7 @@ public class FaceScreenListener implements Runnable {
 			log.debug("检脸线程正在启动中,还未开始写心跳,pidStr==" + pidStr + "#");
 		} else {
 			if (!pidStr.equals("")) {
-				ProcessUtil.writeHeartbeat(pidStr); // 写心跳日志
+				ProcessUtil.writeHeartbeat(pidStr,Config.getInstance().getHeartBeatLogFile()); // 写心跳日志
 				this.setPidStr("");
 				// log.debug("写检脸心跳日志,pidStr==" + pidStr);
 			} else {
@@ -47,13 +49,23 @@ public class FaceScreenListener implements Runnable {
 			}
 		}
 
-		int frameX = FaceTrackingScreen.getInstance().getFaceFrame().getX();
-		if (frameX == 0) {
+		int frameX = 0;
+		if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
+			frameX = FaceTrackingScreen.getInstance().getFaceFrame().getX();
+		} else {
+			frameX = SingleFaceTrackingScreen.getInstance().getFaceFrame().getX();
+		}
+		if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR && frameX == 0) {
 			for (int i = 0; i < 3; i++) {
 				try {
 					log.debug("Start 重置人脸检测屏的位置，恢复至第二块屏");
-					FaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
-					FaceTrackingScreen.getInstance().repainFaceFrame();
+					if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
+						FaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
+						FaceTrackingScreen.getInstance().repainFaceFrame();
+					} else {
+						SingleFaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
+						SingleFaceTrackingScreen.getInstance().repainSingleVerifyFrame();
+					}
 				} catch (Exception ex) {
 					log.error("重置人脸检测屏的位置失败!再次重置...");
 					continue;

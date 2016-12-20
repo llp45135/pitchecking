@@ -23,6 +23,7 @@ import javax.swing.border.MatteBorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
@@ -114,6 +115,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public TicketVerifyFrame() {
+		setResizable(false);
 		setBounds(new Rectangle(0, 0, 1024, DeviceConfig.TICKET_FRAME_HEIGHT));
 		setMinimumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_HEIGHT));
 		setMaximumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_HEIGHT));
@@ -136,7 +138,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		labelTitle = new JLabel("");
 		labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		labelTitle.setForeground(Color.YELLOW);
-		labelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 50));
+		labelTitle.setFont(new Font("微软雅黑", Font.BOLD, 50));
 		labelTitle.setBounds(225, 26, 551, 62);
 		topPanel.add(labelTitle);
 
@@ -262,10 +264,14 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		bootTime.setBounds(357, 0, 367, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
 		bottomPanel.add(bootTime);
 
-//		 setUndecorated(true);
+		// setUndecorated(true);
 		setAlwaysOnTop(true);
 
 		showDefaultContent();
+
+		if (Config.getInstance().getIsStartMainListener() == 1) {
+			this.showSuccWait("", "系统启动中...");
+		}
 
 		setSoftVersion("软件版本号：" + DeviceConfig.softVersion);
 		setGateIP("IP地址：" + DeviceConfig.getInstance().getIpAddress());
@@ -475,6 +481,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 
 	/**
 	 * 还原Tk信息
+	 * 
 	 * @param msg1
 	 * @param msg2
 	 * @param backPanelType
@@ -610,10 +617,10 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		if (timeIntevel >= 0) {
 			if (this.titleStrType == 1) {
 				labelTitle.setText("还需扫火车票二维码   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.RED);
+				labelTitle.setForeground(Color.WHITE);
 			} else if (this.titleStrType == 2) {
 				labelTitle.setText("还需刷第二代身份证   " + (timeIntevel - 1));
-				labelTitle.setForeground(Color.RED);
+				labelTitle.setForeground(Color.WHITE);
 			} else if (this.titleStrType == 3) {
 				labelTitle.setText("票证核验成功   " + (timeIntevel - 1));
 				labelTitle.setForeground(Color.GREEN);
@@ -635,7 +642,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 					}
 				}
 				showDefaultContent();
-			} else if(this.backPanelType==1){
+			} else if (this.backPanelType == 1) {
 				showDefaultContent();
 			} else {
 				this.showSuccWait("人脸核验中", "后面的旅客切勿刷票");

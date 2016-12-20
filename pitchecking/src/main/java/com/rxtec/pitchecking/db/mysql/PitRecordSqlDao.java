@@ -10,22 +10,32 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 
 public class PitRecordSqlDao {
 	private Logger log = LoggerFactory.getLogger("PitRecordLoger");
+	private String targetIPAddress = "localhost";
 	private Connection conn = null;
 	PreparedStatement statement = null;
 
-	public PitRecordSqlDao() {
-		this.connSQLDB();
+	public String getTargetIPAddress() {
+		return targetIPAddress;
+	}
+
+	public void setTargetIPAddress(String targetIPAddress) {
+		this.targetIPAddress = targetIPAddress;
+	}
+
+	public PitRecordSqlDao(String targetIPAddress) {
+		this.connSQLDB(targetIPAddress);
 	}
 
 	/**
 	 * connect to MySQL
 	 */
-	private void connSQLDB() {
-		String url = "jdbc:mysql://localhost:3306/pitcheck?autoReconnect=true";
+	private void connSQLDB(String targetIPAddress) {
+		String url = "jdbc:mysql://" + targetIPAddress + ":3306/pitcheck?autoReconnect=true";
 		String username = "root";
 		String password = "pitcheck61336956"; // 加载驱动程序以连接
 		try {
@@ -207,13 +217,15 @@ public class PitRecordSqlDao {
 	}
 
 	public static void main(String args[]) {
+		String targetIPAddress = "127.0.0.1";
+		PitRecordSqlDao pitRecordSqlDao = new PitRecordSqlDao(targetIPAddress);
+		// String s = "select * from pit_face_verify";
 
-		PitRecordSqlDao pitRecordSqlDao = new PitRecordSqlDao();
-//		String s = "select * from pit_face_verify";
-
-//		String insert = "insert into pit_face_verify values (3, '520203197912141112', 0.66)";
-//		String update = "update pit_face_verify set verify_result = 0.65 where id=3";
-//		String delete = "delete from pit_face_verify where id=3";
+		// String insert = "insert into pit_face_verify values (3,
+		// '520203197912141112', 0.66)";
+		// String update = "update pit_face_verify set verify_result = 0.65
+		// where id=3";
+		// String delete = "delete from pit_face_verify where id=3";
 
 		PITVerifyData pd = new PITVerifyData();
 		pd.setIdNo("333333333333333333");
@@ -233,10 +245,23 @@ public class PitRecordSqlDao {
 		pd.setFacePoseRoll((float) 0.66);
 		pd.setFacePoseYaw((float) 0.77);
 
-		String sqls = pitRecordSqlDao.createInsertSqlstr(new PitFaceRecord(pd));
-		System.out.println("sqls==" + sqls);
-		if (pitRecordSqlDao.insertSQL(sqls) == true) {
-			System.out.println("insert successfully");
+		// String sqls = pitRecordSqlDao.createInsertSqlstr(new
+		// PitFaceRecord(pd));
+		// System.out.println("sqls==" + sqls);
+		// if (pitRecordSqlDao.insertSQL(sqls) == true) {
+		// System.out.println("insert successfully");
+		// }
+		try {
+			String sqls = "select idNO from pit_face_verify where verifyResult>=0.6 group by idNo";
+			ResultSet rs = pitRecordSqlDao.selectSQL(sqls);
+			int total = 0;
+			while (rs.next()) {
+				total++;
+			}
+			System.out.println("total==" + total);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		pitRecordSqlDao.deconnSQL();

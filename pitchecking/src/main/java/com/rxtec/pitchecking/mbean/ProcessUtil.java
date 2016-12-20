@@ -9,9 +9,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.management.ManagementFactory;
 import java.util.Date;
 
+import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +29,8 @@ public class ProcessUtil {
 
 	public static void main(String[] args) {
 		String pid = getCurrentProcessID();
-		System.out.println(pid + " write ret = " + writeHeartbeat(pid));
-		System.out.println("last heartbeat time = " + getLastHeartBeat());
+		System.out.println(pid + " write ret = " + writeHeartbeat(pid,Config.getInstance().getHeartBeatLogFile()));
+		System.out.println("last heartbeat time = " + getLastHeartBeat(Config.getInstance().getHeartBeatLogFile()));
 
 	}
 
@@ -98,11 +100,11 @@ public class ProcessUtil {
 	 * @param pid
 	 * @return
 	 */
-	public static boolean writeHeartbeat(String pid) {
+	public static boolean writeHeartbeat(String pid,String filaName) {
 		Date now = new Date();
 		String nowTime = CalUtils.getStringDateHaomiao();// Long.toString(now.getTime());
 		try {
-			File logFile = new File(Config.getInstance().getHeartBeatLogFile());
+			File logFile = new File(filaName);
 			if (!logFile.exists()) {
 				logFile.createNewFile();
 			}
@@ -134,6 +136,40 @@ public class ProcessUtil {
 				logFile.createNewFile();
 			}
 			FileWriter fw = new FileWriter(logFile);
+//			log.debug("pidStr==" + pidStr);
+			fw.write(fileContent);
+			fw.flush();
+			fw.close();
+			return true;
+
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return false;
+		}
+	}
+	
+	
+	/**
+	 * 写文件，指定编码格式
+	 * @param fileName
+	 * @param fileContent
+	 * @param charsetEncoding
+	 * @return
+	 */
+	public static boolean writeFileContent(String fileName,String fileContent,String charsetEncoding) {
+		try {
+			File logFile = new File(fileName);
+			if (!logFile.exists()) {
+				logFile.createNewFile();
+			}
+//			FileOutputStream fos = new FileOutputStream(logFile); 
+//	        OutputStreamWriter osw = new OutputStreamWriter(fos, charsetEncoding); 
+//	        osw.write(fileContent); 
+//	        osw.flush(); 
+//	        osw.close();
+			
+			FileWriterWithEncoding fw = new FileWriterWithEncoding(logFile,charsetEncoding);
 //			log.debug("pidStr==" + pidStr);
 			fw.write(fileContent);
 			fw.flush();
@@ -204,10 +240,10 @@ public class ProcessUtil {
 	 * 读取上次的检脸线程心跳日志
 	 * @return
 	 */
-	public static String getLastHeartBeat() {
+	public static String getLastHeartBeat(String heartFile) {
 		String s = "";
 		try {
-			File f = new File(Config.getInstance().getHeartBeatLogFile());
+			File f = new File(heartFile);
 			if (!f.exists())
 				s = "";
 			else {

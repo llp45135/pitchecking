@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 import gnu.io.CommPort;
@@ -22,7 +23,7 @@ import gnu.io.SerialPortEventListener;
  *
  */
 public class FirstGateDevice implements SerialPortEventListener {
-	private Log log = LogFactory.getLog("FirstGateDevice");
+	private Log log = LogFactory.getLog("DeviceEventListener");
 	private static FirstGateDevice _instance = new FirstGateDevice();;
 	private SerialPort serialPort;
 	private InputStream in;
@@ -333,7 +334,10 @@ public class FirstGateDevice implements SerialPortEventListener {
 				log.debug("retData==" + ss);
 
 				if (ss.length() >= 8) {
-					if (ss.indexOf("2A040023") == 0) {
+					if (ss.indexOf("2A040123") == 0) {
+						log.debug("控制板已收到开一门指令");
+						DeviceEventListener.getInstance().setReceiveOpenFirstDoorCmd(true);
+					} else if (ss.indexOf("2A040023") == 0) {
 						log.debug("第一道闸门已经关闭");
 					} else if (ss.indexOf("2A040F23") == 0) {
 						log.debug("第一道闸门超时关闭");

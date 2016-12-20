@@ -11,6 +11,7 @@ public class PITInfoJmsObj implements Serializable {
 
 	private int msgType = -1;
 	private String idCardNo = "";
+	private String qrCode="";
 	private int idHashCode = -1;
 	private int gender = 0;
 	private int event = -1;
@@ -44,6 +45,14 @@ public class PITInfoJmsObj implements Serializable {
 
 	public PITInfoJmsObj() {
 		// TODO Auto-generated constructor stub
+	}
+
+	public String getQrCode() {
+		return qrCode;
+	}
+
+	public void setQrCode(String qrCode) {
+		this.qrCode = qrCode;
 	}
 
 	public String getTicketNo() {

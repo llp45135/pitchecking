@@ -39,8 +39,8 @@ public class AudioPlayTask implements Runnable {
 
 	@Override
 	public void run() {
-		if (CalUtils.getStringFullTime().equals("233500")) {
-			log.info("超过23:30:00,必须停止引导语音");
+		if (CalUtils.getStringFullTime().equals("230000")) {
+			log.info("超过23:00:00,必须停止引导语音");
 			AudioDevice.getInstance().cleanLastAudio();
 			AudioDevice.getInstance().setStartPlayTime("");
 		}

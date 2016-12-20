@@ -20,7 +20,7 @@ public class IDCard {
 	private int age;
 	private static Logger log = LoggerFactory.getLogger("IDCard");
 	private byte[] cardImageBytes = null;
-
+	private BufferedImage cardImage;
 
 	public byte[] getCardImageBytes() {
 		return cardImageBytes;
@@ -69,9 +69,6 @@ public class IDCard {
 	public void setIdNo(String idNo) {
 		this.idNo = idNo;
 	}
-	
-	
-	private BufferedImage cardImage;
 
 	public BufferedImage getCardImage() {
 		return cardImage;
@@ -80,17 +77,17 @@ public class IDCard {
 	public void setCardImage(BufferedImage cardImage) {
 		this.cardImage = cardImage;
 	}
-	
-	public byte[] getManualImageBytes(){
-		ByteArrayOutputStream output = new ByteArrayOutputStream ();
+
+	public byte[] getManualImageBytes() {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		byte[] buff = null;
 		try {
 			ImageIO.write(cardImage, "JPEG", ImageIO.createImageOutputStream(output));
 			buff = output.toByteArray();
 		} catch (Exception e) {
-			log.error("ImageIO.write error!",e);
+			log.error("ImageIO.write error!", e);
 		}
-		
+
 		return buff;
-	} 
+	}
 }

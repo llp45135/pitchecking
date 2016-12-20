@@ -37,7 +37,7 @@ public class PitRecordSqlLoger implements Runnable {
 
 	private PitRecordSqlLoger() {
 		log.info("初始化MySQL存储Photos线程");
-		pitRecordSqlDao = new PitRecordSqlDao();
+		pitRecordSqlDao = new PitRecordSqlDao("127.0.0.1");
 		this.addQuartzJobs();
 	}
 

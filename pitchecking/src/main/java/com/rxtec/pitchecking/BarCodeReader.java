@@ -16,6 +16,7 @@ import com.rxtec.pitchecking.device.TKQRDevice;
 import com.rxtec.pitchecking.event.QRCodeReaderEvent;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
 import com.rxtec.pitchecking.utils.CalUtils;
+import com.rxtec.pitchecking.utils.CommUtil;
 
 public class BarCodeReader implements Runnable {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
@@ -43,7 +44,14 @@ public class BarCodeReader implements Runnable {
 
 	private BarCodeReader() {
 		tkqrDevice = TKQRDevice.getInstance();
-		int initRet = tkqrDevice.BAR_Init("3000");
+		int initRet = -1;
+		for (int i = 0; i < 3; i++) {
+			initRet = tkqrDevice.BAR_Init("3000");
+			if (initRet == 0) {
+				break;
+			}
+			CommUtil.sleep(500);
+		}
 		if (initRet == 0) {
 			DeviceConfig.getInstance().setQrdeviceStatus(1);
 		} else {

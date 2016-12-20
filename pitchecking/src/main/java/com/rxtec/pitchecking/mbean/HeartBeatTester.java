@@ -16,7 +16,7 @@ public class HeartBeatTester implements Runnable{
 	public void run() {
 		while(true){
 			CommUtil.sleep(1000);
-			ProcessUtil.writeHeartbeat(pid);
+			ProcessUtil.writeHeartbeat(pid,Config.getInstance().getHeartBeatLogFile());
 			
 		}
 		

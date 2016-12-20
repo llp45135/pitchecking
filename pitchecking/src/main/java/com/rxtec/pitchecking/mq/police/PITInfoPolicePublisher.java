@@ -20,6 +20,16 @@ public class PITInfoPolicePublisher {
 	private LinkedBlockingQueue<PITInfoJson> verifyDataQueue = new LinkedBlockingQueue<PITInfoJson>(3);
 
 	private Log log = LogFactory.getLog("PITInfoPolicePublisher");
+	
+	private String qrCode="";
+
+	public String getQrCode() {
+		return qrCode;
+	}
+
+	public void setQrCode(String qrCode) {
+		this.qrCode = qrCode;
+	}
 
 	private static PITInfoPolicePublisher _instance = new PITInfoPolicePublisher();
 
@@ -58,6 +68,7 @@ public class PITInfoPolicePublisher {
 	public void offerVerifyData(PITVerifyData d) {
 		PITInfoJson info = null;
 		try {
+			d.setQrCode(this.qrCode);
 			info = new PITInfoJson(d);
 		} catch (Exception e) {
 			log.error(e);

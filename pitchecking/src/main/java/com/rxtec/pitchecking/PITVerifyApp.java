@@ -34,21 +34,23 @@ public class PITVerifyApp {
 	public static void main(String[] args) {
 		try {
 
-			TicketVerifyScreen ticketVerifyScreen = TicketVerifyScreen.getInstance();
-			TicketVerifyFrame tickFrame = new TicketVerifyFrame();
-			ticketVerifyScreen.setTicketFrame(tickFrame);
-			try {
-				ticketVerifyScreen.initUI(DeviceConfig.getInstance().getTicketScreen());
-			} catch (Exception ex) {
-				// TODO Auto-generated catch block
-				log.error("PITVerifyApp:", ex);
-			}
+			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {// 双门模式
+				TicketVerifyScreen ticketVerifyScreen = TicketVerifyScreen.getInstance();
+				TicketVerifyFrame tickFrame = new TicketVerifyFrame();
+				ticketVerifyScreen.setTicketFrame(tickFrame);
+				try {
+					ticketVerifyScreen.initUI(DeviceConfig.getInstance().getTicketScreen());
+				} catch (Exception ex) {
+					// TODO Auto-generated catch block
+					log.error("PITVerifyApp:", ex);
+				}
 
-			if (Config.getInstance().getIsResetVerifyScreen() == 1) {
-				ScheduledExecutorService screenScheduler = Executors.newScheduledThreadPool(1);
-				VerifyScreenListener verifyScreenListener = VerifyScreenListener.getInstance();
-				verifyScreenListener.setScreenNo(DeviceConfig.getInstance().getTicketScreen());
-				screenScheduler.scheduleWithFixedDelay(verifyScreenListener, 0, 1500, TimeUnit.MILLISECONDS);
+				if (Config.getInstance().getIsResetVerifyScreen() == 1) {
+					ScheduledExecutorService screenScheduler = Executors.newScheduledThreadPool(1);
+					VerifyScreenListener verifyScreenListener = VerifyScreenListener.getInstance();
+					verifyScreenListener.setScreenNo(DeviceConfig.getInstance().getTicketScreen());
+					screenScheduler.scheduleWithFixedDelay(verifyScreenListener, 0, 1500, TimeUnit.MILLISECONDS);
+				}
 			}
 
 			if (Config.getInstance().getIsStartMainListener() == 1) {

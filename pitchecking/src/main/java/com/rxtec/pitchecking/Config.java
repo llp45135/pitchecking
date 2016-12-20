@@ -90,13 +90,16 @@ public class Config {
 
 	public static String FaceVerifyMicro = "MICRO";
 	public static String FaceVerifyPIXEL = "PIXEL";
+	public static String FaceVerifyEASEN = "EASEN";
 
 	private int HEART_BEAT_DELAY = 15 * 1000;
 
 	public static int ByPassMaxAge = 65;
 	public static int ByPassMinAge = 12;
 
-	private String heartBeatLogFile = "D:/pitchecking/work/HEART.log";
+	private String heartBeatLogFile = "D:/pitchecking/work/HEART.log";   //检脸进程心跳日志
+	private String ticketVerifyHeartFile = "D:/pitchecking/work/TicketVerifyHeart.log";
+	private int TicketVerify_Heard_DELAY = 5 * 1000;
 	private String rebackTrackFile = "D:/pitchecking/work/RebackFlag.log";
 	private String pausePitcheckFile = "D:/pitchecking/work/PAUSE.log";
 	private String startPITVerifyCmd = "D:/pitchecking/work/RestartPITVerify.bat";
@@ -147,25 +150,38 @@ public class Config {
 	private int videoType = 1;
 	private int videoCaptureFrequency = 10;
 	private int isCheckRealFace = 0;
-	private String multicastAddress = "234.5.6.7";
-	private int faceLogRemainDays = 14;
-	private int isUseMongoDB = 1;
+	private String multicastAddress = "234.5.6.7";      //
+	private int faceLogRemainDays = 14;                 //照片保留天数
+	private int isUseMongoDB = 1;                       //是否保存照片至mongodb
 	private String mongoDBAddress = "localhost";
 	private int mongoDBPort = 27017;
-	private int isSaveFaceImageToLocaldisk = 1;
+	private int isSaveFaceImageToLocaldisk = 1;         //是否保存照片至硬盘
 	private String faceVerifyType = "MICRO";
 	private float faceFrameTransparency = (float) 0.75;
-	private String PITTrackPidstr = "-1"; // 人脸检测进程号
+	private String PITTrackPidstr = "-1";     // 人脸检测进程号
 	private String trackPidForKill = "-1";
-	private boolean rebackTrackFlag = true;
-	private int isUseManualMQ=0;
-	private int isUseMySQLDB = 0;
-	private int isPlayHelpAudio = 1;  //是否播放引导语音
-	private int isStartMainListener = 1;  //是否允许启动睿新版本的主控线程
-	private int isUsePoliceMQ=0;
-	private int isUseGatDll=0;
-	private int isResetVerifyScreen=1;
+	private boolean rebackTrackFlag = true;   //是否允许恢复检脸进程
+	private int isUseManualMQ=0;              //是否连接人工控制台
+	private int isUseMySQLDB = 0;             //是否保存数据至mysql数据库
+	private int isPlayHelpAudio = 1;          //是否播放引导语音
+	private int isStartMainListener = 1;      //是否允许启动睿新版本的主控线程
+	private int isUsePoliceMQ=0;              //是否连接公安
+	private int isUseGatDll=0;                //是否实用门控动态库
+	private int isResetVerifyScreen=1;        //是否重置java版屏幕
+	private int isUseCamDll = 1;              //是否调用CAM_RXTa.dll
+	private int isSendFrame = 1;              //是否发送图片帧至人工台
+	/**
+	 * 
+	 */
+	private int doorCountMode=2;
 
+	/**
+	 * 
+	 */
+	private int initColorBrightness = 9;  //0
+	private int initColorExposure = -3;   //-6
+	
+	private String easenConfigPath = "D:/maven/git/pitchecking";
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
 	 */
@@ -189,6 +205,70 @@ public class Config {
 	private float maxAverageDepth = 1000F;
 
 	private int faceTrackMode = 1; // 人臉追蹤模式 1 紅外，2 顔色+景深
+
+	public String getEasenConfigPath() {
+		return easenConfigPath;
+	}
+
+	public void setEasenConfigPath(String easenConfigPath) {
+		this.easenConfigPath = easenConfigPath;
+	}
+
+	public int getIsSendFrame() {
+		return isSendFrame;
+	}
+
+	public void setIsSendFrame(int isSendFrame) {
+		this.isSendFrame = isSendFrame;
+	}
+
+	public int getTicketVerify_Heard_DELAY() {
+		return TicketVerify_Heard_DELAY;
+	}
+
+	public void setTicketVerify_Heard_DELAY(int ticketVerify_Heard_DELAY) {
+		TicketVerify_Heard_DELAY = ticketVerify_Heard_DELAY;
+	}
+
+	public String getTicketVerifyHeartFile() {
+		return ticketVerifyHeartFile;
+	}
+
+	public void setTicketVerifyHeartFile(String ticketVerifyHeartFile) {
+		this.ticketVerifyHeartFile = ticketVerifyHeartFile;
+	}
+
+	public int getIsUseCamDll() {
+		return isUseCamDll;
+	}
+
+	public void setIsUseCamDll(int isUseCamDll) {
+		this.isUseCamDll = isUseCamDll;
+	}
+
+	public int getDoorCountMode() {
+		return doorCountMode;
+	}
+
+	public int getInitColorBrightness() {
+		return initColorBrightness;
+	}
+
+	public void setInitColorBrightness(int initColorBrightness) {
+		this.initColorBrightness = initColorBrightness;
+	}
+
+	public int getInitColorExposure() {
+		return initColorExposure;
+	}
+
+	public void setInitColorExposure(int initColorExposure) {
+		this.initColorExposure = initColorExposure;
+	}
+
+	public void setDoorCountMode(int doorCountMode) {
+		this.doorCountMode = doorCountMode;
+	}
 
 	public int getIsResetVerifyScreen() {
 		return isResetVerifyScreen;
@@ -613,6 +693,7 @@ public class Config {
 			this.faceDetectionScale = Float.valueOf(p.getProperty("FaceDetectionScale", "1.3"));
 			this.pausePitcheckFile = p.getProperty("pausePitcheckFile", "D:/pitchecking/work/PAUSE.log");
 			this.heartBeatLogFile = p.getProperty("HeartBeatLogFile", "D:/pitchecking/work/HEART.log");
+			this.ticketVerifyHeartFile = p.getProperty("ticketVerifyHeartFile", "D:/pitchecking/work/TicketVerifyHeart.log");
 			this.rebackTrackFile = p.getProperty("rebackTrackFile", "D:/pitchecking/work/RebackFlag.log");
 			this.startPITTrackCmd = p.getProperty("StartPITTrackCmd", "D:/pitchecking/work/RestartPITTrack.bat");
 			this.startPITVerifyCmd = p.getProperty("StartPITVerifyCmd", "D:/pitchecking/work/RestartPITVerify.bat");
@@ -621,6 +702,7 @@ public class Config {
 			this.faceVerifyTaskVersion = p.getProperty("FaceVerifyTaskVersion", "TK");
 			this.faceFrameTransparency = Float.valueOf(p.getProperty("faceFrameTransparency", "0.75"));
 			this.HEART_BEAT_DELAY = Integer.valueOf(p.getProperty("HEART_BEAT_DELAY", "15000"));
+			this.TicketVerify_Heard_DELAY = Integer.valueOf(p.getProperty("TicketVerify_Heard_DELAY", "5000"));
 			this.isUseManualMQ = Integer.valueOf(p.getProperty("isUseManualMQ", "0"));
 			this.isUseMySQLDB = Integer.valueOf(p.getProperty("isUseMySQLDB", "0"));
 			this.isPlayHelpAudio = Integer.valueOf(p.getProperty("isPlayHelpAudio", "1"));
@@ -628,6 +710,12 @@ public class Config {
 			this.isUsePoliceMQ = Integer.valueOf(p.getProperty("isUsePoliceMQ", "0"));
 			this.isUseGatDll = Integer.valueOf(p.getProperty("isUseGatDll", "0"));
 			this.isResetVerifyScreen = Integer.valueOf(p.getProperty("isResetVerifyScreen", "1"));
+			this.doorCountMode = Integer.valueOf(p.getProperty("doorCountMode", "2"));
+			this.initColorExposure = Integer.valueOf(p.getProperty("initColorExposure", "-3"));
+			this.initColorBrightness = Integer.valueOf(p.getProperty("initColorBrightness", "9"));
+			this.isUseCamDll = Integer.valueOf(p.getProperty("isUseCamDll", "1"));
+			this.isSendFrame = Integer.valueOf(p.getProperty("isSendFrame", "1"));
+			this.easenConfigPath = p.getProperty("easenConfigPath", "D:/maven/git/pitchecking");
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
