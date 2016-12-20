@@ -8,5 +8,6 @@
 	<MQConfig mqStartFlag="0" MQURL="failover://tcp://localhost:61616"
 		TOPIC="Pitchecking" TOPIC_RESULT="PitcheckingResult" USER="pitchecking"
 		PASSWORD="pitchecking" ManualCheck_Address="198.132.4.216" PoliceServer_Address="127.0.0.1" PoliceServerPort="61616" />
-	<AppConfig softIdNo="520203197912141118,440111197209283012,440881199502176714,452502198305034618" />
+	<AppConfig softIdNo="520203197912141118,440111197209283012,440881199502176714,452502198305034618" 
+	gateIPList = "127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1" />
 </PitCheckMsg>
