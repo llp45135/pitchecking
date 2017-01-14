@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PitCheckMsg>
-	<GateConfig versionFlag="1" gateNo="01" belongStationCode="IZQ"
-		faceScreen="1" ticketScreen="0" guideScreen="0" checkTicketFlag="1" readerTimeDelay="6"
-		succTimeDelay="4" idDeviceType="H" qrDeviceType="H" autoLogonCron="0 0 5 * * ?" />
-	<GateCrtlConfig cameraLEDPort="1" firstGateCrtlPort="COM2"
-		secondGateCrtlPort="COM3" honeywellQRPort="COM3" gateCrtlRate="9600" />
+	<GateConfig versionFlag="1" gateNo="01" belongStationCode="SZQ"
+		faceScreen="1" ticketScreen="0" guideScreen="0" checkTicketFlag="1" readerTimeDelay="3"
+		succTimeDelay="4" idDeviceType="T" qrDeviceType="T" autoLogonCron="0 0 5 * * ?" />
+	<GateCrtlConfig cameraLEDPort="3" firstGateCrtlPort="COM1"
+		secondGateCrtlPort="COM2" honeywellQRPort="COM3" gateCrtlRate="9600" />
 	<MQConfig mqStartFlag="0" MQURL="failover://tcp://localhost:61616"
 		TOPIC="Pitchecking" TOPIC_RESULT="PitcheckingResult" USER="pitchecking"
 		PASSWORD="pitchecking" ManualCheck_Address="198.132.4.216" PoliceServer_Address="127.0.0.1" PoliceServerPort="61616" />
