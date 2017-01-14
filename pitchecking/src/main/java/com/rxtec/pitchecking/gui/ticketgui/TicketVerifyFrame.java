@@ -103,6 +103,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		});
 	}
 
+
 	public int getBackPanelType() {
 		return backPanelType;
 	}
@@ -116,9 +117,9 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 	 */
 	public TicketVerifyFrame() {
 		setResizable(false);
-		setBounds(new Rectangle(0, 0, 1024, DeviceConfig.TICKET_FRAME_HEIGHT));
-		setMinimumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_HEIGHT));
-		setMaximumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_HEIGHT));
+		setBounds(new Rectangle(0, 0, DeviceConfig.TICKET_FRAME_WIGHT, DeviceConfig.TICKET_FRAME_HEIGHT));
+		setMinimumSize(new Dimension(DeviceConfig.TICKET_FRAME_WIGHT, DeviceConfig.TICKET_FRAME_HEIGHT));
+		setMaximumSize(new Dimension(DeviceConfig.TICKET_FRAME_WIGHT, 768));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -269,9 +270,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 
 		showDefaultContent();
 
-		if (Config.getInstance().getIsStartMainListener() == 1) {
-			this.showSuccWait("", "系统启动中...");
-		}
+		
 
 		setSoftVersion("软件版本号：" + DeviceConfig.softVersion);
 		setGateIP("IP地址：" + DeviceConfig.getInstance().getIpAddress());

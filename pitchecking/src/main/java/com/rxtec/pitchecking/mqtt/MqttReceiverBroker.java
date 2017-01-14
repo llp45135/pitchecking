@@ -197,12 +197,17 @@ public class MqttReceiverBroker {
 
 				} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
 					log.info("@@@@@@@@@@@@@@@收到CAM_Notify请求@@@@@@@@@@@@@@@@");
+					
 					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setNotifyJson(mqttMessage); // 把notify
 																												// jsonstring保存起来
+					
 
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyEventBean b1 = mapper.readValue(mqttMessage, PIVerifyEventBean.class);
 
+					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setUuid(b1.getUuid());
+					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setIdcardBytes(b1.getIdPhoto());
+					
 					if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyEASEN)) {
 						String easenzp = Config.getInstance().getEasenConfigPath() + "/easenzp.jpg";
 						File zpFile = new File(easenzp);

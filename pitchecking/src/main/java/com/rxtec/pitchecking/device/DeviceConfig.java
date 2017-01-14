@@ -1,7 +1,10 @@
 package com.rxtec.pitchecking.device;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -22,12 +25,13 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.domain.StationInfo;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "161205.11.01";
+	public static String softVersion = "170108.21.01";
 	private String softIdNo = "520203197912141118,440111197209283012,440881199502176714";
 
 	public static int SINGLEDOOR = 1;
@@ -135,14 +139,16 @@ public class DeviceConfig {
 	// public static int TICKET_FRAME_HEIGHT = 720;
 	// public static int TICKET_FRAME_BOTTOMHEIGHT = 40;
 
+	public static int TICKET_FRAME_WIGHT = 1024;
+
 	public static int TICKET_FRAME_TOPHEIGHT = 100;
 	public static int TICKET_FRAME_HEIGHT = 768;
 	public static int TICKET_FRAME_BOTTOMHEIGHT = 60;
 
-	public static String GAT_MQ_Verify_CLIENT ="V";// "Verify";
-	public static String GAT_MQ_Track_CLIENT = "T";//"Track";
-	public static String GAT_MQ_Standalone_CLIENT ="A";// "Alone";
-	public static String GAT_MQ_Guide_CLIENT = "G";//"Guide";
+	public static String GAT_MQ_Verify_CLIENT = "V";// "Verify";
+	public static String GAT_MQ_Track_CLIENT = "T";// "Track";
+	public static String GAT_MQ_Standalone_CLIENT = "A";// "Alone";
+	public static String GAT_MQ_Guide_CLIENT = "G";// "Guide";
 
 	public static String OPEN_FIRSTDOOR = "{\"Event\": 1,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
 	// public static String CLOSE_FIRSTDOOR = "DoorCmd01";
@@ -161,6 +167,8 @@ public class DeviceConfig {
 	public static String Event_InvalidCardAndTicket = "{\"Event\": 80002,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 票证不符
 	public static String Event_InvalidStation = "{\"Event\": 51605,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 非本站乘车
 	public static String Event_InvalidTrainDate = "{\"Event\": 51666,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 非当日乘车
+	public static String Event_NotInTime = "{\"Event\": 90236,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 未到进站时间
+	public static String Event_PassCheckTime = "{\"Event\": 90238,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 已过进站时间
 	public static String Event_QRDeviceException = "{\"Event\": -1,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 二维码读卡器故障
 	public static String Event_IDDeviceException = "{\"Event\": -2,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 二代证读卡器故障
 	public static String Event_DeviceStartupSucc = "{\"Event\": 10000,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 设备启动成功
@@ -187,8 +195,28 @@ public class DeviceConfig {
 
 	private boolean isAllowOpenSecondDoor = true; // 是否允许开第二道门
 	private boolean isInTracking = false; // 是否处于人脸核验中
-	
+
+	private boolean isInService = true; // 是否处于服务中
+
 	private String gateIPList = "192.168.0.2,192.168.0.3,192.168.0.4,192.168.0.5";
+
+	private Map<String, String> SZQTrainsMap;
+
+	public Map<String, String> getSZQTrainsMap() {
+		return SZQTrainsMap;
+	}
+
+	public void setSZQTrainsMap(Map<String, String> sZQTrainsMap) {
+		SZQTrainsMap = sZQTrainsMap;
+	}
+
+	public boolean isInService() {
+		return isInService;
+	}
+
+	public void setInService(boolean isInService) {
+		this.isInService = isInService;
+	}
 
 	public String getGateIPList() {
 		return gateIPList;
@@ -404,7 +432,10 @@ public class DeviceConfig {
 			e.printStackTrace();
 		}
 		this.readDeviceConfigFromFile();
+
 		this.getLocalIPAddress();
+
+		this.getSZQTrains();
 	}
 
 	public static synchronized DeviceConfig getInstance() {
@@ -675,6 +706,57 @@ public class DeviceConfig {
 		return etcIP;
 	}
 
+	/**
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	private void getSZQTrains() {
+		Map<String, String> trainsMap = new HashMap<String, String>();
+
+		String fileName = "";
+		if (this.belongStationCode.equals("SZQ")) {
+			fileName = "./conf/szqTrains.txt";
+		}
+		if (this.belongStationCode.equals("CSQ")) {
+			fileName = "./conf/csq_plan.txt";
+		}
+		if (!fileName.equals("")) {
+			File file = new File(fileName);
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new FileReader(file));
+				String tempString = null;
+				int line = 1;
+				while ((tempString = reader.readLine()) != null) {
+					log.debug("line " + line + ": " + tempString);
+					int k = tempString.indexOf("@");
+					// log.debug("trainCode==" + tempString.substring(0, k) +
+					// ",startTime==" + CalUtils.getStringDateShort()
+					// + " " + tempString.substring(k + 12, k + 17));
+					String trainCode = tempString.substring(0, k);
+					String startTime = tempString.substring(k + 12, k + 17);
+					trainsMap.put(trainCode, startTime);
+					line++;
+				}
+				reader.close();
+			} catch (IOException e) {
+				log.error("getSZQTrains:", e);
+			} finally {
+				if (reader != null) {
+					try {
+						reader.close();
+					} catch (IOException e1) {
+						log.error("getSZQTrains:", e1);
+					}
+				}
+			}
+
+			this.SZQTrainsMap = trainsMap;
+			log.info("SZQTrainsMap.size=="+this.SZQTrainsMap.size());
+		}
+	}
+
 	public static void main(String[] args) {
 		DeviceConfig dconfig = DeviceConfig.getInstance();
 
@@ -705,5 +787,7 @@ public class DeviceConfig {
 		System.out.println("getManualCheck_MQTTURL==" + dconfig.getManualCheck_MQTTURL());
 		System.out.println("getPoliceServer_MQURL==" + dconfig.getPoliceServer_MQURL());
 		System.out.println("getSoftIdNo==" + dconfig.getSoftIdNo());
+		if (dconfig.getSZQTrainsMap() != null)
+			System.out.println("getSZQTrainsMap.size==" + dconfig.getSZQTrainsMap().size());
 	}
 }

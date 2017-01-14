@@ -57,14 +57,16 @@ public class PITCheckingStandaloneService {
 			PitRecordSqlLoger.getInstance().startThread();
 		}
 
-		int lightLedRet = -1;
-		log.info("准备点亮补光灯");
-		try {
-			lightLedRet = LightControlBoard.getInstance().startLED(); // 点亮补光灯
-		} catch (Exception ex) {
-			log.error("PITCheckingStandaloneService:", ex);
+		if (Config.getInstance().getIsLightFaceLED() == 1) {
+			int lightLedRet = -1;
+			log.info("准备点亮补光灯");
+			try {
+				lightLedRet = LightControlBoard.getInstance().startLED(); // 点亮补光灯
+			} catch (Exception ex) {
+				log.error("PITCheckingStandaloneService:", ex);
+			}
+			log.info("点亮补光灯,lightLedRet==" + lightLedRet);
 		}
-		log.info("点亮补光灯,lightLedRet==" + lightLedRet);
 
 		// 语音调用线程
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -77,7 +79,7 @@ public class PITCheckingStandaloneService {
 			ManualCheckingTask manualCheckingTask = new ManualCheckingTask(DeviceConfig.GAT_MQ_Standalone_CLIENT);
 			executorService.execute(manualCheckingTask);
 		}
-		
+
 		if (Config.getInstance().getIsUsePoliceMQ() == 1) {// 是否连公安处
 			ExecutorService executorService = Executors.newSingleThreadExecutor();
 			PoliceSendingTask policeSendingTask = new PoliceSendingTask(DeviceConfig.GAT_MQ_Standalone_CLIENT);

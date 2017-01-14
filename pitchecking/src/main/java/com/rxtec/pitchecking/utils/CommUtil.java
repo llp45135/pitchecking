@@ -2,11 +2,13 @@ package com.rxtec.pitchecking.utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -58,54 +60,55 @@ public class CommUtil {
 		// }
 		System.out.println("idcardNo==" + CommUtil.getIdCardNoFromInfo(aa));
 		try {
-			System.out.println(""+CommUtil.round(2, (float)0.685325));
+			System.out.println("" + CommUtil.round(2, (float) 0.685325));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 判断字符串什么编码类型
+	 * 
 	 * @param str
 	 * @return
 	 */
-	public static String getEncoding(String str) {      
-	       String encode = "GB2312";      
-	      try {      
-	          if (str.equals(new String(str.getBytes(encode), encode))) {      
-	               String s = encode;      
-	              return s;      
-	           }      
-	       } catch (Exception exception) {      
-	       }      
-	       encode = "ISO-8859-1";      
-	      try {      
-	          if (str.equals(new String(str.getBytes(encode), encode))) {      
-	               String s1 = encode;      
-	              return s1;      
-	           }      
-	       } catch (Exception exception1) {      
-	       }      
-	       encode = "UTF-8";      
-	      try {      
-	          if (str.equals(new String(str.getBytes(encode), encode))) {      
-	               String s2 = encode;      
-	              return s2;      
-	           }      
-	       } catch (Exception exception2) {      
-	       }      
-	       encode = "GBK";      
-	      try {      
-	          if (str.equals(new String(str.getBytes(encode), encode))) {      
-	               String s3 = encode;      
-	              return s3;      
-	           }      
-	       } catch (Exception exception3) {      
-	       }      
-	      return "";      
-	   } 
-	
+	public static String getEncoding(String str) {
+		String encode = "GB2312";
+		try {
+			if (str.equals(new String(str.getBytes(encode), encode))) {
+				String s = encode;
+				return s;
+			}
+		} catch (Exception exception) {
+		}
+		encode = "ISO-8859-1";
+		try {
+			if (str.equals(new String(str.getBytes(encode), encode))) {
+				String s1 = encode;
+				return s1;
+			}
+		} catch (Exception exception1) {
+		}
+		encode = "UTF-8";
+		try {
+			if (str.equals(new String(str.getBytes(encode), encode))) {
+				String s2 = encode;
+				return s2;
+			}
+		} catch (Exception exception2) {
+		}
+		encode = "GBK";
+		try {
+			if (str.equals(new String(str.getBytes(encode), encode))) {
+				String s3 = encode;
+				return s3;
+			}
+		} catch (Exception exception3) {
+		}
+		return "";
+	}
+
 	public static String getStringDateShort() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -114,7 +117,7 @@ public class CommUtil {
 		String dateString = formatter.format(currentTime);
 		return dateString;
 	}
-	
+
 	public static String getStringDateShort2() {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
@@ -123,7 +126,7 @@ public class CommUtil {
 		String dateString = formatter.format(currentTime);
 		return dateString;
 	}
-	
+
 	public static int getAge(String dateBegin, String dateEnd) {
 		int distance = 0; // 时间之间的天数
 		String db = dateBegin; // 开始日期
@@ -164,6 +167,39 @@ public class CommUtil {
 		BigDecimal b = new BigDecimal(pIn);
 		retval = b.setScale(scale, BigDecimal.ROUND_HALF_UP).floatValue();
 		return retval;
+	}
+
+	/**
+	 * 以行为单位读取文件，常用于读面向行的格式化文件
+	 * 
+	 * @param fileName
+	 *            文件名
+	 */
+	public static void readFileByLines(String fileName) {
+		File file = new File(fileName);
+		BufferedReader reader = null;
+		try {
+			System.out.println("以行为单位读取文件内容，一次读一整行：");
+			reader = new BufferedReader(new FileReader(file));
+			String tempString = null;
+			int line = 1;
+			// 一次读入一行，直到读入null为文件结束
+			while ((tempString = reader.readLine()) != null) {
+				// 显示行号
+				System.out.println("line " + line + ": " + tempString);
+				line++;
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e1) {
+				}
+			}
+		}
 	}
 
 	/**
@@ -443,10 +479,10 @@ public class CommUtil {
 		else
 			return true;
 	}
-	
 
 	/**
 	 * 递归删除目录
+	 * 
 	 * @param dir
 	 * @return
 	 */
@@ -466,6 +502,7 @@ public class CommUtil {
 
 	/**
 	 * 创建目录
+	 * 
 	 * @param destDirName
 	 * @return
 	 */

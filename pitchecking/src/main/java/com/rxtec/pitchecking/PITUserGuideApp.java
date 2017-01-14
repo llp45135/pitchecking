@@ -20,6 +20,8 @@ public class PITUserGuideApp {
 		TicketVerifyScreen ticketVerifyScreen = TicketVerifyScreen.getInstance();
 		TicketVerifyFrame tickFrame = new TicketVerifyFrame();
 		ticketVerifyScreen.setTicketFrame(tickFrame);
+		
+		
 		try {
 			ticketVerifyScreen.initUI(DeviceConfig.getInstance().getGuideScreen());
 		} catch (Exception ex) {

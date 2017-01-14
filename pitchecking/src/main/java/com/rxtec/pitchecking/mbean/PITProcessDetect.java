@@ -8,12 +8,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerFactory;
+import org.quartz.TriggerBuilder;
+import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
+import com.rxtec.pitchecking.task.AutoLogonJob;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
 
@@ -49,6 +58,33 @@ public class PITProcessDetect implements Runnable {
 
 	public PITProcessDetect() {
 		log.info("初始化心跳侦测线程");
+		this.addQuartzJobs();
+	}
+	
+	/**
+	 * 定时启动任务
+	 */
+	private int addQuartzJobs() {
+		int retVal = 1;
+		try {
+			String cronStr = DeviceConfig.getInstance().getAutoLogonCron();
+			SchedulerFactory sf = new StdSchedulerFactory();
+			Scheduler sched = sf.getScheduler(); // 初始化调度器
+			JobDetail job = JobBuilder.newJob(AutoLogonJob.class).withIdentity("autoLogonJob", "pitcheckGroup").build();
+			CronTrigger trigger = (CronTrigger) TriggerBuilder.newTrigger()
+					.withIdentity("autoLogonTrigger", "pitcheckGroup")
+					.withSchedule(CronScheduleBuilder.cronSchedule(cronStr)).build(); // 设置触发器
+																						// 每20秒执行一次
+			Date ft = sched.scheduleJob(job, trigger); // 设置调度作业
+			log.debug(job.getKey() + " has been scheduled to run at: " + ft + " and repeat based on expression: "
+					+ trigger.getCronExpression());
+			sched.start(); // 开启调度任务，执行作业
+
+		} catch (Exception ex) {
+			retVal = 0;
+			ex.printStackTrace();
+		}
+		return retVal;
 	}
 
 	@Override
@@ -84,14 +120,18 @@ public class PITProcessDetect implements Runnable {
 							Config.getInstance().setRebackTrackFlag(true);
 							log.info("准备执行恢复检脸进程的批处理");
 							Runtime.getRuntime().exec(Config.getInstance().getStartPITTrackCmd());
-							log.info("Resatrt PITTrackApp......");
+							log.info("Resatrt PITTrackApp cmd=="+Config.getInstance().getStartPITTrackCmd());
+							
+							CommUtil.sleep(5000);
+							
 							this.setStartStatus(true);
 						} catch (Exception ex) {
 							log.error("Resatrt PITTrackApp......:", ex);
 						}
+						
 						try {
-							File heartFile = new File(Config.getInstance().getHeartBeatLogFile());
-							heartFile.delete();
+//							File heartFile = new File(Config.getInstance().getHeartBeatLogFile());
+//							heartFile.delete();
 							log.info("已经执行恢复检脸进程的批处理");
 							GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
 									.sendDoorCmd("PITEventTopic", DeviceConfig.OPEN_SECONDDOOR);
@@ -184,7 +224,7 @@ public class PITProcessDetect implements Runnable {
 							}
 						}
 					}
-				} else if (HeartBeatStr.equals("null")) {
+				} else if (ticketHeartStr.equals("null")) {
 					if (ticketHeartStatus) {
 						this.setTicketHeartStatus(false);
 						try {

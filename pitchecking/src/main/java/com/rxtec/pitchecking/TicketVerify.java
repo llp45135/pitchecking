@@ -1,5 +1,7 @@
 package com.rxtec.pitchecking;
 
+import java.text.ParseException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,7 +9,7 @@ import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.utils.CalUtils;
 
 public class TicketVerify {
-	private Logger log = LoggerFactory.getLogger("TicketVerify");
+	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private Ticket ticket = null;
 	private IDCard idCard = null;
 
@@ -20,17 +22,53 @@ public class TicketVerify {
 
 		// log.debug("ticket==" + ticket + "||idcard==" + idCard);
 		if (ticket == null || idCard == null) {
-			if (ticket != null) {
+			if (ticket != null) { // 有票
 				if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
-					if (DeviceConfig.getInstance().getSoftIdNo().indexOf(ticket.getCardNo()) != -1) {
-						return Config.TicketVerifyWaitInput;
-					} else if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、当日票
-						log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
-						return Config.TicketVerifyTrainDateRuleFail;
-					} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、本站乘车
+					if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 非本站乘车
 						log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
 						return Config.TicketVerifyStationRuleFail;
+					} else if (ticket.getFromStationCode().equals("SZQ") && ticket.getTrainCode().startsWith("C")) { // 广深线动车
+						return Config.TicketVerifyStationRuleFail;
 					} else {
+						if (DeviceConfig.getInstance().getSZQTrainsMap() != null
+								&& DeviceConfig.getInstance().getSZQTrainsMap().get(ticket.getTrainCode()) != null) {
+							String trainDate = ticket.getTrainDate().substring(0, 4) + "-"
+									+ ticket.getTrainDate().substring(4, 6) + "-"
+									+ ticket.getTrainDate().substring(6, 8);
+							String startTime = trainDate + " "
+									+ DeviceConfig.getInstance().getSZQTrainsMap().get(ticket.getTrainCode()) + ":00"
+									+ ".000";
+
+							log.info("TrainCode==" + ticket.getTrainCode() + ",开车时间==" + startTime);
+
+							if (CalUtils.isDateBefore(startTime)) { // 开车时间>当前时间
+								log.info("开车时间>当前时间");
+								String nowTime = CalUtils.getStringDateHaomiao();
+								try {
+									long tt = CalUtils.howLong("m", nowTime, startTime);
+									log.info("tt====" + tt);
+									if (tt <= 10) {
+										return Config.TicketVerifyStopCheckFail;
+									} else if (tt >= 4 * 60) {
+										return Config.TicketVerifyNotStartCheckFail;
+									} else {
+										return Config.TicketVerifyWaitInput;
+									}
+								} catch (ParseException e) {
+									// TODO Auto-generated catch block
+									log.error("", e);
+								}
+							} else {// 开车时间<当前时间
+								log.info("开车时间<当前时间");
+								return Config.TicketVerifyStopCheckFail;
+							}
+						} else {
+							if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、非当日票
+								log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
+								return Config.TicketVerifyTrainDateRuleFail;
+							}
+						}
+
 						return Config.TicketVerifyWaitInput;
 					}
 				} else {
@@ -65,17 +103,58 @@ public class TicketVerify {
 			// log.info("idCard.getIdNo=="+idCard.getIdNo()+",ticket.getCardNo=="+ticket.getCardNo()+"##");
 			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
 				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1
-						&& ticket.getCardNo().equals(idCard.getIdNo())) {  //白名单
+						&& ticket.getCardNo().equals(idCard.getIdNo())) { // 白名单
 					return Config.TicketVerifySucc;
-				} else if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、非当日票
-					log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
-					return Config.TicketVerifyTrainDateRuleFail;
-				} else if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 1、非本站乘车
-					log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
-					return Config.TicketVerifyStationRuleFail;
-				} else if (!ticket.getCardNo().equals(idCard.getIdNo())) {// 1、票证比对
+				} else if (!ticket.getCardNo().equals(idCard.getIdNo())) {// 1、票证比对不一致
 					log.debug("TicketVerifyIDFail==" + Config.TicketVerifyIDFail);
 					return Config.TicketVerifyIDFail;
+				} else {
+					if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 非本站乘车
+						log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
+						return Config.TicketVerifyStationRuleFail;
+					} else if (ticket.getFromStationCode().equals("SZQ") && ticket.getTrainCode().startsWith("C")) { // 广深线动车
+						return Config.TicketVerifyStationRuleFail;
+					} else {
+						if (DeviceConfig.getInstance().getSZQTrainsMap() != null
+								&& DeviceConfig.getInstance().getSZQTrainsMap().get(ticket.getTrainCode()) != null) {
+							String trainDate = ticket.getTrainDate().substring(0, 4) + "-"
+									+ ticket.getTrainDate().substring(4, 6) + "-"
+									+ ticket.getTrainDate().substring(6, 8);
+							String startTime = trainDate + " "
+									+ DeviceConfig.getInstance().getSZQTrainsMap().get(ticket.getTrainCode()) + ":00"
+									+ ".000";
+							log.info("TrainCode==" + ticket.getTrainCode() + ",开车时间==" + startTime);
+
+							if (CalUtils.isDateBefore(startTime)) { // 开车时间>当前时间
+								log.info("开车时间>当前时间");
+								String nowTime = CalUtils.getStringDateHaomiao();
+								try {
+									long tt = CalUtils.howLong("m", nowTime, startTime);
+									log.info("tt====" + tt);
+									if (tt <= 10) {
+										return Config.TicketVerifyStopCheckFail;
+									} else if (tt >= 4 * 60) {
+										return Config.TicketVerifyNotStartCheckFail;
+									} else {
+										return Config.TicketVerifySucc;
+									}
+								} catch (ParseException e) {
+									// TODO Auto-generated catch block
+									log.error("", e);
+								}
+							} else {// 开车时间<当前时间
+								log.info("开车时间<当前时间");
+								return Config.TicketVerifyStopCheckFail;
+							}
+						} else {
+							if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、非当日票
+								log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
+								return Config.TicketVerifyTrainDateRuleFail;
+							}
+						}
+
+						return Config.TicketVerifySucc;
+					}
 				}
 			}
 			return Config.TicketVerifySucc;

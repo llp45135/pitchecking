@@ -54,10 +54,11 @@ public class CheckSumFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public CheckSumFrame() {
+		setBounds(new Rectangle(100, 0, 1024, 768));
 		setMinimumSize(new Dimension(1024, 768));
 		setMaximumSize(new Dimension(1024, 768));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+//		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setMinimumSize(new Dimension(1024, 768));
 		contentPane.setMaximumSize(new Dimension(1024, 768));
@@ -76,7 +77,7 @@ public class CheckSumFrame extends JFrame {
 		panel.add(lblNewLabel);
 
 		JSeparator separator = new JSeparator();
-		separator.setBounds(9, 98, 974, 10);
+		separator.setBounds(14, 90, 974, 10);
 		panel.add(separator);
 
 		JLabel rqLabel = new JLabel("统计日期：");
@@ -168,6 +169,19 @@ public class CheckSumFrame extends JFrame {
 		gateCount4.setFont(new Font("微软雅黑", Font.PLAIN, 30));
 		gateCount4.setBounds(711, 476, 129, 34);
 		panel.add(gateCount4);
+		
+		JLabel label_1 = new JLabel("合  计");
+		label_1.setHorizontalTextPosition(SwingConstants.LEFT);
+		label_1.setFont(new Font("微软雅黑", Font.PLAIN, 30));
+		label_1.setBounds(199, 540, 108, 34);
+		panel.add(label_1);
+		
+		JLabel gatecount_sum = new JLabel("0");
+		gatecount_sum.setHorizontalTextPosition(SwingConstants.LEFT);
+		gatecount_sum.setHorizontalAlignment(SwingConstants.RIGHT);
+		gatecount_sum.setFont(new Font("微软雅黑", Font.PLAIN, 30));
+		gatecount_sum.setBounds(711, 540, 129, 34);
+		panel.add(gatecount_sum);
 
 		JButton tjButton = new JButton("统计查询");
 		tjButton.addActionListener(new ActionListener() {
@@ -181,6 +195,7 @@ public class CheckSumFrame extends JFrame {
 						String gateIPList = DeviceConfig.getInstance().getGateIPList();
 						StringTokenizer st = new StringTokenizer(gateIPList, ",");
 						int i = 0;
+						int totalSum = 0;
 						while (st.hasMoreTokens()) {
 							i++;
 							String targetIP = st.nextToken();
@@ -192,14 +207,15 @@ public class CheckSumFrame extends JFrame {
 							int total = 0;
 							while (rs.next()) {
 								total++;
+								totalSum++;
 							}
 							rs.close();
 							pitRecordSqlDao.deconnSQL();
 							
-							if (i == 1) {
-								ipaddr1.setText(targetIP);
-								gateCount1.setText(String.valueOf(total));
-							}
+//							if (i == 1) {
+//								ipaddr1.setText(targetIP);
+//								gateCount1.setText(String.valueOf(total));
+//							}
 							
 							switch (i) {
 							case 1:
@@ -228,9 +244,11 @@ public class CheckSumFrame extends JFrame {
 								ipaddr4.setText("");
 								gateCount4.setText(String.valueOf(0));
 								break;
-							}						
+							}				
 							
 						}
+						
+						gatecount_sum.setText(String.valueOf(totalSum));
 						
 						JOptionPane.showMessageDialog(null, "统计成功!");
 						tjButton.setEnabled(true);
@@ -271,5 +289,11 @@ public class CheckSumFrame extends JFrame {
 		JSeparator separator_2 = new JSeparator();
 		separator_2.setBounds(14, 162, 974, 10);
 		panel.add(separator_2);
+		
+		JSeparator separator_3 = new JSeparator();
+		separator_3.setBounds(10, 520, 974, 10);
+		panel.add(separator_3);
+		
+		
 	}
 }

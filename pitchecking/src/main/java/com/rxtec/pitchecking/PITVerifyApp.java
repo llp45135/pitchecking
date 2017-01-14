@@ -38,6 +38,9 @@ public class PITVerifyApp {
 				TicketVerifyScreen ticketVerifyScreen = TicketVerifyScreen.getInstance();
 				TicketVerifyFrame tickFrame = new TicketVerifyFrame();
 				ticketVerifyScreen.setTicketFrame(tickFrame);
+
+				tickFrame.showSuccWait("", "系统启动中...");
+
 				try {
 					ticketVerifyScreen.initUI(DeviceConfig.getInstance().getTicketScreen());
 				} catch (Exception ex) {
@@ -49,7 +52,7 @@ public class PITVerifyApp {
 					ScheduledExecutorService screenScheduler = Executors.newScheduledThreadPool(1);
 					VerifyScreenListener verifyScreenListener = VerifyScreenListener.getInstance();
 					verifyScreenListener.setScreenNo(DeviceConfig.getInstance().getTicketScreen());
-					screenScheduler.scheduleWithFixedDelay(verifyScreenListener, 0, 1500, TimeUnit.MILLISECONDS);
+					screenScheduler.scheduleWithFixedDelay(verifyScreenListener, 0, 1000, TimeUnit.MILLISECONDS);
 				}
 			}
 

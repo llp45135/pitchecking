@@ -77,7 +77,7 @@ public class BarCodeReader implements Runnable {
 				try {
 					ticket = barUnsecurity.buildTicket(barUnsecurity.uncompress(barCode, year));
 					// 仅供测试用例
-					ticket.setTrainDate(CalUtils.getStringDateShort2());
+//					ticket.setTrainDate(CalUtils.getStringDateShort2());
 				} catch (NumberFormatException | UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
 					log.error("BarCodeReader buildBarCode:", e);
@@ -104,7 +104,7 @@ public class BarCodeReader implements Runnable {
 					try {
 						ticket = barUnsecurity.buildTicket(barUnsecurity.uncompress(barCode, year));
 						// 仅供测试用例
-						ticket.setTrainDate(CalUtils.getStringDateShort2());
+//						ticket.setTrainDate(CalUtils.getStringDateShort2());
 					} catch (NumberFormatException | UnsupportedEncodingException e) {
 						// TODO Auto-generated catch block
 						log.error("BarCodeReader buildBarCode:", e);

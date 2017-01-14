@@ -45,11 +45,29 @@ public class MqttSenderBroker {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	private MqttClient mqttClient;
+	private String uuid = "";
+	private byte[] idcardBytes;
 	private String notifyJson;
 	private String faceScreenDisplay = "";
 	private int faceScreenDisplayTimeout = 0;
 	
 	private int camOpenRetval = -1;
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public byte[] getIdcardBytes() {
+		return idcardBytes;
+	}
+
+	public void setIdcardBytes(byte[] idcardBytes) {
+		this.idcardBytes = idcardBytes;
+	}
 
 	public int getCamOpenRetval() {
 		return camOpenRetval;

@@ -98,8 +98,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			log.debug("老人或小孩Age=" + idCard.getAge() + "：PITVerifyData==" + fd);
 			CommUtil.sleep(4000);
 
-//			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
-			
+			// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
+
 			// 向闸机主控程序发布比对结果
 			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
 			mqttSenderBroker.publishResult(fd, Config.VerifyPassedStatus); // MQTT版本
@@ -146,7 +146,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.debug("pollPassFaceData, using " + usingTime + " value = null");
 
-//			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
+			// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
 
 			PITVerifyData failedFd = FaceCheckingService.getInstance().pollFailedFaceData();
 			log.debug("Timeout return PITVerifyData = " + failedFd);
@@ -167,7 +167,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// }
 
 			faceTrackService.stopCheckingFace();
-			// AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag);
+
 			// // 语音："验证失败，请从侧门离开通道"
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
 					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag, "FaceAudio"));
@@ -178,29 +178,42 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			DeviceConfig.getInstance().setInTracking(false); // 设置人脸核验已经完成
 
 		} else {
+			
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
 			log.info("pollPassFaceData, using " + usingTime + " ms, value=" + fd.getVerifyResult());
-			// 向闸机主控程序发布比对结果
-//			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
-			
-			// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
-			mqttSenderBroker.publishResult(fd, Config.VerifyPassedStatus); // MQTT版本
-																			// 比对结果发布
-																			// ,人脸比对成功！
-																			// 状态为0
-			// mqttSenderBroker.testPublishFace();
 
-			faceTrackService.stopCheckingFace();
-			// AudioPlayTask.getInstance().start(DeviceConfig.checkSuccFlag); //
-			// 语音："验证成功，请通过"
-			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag, "FaceAudio"));
-			// 通知人工控制台
-			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
-					DeviceConfig.Event_VerifyFaceSucc);
+			if (fd.getVerifyResult() >= -1) {
+				// 向闸机主控程序发布比对结果
+				// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
+
+				// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
+				mqttSenderBroker.publishResult(fd, Config.VerifyPassedStatus); // MQTT版本,比对结果发布,人脸比对成功,状态为0
+				// mqttSenderBroker.testPublishFace();
+
+				faceTrackService.stopCheckingFace();
+
+				// 语音："验证成功，请通过"
+				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+						.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag, "FaceAudio"));
+				// 通知人工控制台
+				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
+						DeviceConfig.Event_VerifyFaceSucc);
+				
+				DeviceConfig.getInstance().setAllowOpenSecondDoor(true);  //允许重新开2门
+			} else {
+				mqttSenderBroker.publishResult(fd, Config.VerifyFailedStatus); // MQTT版本,比对结果发布,人脸比对成功,状态为0
+				faceTrackService.stopCheckingFace();
+				// 语音："验证失败，请从侧门离开通道"
+				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+						.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag, "FaceAudio"));
+				// 通知人工控制台
+				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
+						DeviceConfig.Event_VerifyFaceFailed);
+				
+				DeviceConfig.getInstance().setAllowOpenSecondDoor(true);  //允许重新开2门
+			}
 
 			DeviceConfig.getInstance().setInTracking(false); // 设置人脸核验已经完成
-			// FaceCheckingService.getInstance().setFailedFace(null);
 		}
 
 		return fd;

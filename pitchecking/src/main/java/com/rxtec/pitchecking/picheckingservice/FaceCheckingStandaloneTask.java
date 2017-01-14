@@ -69,7 +69,7 @@ public class FaceCheckingStandaloneTask implements Runnable {
 						continue;
 					}
 					if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyEASEN)) {
-						resultValue = faceVerify.verify(fd.getFrameImg());
+						resultValue = faceVerify.verify(fd.getFaceImg());
 					} else {
 						resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCardImg());// 比对人脸
 					}

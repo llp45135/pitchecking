@@ -80,6 +80,8 @@ public class Config {
 	public static int TicketVerifyIDFail = -1; // 票证验证失败
 	public static int TicketVerifyStationRuleFail = -2; // 票证验证失败：非本站乘车
 	public static int TicketVerifyTrainDateRuleFail = -3; // 票证验证失败：非当日乘车
+	public static int TicketVerifyNotStartCheckFail = -4;  //票证验证失败，未开始检票
+	public static int TicketVerifyStopCheckFail = -5;  //票证验证失败，已经停止检票
 
 	public static int StartStatus = 1;
 	public static int StopStatus = 0;
@@ -99,7 +101,7 @@ public class Config {
 
 	private String heartBeatLogFile = "D:/pitchecking/work/HEART.log";   //检脸进程心跳日志
 	private String ticketVerifyHeartFile = "D:/pitchecking/work/TicketVerifyHeart.log";
-	private int TicketVerify_Heard_DELAY = 5 * 1000;
+	private int TicketVerify_Heard_DELAY = 3 * 1000;
 	private String rebackTrackFile = "D:/pitchecking/work/RebackFlag.log";
 	private String pausePitcheckFile = "D:/pitchecking/work/PAUSE.log";
 	private String startPITVerifyCmd = "D:/pitchecking/work/RestartPITVerify.bat";
@@ -182,6 +184,8 @@ public class Config {
 	private int initColorExposure = -3;   //-6
 	
 	private String easenConfigPath = "D:/maven/git/pitchecking";
+	private String easenActivationFile = "D:/pitchecking/config/license.txt";
+	private int isLightFaceLED = 1;
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
 	 */
@@ -205,6 +209,22 @@ public class Config {
 	private float maxAverageDepth = 1000F;
 
 	private int faceTrackMode = 1; // 人臉追蹤模式 1 紅外，2 顔色+景深
+
+	public int getIsLightFaceLED() {
+		return isLightFaceLED;
+	}
+
+	public void setIsLightFaceLED(int isLightFaceLED) {
+		this.isLightFaceLED = isLightFaceLED;
+	}
+
+	public String getEasenActivationFile() {
+		return easenActivationFile;
+	}
+
+	public void setEasenActivationFile(String easenActivationFile) {
+		this.easenActivationFile = easenActivationFile;
+	}
 
 	public String getEasenConfigPath() {
 		return easenConfigPath;
@@ -716,6 +736,8 @@ public class Config {
 			this.isUseCamDll = Integer.valueOf(p.getProperty("isUseCamDll", "1"));
 			this.isSendFrame = Integer.valueOf(p.getProperty("isSendFrame", "1"));
 			this.easenConfigPath = p.getProperty("easenConfigPath", "D:/maven/git/pitchecking");
+			this.easenActivationFile = p.getProperty("easenActivationFile", "D:/pitchecking/config/license.txt");
+			this.isLightFaceLED = Integer.valueOf(p.getProperty("isLightFaceLED", "1"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();

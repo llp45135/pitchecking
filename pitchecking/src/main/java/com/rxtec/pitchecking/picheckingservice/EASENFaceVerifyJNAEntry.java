@@ -21,7 +21,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 
 public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
-	private Logger log = LoggerFactory.getLogger("FaceVerifyEasenJNAEntry");
+	private Logger log = LoggerFactory.getLogger("EASENFaceVerifyJNAEntry");
 
 	private int initStatus = 0;
 
@@ -90,7 +90,8 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 		try {
 			log.info("currentHwid==" + getCurrentHWID(256));
 
-			File file = new File("D:/pitchecking/config/license.txt");
+			File file = new File(Config.getInstance().getEasenActivationFile());
+			log.info("getEasenActivationFile=="+Config.getInstance().getEasenActivationFile());
 			FileInputStream fis = new FileInputStream(file);
 			licenseBytes = new byte[(int) file.length() + 1];
 			Arrays.fill(licenseBytes, (byte) 0);
@@ -98,7 +99,7 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 			fis.close();
 
 			ret = SDKMethod.INSTANCE.setActivation(licenseBytes);
-			log.info("init ret = " + ret);
+			log.info("Activation ret = " + ret);
 			if (ret == SDKMethod.SDK_NO_ERROR) {
 				String strPath = Config.getInstance().getEasenConfigPath();
 				byte[] path = strPath.getBytes("UTF-16LE");
@@ -107,12 +108,15 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 				System.arraycopy(path, 0, pathBytes, 0, path.length);
 
 				ret = SDKMethod.INSTANCE.initializeSDK(pathBytes);
-				log.info("init ret = " + ret);
+				log.info("initializeSDK ret = " + ret);
+				log.info("初始化Easen initializeSDK 成功!  ret: " + ret);// 获取返回值
 				if (ret != SDKMethod.SDK_NO_ERROR) {
-					log.error("Init SDK Failed!");
+					log.error("初始化Easen initializeSDK Failed!");
 				} else {
 					initStatus = 1;
 				}
+			}else{
+				log.error("Easen setActivation Failed!");
 			}
 		} catch (Exception e) {
 			log.error("init:", e);

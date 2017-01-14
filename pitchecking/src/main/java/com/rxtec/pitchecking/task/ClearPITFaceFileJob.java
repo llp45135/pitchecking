@@ -23,7 +23,7 @@ public class ClearPITFaceFileJob implements Job {
 	public void execute(JobExecutionContext jobContext) throws JobExecutionException {
 		// TODO Auto-generated method stub
 		try {
-			log.info("闸机定时重启任务,开始执行！ By " + jobContext.getJobDetail().getJobClass());
+			log.info("闸机定时清理PITFace文件,开始执行！ By " + jobContext.getJobDetail().getJobClass());
 			this.deleteImageFile();
 		} catch (Exception ex) {
 			log.error("AutoLogonJob:", ex);
