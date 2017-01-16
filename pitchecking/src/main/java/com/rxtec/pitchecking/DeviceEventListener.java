@@ -333,7 +333,7 @@ public class DeviceEventListener implements Runnable {
 				}
 			}
 			this.setDealDeviceEvent(true);// 允许处理新的事件
-		} else if (ticketVerifyResult == Config.TicketVerifyIDFail) { // 票证验证失败
+		} else if (ticketVerifyResult == Config.TicketVerifyIDFail) { // 票证不一致
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_InvalidCardAndTicket);
@@ -347,8 +347,9 @@ public class DeviceEventListener implements Runnable {
 						.sendDoorCmd(DeviceConfig.Event_InvalidCardAndTicket);
 			}
 			ticketVerify.reset();
+			CommUtil.sleep(600);
 			this.setDealDeviceEvent(true);// 允许处理新的事件
-		} else if (ticketVerifyResult == Config.TicketVerifyStationRuleFail) { // 车票未通过非本站规则
+		} else if (ticketVerifyResult == Config.TicketVerifyStationRuleFail) { // 非本站乘车
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_InvalidStation);
@@ -363,8 +364,9 @@ public class DeviceEventListener implements Runnable {
 						.sendDoorCmd(DeviceConfig.Event_InvalidStation);
 			}
 			ticketVerify.reset();
+			CommUtil.sleep(600);
 			this.setDealDeviceEvent(true);// 允许处理新的事件
-		} else if (ticketVerifyResult == Config.TicketVerifyTrainDateRuleFail) { // 车票未通过非当日规则
+		} else if (ticketVerifyResult == Config.TicketVerifyTrainDateRuleFail) { // 非当日乘车
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_InvalidTrainDate);
@@ -379,6 +381,7 @@ public class DeviceEventListener implements Runnable {
 						.sendDoorCmd(DeviceConfig.Event_InvalidTrainDate);
 			}
 			ticketVerify.reset();
+			CommUtil.sleep(600);
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyNotStartCheckFail) { // 车票未到进站时间
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
@@ -395,6 +398,7 @@ public class DeviceEventListener implements Runnable {
 						.sendDoorCmd(DeviceConfig.Event_NotInTime);
 			}
 			ticketVerify.reset();
+			CommUtil.sleep(600);
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyStopCheckFail) { // 车票已过进站时间
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
@@ -411,6 +415,7 @@ public class DeviceEventListener implements Runnable {
 						.sendDoorCmd(DeviceConfig.Event_PassCheckTime);
 			}
 			ticketVerify.reset();
+			CommUtil.sleep(600);
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		}
 	}

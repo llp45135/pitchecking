@@ -201,6 +201,25 @@ public class DeviceConfig {
 	private String gateIPList = "192.168.0.2,192.168.0.3,192.168.0.4,192.168.0.5";
 
 	private Map<String, String> SZQTrainsMap;
+	
+	private int stopCheckMinutes;
+	private int NotStartCheckMinutes;
+
+	public int getStopCheckMinutes() {
+		return stopCheckMinutes;
+	}
+
+	public void setStopCheckMinutes(int stopCheckMinutes) {
+		this.stopCheckMinutes = stopCheckMinutes;
+	}
+
+	public int getNotStartCheckMinutes() {
+		return NotStartCheckMinutes;
+	}
+
+	public void setNotStartCheckMinutes(int notStartCheckMinutes) {
+		NotStartCheckMinutes = notStartCheckMinutes;
+	}
 
 	public Map<String, String> getSZQTrainsMap() {
 		return SZQTrainsMap;
@@ -659,6 +678,9 @@ public class DeviceConfig {
 			this.setIdDeviceType(root.getChild("GateConfig").getAttributeValue("idDeviceType"));
 			this.setQrDeviceType(root.getChild("GateConfig").getAttributeValue("qrDeviceType"));
 			this.setAutoLogonCron(root.getChild("GateConfig").getAttributeValue("autoLogonCron"));
+			this.setStopCheckMinutes(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("stopCheckMinutes")));
+			this.setNotStartCheckMinutes(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("NotStartCheckMinutes")));
+			
 			this.setCameraLEDPort(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("cameraLEDPort")));
 			this.setFirstGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("firstGateCrtlPort"));
 			this.setSecondGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("secondGateCrtlPort"));
@@ -721,7 +743,11 @@ public class DeviceConfig {
 		if (this.belongStationCode.equals("CSQ")) {
 			fileName = "./conf/csq_plan.txt";
 		}
-		if (!fileName.equals("")) {
+		if (this.belongStationCode.equals("GGQ")) {
+			fileName = "./conf/ggq_plan.txt";
+		}
+		log.info("fileName=="+fileName);
+		if (!fileName.equals("")) {			
 			File file = new File(fileName);
 			BufferedReader reader = null;
 			try {
@@ -731,11 +757,10 @@ public class DeviceConfig {
 				while ((tempString = reader.readLine()) != null) {
 					log.debug("line " + line + ": " + tempString);
 					int k = tempString.indexOf("@");
-					// log.debug("trainCode==" + tempString.substring(0, k) +
-					// ",startTime==" + CalUtils.getStringDateShort()
-					// + " " + tempString.substring(k + 12, k + 17));
-					String trainCode = tempString.substring(0, k);
+					String trainCode = tempString.substring(0, k).startsWith("0") ? tempString.substring(1, k)
+							: tempString.substring(0, k);
 					String startTime = tempString.substring(k + 12, k + 17);
+					log.info("trainCode==" + trainCode + ",startTime==" + " " + startTime);
 					trainsMap.put(trainCode, startTime);
 					line++;
 				}
@@ -753,7 +778,7 @@ public class DeviceConfig {
 			}
 
 			this.SZQTrainsMap = trainsMap;
-			log.info("SZQTrainsMap.size=="+this.SZQTrainsMap.size());
+			log.info("TrainsMap.size==" + this.SZQTrainsMap.size());
 		}
 	}
 
@@ -789,5 +814,7 @@ public class DeviceConfig {
 		System.out.println("getSoftIdNo==" + dconfig.getSoftIdNo());
 		if (dconfig.getSZQTrainsMap() != null)
 			System.out.println("getSZQTrainsMap.size==" + dconfig.getSZQTrainsMap().size());
+		System.out.println("getStopCheckMinutes=="+dconfig.getStopCheckMinutes());
+		System.out.println("getNotStartCheckMinutes=="+dconfig.getNotStartCheckMinutes());
 	}
 }

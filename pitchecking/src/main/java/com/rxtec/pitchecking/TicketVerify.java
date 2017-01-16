@@ -47,9 +47,9 @@ public class TicketVerify {
 								try {
 									long tt = CalUtils.howLong("m", nowTime, startTime);
 									log.info("tt====" + tt);
-									if (tt <= 10) {
+									if (tt <= DeviceConfig.getInstance().getStopCheckMinutes()) {
 										return Config.TicketVerifyStopCheckFail;
-									} else if (tt >= 4 * 60) {
+									} else if (tt >= DeviceConfig.getInstance().getNotStartCheckMinutes()) {
 										return Config.TicketVerifyNotStartCheckFail;
 									} else {
 										return Config.TicketVerifyWaitInput;
@@ -131,9 +131,9 @@ public class TicketVerify {
 								try {
 									long tt = CalUtils.howLong("m", nowTime, startTime);
 									log.info("tt====" + tt);
-									if (tt <= 10) {
+									if (tt <= DeviceConfig.getInstance().getStopCheckMinutes()) {
 										return Config.TicketVerifyStopCheckFail;
-									} else if (tt >= 4 * 60) {
+									} else if (tt >= DeviceConfig.getInstance().getNotStartCheckMinutes()) {
 										return Config.TicketVerifyNotStartCheckFail;
 									} else {
 										return Config.TicketVerifySucc;
