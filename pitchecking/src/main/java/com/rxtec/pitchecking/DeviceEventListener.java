@@ -346,8 +346,9 @@ public class DeviceEventListener implements Runnable {
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_InvalidCardAndTicket);
 			}
-			ticketVerify.reset();
+			
 			CommUtil.sleep(600);
+			ticketVerify.reset();			
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyStationRuleFail) { // 非本站乘车
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
@@ -363,8 +364,8 @@ public class DeviceEventListener implements Runnable {
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_InvalidStation);
 			}
-			ticketVerify.reset();
 			CommUtil.sleep(600);
+			ticketVerify.reset();			
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyTrainDateRuleFail) { // 非当日乘车
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
@@ -380,8 +381,8 @@ public class DeviceEventListener implements Runnable {
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_InvalidTrainDate);
 			}
-			ticketVerify.reset();
 			CommUtil.sleep(600);
+			ticketVerify.reset();			
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyNotStartCheckFail) { // 车票未到进站时间
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
@@ -397,8 +398,8 @@ public class DeviceEventListener implements Runnable {
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_NotInTime);
 			}
-			ticketVerify.reset();
 			CommUtil.sleep(600);
+			ticketVerify.reset();			
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyStopCheckFail) { // 车票已过进站时间
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
@@ -414,8 +415,8 @@ public class DeviceEventListener implements Runnable {
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_PassCheckTime);
 			}
-			ticketVerify.reset();
 			CommUtil.sleep(600);
+			ticketVerify.reset();			
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		}
 	}
@@ -536,7 +537,7 @@ public class DeviceEventListener implements Runnable {
 		}
 
 		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
-		scheduler.scheduleWithFixedDelay(BarCodeReader.getInstance(), 0, 350, TimeUnit.MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(BarCodeReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		// 求助按钮事件处理线程
 		// scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0,
 		// 100, TimeUnit.MILLISECONDS);
@@ -766,6 +767,14 @@ public class DeviceEventListener implements Runnable {
 	 */
 	public void resetTicketAndIDCard() {
 		ticketVerify.reset();
+	}
+	
+	public void clearTicket(){
+		ticketVerify.clearTicket();
+	}
+	
+	public void clearIdCard(){
+		ticketVerify.clearIdCard();
 	}
 
 	/**

@@ -10,6 +10,7 @@ import com.rxtec.pitchecking.utils.CalUtils;
 
 public class TicketVerify {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
+	private Logger trainLog = LoggerFactory.getLogger("TrainInfo");
 	private Ticket ticket = null;
 	private IDCard idCard = null;
 
@@ -23,7 +24,7 @@ public class TicketVerify {
 		// log.debug("ticket==" + ticket + "||idcard==" + idCard);
 		if (ticket == null || idCard == null) {
 			if (ticket != null) { // 有票
-				if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
+				if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {// 需要核验票证
 					if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 非本站乘车
 						log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
 						return Config.TicketVerifyStationRuleFail;
@@ -51,8 +52,6 @@ public class TicketVerify {
 										return Config.TicketVerifyStopCheckFail;
 									} else if (tt >= DeviceConfig.getInstance().getNotStartCheckMinutes()) {
 										return Config.TicketVerifyNotStartCheckFail;
-									} else {
-										return Config.TicketVerifyWaitInput;
 									}
 								} catch (ParseException e) {
 									// TODO Auto-generated catch block
@@ -64,17 +63,18 @@ public class TicketVerify {
 							}
 						} else {
 							if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、非当日票
+								trainLog.info(
+										"trainCode==" + ticket.getTrainCode() + ",trainDate==" + ticket.getTrainDate());
 								log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
 								return Config.TicketVerifyTrainDateRuleFail;
 							}
-						}
-
-						return Config.TicketVerifyWaitInput;
+						}						
 					}
-				} else {
+					return Config.TicketVerifyWaitInput;
+				} else {  //不需要核验
 					return Config.TicketVerifyWaitInput;
 				}
-			} else if (idCard != null) {
+			} else if (idCard != null) {  //有证
 				log.info("getSoftIdNo==" + DeviceConfig.getInstance().getSoftIdNo());
 				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1) { // 白名单
 					Ticket virualTicket = new Ticket();
@@ -92,16 +92,17 @@ public class TicketVerify {
 					virualTicket.setSeatCode("8");
 					this.setTicket(virualTicket);
 					return Config.TicketVerifySucc;
-				} else {
+				} else {  //非白名单
 					return Config.TicketVerifyWaitInput;
 				}
-			} else
-				return Config.TicketVerifyWaitInput;
-		} else {
+			} else {  //无票无证
+				return -99;
+			}
+		} else {  //有票有证
 			// TODO 执行比对
 			// 校验车站验票规则
 			// log.info("idCard.getIdNo=="+idCard.getIdNo()+",ticket.getCardNo=="+ticket.getCardNo()+"##");
-			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {
+			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {  //需要核验
 				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1
 						&& ticket.getCardNo().equals(idCard.getIdNo())) { // 白名单
 					return Config.TicketVerifySucc;
@@ -135,8 +136,6 @@ public class TicketVerify {
 										return Config.TicketVerifyStopCheckFail;
 									} else if (tt >= DeviceConfig.getInstance().getNotStartCheckMinutes()) {
 										return Config.TicketVerifyNotStartCheckFail;
-									} else {
-										return Config.TicketVerifySucc;
 									}
 								} catch (ParseException e) {
 									// TODO Auto-generated catch block
@@ -148,12 +147,12 @@ public class TicketVerify {
 							}
 						} else {
 							if (!ticket.getTrainDate().equals(CalUtils.getStringDateShort2())) {// 1、非当日票
+								trainLog.info(
+										"trainCode==" + ticket.getTrainCode() + ",trainDate==" + ticket.getTrainDate());
 								log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
 								return Config.TicketVerifyTrainDateRuleFail;
 							}
 						}
-
-						return Config.TicketVerifySucc;
 					}
 				}
 			}
@@ -179,6 +178,15 @@ public class TicketVerify {
 
 	public void reset() {
 		this.ticket = null;
+		this.idCard = null;
+		log.info("已经清除本次的票证对象!!");
+	}
+	
+	public void clearTicket(){
+		this.ticket = null;
+	}
+	
+	public void clearIdCard(){
 		this.idCard = null;
 	}
 

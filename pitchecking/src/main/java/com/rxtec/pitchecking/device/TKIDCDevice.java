@@ -359,7 +359,7 @@ public class TKIDCDevice {
 					IDSex[k] = pointerCardInfo.getAsByte(k + 30);
 				}
 				String gender = new String(IDSex, "GBK");
-				log.debug("IDSex==" + gender);
+//				log.debug("IDSex==" + gender);
 				if (gender.equals("1")) {
 					synIDCard.setGender(1);
 					synIDCard.setGenderCH("男");// set gender
@@ -372,60 +372,60 @@ public class TKIDCDevice {
 				for (int k = 0; k < 4; k++) {
 					IDNation[k] = pointerCardInfo.getAsByte(k + 30 + 2);
 				}
-				log.debug("IDNation==" + new String(IDNation, "GBK"));
+//				log.debug("IDNation==" + new String(IDNation, "GBK"));
 
 				byte[] IDBirth = new byte[16];
 				for (int k = 0; k < IDBirth.length; k++) {
 					IDBirth[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4);
 				}
 				String birthstr = new String(IDBirth, "GBK");
-				log.debug("IDBirth==" + birthstr);
+//				log.debug("IDBirth==" + birthstr);
 				String birthday = birthstr.substring(0, 4) + "-" + birthstr.substring(4, 6) + "-"
 						+ birthstr.substring(6, 8);
 				String today = CalUtils.getStringDateShort();
 				// log.debug("birthday==" + birthday);
 				int personAge = CalUtils.getAge(birthday, today);
 				synIDCard.setAge(personAge); // set age
-				log.debug("出生年月：" + birthstr.substring(0, 4) + "年" + birthstr.substring(4, 6) + "月"
-						+ birthstr.substring(6, 8) + "日" + ",personAge==" + personAge);
+//				log.debug("出生年月：" + birthstr.substring(0, 4) + "年" + birthstr.substring(4, 6) + "月"
+//						+ birthstr.substring(6, 8) + "日" + ",personAge==" + personAge);
 
 				byte[] IDDwelling = new byte[70];
 				for (int k = 0; k < IDDwelling.length; k++) {
 					IDDwelling[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16);
 				}
-				log.debug("IDDwelling==" + new String(IDDwelling, "GBK"));
+//				log.debug("IDDwelling==" + new String(IDDwelling, "GBK"));
 
 				byte[] IDCode = new byte[36];
 				for (int k = 0; k < IDCode.length; k++) {
 					IDCode[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70);
 				}
 				String IDCardNoStr = new String(IDCode, "GBK");
-				log.debug("IDCode==" + IDCardNoStr);
+//				log.debug("IDCode==" + IDCardNoStr);
 				synIDCard.setIdNo(IDCardNoStr.trim());
 
 				byte[] IDIssue = new byte[30];
 				for (int k = 0; k < IDIssue.length; k++) {
 					IDIssue[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36);
 				}
-				log.debug("IDIssue==" + new String(IDIssue, "GBK"));
+//				log.debug("IDIssue==" + new String(IDIssue, "GBK"));
 
 				byte[] IDEfficb = new byte[16];
 				for (int k = 0; k < IDEfficb.length; k++) {
 					IDEfficb[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30);
 				}
-				log.debug("IDEfficb==" + new String(IDEfficb, "GBK"));
+//				log.debug("IDEfficb==" + new String(IDEfficb, "GBK"));
 
 				byte[] IDEffice = new byte[16];
 				for (int k = 0; k < IDEfficb.length; k++) {
 					IDEffice[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30 + 16);
 				}
-				log.debug("IDEffice==" + new String(IDEffice, "GBK"));
+//				log.debug("IDEffice==" + new String(IDEffice, "GBK"));
 
 				byte[] IDNewAddr = new byte[70];
 				for (int k = 0; k < IDNewAddr.length; k++) {
 					IDNewAddr[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30 + 16 + 16);
 				}
-				log.debug("IDNewAddr==" + new String(IDNewAddr, "GBK"));
+//				log.debug("IDNewAddr==" + new String(IDNewAddr, "GBK"));
 
 				byte[] IDPhoto = new byte[1024];
 				for (int k = 0; k < IDPhoto.length; k++) {

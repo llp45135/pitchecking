@@ -20,6 +20,7 @@ import com.rxtec.pitchecking.device.XZXCDevice;
 import com.rxtec.pitchecking.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
+import com.rxtec.pitchecking.gui.ticketgui.TicketVerifyFrame;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class IDReader implements Runnable {
@@ -30,13 +31,14 @@ public class IDReader implements Runnable {
 	private TKIDCDevice tkIDCDevice = null;
 	private int deviceStatus = Config.StartStatus;
 	// 以下ticketFrame仅供测试用
-	private TicketCheckFrame ticketFrame;
+//	private TicketCheckFrame ticketFrame;
+	private TicketVerifyFrame ticketFrame;
 
-	public TicketCheckFrame getTicketFrame() {
+	public TicketVerifyFrame getTicketFrame() {
 		return ticketFrame;
 	}
 
-	public void setTicketFrame(TicketCheckFrame ticketFrame) {
+	public void setTicketFrame(TicketVerifyFrame ticketFrame) {
 		this.ticketFrame = ticketFrame;
 	}
 
@@ -204,7 +206,7 @@ public class IDReader implements Runnable {
 	}
 
 	public static void main(String[] args) {
-		TicketCheckFrame ticketFrame = new TicketCheckFrame();
+		TicketVerifyFrame ticketFrame = new TicketVerifyFrame();
 		// ticketFrame.setVisible(true);
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice[] gs = ge.getScreenDevices();

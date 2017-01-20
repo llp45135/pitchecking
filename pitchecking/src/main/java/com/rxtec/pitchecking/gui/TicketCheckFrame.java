@@ -155,9 +155,9 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		/**
 		 * 初始化启动界面
 		 */
-//		ticketInitPanel = new TicketInitPanel();
-//		secondInitPanel = new InitPanel();
-//		waitPanel = new WaitPanel();
+		ticketInitPanel = new TicketInitPanel();
+		secondInitPanel = new InitPanel();
+		waitPanel = new WaitPanel();
 
 		labelTrainCode = new JLabel("G6612");
 		labelTrainCode.setHorizontalAlignment(SwingConstants.CENTER);
@@ -590,14 +590,14 @@ public class TicketCheckFrame extends JFrame implements ActionListener {
 		if (timeIntevel == 0) {
 			if (this.backPanelType == 0) {
 				log.debug("等待结束，回到TicketFrame初始界面.. " + timeIntevel);
-				if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 正式代码时必须启用
-					try {
-						DeviceEventListener.getInstance().resetTicketAndIDCard();
-						log.debug("等待结束，clean 已刷的ticket and idCard!");
-					} catch (Exception ex) {
-						log.error("TicketCheckFrame showDefaultContent:", ex);
-					}
-				}
+//				if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 正式代码时必须启用
+//					try {
+//						DeviceEventListener.getInstance().resetTicketAndIDCard();
+//						log.debug("等待结束，clean 已刷的ticket and idCard!");
+//					} catch (Exception ex) {
+//						log.error("TicketCheckFrame showDefaultContent:", ex);
+//					}
+//				}
 				showDefaultContent();
 			} else {
 				this.showSuccWait("后面的旅客请稍候!", "");

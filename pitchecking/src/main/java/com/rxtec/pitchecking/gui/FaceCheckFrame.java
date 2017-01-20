@@ -106,16 +106,16 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					FaceTrackingScreen.getInstance().setFaceFrame(frame);
 					FaceTrackingScreen.getInstance().initUI(0);
 					frame.showDefaultContent();
-					CommUtil.sleep(10 * 1000);
+//					CommUtil.sleep(3 * 1000);
 					// frame.setVisible(true);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setFaceScreenDisplayTimeout(10);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setFaceScreenDisplay("人脸识别成功#请通过");
+					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setFaceScreenDisplayTimeout(5);
+					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setFaceScreenDisplay("人证核验失败#请从侧门离开");
 					// MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
 					frame.showFaceDisplayFromTK();
 					// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
 					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
 							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag,"FaceAudio"));
-					frame.showBeginCheckFaceContent();
+//					frame.showBeginCheckFaceContent();
 					// frame.showFaceCheckPassContent();
 					// frame.showCheckFailedContent();
 					// frame.showDefaultContent();
