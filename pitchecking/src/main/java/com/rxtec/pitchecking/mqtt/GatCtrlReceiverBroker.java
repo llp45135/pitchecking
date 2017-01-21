@@ -39,6 +39,7 @@ import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
 import com.rxtec.pitchecking.net.event.PIVerifyRequestBean;
 import com.rxtec.pitchecking.net.event.ScreenDisplayBean;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.task.SendPITEventTask;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.JsonUtils;
@@ -544,6 +545,44 @@ public class GatCtrlReceiverBroker {
 								if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
 										+ DeviceConfig.GAT_MQ_Track_CLIENT)) {
 
+								}
+							}
+						} else if (gatCrtlBean.getEventsource().equals("gate")) {
+							log.debug("来自开二门的按钮或遥控消息:" + mqttMessage);
+							if (gatCrtlBean.getEvent() == 10022) {
+								if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+										+ DeviceConfig.GAT_MQ_Track_CLIENT)) {
+
+									log.info("isInTracking==" + DeviceConfig.getInstance().isInTracking());
+
+									if (DeviceConfig.getInstance().isInTracking()) { // 如果处于人脸核验中，那么必须立即结束本次核验，视为核验成功
+										PITVerifyData failedFd = FaceCheckingService.getInstance().pollFailedFaceData();
+										if (failedFd != null) {
+											log.debug(
+													"人工判断该次核验成功，按按钮放行，本次核验中最好的一次比对结果==" + failedFd.getVerifyResult());
+											// failedFd.setVerifyResult((float)
+											// 0.63);
+											FaceCheckingService.getInstance().offerPassFaceData(failedFd);
+										} else {
+											log.debug("还没有检测到任何一张脸，手动生成一张脸返回，目的是快速结束本次检脸..==" + gatCrtlBean.getEvent());
+											PITVerifyData manualFd = new PITVerifyData();
+
+											manualFd.setVerifyResult(-1);
+											manualFd.setIdNo(MqttSenderBroker
+													.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getUuid());
+											manualFd.setIdCardImg(MqttSenderBroker
+													.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getIdcardBytes());
+											manualFd.setFaceImg(MqttSenderBroker
+													.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getIdcardBytes());
+											manualFd.setFrameImg(MqttSenderBroker
+													.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getIdcardBytes());
+
+											FaceCheckingService.getInstance().offerPassFaceData(manualFd);
+										}
+
+									} else { // 不处于人脸核验中,直接开门
+										log.debug("不处于人脸核验中,不处理该事件!");
+									}
 								}
 							}
 						} else {

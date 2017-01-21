@@ -31,7 +31,7 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "170119.21.01";
+	public static String softVersion = "170121.18.01";
 	private String softIdNo = "520203197912141118,440111197209283012,440881199502176714";
 
 	public static int SINGLEDOOR = 1;
@@ -738,16 +738,16 @@ public class DeviceConfig {
 	private void getSZQTrains() {
 		Map<String, String> trainsMap = new HashMap<String, String>();
 
-		String fileName = "./conf/train_list.txt";
-		// if (this.belongStationCode.equals("SZQ")) {
-		// fileName = "./conf/szq_adPlan.txt";
-		// }
-		// if (this.belongStationCode.equals("CSQ")) {
-		// fileName = "./conf/csq_plan.txt";
-		// }
-		// if (this.belongStationCode.equals("GGQ")) {
-		// fileName = "./conf/ggq_adPlan.txt";
-		// }
+		String fileName = "";
+		if (this.belongStationCode.equals("SZQ")) {
+			fileName = "./conf/train_list.txt";
+		}
+		if (this.belongStationCode.equals("CSQ")) {
+			fileName = "./conf/train_list.txt";
+		}
+		if (this.belongStationCode.equals("GGQ")) {
+			fileName = "./conf/train_list.txt";
+		}
 		log.info("fileName==" + fileName);
 		if (!fileName.equals("")) {
 			File file = new File(fileName);
@@ -762,7 +762,7 @@ public class DeviceConfig {
 						int k = tempString.indexOf("@");
 						int j = tempString.lastIndexOf("@");
 						String stationCode = tempString.substring(j + 1);
-//						log.info("stationCode=="+stationCode);
+						// log.info("stationCode=="+stationCode);
 						if (stationCode.equals(this.belongStationCode)) {
 							String trainCode = tempString.substring(0, k).startsWith("0") ? tempString.substring(1, k)
 									: tempString.substring(0, k);
