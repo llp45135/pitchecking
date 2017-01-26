@@ -27,6 +27,7 @@ import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.task.FaceScreenListener;
+import com.rxtec.pitchecking.utils.CalUtils;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
 import intel.rssdk.PXCMBase;
@@ -544,7 +545,7 @@ public class RSFaceTrackTask implements Runnable {
 		cData.ToIntArray(0, cBuff);
 		videoPanel.image.setRGB(0, 0, cWidth, cHeight, cBuff, 0, cData.pitches[0] / 4);
 
-		videoPanel.paintImg();   //截图  并发送至人工台
+		videoPanel.paintImg(); // 截图 并发送至人工台
 		sts = sample.color.ReleaseAccess(cData);
 		if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) < 0) {
 			log.error("Failed to ReleaseAccess of color image data");
@@ -698,10 +699,28 @@ public class RSFaceTrackTask implements Runnable {
 		}
 
 		dev = senseMgr.QueryCaptureManager().QueryDevice();
-		RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
-		realsenseProp.setColorExposure(Config.getInstance().getInitColorExposure());
-		realsenseProp.setColorBrightness(Config.getInstance().getInitColorBrightness());
-		setupColorCameraDevice(realsenseProp);
+		/**
+		 * 启动摄像头时，判断当前时间，选择白天设置或夜间设置
+		 */
+		int dayCameraTime = Integer.parseInt(Config.getInstance().getDayCameraTime());
+		int nightCameraTime = Integer.parseInt(Config.getInstance().getNightCameraTime());
+		int nowTime = Integer.parseInt(CalUtils.getStringTime()); // HHmm
+		if (nowTime >= dayCameraTime && nowTime < nightCameraTime) { // 08:00<=now<18:00
+			log.debug("当前设置为白天模式");
+			RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
+			realsenseProp.setColorExposure(Config.getInstance().getInitColorExposure());
+			realsenseProp.setColorBrightness(Config.getInstance().getInitColorBrightness());
+			setupColorCameraDevice(realsenseProp);
+			log.debug("ColorExposure=="+Config.getInstance().getInitColorExposure()+",ColorBrightness=="+Config.getInstance().getInitColorBrightness());
+		} else {
+			log.debug("当前设置为夜晚模式");
+			RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
+			realsenseProp.setColorExposure(Config.getInstance().getNightColorExposure());
+			realsenseProp.setColorBrightness(Config.getInstance().getNightColorBrightness());
+			setupColorCameraDevice(realsenseProp);
+			log.debug("ColorExposure=="+Config.getInstance().getNightColorExposure()+",ColorBrightness=="+Config.getInstance().getNightColorBrightness());
+		}
+
 		while (startCapture) {
 			try {
 				sts = senseMgr.AcquireFrame(true);
@@ -721,7 +740,7 @@ public class RSFaceTrackTask implements Runnable {
 					senseMgr.ReleaseFrame();
 					continue;
 				} else {
-					frameImage = drawFrameImage(sample);   //截图
+					frameImage = drawFrameImage(sample); // 截图
 					// ProcessUtil.writeHeartbeat(pid); // 写心跳日志
 					FaceScreenListener.getInstance().setPidStr(pid);// 设为允许写心跳
 				}
@@ -767,7 +786,7 @@ public class RSFaceTrackTask implements Runnable {
 									fd.setFacePoseYaw(pae.yaw);
 								}
 								log.info("Begin to verify face........." + fd);
-								FaceCheckingService.getInstance().offerDetectedFaceData(fd);  //将人脸插入待检队列
+								FaceCheckingService.getInstance().offerDetectedFaceData(fd); // 将人脸插入待检队列
 							}
 						}
 					}

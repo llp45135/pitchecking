@@ -1,6 +1,7 @@
 package com.rxtec.pitchecking.picheckingservice;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -8,6 +9,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerFactory;
+import org.quartz.TriggerBuilder;
+import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +26,8 @@ import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.mq.police.PITInfoPolicePublisher;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
 import com.rxtec.pitchecking.net.PTVerifyPublisher;
+import com.rxtec.pitchecking.task.AutoLogonJob;
+import com.rxtec.pitchecking.task.RunSetCameraPropJob;
 
 public class FaceCheckingService {
 	private Logger log = LoggerFactory.getLogger("FaceCheckingService");
@@ -57,7 +68,7 @@ public class FaceCheckingService {
 		detectedFaceDataQueue = new LinkedBlockingQueue<PITData>(Config.getInstance().getDetectededFaceQueueLen());
 		faceVerifyDataQueue = new LinkedBlockingQueue<PITVerifyData>(Config.getInstance().getDetectededFaceQueueLen());
 		passFaceDataQueue = new LinkedBlockingQueue<PITVerifyData>(1);
-		failedFaceDataList = new LinkedList<PITVerifyData>();		
+		failedFaceDataList = new LinkedList<PITVerifyData>();
 	}
 
 	public static synchronized FaceCheckingService getInstance() {
@@ -183,6 +194,43 @@ public class FaceCheckingService {
 		log.info(".............Start " + Config.getInstance().getFaceVerifyThreads() + " FaceVerifyThreads");
 		log.info("softVersion==" + DeviceConfig.softVersion);
 		executer.shutdown();
+	}
+
+	/**
+	 * 定时启动任务
+	 */
+	public int addQuartzJobs() {
+		int retVal = 1;
+		try {
+			SchedulerFactory sf = new StdSchedulerFactory();
+			Scheduler sched = sf.getScheduler(); // 初始化调度器
+			JobDetail job1 = JobBuilder.newJob(RunSetCameraPropJob.class)
+					.withIdentity("setCameraPropJob1", "pitcheckGroup").build();
+			CronTrigger trigger1 = (CronTrigger) TriggerBuilder.newTrigger()
+					.withIdentity("setCameraPropTrigger1", "pitcheckGroup")
+					.withSchedule(CronScheduleBuilder.cronSchedule("0 0 8 * * ?")).build(); // 设置触发器
+			
+			Date ft1 = sched.scheduleJob(job1, trigger1); // 设置调度作业
+			log.info(job1.getKey() + " has been scheduled to run at: " + ft1 + " and repeat based on expression: "
+					+ trigger1.getCronExpression());
+
+			JobDetail job2 = JobBuilder.newJob(RunSetCameraPropJob.class)
+					.withIdentity("setCameraPropJob2", "pitcheckGroup").build();
+			CronTrigger trigger2 = (CronTrigger) TriggerBuilder.newTrigger()
+					.withIdentity("setCameraPropTrigger2", "pitcheckGroup")
+					.withSchedule(CronScheduleBuilder.cronSchedule("0 0 18 * * ?")).build(); // 设置触发器
+			
+			Date ft2 = sched.scheduleJob(job2, trigger2); // 设置调度作业
+			log.info(job2.getKey() + " has been scheduled to run at: " + ft2 + " and repeat based on expression: "
+					+ trigger2.getCronExpression());
+
+			sched.start(); // 开启调度任务，执行作业
+
+		} catch (Exception ex) {
+			retVal = 0;
+			ex.printStackTrace();
+		}
+		return retVal;
 	}
 
 }

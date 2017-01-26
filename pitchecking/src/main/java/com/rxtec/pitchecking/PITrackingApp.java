@@ -102,6 +102,8 @@ public class PITrackingApp {
 		MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT); // 同CAM_RXTa.dll通信
 
 		GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT);// 启动PITEventTopic本地监听
+		
+		FaceCheckingService.getInstance().addQuartzJobs();
 
 		FaceCheckingService.getInstance().beginFaceCheckerTask(); // 启动人脸发布和比对结果订阅
 

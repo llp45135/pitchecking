@@ -186,6 +186,11 @@ public class Config {
 	private String easenConfigPath = "D:/maven/git/pitchecking";
 	private String easenActivationFile = "D:/pitchecking/config/license.txt";
 	private int isLightFaceLED = 1;
+	
+	private int nightColorExposure = -2;
+	private int nightColorBrightness = 40;
+	private String dayCameraTime = "0800";
+	private String nightCameraTime = "1800";
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
 	 */
@@ -207,9 +212,44 @@ public class Config {
 
 	private float minAverageDepth = 400F;
 	private float maxAverageDepth = 1000F;
+	
 
 	private int faceTrackMode = 1; // 人臉追蹤模式 1 紅外，2 顔色+景深
+	/***********************************************************/
+	
 
+	public int getNightColorExposure() {
+		return nightColorExposure;
+	}
+
+	public void setNightColorExposure(int nightColorExposure) {
+		this.nightColorExposure = nightColorExposure;
+	}
+
+	public int getNightColorBrightness() {
+		return nightColorBrightness;
+	}
+
+	public void setNightColorBrightness(int nightColorBrightness) {
+		this.nightColorBrightness = nightColorBrightness;
+	}
+
+	public String getDayCameraTime() {
+		return dayCameraTime;
+	}
+
+	public void setDayCameraTime(String dayCameraTime) {
+		this.dayCameraTime = dayCameraTime;
+	}
+
+	public String getNightCameraTime() {
+		return nightCameraTime;
+	}
+
+	public void setNightCameraTime(String nightCameraTime) {
+		this.nightCameraTime = nightCameraTime;
+	}
+	
 	public int getIsLightFaceLED() {
 		return isLightFaceLED;
 	}
@@ -738,6 +778,10 @@ public class Config {
 			this.easenConfigPath = p.getProperty("easenConfigPath", "D:/maven/git/pitchecking");
 			this.easenActivationFile = p.getProperty("easenActivationFile", "D:/pitchecking/config/license.txt");
 			this.isLightFaceLED = Integer.valueOf(p.getProperty("isLightFaceLED", "1"));
+			this.nightColorExposure = Integer.valueOf(p.getProperty("nightColorExposure", "-2"));
+			this.nightColorBrightness = Integer.valueOf(p.getProperty("nightColorBrightness", "40"));
+			this.dayCameraTime = p.getProperty("dayCameraTime", "0800");
+			this.nightCameraTime = p.getProperty("nightCameraTime", "1800");
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
