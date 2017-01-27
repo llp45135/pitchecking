@@ -35,7 +35,7 @@ public class RSFaceDetectionService implements IFaceTrackService{
 	static int cHeight = 480;
 	static int dWidth, dHeight;
 	static boolean exit = false;
-	private Logger log = LoggerFactory.getLogger("RSCameraViewer");
+	private Logger log = LoggerFactory.getLogger("RSFaceDetectionService");
 	private boolean exist = false;
 	private boolean startCapture = true;
 	private boolean startTrackFace = true;

@@ -7,8 +7,12 @@ public class CameraColorBean {
 	private boolean colorautoexposure;
 	private boolean colorautowhitebalance;
 	private boolean colorbacklightcompensation;
-	private int colorbrightness;
-	private int colorexposure;
+	private float hdr = 0f;
+	private int colorbrightness = 0;
+	private int colorexposure = -6;
+	private int contrast = 50 ;
+	private int gamma = 300;
+	private int gain = 64;
 	public String getEvent() {
 		return event;
 	}
@@ -57,6 +61,33 @@ public class CameraColorBean {
 	public void setColorexposure(int colorexposure) {
 		this.colorexposure = colorexposure;
 	}
+
+	public int getContrast() {
+		return contrast;
+	}
+	public void setContrast(int contrast) {
+		this.contrast = contrast;
+	}
+
+	public float getHdr() {
+		return hdr;
+	}
+	public void setHdr(float hdr) {
+		this.hdr = hdr;
+	}
+	public int getGamma() {
+		return gamma;
+	}
+	public void setGamma(int gamma) {
+		this.gamma = gamma;
+	}
+	public int getGain() {
+		return gain;
+	}
+	public void setGain(int gain) {
+		this.gain = gain;
+	}
+	
 
 	
 }

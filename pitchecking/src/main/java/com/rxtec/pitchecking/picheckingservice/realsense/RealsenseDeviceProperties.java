@@ -17,8 +17,19 @@ public class RealsenseDeviceProperties {
 	private boolean ColorAutoExposure = true;
 	private boolean ColorAutoWhiteBalance = true;
 	private boolean ColorBackLightCompensation = true;
-	private int ColorBrightness = 9;  //0
-	private int ColorExposure = -3;   //-6
+	private float sr300_hdr = 1.0f;
+	private int ColorBrightness = 0;  //0
+	private int ColorExposure = -6;   //-6
+	private int IVCAM_Option = 5;		//平滑系数，5代表中等距离 6,7代表远距离
+	private int contrast = 50;		//对比度0-100
+	private int gamma = 300;			//灰度 1-500
+	private int focalLength = 100*10;	//对焦距离
+	private int gain = 64;				//图像增益
+	private int hue = 0;				//色相 -180--180
+	private int saturation = 64;		//色彩饱和度 0-100
+	private int sharpness = 50;			//清晰度 0-100
+	private int whitebalance = 4600;		//白平衡 2800-5600
+	
 	
 	public boolean isColorAutoExposure() {
 		return ColorAutoExposure;
@@ -49,6 +60,66 @@ public class RealsenseDeviceProperties {
 	}
 	public void setColorExposure(int colorExposure) {
 		ColorExposure = colorExposure;
+	}
+	public int getIVCAM_Option() {
+		return IVCAM_Option;
+	}
+	public void setIVCAM_Option(int iVCAM_Option) {
+		IVCAM_Option = iVCAM_Option;
+	}
+	public float getSR300_HDR() {
+		return sr300_hdr;
+	}
+	public void setSR300_HDR(float sR300_HDR) {
+		sr300_hdr = sR300_HDR;
+	}
+	public int getContrast() {
+		return contrast;
+	}
+	public void setContrast(int contrast) {
+		this.contrast = contrast;
+	}
+	public int getGamma() {
+		return gamma;
+	}
+	public void setGamma(int gamma) {
+		this.gamma = gamma;
+	}
+	public int getFocalLength() {
+		return focalLength;
+	}
+	public void setFocalLength(int focalLength) {
+		this.focalLength = focalLength;
+	}
+	public int getGain() {
+		return gain;
+	}
+	public void setGain(int gain) {
+		this.gain = gain;
+	}
+	public int getHue() {
+		return hue;
+	}
+	public void setHue(int hue) {
+		this.hue = hue;
+	}
+	public int getSaturation() {
+		return saturation;
+	}
+	public void setSaturation(int saturation) {
+		this.saturation = saturation;
+	}
+	public int getSharpness() {
+		return sharpness;
+	}
+	public void setSharpness(int sharpness) {
+		this.sharpness = sharpness;
+	}
+	public int getWhitebalance() {
+		return whitebalance;
+	}
+	public void setWhitebalance(int whitebalance) {
+		this.whitebalance = whitebalance;
 	}
 
 

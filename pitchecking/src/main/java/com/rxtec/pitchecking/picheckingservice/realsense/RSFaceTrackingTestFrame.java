@@ -42,9 +42,9 @@ public class RSFaceTrackingTestFrame {
 	public static void main(String[] args) throws InterruptedException {
 
 		
-		RemoteMonitorPublisher.getInstance().startService(1);
-		TestFaceVerifyScreen frame = TestFaceVerifyScreen.getInstance();
-		frame.initUI();
+		//RemoteMonitorPublisher.getInstance().startService(1);
+		RSFaceFrameForTest frame = new RSFaceFrameForTest();
+		frame.setVisible(true);
 //		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 //		GraphicsDevice[] gs = ge.getScreenDevices();
 //		
@@ -52,9 +52,10 @@ public class RSFaceTrackingTestFrame {
 //		 gs[1].setFullScreenWindow(frame);
 
 		RSFaceDetectionService rsft = RSFaceDetectionService.getInstance();
+		frame.setRsft(rsft);
+
 		rsft.setVideoPanel(frame.getVideoPanel());
 		rsft.beginVideoCaptureAndTracking();
-
 
 		FaceCheckingService.getInstance().beginFaceCheckerTask();
 

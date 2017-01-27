@@ -186,7 +186,7 @@ public class ManualEventReceiverBroker {
 							ObjectMapper mapper = new ObjectMapper();
 							CameraColorBean cameraColorBean = mapper.readValue(mqttMessage.toLowerCase(),
 									CameraColorBean.class);
-
+							log.debug("Receive msg = " + mqttMessage.toString());
 							if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
 									+ DeviceConfig.GAT_MQ_Track_CLIENT)) { // 由检脸进程处理
 								log.debug("getEvent==" + cameraColorBean.getEvent());
@@ -198,6 +198,11 @@ public class ManualEventReceiverBroker {
 								log.debug("getColorautowhitebalance==" + cameraColorBean.getColorautowhitebalance());
 								log.debug("getColorbacklightcompensation=="
 										+ cameraColorBean.getColorbacklightcompensation());
+								log.debug("getHdr==" + cameraColorBean.getHdr());
+								log.debug("getContrast==" + cameraColorBean.getContrast());
+								log.debug("getGamma==" + cameraColorBean.getGamma());
+								log.debug("getGain==" + cameraColorBean.getGain());
+								
 
 								if (cameraColorBean.getEventsource().equals("manual") && cameraColorBean.getTarget()
 										.equals(DeviceConfig.getInstance().getIpAddress())) {
@@ -207,6 +212,10 @@ public class ManualEventReceiverBroker {
 									rdp.setColorBackLightCompensation(cameraColorBean.getColorbacklightcompensation());
 									rdp.setColorBrightness(cameraColorBean.getColorbrightness());
 									rdp.setColorExposure(cameraColorBean.getColorexposure());
+									rdp.setSR300_HDR(cameraColorBean.getHdr());
+									rdp.setContrast(cameraColorBean.getContrast());
+									rdp.setGamma(cameraColorBean.getGamma());
+									rdp.setGain(cameraColorBean.getGain());
 
 									RSFaceDetectionService.getInstance().setDeviceProperties(rdp);
 									log.debug("接收到控制台设置Realsense参数指令，参数已动态重置!!");

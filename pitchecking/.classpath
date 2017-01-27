@@ -28,7 +28,9 @@
 	<classpathentry kind="lib" path="lib/libpxcclr.java.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.paho.client.mqttv3-1.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/wmqtt.jar"/>
-	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/aeron-all-1.0.2_Rxtec.jar"/>
 	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/json.org.jar"/>
+	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/jmf.jar"/>
+	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/jna.jar"/>
+	<classpathentry kind="lib" path="C:/maven/git/pitchecking/lib/aeron-all-1.0.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

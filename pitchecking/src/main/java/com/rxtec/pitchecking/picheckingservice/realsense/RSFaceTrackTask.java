@@ -609,9 +609,21 @@ public class RSFaceTrackTask implements Runnable {
 	}
 
 	/**
-	 * 设置摄像头参数 SetColorExposure 设置曝光值 范围 -8,0 step 1.0 ,系统缺省值 -6 。值越小曝光值越小
-	 * 。强背光的时候曝光值放大，正面直射的时候曝光值减少 SetColorBrightness 设置亮度 范围 -64，64 step 1.0
-	 * ,系统缺省值 0。 值越小越暗。
+	 * 设置摄像头参数 
+	 * SetColorExposure 设置曝光值 范围 -8--0 step 1.0 ,系统缺省值 -6 。值越小曝光值越小,可设为自动曝光
+	 * ColorBrightness 设置亮度 范围 -64--64 step 1.0， 0 设置画面亮度
+	 * Gain 图像增益 0--128,64，1,false
+	 * Gamma 灰度 100--500,300,1，false
+	 * HUE 色相 -180--180,0,1，false
+	 * Saturation 色彩饱和度 0--100,64,1,false
+	 * Sharpness 清晰度 0--100,50,1，false
+	 * WhitenBalance 白平衡 2800--5600,4600,10，true
+	 * DepthConfidenceTHRESHOLD  深度信息可信度阈值 0--15,3,1，flse
+	 * 
+	 * PROPERTY_IVCAM_FILTER_OPTION SR300摄像头平滑系数 0-9 缺省值5 代表中等距离
+	 * 
+	 * PROPERTY_COLOR_FOCAL_LENGTH 镜头聚焦点 【X,Y】坐标，与分辨率有关
+	 * PROPERTY_COLOR_FOCAL_LENGTH_MM 镜头聚焦点距离，单位毫米
 	 * 
 	 * @param RealsenseDeviceProperties
 	 *            设备参数
@@ -629,7 +641,79 @@ public class RSFaceTrackTask implements Runnable {
 
 		dev.SetColorBrightness(properties.getColorBrightness());
 		dev.SetColorExposure(properties.getColorExposure());
-
+		
+		
+		dev.SetIVCAMFilterOption(properties.getIVCAM_Option());
+		
+		
+		
+		dev.SetSR300_HDR_MODE(properties.getSR300_HDR());
+		dev.SetColorContrast(properties.getContrast());
+		dev.SetColorGamma(properties.getGamma());
+		dev.SetFocalLengthMM(properties.getFocalLength());
+		dev.SetColorGain(properties.getGain());
+		dev.SetColorHue(properties.getHue());
+		dev.SetColorSaturation(properties.getSaturation());
+		dev.SetColorSharpness(properties.getSharpness());
+		//dev.SetColorWhiteBalance(properties.getWhitebalance());
+		
+		
+//		log.info("ColorBrightness=" + dev.QueryColorBrightness());
+//		log.info("ColorExposure=" + dev.QueryColorExposure());
+//		//log.info("isSR300_HDR=" + d);
+//		log.info("ColorContrast=" + dev.QueryColorContrast());
+//		log.info("ColorFocalLengthMM=" + dev.QueryColorFocalLengthMM());
+//		log.info("Gamma=" + dev.QueryColorGamma());
+//		log.info("HUE=" + dev.QueryColorHue());
+//		log.info("Gain=" + dev.QueryColorGain());
+//		log.info("DepthFocalLengthMM=" + dev.QueryDepthFocalLengthMM());
+//		log.info("DepthConfidenceThreshold=" + dev.QueryDepthConfidenceThreshold());
+//		log.info("IVCAMFilterOption=" + dev.QueryIVCAMFilterOption());
+//		log.info("QueryIVCAMLaserPower=" + dev.QueryIVCAMLaserPower());
+//		log.info("IVCAMAccuracy=" + dev.QueryIVCAMAccuracy());
+//		log.info("ColorGainInfo=" + dev.QueryColorGainInfo());
+//		PropertyInfo pinfo = dev.QueryColorGainInfo();
+//		log.info("GainInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//		
+//		pinfo = dev.QueryColorBrightnessInfo();
+//		log.info("BrightnessInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//		
+//		pinfo = dev.QueryColorContrastInfo();
+//		log.info("ContrastInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//		
+//		pinfo = dev.QueryColorExposureInfo();
+//		log.info("ColorExposureInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//		
+//		pinfo = dev.QueryColorGammaInfo();
+//		log.info("ColorGammaInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//		
+//		pinfo = dev.QueryColorHueInfo();
+//		log.info("ColorHueInfo(): defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//
+//		pinfo = dev.QueryColorSaturationInfo();
+//		log.info("ColorSaturationInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//		
+//		pinfo = dev.QueryColorSharpnessInfo();
+//		log.info("ColorSharpnessInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//
+//		pinfo = dev.QueryColorWhiteBalanceInfo();
+//		log.info("ColorWhiteBalanceInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//
+//		pinfo = dev.QueryDepthConfidenceThresholdInfo();
+//		log.info("DepthConfidenceThresholdInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//
+//		
+//		pinfo = dev.QueryIVCAMFilterOptionInfo();
+//		log.info("IVCAMFilterOptionInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//
+//		pinfo = dev.QueryIVCAMLaserPowerInfo();
+//		log.info("IVCAMLaserPowerInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//
+//		pinfo = dev.QueryIVCAMMotionRangeTradeOffInfo();
+//		log.info("IVCAMMotionRangeTradeOffInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
+//
+//		
+		
 		// PropertyInfo pColorBrightness = dev.QueryColorBrightnessInfo();
 		// PropertyInfo pColorExposure = dev.QueryColorExposureInfo();
 		// PropertyInfo pBackLight = dev.QueryColorBackLightCompensationInfo();
