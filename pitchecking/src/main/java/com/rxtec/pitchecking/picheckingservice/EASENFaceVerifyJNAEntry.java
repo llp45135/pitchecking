@@ -108,11 +108,12 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 				System.arraycopy(path, 0, pathBytes, 0, path.length);
 
 				ret = SDKMethod.INSTANCE.initializeSDK(pathBytes);
-				log.info("initializeSDK ret = " + ret);
-				log.info("初始化Easen initializeSDK 成功!  ret: " + ret);// 获取返回值
+				log.info("初始化Easen initializeSDK ret = " + ret);
+//				log.info("初始化Easen initializeSDK 成功!  ret: " + ret);// 获取返回值
 				if (ret != SDKMethod.SDK_NO_ERROR) {
 					log.error("初始化Easen initializeSDK Failed!");
 				} else {
+					log.info("初始化Easen initializeSDK 成功!!");
 					initStatus = 1;
 				}
 			}else{

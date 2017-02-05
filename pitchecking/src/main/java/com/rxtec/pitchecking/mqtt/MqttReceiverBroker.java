@@ -16,6 +16,7 @@ import com.rxtec.pitchecking.SingleFaceTrackingScreen;
 import com.rxtec.pitchecking.device.AudioDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
+import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.net.event.CAMOpenBean;
 import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
@@ -197,17 +198,16 @@ public class MqttReceiverBroker {
 
 				} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
 					log.info("@@@@@@@@@@@@@@@收到CAM_Notify请求@@@@@@@@@@@@@@@@");
-					
+
 					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setNotifyJson(mqttMessage); // 把notify
 																												// jsonstring保存起来
-					
 
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyEventBean b1 = mapper.readValue(mqttMessage, PIVerifyEventBean.class);
 
 					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setUuid(b1.getUuid());
 					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setIdcardBytes(b1.getIdPhoto());
-					
+
 					if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyEASEN)) {
 						String easenzp = Config.getInstance().getEasenConfigPath() + "/easenzp.jpg";
 						File zpFile = new File(easenzp);
@@ -270,6 +270,13 @@ public class MqttReceiverBroker {
 					String screenDisplayResultJson = mapper.writeValueAsString(screenDisplayBean);
 					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(SEND_TOPIC,
 							screenDisplayResultJson);
+
+					// 语音："验证成功，请通过"
+					if (faceScreenDisplay.indexOf("成功") != -1) {
+						log.info("播放语音：验证成功，请通过");
+						MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage("PITEventTopic",
+								ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag, "FaceAudio"));
+					}
 
 					if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
 						FaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(1,

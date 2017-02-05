@@ -792,17 +792,37 @@ public class RSFaceTrackTask implements Runnable {
 		if (nowTime >= dayCameraTime && nowTime < nightCameraTime) { // 08:00<=now<18:00
 			log.debug("当前设置为白天模式");
 			RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
-			realsenseProp.setColorExposure(Config.getInstance().getInitColorExposure());
+			
+//			realsenseProp.setColorAutoExposure(cameraColorBean.getColorautoexposure());
+//			realsenseProp.setColorAutoWhiteBalance(cameraColorBean.getColorautowhitebalance());
+//			realsenseProp.setColorBackLightCompensation(cameraColorBean.getColorbacklightcompensation());
 			realsenseProp.setColorBrightness(Config.getInstance().getInitColorBrightness());
+			realsenseProp.setColorExposure(Config.getInstance().getInitColorExposure());
+//			realsenseProp.setSR300_HDR(cameraColorBean.getHdr());
+			realsenseProp.setContrast(Config.getInstance().getInitContrast());
+//			realsenseProp.setGamma(cameraColorBean.getGamma());
+			realsenseProp.setGain(Config.getInstance().getInitGain());
+			
 			setupColorCameraDevice(realsenseProp);
-			log.debug("ColorExposure=="+Config.getInstance().getInitColorExposure()+",ColorBrightness=="+Config.getInstance().getInitColorBrightness());
+			log.debug("InitColorExposure=="+Config.getInstance().getInitColorExposure()+",InitColorBrightness=="+Config.getInstance().getInitColorBrightness());
+			log.debug("InitContrast=="+Config.getInstance().getInitContrast()+",InitGain=="+Config.getInstance().getInitGain());
 		} else {
 			log.debug("当前设置为夜晚模式");
 			RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
-			realsenseProp.setColorExposure(Config.getInstance().getNightColorExposure());
+			
+//			realsenseProp.setColorAutoExposure(cameraColorBean.getColorautoexposure());
+//			realsenseProp.setColorAutoWhiteBalance(cameraColorBean.getColorautowhitebalance());
+//			realsenseProp.setColorBackLightCompensation(cameraColorBean.getColorbacklightcompensation());
 			realsenseProp.setColorBrightness(Config.getInstance().getNightColorBrightness());
+			realsenseProp.setColorExposure(Config.getInstance().getNightColorExposure());
+//			realsenseProp.setSR300_HDR(cameraColorBean.getHdr());
+			realsenseProp.setContrast(Config.getInstance().getNightContrast());
+//			realsenseProp.setGamma(cameraColorBean.getGamma());
+			realsenseProp.setGain(Config.getInstance().getNightGain());
+			
 			setupColorCameraDevice(realsenseProp);
-			log.debug("ColorExposure=="+Config.getInstance().getNightColorExposure()+",ColorBrightness=="+Config.getInstance().getNightColorBrightness());
+			log.debug("NightColorExposure=="+Config.getInstance().getNightColorExposure()+",NightColorBrightness=="+Config.getInstance().getNightColorBrightness());
+			log.debug("NightContrast=="+Config.getInstance().getNightContrast()+",NightGain=="+Config.getInstance().getNightGain());
 		}
 
 		while (startCapture) {

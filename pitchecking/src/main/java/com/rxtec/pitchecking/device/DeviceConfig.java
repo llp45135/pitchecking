@@ -31,7 +31,7 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "170121.18.01";
+	public static String softVersion = "170203.20.01";
 	private String softIdNo = "520203197912141118,440111197209283012,440881199502176714";
 
 	public static int SINGLEDOOR = 1;

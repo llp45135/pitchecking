@@ -182,6 +182,9 @@ public class Config {
 	 */
 	private int initColorBrightness = 9;  //0
 	private int initColorExposure = -3;   //-6
+	private int initContrast=50;
+	private int initGain=64;
+	private String initCronStr="0 0 7 * * ?";
 	
 	private String easenConfigPath = "D:/maven/git/pitchecking";
 	private String easenActivationFile = "D:/pitchecking/config/license.txt";
@@ -189,6 +192,9 @@ public class Config {
 	
 	private int nightColorExposure = -2;
 	private int nightColorBrightness = 40;
+	private int nightContrast=50;
+	private int nightGain=64;
+	private String nightCronStr="0 0 18 * * ?";
 	private String dayCameraTime = "0800";
 	private String nightCameraTime = "1800";
 	/************************************************************
@@ -220,6 +226,54 @@ public class Config {
 
 	public int getNightColorExposure() {
 		return nightColorExposure;
+	}
+
+	public String getInitCronStr() {
+		return initCronStr;
+	}
+
+	public void setInitCronStr(String initCronStr) {
+		this.initCronStr = initCronStr;
+	}
+
+	public String getNightCronStr() {
+		return nightCronStr;
+	}
+
+	public void setNightCronStr(String nightCronStr) {
+		this.nightCronStr = nightCronStr;
+	}
+
+	public int getInitContrast() {
+		return initContrast;
+	}
+
+	public void setInitContrast(int initContrast) {
+		this.initContrast = initContrast;
+	}
+
+	public int getInitGain() {
+		return initGain;
+	}
+
+	public void setInitGain(int initGain) {
+		this.initGain = initGain;
+	}
+
+	public int getNightContrast() {
+		return nightContrast;
+	}
+
+	public void setNightContrast(int nightContrast) {
+		this.nightContrast = nightContrast;
+	}
+
+	public int getNightGain() {
+		return nightGain;
+	}
+
+	public void setNightGain(int nightGain) {
+		this.nightGain = nightGain;
 	}
 
 	public void setNightColorExposure(int nightColorExposure) {
@@ -773,6 +827,9 @@ public class Config {
 			this.doorCountMode = Integer.valueOf(p.getProperty("doorCountMode", "2"));
 			this.initColorExposure = Integer.valueOf(p.getProperty("initColorExposure", "-3"));
 			this.initColorBrightness = Integer.valueOf(p.getProperty("initColorBrightness", "9"));
+			this.initContrast = Integer.valueOf(p.getProperty("initContrast", "50"));
+			this.initGain = Integer.valueOf(p.getProperty("initGain", "64"));
+			this.initCronStr = p.getProperty("initCronStr", "0 0 7 * * ?");
 			this.isUseCamDll = Integer.valueOf(p.getProperty("isUseCamDll", "1"));
 			this.isSendFrame = Integer.valueOf(p.getProperty("isSendFrame", "1"));
 			this.easenConfigPath = p.getProperty("easenConfigPath", "D:/maven/git/pitchecking");
@@ -780,6 +837,9 @@ public class Config {
 			this.isLightFaceLED = Integer.valueOf(p.getProperty("isLightFaceLED", "1"));
 			this.nightColorExposure = Integer.valueOf(p.getProperty("nightColorExposure", "-2"));
 			this.nightColorBrightness = Integer.valueOf(p.getProperty("nightColorBrightness", "40"));
+			this.nightContrast = Integer.valueOf(p.getProperty("nightContrast", "50"));
+			this.nightGain = Integer.valueOf(p.getProperty("nightGain", "64"));
+			this.nightCronStr = p.getProperty("nightCronStr", "0 0 18 * * ?");
 			this.dayCameraTime = p.getProperty("dayCameraTime", "0800");
 			this.nightCameraTime = p.getProperty("nightCameraTime", "1800");
 			is.close(); // 关闭流

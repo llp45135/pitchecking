@@ -68,13 +68,13 @@ public class TicketVerify {
 								log.debug("TicketVerifyTrainDateRuleFail==" + Config.TicketVerifyTrainDateRuleFail);
 								return Config.TicketVerifyTrainDateRuleFail;
 							}
-						}						
+						}
 					}
 					return Config.TicketVerifyWaitInput;
-				} else {  //不需要核验
+				} else { // 不需要核验
 					return Config.TicketVerifyWaitInput;
 				}
-			} else if (idCard != null) {  //有证
+			} else if (idCard != null) { // 有证
 				log.info("getSoftIdNo==" + DeviceConfig.getInstance().getSoftIdNo());
 				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1) { // 白名单
 					Ticket virualTicket = new Ticket();
@@ -92,17 +92,19 @@ public class TicketVerify {
 					virualTicket.setSeatCode("8");
 					this.setTicket(virualTicket);
 					return Config.TicketVerifySucc;
-				} else {  //非白名单
+				} else { // 非白名单
 					return Config.TicketVerifyWaitInput;
 				}
-			} else {  //无票无证
+			} else { // 无票无证
 				return -99;
 			}
-		} else {  //有票有证
+		} else { // 有票有证
 			// TODO 执行比对
 			// 校验车站验票规则
-			// log.info("idCard.getIdNo=="+idCard.getIdNo()+",ticket.getCardNo=="+ticket.getCardNo()+"##");
-			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {  //需要核验
+			log.info("fromStationCode==" + ticket.getFromStationCode() + ",trainCode==" + ticket.getTrainCode()
+					+ ",trainDate==" + ticket.getTrainDate());
+			log.info("belongStationCode==" + DeviceConfig.getInstance().getBelongStationCode() + "#");
+			if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) { // 需要核验
 				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1
 						&& ticket.getCardNo().equals(idCard.getIdNo())) { // 白名单
 					return Config.TicketVerifySucc;
@@ -114,6 +116,7 @@ public class TicketVerify {
 						log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
 						return Config.TicketVerifyStationRuleFail;
 					} else if (ticket.getFromStationCode().equals("SZQ") && ticket.getTrainCode().startsWith("C")) { // 广深线动车
+						log.debug("TicketVerifyStationRuleFail==" + Config.TicketVerifyStationRuleFail);
 						return Config.TicketVerifyStationRuleFail;
 					} else {
 						if (DeviceConfig.getInstance().getSZQTrainsMap() != null
@@ -156,6 +159,7 @@ public class TicketVerify {
 					}
 				}
 			}
+			log.info("return TicketVerifySucc");
 			return Config.TicketVerifySucc;
 		}
 	}
@@ -181,12 +185,12 @@ public class TicketVerify {
 		this.idCard = null;
 		log.info("已经清除本次的票证对象!!");
 	}
-	
-	public void clearTicket(){
+
+	public void clearTicket() {
 		this.ticket = null;
 	}
-	
-	public void clearIdCard(){
+
+	public void clearIdCard() {
 		this.idCard = null;
 	}
 

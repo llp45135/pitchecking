@@ -208,7 +208,7 @@ public class FaceCheckingService {
 					.withIdentity("setCameraPropJob1", "pitcheckGroup").build();
 			CronTrigger trigger1 = (CronTrigger) TriggerBuilder.newTrigger()
 					.withIdentity("setCameraPropTrigger1", "pitcheckGroup")
-					.withSchedule(CronScheduleBuilder.cronSchedule("0 0 8 * * ?")).build(); // 设置触发器
+					.withSchedule(CronScheduleBuilder.cronSchedule(Config.getInstance().getInitCronStr())).build(); // 设置触发器
 			
 			Date ft1 = sched.scheduleJob(job1, trigger1); // 设置调度作业
 			log.info(job1.getKey() + " has been scheduled to run at: " + ft1 + " and repeat based on expression: "
@@ -218,7 +218,7 @@ public class FaceCheckingService {
 					.withIdentity("setCameraPropJob2", "pitcheckGroup").build();
 			CronTrigger trigger2 = (CronTrigger) TriggerBuilder.newTrigger()
 					.withIdentity("setCameraPropTrigger2", "pitcheckGroup")
-					.withSchedule(CronScheduleBuilder.cronSchedule("0 0 18 * * ?")).build(); // 设置触发器
+					.withSchedule(CronScheduleBuilder.cronSchedule(Config.getInstance().getNightCronStr())).build(); // 设置触发器
 			
 			Date ft2 = sched.scheduleJob(job2, trigger2); // 设置调度作业
 			log.info(job2.getKey() + " has been scheduled to run at: " + ft2 + " and repeat based on expression: "

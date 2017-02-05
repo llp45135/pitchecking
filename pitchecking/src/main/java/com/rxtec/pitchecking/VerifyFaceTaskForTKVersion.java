@@ -193,8 +193,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 				faceTrackService.stopCheckingFace();
 
 				// 语音："验证成功，请通过"
-				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-						.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag, "FaceAudio"));
+//				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+//						.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag, "FaceAudio"));
 				// 通知人工控制台
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(DeviceConfig.EventTopic,
 						DeviceConfig.Event_VerifyFaceSucc);

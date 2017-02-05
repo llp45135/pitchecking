@@ -264,7 +264,7 @@ public class ManualEventReceiverBroker {
 															+ gatCrtlBean.getEvent());
 													PITVerifyData manualFd = new PITVerifyData();
 
-													manualFd.setVerifyResult(-9);
+													manualFd.setVerifyResult(-1);
 													manualFd.setIdNo(MqttSenderBroker
 															.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getUuid());
 													manualFd.setIdCardImg(MqttSenderBroker

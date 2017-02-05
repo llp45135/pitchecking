@@ -29,19 +29,33 @@ public class RunSetCameraPropJob implements Job {
 		if (nowTime >= dayCameraTime && nowTime < nightCameraTime) { // 08:00<=now<18:00
 			log.debug("当前设置为白天模式");
 			RealsenseDeviceProperties rdp = new RealsenseDeviceProperties();
-			rdp.setColorExposure(Config.getInstance().getInitColorExposure());
+//			rdp.setColorAutoExposure(cameraColorBean.getColorautoexposure());
+//			rdp.setColorAutoWhiteBalance(cameraColorBean.getColorautowhitebalance());
+//			rdp.setColorBackLightCompensation(cameraColorBean.getColorbacklightcompensation());
 			rdp.setColorBrightness(Config.getInstance().getInitColorBrightness());
+			rdp.setColorExposure(Config.getInstance().getInitColorExposure());
+//			rdp.setSR300_HDR(cameraColorBean.getHdr());
+			rdp.setContrast(Config.getInstance().getInitContrast());
+//			rdp.setGamma(cameraColorBean.getGamma());
+			rdp.setGain(Config.getInstance().getInitGain());
 			RSFaceDetectionService.getInstance().setDeviceProperties(rdp);
-			log.debug("ColorExposure==" + Config.getInstance().getInitColorExposure() + ",ColorBrightness=="
-					+ Config.getInstance().getInitColorBrightness());
+			log.debug("InitColorExposure=="+Config.getInstance().getInitColorExposure()+",InitColorBrightness=="+Config.getInstance().getInitColorBrightness());
+			log.debug("InitContrast=="+Config.getInstance().getInitContrast()+",InitGain=="+Config.getInstance().getInitGain());
 		} else {
 			log.debug("当前设置为夜晚模式");
 			RealsenseDeviceProperties rdp = new RealsenseDeviceProperties();
-			rdp.setColorExposure(Config.getInstance().getNightColorExposure());
+//			rdp.setColorAutoExposure(cameraColorBean.getColorautoexposure());
+//			rdp.setColorAutoWhiteBalance(cameraColorBean.getColorautowhitebalance());
+//			rdp.setColorBackLightCompensation(cameraColorBean.getColorbacklightcompensation());
 			rdp.setColorBrightness(Config.getInstance().getNightColorBrightness());
+			rdp.setColorExposure(Config.getInstance().getNightColorExposure());
+//			rdp.setSR300_HDR(cameraColorBean.getHdr());
+			rdp.setContrast(Config.getInstance().getNightContrast());
+//			rdp.setGamma(cameraColorBean.getGamma());
+			rdp.setGain(Config.getInstance().getNightGain());
 			RSFaceDetectionService.getInstance().setDeviceProperties(rdp);
-			log.debug("ColorExposure==" + Config.getInstance().getNightColorExposure() + ",ColorBrightness=="
-					+ Config.getInstance().getNightColorBrightness());
+			log.debug("NightColorExposure=="+Config.getInstance().getNightColorExposure()+",NightColorBrightness=="+Config.getInstance().getNightColorBrightness());
+			log.debug("NightContrast=="+Config.getInstance().getNightContrast()+",NightGain=="+Config.getInstance().getNightGain());
 		}
 	}
 
