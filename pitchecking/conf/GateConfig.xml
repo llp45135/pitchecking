@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PitCheckMsg>
-	<GateConfig versionFlag="1" gateNo="01" belongStationCode="GGQ"
-		faceScreen="1" ticketScreen="0" guideScreen="0" checkTicketFlag="1" readerTimeDelay="3"
+	<GateConfig versionFlag="1" gateNo="128" belongStationCode="GGQ"
+		faceScreen="0" ticketScreen="0" guideScreen="0" checkTicketFlag="1" readerTimeDelay="3"
 		succTimeDelay="4" idDeviceType="T" qrDeviceType="T" autoLogonCron="0 0 5 * * ?" stopCheckMinutes="10" NotStartCheckMinutes="240" />
 	<GateCrtlConfig cameraLEDPort="3" firstGateCrtlPort="COM1"
 		secondGateCrtlPort="COM2" honeywellQRPort="COM3" gateCrtlRate="9600" />
 	<MQConfig mqStartFlag="0" MQURL="failover://tcp://localhost:61616"
 		TOPIC="Pitchecking" TOPIC_RESULT="PitcheckingResult" USER="pitchecking"
-		PASSWORD="pitchecking" ManualCheck_Address="198.132.4.216" PoliceServer_Address="127.0.0.1" PoliceServerPort="61616" />
-	<AppConfig softIdNo="520203197912141118,440111197209283012,440881199502176714,452502198305034618" 
-	gateIPList = "127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1" />
+		PASSWORD="pitchecking" ManualCheck_Address="192.168.1.104" PoliceServer_Address="127.0.0.1" PoliceServerPort="61616" />
+	<AppConfig softIdNo="520203197912141118,440111197209283012,440881199502176714,452502198305034618" gateIPList = "127.0.0.1,127.0.0.1,127.0.0.1,127.0.0.1" />
 </PitCheckMsg>
