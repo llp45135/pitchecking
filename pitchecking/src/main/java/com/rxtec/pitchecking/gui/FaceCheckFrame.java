@@ -106,16 +106,17 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					FaceTrackingScreen.getInstance().setFaceFrame(frame);
 					FaceTrackingScreen.getInstance().initUI(0);
 					frame.showDefaultContent();
-//					CommUtil.sleep(3 * 1000);
+					// CommUtil.sleep(3 * 1000);
 					// frame.setVisible(true);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setFaceScreenDisplayTimeout(5);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setFaceScreenDisplay("人证核验失败#请从侧门离开");
+					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).setFaceScreenDisplayTimeout(5);
+					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
+							.setFaceScreenDisplay("人证核验失败#请从侧门离开");
 					// MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
 					frame.showFaceDisplayFromTK();
 					// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
-					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag,"FaceAudio"));
-//					frame.showBeginCheckFaceContent();
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
+							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag, "FaceAudio"));
+					// frame.showBeginCheckFaceContent();
 					// frame.showFaceCheckPassContent();
 					// frame.showCheckFailedContent();
 					// frame.showDefaultContent();
@@ -293,7 +294,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		// showDefaultContent();
 
 		// this.setLocationRelativeTo(null);
-//		setUndecorated(true);
+		// setUndecorated(true);
 		setAlwaysOnTop(true);
 
 	}
@@ -316,7 +317,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	public void showFaceDisplayFromTK() {
 		timeIntevel = 0;
 
-		String displayStr = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getFaceScreenDisplay();
+		String displayStr = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplay();
 
 		// this.displayMsg = displayStr.replace("#", "！");
 		//
@@ -345,14 +346,14 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		if (displayStr.indexOf("成功") != -1) {
 			// ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
 			// this.showPassStatusImage(icon);
-			timeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getFaceScreenDisplayTimeout();// 5;
-																						// //
-																						// 成功时的提示信息存在时间
-																						// 暂时设置为5s
+			timeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplayTimeout();// 5;
+			// //
+			// 成功时的提示信息存在时间
+			// 暂时设置为5s
 		} else {
 			// ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
 			// this.showPassStatusImage(icon);
-			timeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getFaceScreenDisplayTimeout();
+			timeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplayTimeout();
 		}
 		titleStrType = 4; // 4:覆盖一层panel 5：不覆盖
 
@@ -444,9 +445,11 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 			String startPlayTime = CalUtils.getStringDateShort() + " " + "05:30:00";
 			String endPlayTime = CalUtils.getStringDateShort() + " " + "23:30:00";
 			if (CalUtils.isDateAfter(startPlayTime) && CalUtils.isDateBefore(endPlayTime)) {
-//				AudioPlayTask.getInstance().start(DeviceConfig.useHelpFlag); // 循环播放引导使用语音
-				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioUseHelpFlag,"FaceAudio"));
+				if (Config.getInstance().getIsPlayHelpAudio() == 1) {
+					// 循环播放引导使用语音
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
+							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioUseHelpFlag, "FaceAudio"));
+				}
 			} else {
 				log.info("当前时间段不在" + startPlayTime + "--" + endPlayTime + "之间,不可以播放引导语音");
 			}

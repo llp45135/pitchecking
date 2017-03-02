@@ -125,12 +125,12 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 					frame.showTicketDefaultContent();
 					CommUtil.sleep(3 * 1000);
 					// frame.setVisible(true);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setFaceScreenDisplayTimeout(10);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setFaceScreenDisplay("人脸识别成功#请通过");
+					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).setFaceScreenDisplayTimeout(10);
+					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).setFaceScreenDisplay("人脸识别成功#请通过");
 					// MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
 					frame.showFaceDisplayFromTK();
 					// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
-					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
 							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag, "FaceAudio"));
 					// frame.showBeginCheckFaceContent();
 					// frame.showFaceCheckPassContent();
@@ -508,7 +508,7 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 	public void showFaceDisplayFromTK() {
 		faceTimeIntevel = 0;
 
-		String displayStr = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getFaceScreenDisplay();
+		String displayStr = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplay();
 
 		// this.displayMsg = displayStr.replace("#", "！");
 		//
@@ -537,14 +537,14 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 		if (displayStr.indexOf("成功") != -1) {
 			// ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
 			// this.showPassStatusImage(icon);
-			faceTimeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getFaceScreenDisplayTimeout();// 5;
+			faceTimeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplayTimeout();// 5;
 																							// //
 																							// 成功时的提示信息存在时间
 																							// 暂时设置为5s
 		} else {
 			// ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
 			// this.showPassStatusImage(icon);
-			faceTimeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getFaceScreenDisplayTimeout();
+			faceTimeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplayTimeout();
 		}
 		faceTitleStrType = 4; // 4:覆盖一层panel 5：不覆盖
 

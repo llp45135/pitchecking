@@ -5,10 +5,11 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
-public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
+public class PITVerifyData implements Serializable, Comparable<PITVerifyData> {
 
 	/**
 	 * 
@@ -19,16 +20,16 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 
 	private int eventDirection = 1;
 
-	
 	private byte[] faceImg;
 	private byte[] idCardImg;
 	private byte[] frameImg;
-//	private BufferedImage idCardBufImg;
-//	private BufferedImage faceBufImg;
-//	private BufferedImage frameBufImg;
+	// private BufferedImage idCardBufImg;
+	// private BufferedImage faceBufImg;
+	// private BufferedImage frameBufImg;
 
 	private float verifyResult = 0f;
 
+	private IDCard idCard;
 	private String idNo;
 	private String personName;
 	private int gender;
@@ -40,11 +41,19 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 	private String pitDate;
 	private String pitStation;
 	private String pitTime;
-	
+
 	private float facePosePitch;
 	private float facePoseRoll;
 	private float facePoseYaw;
-	
+
+	// --------------------------------------------------------------------------
+	public IDCard getIdCard() {
+		return idCard;
+	}
+
+	public void setIdCard(IDCard idCard) {
+		this.idCard = idCard;
+	}
 
 	public String getQrCode() {
 		return qrCode;
@@ -55,8 +64,7 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 	}
 
 	private String gateIp;
-	
-	
+
 	public String getGateIp() {
 		return gateIp;
 	}
@@ -80,7 +88,6 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 	public void setEventDirection(int eventDirection) {
 		this.eventDirection = eventDirection;
 	}
-
 
 	public float getFacePosePitch() {
 		return facePosePitch;
@@ -106,7 +113,6 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 		this.facePoseYaw = facePoseYaw;
 	}
 
-
 	public String getPitStation() {
 		return pitStation;
 	}
@@ -130,7 +136,6 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 	public void setPitTime(String pitTime) {
 		this.pitTime = pitTime;
 	}
-
 
 	public int getUseTime() {
 		return useTime;
@@ -220,57 +225,59 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 		this.idCardImg = idCardImg;
 	}
 
-//	public BufferedImage getIdCardBufImg() {
-//		return idCardBufImg;
-//	}
-//
-//	public void setIdCardBufImg(BufferedImage idCardBufImg) {
-//		this.idCardBufImg = idCardBufImg;
-//	}
-//
-//	public BufferedImage getFaceBufImg() {
-//		return faceBufImg;
-//	}
-//
-//	public void setFaceBufImg(BufferedImage faceBufImg) {
-//		this.faceBufImg = faceBufImg;
-//	}
-//
-//	public BufferedImage getFrameBufImg() {
-//		return frameBufImg;
-//	}
-//
-//	public void setFrameBufImg(BufferedImage frameBufImg) {
-//		this.frameBufImg = frameBufImg;
-//	}
+	// public BufferedImage getIdCardBufImg() {
+	// return idCardBufImg;
+	// }
+	//
+	// public void setIdCardBufImg(BufferedImage idCardBufImg) {
+	// this.idCardBufImg = idCardBufImg;
+	// }
+	//
+	// public BufferedImage getFaceBufImg() {
+	// return faceBufImg;
+	// }
+	//
+	// public void setFaceBufImg(BufferedImage faceBufImg) {
+	// this.faceBufImg = faceBufImg;
+	// }
+	//
+	// public BufferedImage getFrameBufImg() {
+	// return frameBufImg;
+	// }
+	//
+	// public void setFrameBufImg(BufferedImage frameBufImg) {
+	// this.frameBufImg = frameBufImg;
+	// }
 
 	public PITVerifyData(PITData pd) {
-		if(pd == null) return;
+		if (pd == null)
+			return;
 		SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd");
 		SimpleDateFormat sf2 = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 		this.frameImg = ImageToolkit.getImageBytes(pd.getFrame(), "JPEG");
-		
+
 		if (pd.getIdCard() != null) {
-//			this.idCardBufImg = pd.getIdCard().getCardImage();
-//			this.frameBufImg = pd.getFrame();
-//			this.faceBufImg = pd.getFaceImage();
-			
-			this.idCardImg = pd.getIdCard().getCardImageBytes();
-			this.faceImg = ImageToolkit.getImageBytes(pd.getFaceImage(), "JPEG");
+			// this.idCardBufImg = pd.getIdCard().getCardImage();
+			// this.frameBufImg = pd.getFrame();
+			// this.faceBufImg = pd.getFaceImage();
+			this.idCard = pd.getIdCard();
+			this.idCardImg = pd.getIdCard().getCardImageBytes();			
 			this.idNo = pd.getIdCard().getIdNo();
 			this.personName = pd.getIdCard().getPersonName();
 			this.age = pd.getIdCard().getAge();
 			this.gender = pd.getIdCard().getGender();
-			this.ticket = pd.getTicket();
-			this.faceDistance = pd.getFaceDistance();
-			Date now = new Date();
-			this.pitDate = sf.format(now);
-			this.pitTime = sf2.format(now);
-			this.pitStation = pd.getPitStation();
-			this.facePosePitch = pd.getFacePosePitch();
-			this.facePoseRoll = pd.getFacePoseRoll();
-			this.facePoseYaw = pd.getFacePoseYaw();
 		}
+		
+		this.ticket = pd.getTicket();
+		this.faceImg = ImageToolkit.getImageBytes(pd.getFaceImage(), "JPEG");
+		this.faceDistance = pd.getFaceDistance();
+		Date now = new Date();
+		this.pitDate = sf.format(now);
+		this.pitTime = sf2.format(now);
+		this.pitStation = pd.getPitStation();
+		this.facePosePitch = pd.getFacePosePitch();
+		this.facePoseRoll = pd.getFacePoseRoll();
+		this.facePoseYaw = pd.getFacePoseYaw();
 	}
 
 	public PITVerifyData() {
@@ -280,16 +287,18 @@ public class PITVerifyData implements Serializable ,Comparable<PITVerifyData>{
 	@Override
 	public String toString() {
 		if (idCardImg != null && faceImg != null) {
-			return "idNo=" + idNo + "   idImg length=" + idCardImg.length + " faceImg length=" + faceImg.length + " verifyResult="
-					+ verifyResult;
-		}else{
-			return "idNo=" + idNo + " 图像数据缺失: idCardImg=" + idCardImg +" faceImg=" + faceImg;
+			return "idNo=" + idNo + "   idImg length=" + idCardImg.length + " faceImg length=" + faceImg.length
+					+ " verifyResult=" + verifyResult;
+		} else {
+			return "idNo=" + idNo + " 图像数据缺失: idCardImg=" + idCardImg + " faceImg=" + faceImg;
 		}
 	}
 
 	@Override
 	public int compareTo(PITVerifyData o) {
-		if(this.verifyResult > o.getVerifyResult()) return 1;
-		else return -1;
+		if (this.verifyResult > o.getVerifyResult())
+			return 1;
+		else
+			return -1;
 	}
 }

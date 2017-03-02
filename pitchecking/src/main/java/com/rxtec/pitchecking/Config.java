@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -40,7 +41,6 @@ public class Config {
 	public static int FACE_TRACK_IR = 1;
 	public static int FACE_TRACK_COLOR_DEPTH = 2;
 	public static int FACE_TRACK_COLOR = 3;
-	
 
 	public static int frameRate = 30;
 
@@ -64,9 +64,7 @@ public class Config {
 	public static int PIVerify_Result_STREAM_ID = 11; // 独立人脸比对进程发布比对结果 用于睿新版本
 
 	public static int PIVerifyEvent_STREAM_ID = 12; // 通知独立人脸比对进程开始人脸比对 用于铁科版本
-	public static int PIVerifyResultEvent_STREAM_ID = 13; // 独立人脸比对进程发布比对结果, 用于铁科版本
-	
-	
+	public static int PIVerifyResultEvent_STREAM_ID = 13; // 独立人脸比对进程发布比对结果 用于铁科版本
 
 	public static String PIVerify_CHANNEL = "aeron:ipc";
 	// public static String PIVerify_CHANNEL =
@@ -80,8 +78,8 @@ public class Config {
 	public static int TicketVerifyIDFail = -1; // 票证验证失败
 	public static int TicketVerifyStationRuleFail = -2; // 票证验证失败：非本站乘车
 	public static int TicketVerifyTrainDateRuleFail = -3; // 票证验证失败：非当日乘车
-	public static int TicketVerifyNotStartCheckFail = -4;  //票证验证失败，未开始检票
-	public static int TicketVerifyStopCheckFail = -5;  //票证验证失败，已经停止检票
+	public static int TicketVerifyNotStartCheckFail = -4; // 票证验证失败，未开始检票
+	public static int TicketVerifyStopCheckFail = -5; // 票证验证失败，已经停止检票
 
 	public static int StartStatus = 1;
 	public static int StopStatus = 0;
@@ -99,7 +97,7 @@ public class Config {
 	public static int ByPassMaxAge = 65;
 	public static int ByPassMinAge = 12;
 
-	private String heartBeatLogFile = "D:/pitchecking/work/HEART.log";   //检脸进程心跳日志
+	private String heartBeatLogFile = "D:/pitchecking/work/HEART.log"; // 检脸进程心跳日志
 	private String ticketVerifyHeartFile = "D:/pitchecking/work/TicketVerifyHeart.log";
 	private int TicketVerify_Heard_DELAY = 3 * 1000;
 	private String rebackTrackFile = "D:/pitchecking/work/RebackFlag.log";
@@ -152,51 +150,78 @@ public class Config {
 	private int videoType = 1;
 	private int videoCaptureFrequency = 10;
 	private int isCheckRealFace = 0;
-	private String multicastAddress = "234.5.6.7";      //
-	private int faceLogRemainDays = 14;                 //照片保留天数
-	private int isUseMongoDB = 1;                       //是否保存照片至mongodb
+	private String multicastAddress = "234.5.6.7"; //
+	private int faceLogRemainDays = 14; // 照片保留天数
+	private int isUseMongoDB = 1; // 是否保存照片至mongodb
 	private String mongoDBAddress = "localhost";
 	private int mongoDBPort = 27017;
-	private int isSaveFaceImageToLocaldisk = 1;         //是否保存照片至硬盘
+	private int isSaveFaceImageToLocaldisk = 1; // 是否保存照片至硬盘
 	private String faceVerifyType = "MICRO";
 	private float faceFrameTransparency = (float) 0.75;
-	private String PITTrackPidstr = "-1";     // 人脸检测进程号
+	private String PITTrackPidstr = "-1"; // 人脸检测进程号
 	private String trackPidForKill = "-1";
-	private boolean rebackTrackFlag = true;   //是否允许恢复检脸进程
-	private int isUseManualMQ=0;              //是否连接人工控制台
-	private int isUseMySQLDB = 0;             //是否保存数据至mysql数据库
-	private int isPlayHelpAudio = 1;          //是否播放引导语音
-	private int isStartMainListener = 1;      //是否允许启动睿新版本的主控线程
-	private int isUsePoliceMQ=0;              //是否连接公安
-	private int isUseGatDll=0;                //是否实用门控动态库
-	private int isResetVerifyScreen=1;        //是否重置java版屏幕
-	private int isUseCamDll = 1;              //是否调用CAM_RXTa.dll
-	private int isSendFrame = 1;              //是否发送图片帧至人工台
+	private boolean rebackTrackFlag = false; // 是否允许恢复检脸进程
+	private boolean isCameraWork = true; // 摄像头是否启动成功
+	private int isUseManualMQ = 0; // 是否连接人工控制台
+	private int isUseMySQLDB = 0; // 是否保存数据至mysql数据库
+	private int isPlayHelpAudio = 1; // 是否播放引导语音
+	private int isStartMainListener = 1; // 是否允许启动睿新版本的主控线程
+	private int isUsePoliceMQ = 0; // 是否连接公安
+	private int isUseGatDll = 0; // 是否实用门控动态库
+	private int isResetVerifyScreen = 1; // 是否重置java版屏幕
+	private int isUseCamDll = 1; // 是否调用CAM_RXTa.dll
+	private int isSendFrame = 1; // 是否发送图片帧至人工台
 	/**
 	 * 
 	 */
-	private int doorCountMode=2;
+	private int doorCountMode = 2;
 
 	/**
 	 * 
 	 */
-	private int initColorBrightness = 9;  //0
-	private int initColorExposure = -3;   //-6
-	private int initContrast=50;
-	private int initGain=64;
-	private String initCronStr="0 0 7 * * ?";
-	
+	private int initColorExposure = -4; // -6
+	private int initColorBrightness = 0; // 0
+	private int initContrast = 50;
+	private int initGain = 64;
+	private String initCronStr = "0 0 7 * * ?";
+
 	private String easenConfigPath = "D:/maven/git/pitchecking";
 	private String easenActivationFile = "D:/pitchecking/config/license.txt";
 	private int isLightFaceLED = 1;
-	
-	private int nightColorExposure = -2;
+
+	private int nightColorExposure = -3;
 	private int nightColorBrightness = 40;
-	private int nightContrast=50;
-	private int nightGain=64;
-	private String nightCronStr="0 0 18 * * ?";
+	private int nightContrast = 50;
+	private int nightGain = 64;
+	private String nightCronStr = "0 0 18 * * ?";
 	private String dayCameraTime = "0800";
 	private String nightCameraTime = "1800";
+
+	private int isUseLightLevelDevice = 0;
+	private int isReadLightLevel = 0; // 是否读光照监测器的值
+	private String readLightLevelCronStr = "0/20 * * * * ?";
+
+	private int backLightColorExposure = -5;
+	private int backLightColorBrightness = -25;
+	private int backLightContrast = 50;
+	private int backLightGain = 64;
+
+	private int isUseUPSDevice = 0;
+	private String UPSPort = "COM5";
+	private int closePCDelay = 15;
+	private String queryUPSCronStr = "0/10 * * * * ?";
+
+	private int isUseLuminanceListener = 0;
+	private int isSaveLuminanceImage = 0;
+	private String queryLuminanceCronStr = "0/5 * * * * ?";
+	private float minLuminance = (float) 0.30;
+	private float maxLuminance = (float) 0.75;
+
+	private int isSendClosePCCmd = 0;
+	private String closePCCmdUrl = "tcp://127.0.0.1:1883";
+	private int cameraNum = 0;  //准备启动的摄像头顺序号
+	private int frontCameraNo = 1;  //前置摄像头序号
+	private int behindCameraNo = 2;  //后置摄像头序号
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
 	 */
@@ -218,14 +243,191 @@ public class Config {
 
 	private float minAverageDepth = 400F;
 	private float maxAverageDepth = 1000F;
-	
 
 	private int faceTrackMode = 1; // 人臉追蹤模式 1 紅外，2 顔色+景深
+
 	/***********************************************************/
-	
 
 	public int getNightColorExposure() {
 		return nightColorExposure;
+	}
+
+	public int getFrontCameraNo() {
+		return frontCameraNo;
+	}
+
+	public void setFrontCameraNo(int frontCameraNo) {
+		this.frontCameraNo = frontCameraNo;
+	}
+
+	public int getBehindCameraNo() {
+		return behindCameraNo;
+	}
+
+	public void setBehindCameraNo(int behindCameraNo) {
+		this.behindCameraNo = behindCameraNo;
+	}
+
+	public int getCameraNum() {
+		return cameraNum;
+	}
+
+	public void setCameraNum(int cameraNum) {
+		this.cameraNum = cameraNum;
+	}
+
+	public int getIsSendClosePCCmd() {
+		return isSendClosePCCmd;
+	}
+
+	public void setIsSendClosePCCmd(int isSendClosePCCmd) {
+		this.isSendClosePCCmd = isSendClosePCCmd;
+	}
+
+	
+
+	public String getClosePCCmdUrl() {
+		return closePCCmdUrl;
+	}
+
+	public void setClosePCCmdUrl(String closePCCmdUrl) {
+		this.closePCCmdUrl = closePCCmdUrl;
+	}
+
+	public float getMinLuminance() {
+		return minLuminance;
+	}
+
+	public void setMinLuminance(float minLuminance) {
+		this.minLuminance = minLuminance;
+	}
+
+	public float getMaxLuminance() {
+		return maxLuminance;
+	}
+
+	public void setMaxLuminance(float maxLuminance) {
+		this.maxLuminance = maxLuminance;
+	}
+
+	public String getQueryLuminanceCronStr() {
+		return queryLuminanceCronStr;
+	}
+
+	public void setQueryLuminanceCronStr(String queryLuminanceCronStr) {
+		this.queryLuminanceCronStr = queryLuminanceCronStr;
+	}
+
+	public boolean isCameraWork() {
+		return isCameraWork;
+	}
+
+	public void setCameraWork(boolean isCameraWork) {
+		this.isCameraWork = isCameraWork;
+	}
+
+	public int getIsSaveLuminanceImage() {
+		return isSaveLuminanceImage;
+	}
+
+	public void setIsSaveLuminanceImage(int isSaveLuminanceImage) {
+		this.isSaveLuminanceImage = isSaveLuminanceImage;
+	}
+
+	public int getIsUseLuminanceListener() {
+		return isUseLuminanceListener;
+	}
+
+	public void setIsUseLuminanceListener(int isUseLuminanceListener) {
+		this.isUseLuminanceListener = isUseLuminanceListener;
+	}
+
+	public int getClosePCDelay() {
+		return closePCDelay;
+	}
+
+	public void setClosePCDelay(int closePCDelay) {
+		this.closePCDelay = closePCDelay;
+	}
+
+	public String getUPSPort() {
+		return UPSPort;
+	}
+
+	public void setUPSPort(String uPSPort) {
+		UPSPort = uPSPort;
+	}
+
+	public String getQueryUPSCronStr() {
+		return queryUPSCronStr;
+	}
+
+	public void setQueryUPSCronStr(String queryUPSCronStr) {
+		this.queryUPSCronStr = queryUPSCronStr;
+	}
+
+	public int getIsUseUPSDevice() {
+		return isUseUPSDevice;
+	}
+
+	public void setIsUseUPSDevice(int isUseUPSDevice) {
+		this.isUseUPSDevice = isUseUPSDevice;
+	}
+
+	public int getBackLightColorExposure() {
+		return backLightColorExposure;
+	}
+
+	public void setBackLightColorExposure(int backLightColorExposure) {
+		this.backLightColorExposure = backLightColorExposure;
+	}
+
+	public int getBackLightColorBrightness() {
+		return backLightColorBrightness;
+	}
+
+	public void setBackLightColorBrightness(int backLightColorBrightness) {
+		this.backLightColorBrightness = backLightColorBrightness;
+	}
+
+	public int getBackLightContrast() {
+		return backLightContrast;
+	}
+
+	public void setBackLightContrast(int backLightContrast) {
+		this.backLightContrast = backLightContrast;
+	}
+
+	public int getBackLightGain() {
+		return backLightGain;
+	}
+
+	public void setBackLightGain(int backLightGain) {
+		this.backLightGain = backLightGain;
+	}
+
+	public int getIsUseLightLevelDevice() {
+		return isUseLightLevelDevice;
+	}
+
+	public void setIsUseLightLevelDevice(int isUseLightLevelDevice) {
+		this.isUseLightLevelDevice = isUseLightLevelDevice;
+	}
+
+	public String getReadLightLevelCronStr() {
+		return readLightLevelCronStr;
+	}
+
+	public void setReadLightLevelCronStr(String readLightLevelCronStr) {
+		this.readLightLevelCronStr = readLightLevelCronStr;
+	}
+
+	public int getIsReadLightLevel() {
+		return isReadLightLevel;
+	}
+
+	public void setIsReadLightLevel(int isReadLightLevel) {
+		this.isReadLightLevel = isReadLightLevel;
 	}
 
 	public String getInitCronStr() {
@@ -303,7 +505,7 @@ public class Config {
 	public void setNightCameraTime(String nightCameraTime) {
 		this.nightCameraTime = nightCameraTime;
 	}
-	
+
 	public int getIsLightFaceLED() {
 		return isLightFaceLED;
 	}
@@ -517,8 +719,6 @@ public class Config {
 	public float getFaceDetectionScale() {
 		return faceDetectionScale;
 	}
-
-
 
 	public String getStartPITTrackCmd() {
 		return startPITTrackCmd;
@@ -772,12 +972,34 @@ public class Config {
 
 	private Config() {
 		Properties p = new Properties();
-		try {
+		String filePath = Thread.currentThread().getContextClassLoader().getResource("").toString();
 
-			String filePath = Thread.currentThread().getContextClassLoader().getResource("").toString();
-			String fn = filePath + "conf/conf.properties";
-			URL url = new URL(fn);
-			FileInputStream is = new FileInputStream(url.getFile());
+		String fn = filePath + "conf/conf.properties";
+		URL url = null;
+		FileInputStream is = null;
+		boolean flag = false;
+		try {
+			url = new URL(fn);
+			is = new FileInputStream(url.getFile());
+			flag = true;
+		} catch (Exception ex) {
+			log.error("Config build:", ex);
+			flag = false;
+		}
+
+		if (!flag) {
+			try {
+				fn = filePath + "conf.properties";
+				url = new URL(fn);
+				is = new FileInputStream(url.getFile());
+			} catch (Exception ex) {
+				log.error("", ex);
+			}
+		}
+
+		try {
+			log.info("conf.properties dir==" + fn);
+
 			p.load(is);
 			this.faceCheckThreshold = Float.valueOf(p.getProperty("FaceCheckThreshold", "0.7"));
 			this.glassFaceCheckThreshold = Float.valueOf(p.getProperty("GlassFaceCheckThreshold", "0.68"));
@@ -807,7 +1029,8 @@ public class Config {
 			this.faceDetectionScale = Float.valueOf(p.getProperty("FaceDetectionScale", "1.3"));
 			this.pausePitcheckFile = p.getProperty("pausePitcheckFile", "D:/pitchecking/work/PAUSE.log");
 			this.heartBeatLogFile = p.getProperty("HeartBeatLogFile", "D:/pitchecking/work/HEART.log");
-			this.ticketVerifyHeartFile = p.getProperty("ticketVerifyHeartFile", "D:/pitchecking/work/TicketVerifyHeart.log");
+			this.ticketVerifyHeartFile = p.getProperty("ticketVerifyHeartFile",
+					"D:/pitchecking/work/TicketVerifyHeart.log");
 			this.rebackTrackFile = p.getProperty("rebackTrackFile", "D:/pitchecking/work/RebackFlag.log");
 			this.startPITTrackCmd = p.getProperty("StartPITTrackCmd", "D:/pitchecking/work/RestartPITTrack.bat");
 			this.startPITVerifyCmd = p.getProperty("StartPITVerifyCmd", "D:/pitchecking/work/RestartPITVerify.bat");
@@ -842,6 +1065,26 @@ public class Config {
 			this.nightCronStr = p.getProperty("nightCronStr", "0 0 18 * * ?");
 			this.dayCameraTime = p.getProperty("dayCameraTime", "0800");
 			this.nightCameraTime = p.getProperty("nightCameraTime", "1800");
+			this.isUseLightLevelDevice = Integer.valueOf(p.getProperty("isUseLightLevelDevice", "0"));
+			this.isReadLightLevel = Integer.valueOf(p.getProperty("isReadLightLevel", "0"));
+			this.readLightLevelCronStr = p.getProperty("readLightLevelCronStr", "0/20 * * * * ?");
+			this.backLightColorExposure = Integer.valueOf(p.getProperty("backLightColorExposure", "-5"));
+			this.backLightColorBrightness = Integer.valueOf(p.getProperty("backLightColorBrightness", "-25"));
+			this.backLightContrast = Integer.valueOf(p.getProperty("backLightContrast", "50"));
+			this.backLightGain = Integer.valueOf(p.getProperty("backLightGain", "64"));
+			this.isUseUPSDevice = Integer.valueOf(p.getProperty("isUseUPSDevice", "0"));
+			this.queryUPSCronStr = p.getProperty("queryUPSCronStr", "0/10 * * * * ?");
+			this.closePCDelay = Integer.valueOf(p.getProperty("closePCDelay", "15"));
+			this.UPSPort = p.getProperty("UPSPort", "COM5");
+			this.isUseLuminanceListener = Integer.valueOf(p.getProperty("isUseLuminanceListener", "0"));
+			this.isSaveLuminanceImage = Integer.valueOf(p.getProperty("isSaveLuminanceImage", "0"));
+			this.queryLuminanceCronStr = p.getProperty("queryLuminanceCronStr", "0/5 * * * * ?");
+			this.minLuminance = Float.valueOf(p.getProperty("minLuminance", "0.30"));
+			this.maxLuminance = Float.valueOf(p.getProperty("maxLuminance", "0.75"));
+			this.isSendClosePCCmd = Integer.valueOf(p.getProperty("isSendClosePCCmd", "0"));
+			this.closePCCmdUrl = p.getProperty("closePCCmdUrl", "tcp://127.0.0.1:1883");
+			this.frontCameraNo = Integer.valueOf(p.getProperty("frontCameraNo", "1"));
+			this.behindCameraNo = Integer.valueOf(p.getProperty("behindCameraNo", "2"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -857,9 +1100,12 @@ public class Config {
 	public static void main(String[] args) {
 		Config.getInstance();
 		System.out.println("getIsCheckRealFace==" + Config.getInstance().getIsCheckRealFace());
-		System.out.println("getHEART_BEAT_DELAY=="+Config.getInstance().getHEART_BEAT_DELAY());
-		System.out.println("getImagesLogDir=="+Config.getInstance().getImagesLogDir());
-		System.out.println("getPausePitcheckFile=="+Config.getInstance().getPausePitcheckFile());
+		System.out.println("getHEART_BEAT_DELAY==" + Config.getInstance().getHEART_BEAT_DELAY());
+		System.out.println("getImagesLogDir==" + Config.getInstance().getImagesLogDir());
+		System.out.println("getPausePitcheckFile==" + Config.getInstance().getPausePitcheckFile());
+		System.out.println("getClosePCCmdUrl==" + Config.getInstance().getClosePCCmdUrl());
+		System.out.println("frontCameraNo==" + Config.getInstance().getFrontCameraNo());
+		System.out.println("behindCameraNo==" + Config.getInstance().getBehindCameraNo());
 	}
 
 }

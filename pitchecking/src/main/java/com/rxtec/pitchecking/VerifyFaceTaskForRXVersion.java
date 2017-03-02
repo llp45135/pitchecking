@@ -65,7 +65,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask {
 
 		// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag); //
 		// 调用语音
-		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
 				.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag,"FaceAudio"));
 		PITVerifyData fd = null;
 
@@ -101,7 +101,7 @@ public class VerifyFaceTaskForRXVersion implements IVerifyFaceTask {
 
 			// AudioPlayTask.getInstance().start(DeviceConfig.checkFailedFlag);
 			// // 调用应急门开启语音
-			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
+			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
 					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag,"FaceAudio"));
 
 			log.debug("认证比对结果：picData==" + fd);

@@ -29,7 +29,7 @@ import java.awt.geom.Point2D;
 import java.awt.image.*;
 import java.awt.*;
 
-public class RSFaceDetectionService implements IFaceTrackService{
+public class RSFaceDetectionService implements IFaceTrackService {
 
 	static int cWidth = 640;
 	static int cHeight = 480;
@@ -41,21 +41,28 @@ public class RSFaceDetectionService implements IFaceTrackService{
 	private boolean startTrackFace = true;
 	private boolean enableExpression = true;
 	private boolean enableFaceLandmark = true;
-	
-	RSFaceTrackTask trackTask ;
+
+	RSFaceTrackTask trackTask;
 	private IDCard currentIDCard = null;
 	private Ticket currentTicket = null;
-
 
 	private int maxTrackedFaces = 4;
 	private static int LandmarkAlignment = -3;
 
 	private RSModuleStatus rsStatus;
-
-
+	private int cameraMode = -1; // 摄像头模式
+	// --------------------------------------------------
 
 	public void setVideoPanel(JPanel videoPanel) {
 		trackTask.setVideoPanel(videoPanel);
+	}
+
+	public int getCameraMode() {
+		return cameraMode;
+	}
+
+	public void setCameraMode(int cameraMode) {
+		this.cameraMode = cameraMode;
 	}
 
 	public boolean isStartCapture() {
@@ -98,8 +105,6 @@ public class RSFaceDetectionService implements IFaceTrackService{
 		this.exist = exist;
 	}
 
-
-
 	private static RSFaceDetectionService _instance = null;
 
 	private RSFaceDetectionService() {
@@ -112,40 +117,38 @@ public class RSFaceDetectionService implements IFaceTrackService{
 		return _instance;
 	}
 
-
-	
-	public void setDeviceProperties(RealsenseDeviceProperties props){
-		if(trackTask != null){
+	public void setDeviceProperties(RealsenseDeviceProperties props) {
+		if (trackTask != null) {
 			trackTask.setupColorCameraDevice(props);
 		}
 	}
 
 	public void beginVideoCaptureAndTracking() {
-//		ExecutorService executer = Executors.newCachedThreadPool();
-//		executer.execute(trackTask);
+		// ExecutorService executer = Executors.newCachedThreadPool();
+		// executer.execute(trackTask);
 		try {
 			trackTask.doTracking();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			log.error("trackTask.doTracking:",e);
+			log.error("trackTask.doTracking:", e);
 		}
 	}
-	
 
-	public void beginCheckingFace(IDCard idCard,Ticket t) {
-		FaceCheckingService.getInstance().resetFaceDataQueue();  //by zhao 20160705
+	public void beginCheckingFace(IDCard idCard, Ticket t) {
+		FaceCheckingService.getInstance().resetFaceDataQueue(); // by zhao
+																// 20160705
 		currentIDCard = idCard;
 		currentTicket = t;
-		trackTask.beginCheckingFace(idCard,currentTicket);
+		trackTask.beginCheckingFace(idCard, currentTicket);
 
 	}
+
 	public void stopCheckingFace() {
 		currentIDCard = null;
 		currentTicket = null;
 		trackTask.stopCheckingFace();
 		FaceCheckingService.getInstance().resetFaceDataQueue();
 	}
-
 
 	public IDCard getCurrentIDCard() {
 		return currentIDCard;
@@ -154,8 +157,6 @@ public class RSFaceDetectionService implements IFaceTrackService{
 	public void setCurrentIDCard(IDCard currentIDCard) {
 		this.currentIDCard = currentIDCard;
 	}
-
-
 
 }
 

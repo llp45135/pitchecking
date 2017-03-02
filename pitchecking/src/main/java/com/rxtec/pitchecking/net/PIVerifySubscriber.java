@@ -32,8 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
- * 本类由 - 人脸比对进程使用
- * 订阅由人脸检测进程发过来的人脸比对请求   
+ * 本类由 - 人脸比对进程使用 订阅由人脸检测进程发过来的人脸比对请求
  * 通过Aeron订阅比对请求，将比对请求插入独立人脸比对进程（FaceCheckingService）的等待比对队列
  * 
  *
@@ -41,13 +40,14 @@ import java.util.function.Consumer;
 public class PIVerifySubscriber {
 	private Logger log = LoggerFactory.getLogger("PIVerifyEventSubscriber");
 
-	private static final int STREAM_ID = Config.PIVerify_Begin_STREAM_ID;
+	private static final int STREAM_ID = Config.PIVerify_Begin_STREAM_ID; // 10
+																			// 通知独立人脸比对进程开始人脸比对
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
-	
 
 	public PIVerifySubscriber() {
 		log.debug("Subscribing to " + CHANNEL + " on stream Id " + STREAM_ID);
-		final Aeron.Context ctx = new Aeron.Context().availableImageHandler(PIVerifySubscriberUtils::printAvailableImage)
+		final Aeron.Context ctx = new Aeron.Context()
+				.availableImageHandler(PIVerifySubscriberUtils::printAvailableImage)
 				.unavailableImageHandler(PIVerifySubscriberUtils::printUnavailableImage);
 
 		final FragmentHandler fragmentHandler = PIVerifySubscriberUtils.processMessage(STREAM_ID);
@@ -64,9 +64,10 @@ public class PIVerifySubscriber {
 		// clean up resources when this try block is finished
 		try (final Aeron aeron = Aeron.connect(ctx);
 				final Subscription subscription = aeron.addSubscription(CHANNEL, STREAM_ID)) {
+			log.info("CHANNEL=" + CHANNEL +" STREAM_ID="+STREAM_ID + "  PIVerifySubscriber connected,and begin Subscription!");
 			PIVerifySubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
 
-			log.info("PIVerifyEventSubscriber Shutting down...");
+			log.info("PIVerifySubscriber Shutting down...");
 		}
 
 	}
@@ -79,7 +80,7 @@ public class PIVerifySubscriber {
 }
 
 class PIVerifySubscriberUtils {
-	
+
 	/**
 	 * Return a reusable, parameterised event loop that calls a default idler
 	 * when no messages are received
@@ -94,7 +95,7 @@ class PIVerifySubscriberUtils {
 	 */
 	public static Consumer<Subscription> subscriberLoop(final FragmentHandler fragmentHandler, final int limit,
 			final AtomicBoolean running) {
-//		final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
+		// final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
 		final IdleStrategy idleStrategy = new BackoffIdleStrategy(1, 1, 1, 1);
 		return subscriberLoop(fragmentHandler, limit, running, idleStrategy);
 	}
@@ -133,16 +134,15 @@ class PIVerifySubscriberUtils {
 
 			try {
 				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-				PITVerifyData fd = (PITVerifyData)ois.readObject();
-				FaceCheckingService.getInstance().offerFaceVerifyData(fd);  //加入待验证队列
+				PITVerifyData fd = (PITVerifyData) ois.readObject();
+				FaceCheckingService.getInstance().offerFaceVerifyData(fd); // 加入待验证队列
 				Log.info("Receive request message : " + fd);
 			} catch (IOException | ClassNotFoundException e) {
-				Log.error("processMessage",e);
+				Log.error("processMessage", e);
 			}
 
 		};
 	}
-	
 
 	/**
 	 * Print the information for an available image to stdout.

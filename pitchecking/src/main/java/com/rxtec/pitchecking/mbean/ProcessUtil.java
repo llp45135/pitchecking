@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.net.event.AudioCtrlBean;
 import com.rxtec.pitchecking.net.event.GatCrtlBean;
 import com.rxtec.pitchecking.utils.CalUtils;
 
@@ -28,9 +29,13 @@ public class ProcessUtil {
 	private static Logger log = LoggerFactory.getLogger("RSFaceTrackTask");
 
 	public static void main(String[] args) {
-		String pid = getCurrentProcessID();
-		System.out.println(pid + " write ret = " + writeHeartbeat(pid,Config.getInstance().getHeartBeatLogFile()));
-		System.out.println("last heartbeat time = " + getLastHeartBeat(Config.getInstance().getHeartBeatLogFile()));
+		// String pid = getCurrentProcessID();
+		// System.out.println(pid + " write ret = " +
+		// writeHeartbeat(pid,Config.getInstance().getHeartBeatLogFile()));
+		// System.out.println("last heartbeat time = " +
+		// getLastHeartBeat(Config.getInstance().getHeartBeatLogFile()));
+
+		System.out.println("" + createAudioJson(203, "FaceAudio"));
 
 	}
 
@@ -40,15 +45,15 @@ public class ProcessUtil {
 		return pid;
 
 	}
-	
+
 	/**
-	 * 当检脸线程被杀死时，写入标志0
-	 * 当检脸线程被启动时，写入1
+	 * 当检脸线程被杀死时，写入标志0 当检脸线程被启动时，写入1
+	 * 
 	 * @param rebackFile
 	 * @param rebackFlag
 	 * @return
 	 */
-	public static boolean writeRebackTrackAppFlag(String rebackFile,String rebackFlag){
+	public static boolean writeRebackTrackAppFlag(String rebackFile, String rebackFlag) {
 		Date now = new Date();
 		String nowTime = CalUtils.getStringDateHaomiao();// Long.toString(now.getTime());
 		try {
@@ -68,7 +73,7 @@ public class ProcessUtil {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -97,10 +102,11 @@ public class ProcessUtil {
 
 	/**
 	 * 写检脸线程心跳日志
+	 * 
 	 * @param pid
 	 * @return
 	 */
-	public static boolean writeHeartbeat(String pid,String filaName) {
+	public static boolean writeHeartbeat(String pid, String filaName) {
 		Date now = new Date();
 		String nowTime = CalUtils.getStringDateHaomiao();// Long.toString(now.getTime());
 		try {
@@ -110,7 +116,7 @@ public class ProcessUtil {
 			}
 			FileWriter fw = new FileWriter(logFile);
 			String pidStr = pid + "@" + nowTime;
-//			log.debug("pidStr==" + pidStr);
+			// log.debug("pidStr==" + pidStr);
 			fw.write(pidStr);
 			fw.flush();
 			fw.close();
@@ -122,21 +128,22 @@ public class ProcessUtil {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * 将字符串写成文件
+	 * 
 	 * @param fileName
 	 * @param fileContent
 	 * @return
 	 */
-	public static boolean writeFileContent(String fileName,String fileContent) {
+	public static boolean writeFileContent(String fileName, String fileContent) {
 		try {
 			File logFile = new File(fileName);
 			if (!logFile.exists()) {
 				logFile.createNewFile();
 			}
 			FileWriter fw = new FileWriter(logFile);
-//			log.debug("pidStr==" + pidStr);
+			// log.debug("pidStr==" + pidStr);
 			fw.write(fileContent);
 			fw.flush();
 			fw.close();
@@ -148,29 +155,30 @@ public class ProcessUtil {
 			return false;
 		}
 	}
-	
-	
+
 	/**
 	 * 写文件，指定编码格式
+	 * 
 	 * @param fileName
 	 * @param fileContent
 	 * @param charsetEncoding
 	 * @return
 	 */
-	public static boolean writeFileContent(String fileName,String fileContent,String charsetEncoding) {
+	public static boolean writeFileContent(String fileName, String fileContent, String charsetEncoding) {
 		try {
 			File logFile = new File(fileName);
 			if (!logFile.exists()) {
 				logFile.createNewFile();
 			}
-//			FileOutputStream fos = new FileOutputStream(logFile); 
-//	        OutputStreamWriter osw = new OutputStreamWriter(fos, charsetEncoding); 
-//	        osw.write(fileContent); 
-//	        osw.flush(); 
-//	        osw.close();
-			
-			FileWriterWithEncoding fw = new FileWriterWithEncoding(logFile,charsetEncoding);
-//			log.debug("pidStr==" + pidStr);
+			// FileOutputStream fos = new FileOutputStream(logFile);
+			// OutputStreamWriter osw = new OutputStreamWriter(fos,
+			// charsetEncoding);
+			// osw.write(fileContent);
+			// osw.flush();
+			// osw.close();
+
+			FileWriterWithEncoding fw = new FileWriterWithEncoding(logFile, charsetEncoding);
+			// log.debug("pidStr==" + pidStr);
 			fw.write(fileContent);
 			fw.flush();
 			fw.close();
@@ -182,9 +190,10 @@ public class ProcessUtil {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * 写暂停服务标志
+	 * 
 	 * @param pid
 	 * @return
 	 */
@@ -197,7 +206,7 @@ public class ProcessUtil {
 			}
 			FileWriter fw = new FileWriter(logFile);
 			String pidStr = pid + "@" + nowTime;
-//			log.debug("pidStr==" + pidStr);
+			// log.debug("pidStr==" + pidStr);
 			fw.write(pidStr);
 			fw.flush();
 			fw.close();
@@ -209,9 +218,10 @@ public class ProcessUtil {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * 读取上次的暂停服务日志
+	 * 
 	 * @return
 	 */
 	public static String getLastPauseFlag() {
@@ -238,6 +248,7 @@ public class ProcessUtil {
 
 	/**
 	 * 读取上次的检脸线程心跳日志
+	 * 
 	 * @return
 	 */
 	public static String getLastHeartBeat(String heartFile) {
@@ -261,26 +272,26 @@ public class ProcessUtil {
 		}
 		return s;
 	}
-	
-	
+
 	/**
 	 * 生成语音事件json
+	 * 
 	 * @param audioEventType
 	 * @return
 	 */
-	public static String createAudioJson(int audioEventType,String eventSource){
+	public static String createAudioJson(int audioEventType, String eventSource) {
 		ObjectMapper mapper = new ObjectMapper();
-		GatCrtlBean gcBean  = new GatCrtlBean();
-		String json = "";
-		try {
-			gcBean.setEvent(audioEventType);
-			gcBean.setEventsource(eventSource);
-			gcBean.setTarget("127.0.0.1");
-			json = mapper.writeValueAsString(gcBean);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		AudioCtrlBean acBean = new AudioCtrlBean();
+		String json = "{\"Event\": " + audioEventType + ",\"Target\": \"127.0.0.1\",\"EventSource\":\"" + eventSource + "\"}";
+		// try {
+		// acBean.setEvent(audioEventType);
+		// acBean.setEventSource(eventSource);
+		// acBean.setTarget("127.0.0.1");
+		// json = mapper.writeValueAsString(acBean);
+		// } catch (JsonProcessingException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 		return json;
 	}
 

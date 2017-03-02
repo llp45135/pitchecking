@@ -1,5 +1,7 @@
 package com.rxtec.pitchecking.utils;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -9,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import javax.imageio.ImageIO;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +26,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.mbean.ProcessUtil;
+import com.rxtec.pitchecking.mq.PITInfoJson;
+import com.rxtec.pitchecking.mq.police.dao.PITInfoJmsObj;
+import com.rxtec.pitchecking.picheckingservice.PITData;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 
 /**
  * Json序列化工具
@@ -231,22 +242,97 @@ public class JsonUtils {
 		try {
 			// Map map = JsonUtils.toMap(DeviceConfig.Close_SECONDDOOR_Jms);
 
-			System.out.println(DeviceConfig.Close_SECONDDOOR_Jms.replace(" ", ""));
-			String ss = DeviceConfig.Close_SECONDDOOR_Jms.replace(" ", "");
+//			System.out.println(DeviceConfig.Close_SECONDDOOR_Jms.replace(" ", ""));
+//			String ss = DeviceConfig.Close_SECONDDOOR_Jms.replace(" ", "");
+//
+//			ss = ss.replace("{", "");
+//			ss = ss.replace("}", "");
+//			StringTokenizer st = new StringTokenizer(ss, ",");
+//			while (st.hasMoreTokens()) {
+//				String tt = st.nextToken();
+//				System.out.println("" + tt);
+//				if (tt.indexOf("Event") != -1) {
+//					System.out.println("event==" + tt.substring(tt.indexOf(":") + 1).replace("\"", ""));
+//				} else if (tt.indexOf("Target") != -1) {
+//					System.out.println("Target==" + tt.substring(tt.indexOf(":") + 1).replace("\"", ""));
+//				} else if (tt.indexOf("EventSource") != -1) {
+//					System.out.println("EventSource==" + tt.substring(tt.indexOf(":") + 1).replace("\"", ""));
+//				}
+//			}
+			
+			IDCard idcard = new IDCard();
+			idcard.setIdNo("520230197912141118");
+			idcard.setGender(1);
+			idcard.setAge(37);
+			idcard.setPersonName("赵林");
+			idcard.setIDBirth("19791214");
+			idcard.setIDNation("01");
+			idcard.setIDNationCH("汉");
+			idcard.setIDDwelling("广州市白云路28号");
+			idcard.setIDIssue("广州市公安局越秀分局");
+			idcard.setIDEfficb("20001230");
+			idcard.setIDEffice("20201230");
+			
+			BufferedImage frame = null;
+			try {
+				frame = ImageIO.read(new File("idcard_test.jpg"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			BufferedImage face = null;
+			try {
+				face = ImageIO.read(new File("idcard_test.jpg"));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			PITData data = new PITData(null);
+			data.setIdCard(idcard);
+			data.setFrame(frame);
+			data.setFaceImage(face);
+			
+			PITVerifyData fd = new PITVerifyData(data);
+			fd.setQrCode("");
+			PITInfoJson info = new PITInfoJson(fd);
+			System.out.println(""+info.getJsonStr());
+			String jsonstr = info.getJsonStr();
+//			String jsonstr = ProcessUtil.getRebackTrackAppFlag("D:/pitchecking/config/pitVerifyData.json");
+			
+			ObjectMapper mapper = new ObjectMapper();
+			PITInfoJmsObj pitInfoJsonBean = mapper.readValue(jsonstr, PITInfoJmsObj.class);
+			String idNo = new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdCardNo()));
+			System.out.println("idNo=="+idNo);
+			System.out.println("getMsgType==" + pitInfoJsonBean.getMsgType());
+			System.out.println("getCitizenName==" + pitInfoJsonBean.getCitizenName());
+			System.out.println("getIdbirth==" + pitInfoJsonBean.getIdbirth());
+			System.out.println("getIdnation==" + pitInfoJsonBean.getIdnation());
+			System.out.println("getIdissue==" + pitInfoJsonBean.getIdissue());
+			System.out.println("getIddwelling==" + pitInfoJsonBean.getIddwelling());
+			System.out.println("getIdefficb==" + pitInfoJsonBean.getIdefficb());
+			System.out.println("getIdeffice==" + pitInfoJsonBean.getIdeffice());
+			
+			String dbcode = pitInfoJsonBean.getDbCode();
+			String gateNo = pitInfoJsonBean.getGateNo();
+			String pitInfoNewJson = mapper.writeValueAsString(pitInfoJsonBean);
+			pitInfoNewJson = pitInfoNewJson.replace("\\r\\n", "");
 
-			ss = ss.replace("{", "");
-			ss = ss.replace("}", "");
-			StringTokenizer st = new StringTokenizer(ss, ",");
-			while (st.hasMoreTokens()) {
-				String tt = st.nextToken();
-				System.out.println("" + tt);
-				if (tt.indexOf("Event") != -1) {
-					System.out.println("event==" + tt.substring(tt.indexOf(":") + 1).replace("\"", ""));
-				} else if (tt.indexOf("Target") != -1) {
-					System.out.println("Target==" + tt.substring(tt.indexOf(":") + 1).replace("\"", ""));
-				} else if (tt.indexOf("EventSource") != -1) {
-					System.out.println("EventSource==" + tt.substring(tt.indexOf(":") + 1).replace("\"", ""));
-				}
+			String dirName = Config.getInstance().getPoliceJsonDir() + CalUtils.getStringDateShort2()
+					+ "/";
+			int ret = CommUtil.createDir(dirName);
+			if (ret == 0 || ret == 1) {
+				String fileName = dirName + idNo + "_" + idNo + "_" + dbcode + "_" + gateNo + "_"
+						+ CalUtils.getStringFullTimeHaomiao() + ".json";
+				System.out.println("fileName==" + fileName);
+				// ProcessUtil.writeFileContent(fileName,
+				// pitInfoNewJson);
+				ProcessUtil.writeFileContent(fileName, pitInfoNewJson, "utf-8");
+
+				// File logFile = new File(fileName);
+				// if (!logFile.exists()) {
+				// logFile.createNewFile();
+				// }
+				// mapper.writeValue(logFile, pitInfoJsonBean);
 			}
 
 			// System.out.println(ss.indexOf("Event"));

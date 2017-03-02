@@ -725,6 +725,11 @@ public class CommUtil {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param cardImage
+	 * @return
+	 */
 	public static byte[] getImageBytesFromImageBuffer(BufferedImage cardImage) {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		byte[] buff = null;

@@ -131,10 +131,10 @@ public class AudioDevice {
 				fileIn = new FileInputStream(DeviceConfig.AudioTakeTicketWav);
 				this.setLastingTime((long) (8.2 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioTakeCardFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.AudioTakeCardWav);
+				log.info("开始左声道播放语音" + DeviceConfig.AudioTakeAndTrackWav);
 				VolumeControl.getInstance().RightClose();
-				fileIn = new FileInputStream(DeviceConfig.AudioTakeCardWav);
-				this.setLastingTime((long) (2 * 1000));
+				fileIn = new FileInputStream(DeviceConfig.AudioTakeAndTrackWav);
+				this.setLastingTime((long) (15 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioTrackFaceFlag) {
 				log.info("开始右声道播放语音" + DeviceConfig.AudioTrackFaceWav);
 				VolumeControl.getInstance().LeftClose();
@@ -241,9 +241,9 @@ public class AudioDevice {
 		// CommUtil.sleep(20 * 1000);
 
 		AudioPlayTask.getInstance().start(DeviceConfig.AudioTakeCardFlag);
-		CommUtil.sleep((long) (2.2 * 1000));
-
-		AudioPlayTask.getInstance().start(DeviceConfig.AudioTrackFaceFlag);
+//		CommUtil.sleep((long) (2.2 * 1000));
+//
+//		AudioPlayTask.getInstance().start(DeviceConfig.AudioTrackFaceFlag);
 		CommUtil.sleep(15 * 1000);
 
 		 AudioPlayTask.getInstance().start(DeviceConfig.AudioCheckSuccFlag);

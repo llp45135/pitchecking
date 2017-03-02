@@ -25,6 +25,9 @@ import java.awt.Window.Type;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
 import javax.swing.SwingConstants;
+import java.awt.Font;
+import javax.swing.border.LineBorder;
+import java.awt.Color;
 
 public class RSFaceFrameForTest extends JFrame {
 
@@ -73,7 +76,8 @@ public class RSFaceFrameForTest extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		videoPanel = new VideoPanel(Config.FrameWidth, Config.FrameHeigh);
-		videoPanel.setBounds(384, 15, 940, 823);
+		videoPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
+		videoPanel.setBounds(384, 112, 940, 566);
 		contentPane.setLayout(null);
 		panel = new JPanel();
 		panel.setBounds(15, 15, 354, 823);
@@ -90,7 +94,13 @@ public class RSFaceFrameForTest extends JFrame {
 		panel.add(btnNewButton);
 		
 		slider_Exposure = new JSlider();
-		slider_Exposure.setBounds(137, 114, 200, 26);
+		slider_Exposure.setPaintTicks(true);
+		slider_Exposure.setMajorTickSpacing(8);
+		slider_Exposure.setMinorTickSpacing(1);
+		slider_Exposure.setSnapToTicks(true);
+		slider_Exposure.setPaintLabels(true);
+		
+		slider_Exposure.setBounds(136, 116, 208, 41);
 		slider_Exposure.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				props.setColorExposure(slider_Exposure.getValue());
@@ -104,16 +114,25 @@ public class RSFaceFrameForTest extends JFrame {
 
 		
 		label = new JLabel("曝光值");
-		label.setBounds(26, 119, 54, 21);
+		label.setFont(new Font("宋体", Font.PLAIN, 14));
+		label.setHorizontalAlignment(SwingConstants.LEFT);
+		label.setBounds(26, 119, 101, 21);
 		panel.add(label);
 		panel.add(slider_Exposure);
 		
 		label_1 = new JLabel("亮度值");
-		label_1.setBounds(26, 182, 54, 21);
+		label_1.setFont(new Font("宋体", Font.PLAIN, 14));
+		label_1.setHorizontalAlignment(SwingConstants.LEFT);
+		label_1.setBounds(26, 182, 101, 21);
 		panel.add(label_1);
 		
 		slider_Brightness = new JSlider();
-		slider_Brightness.setBounds(137, 177, 200, 26);
+		slider_Brightness.setPaintTicks(true);
+		slider_Brightness.setMajorTickSpacing(128);
+		slider_Brightness.setMinorTickSpacing(8);
+		slider_Brightness.setSnapToTicks(true);
+		slider_Brightness.setPaintLabels(true);
+		slider_Brightness.setBounds(136, 188, 208, 41);
 		slider_Brightness.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				props.setColorBrightness(slider_Brightness.getValue());
@@ -126,12 +145,19 @@ public class RSFaceFrameForTest extends JFrame {
 		slider_Brightness.setMaximum(64);
 		panel.add(slider_Brightness);
 		
-		label_2 = new JLabel("灰度值");
-		label_2.setBounds(26, 245, 54, 21);
+		label_2 = new JLabel("伽马");
+		label_2.setFont(new Font("宋体", Font.PLAIN, 14));
+		label_2.setHorizontalAlignment(SwingConstants.LEFT);
+		label_2.setBounds(26, 245, 95, 21);
 		panel.add(label_2);
 		
 		slider_gamma = new JSlider();
-		slider_gamma.setBounds(136, 245, 200, 21);
+		slider_gamma.setPaintTicks(true);
+		slider_gamma.setMajorTickSpacing(499);
+		slider_gamma.setMinorTickSpacing(50);
+		slider_gamma.setSnapToTicks(true);
+		slider_gamma.setPaintLabels(true);
+		slider_gamma.setBounds(136, 239, 208, 41);
 		slider_gamma.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				props.setGamma(slider_gamma.getValue());
@@ -139,17 +165,24 @@ public class RSFaceFrameForTest extends JFrame {
 			}
 		});
 
-		slider_gamma.setValue(0);
-		slider_gamma.setMinimum(-64);
-		slider_gamma.setMaximum(64);
+		slider_gamma.setValue(60);
+		slider_gamma.setMinimum(1);
+		slider_gamma.setMaximum(500);
 		panel.add(slider_gamma);
 		
 		label_3 = new JLabel("对比度");
-		label_3.setBounds(26, 307, 54, 21);
+		label_3.setFont(new Font("宋体", Font.PLAIN, 14));
+		label_3.setHorizontalAlignment(SwingConstants.LEFT);
+		label_3.setBounds(26, 307, 95, 21);
 		panel.add(label_3);
 		
 		slider_contrast = new JSlider();
-		slider_contrast.setBounds(137, 302, 200, 26);
+		slider_contrast.setPaintTicks(true);
+		slider_contrast.setMajorTickSpacing(128);
+		slider_contrast.setMinorTickSpacing(8);
+		slider_contrast.setSnapToTicks(true);
+		slider_contrast.setPaintLabels(true);
+		slider_contrast.setBounds(136, 301, 208, 41);
 		slider_contrast.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				props.setContrast(slider_contrast.getValue());
@@ -162,11 +195,18 @@ public class RSFaceFrameForTest extends JFrame {
 		panel.add(slider_contrast);
 		
 		label_4 = new JLabel("图像增益");
-		label_4.setBounds(15, 363, 72, 21);
+		label_4.setFont(new Font("宋体", Font.PLAIN, 14));
+		label_4.setHorizontalAlignment(SwingConstants.LEFT);
+		label_4.setBounds(26, 363, 95, 21);
 		panel.add(label_4);
 		
 		slider_Gain = new JSlider();
-		slider_Gain.setBounds(136, 358, 200, 26);
+		slider_Gain.setPaintTicks(true);
+		slider_Gain.setMajorTickSpacing(128);
+		slider_Gain.setMinorTickSpacing(8);
+		slider_Gain.setSnapToTicks(true);
+		slider_Gain.setPaintLabels(true);
+		slider_Gain.setBounds(136, 363, 208, 46);
 		slider_Gain.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				props.setGain(slider_Gain.getValue());
@@ -181,6 +221,11 @@ public class RSFaceFrameForTest extends JFrame {
 		panel.add(slider_Gain);
 		
 		slider_HUE = new JSlider();
+		slider_HUE.setPaintTicks(true);
+		slider_HUE.setMajorTickSpacing(360);
+		slider_HUE.setMinorTickSpacing(36);
+		slider_HUE.setSnapToTicks(true);
+		slider_HUE.setPaintLabels(true);
 		slider_HUE.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				props.setHue(slider_HUE.getValue());
@@ -188,41 +233,54 @@ public class RSFaceFrameForTest extends JFrame {
 
 			}
 		});
-		slider_HUE.setBounds(137, 419, 200, 26);
+		slider_HUE.setBounds(137, 419, 207, 41);
 		slider_HUE.setValue(0);
 		slider_HUE.setMinimum(-180);
 		slider_HUE.setMaximum(180);
 		panel.add(slider_HUE);
 		
 		slider_Saturation = new JSlider();
+		slider_Saturation.setPaintTicks(true);
+		slider_Saturation.setMajorTickSpacing(100);
+		slider_Saturation.setMinorTickSpacing(10);
+		slider_Saturation.setSnapToTicks(true);
+		slider_Saturation.setPaintLabels(true);
 		slider_Saturation.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				props.setSaturation(slider_Saturation.getValue());
 				if(rsft != null) rsft.setDeviceProperties(props);
 			}
 		});
-		slider_Saturation.setBounds(137, 482, 200, 26);
+		slider_Saturation.setBounds(137, 482, 207, 41);
 		slider_Saturation.setValue(64);
 		slider_Saturation.setMinimum(0);
 		slider_Saturation.setMaximum(100);
 		panel.add(slider_Saturation);
 		
 		JLabel lblHue = new JLabel("色相");
-		lblHue.setHorizontalAlignment(SwingConstants.CENTER);
-		lblHue.setBounds(15, 419, 72, 21);
+		lblHue.setFont(new Font("宋体", Font.PLAIN, 14));
+		lblHue.setHorizontalAlignment(SwingConstants.LEFT);
+		lblHue.setBounds(26, 428, 95, 21);
 		panel.add(lblHue);
 		
 		JLabel label_5 = new JLabel("色彩饱和度");
-		label_5.setHorizontalAlignment(SwingConstants.CENTER);
-		label_5.setBounds(15, 482, 106, 21);
+		label_5.setFont(new Font("宋体", Font.PLAIN, 14));
+		label_5.setHorizontalAlignment(SwingConstants.LEFT);
+		label_5.setBounds(26, 490, 95, 21);
 		panel.add(label_5);
 		
 		JLabel label_6 = new JLabel("清晰度");
-		label_6.setHorizontalAlignment(SwingConstants.CENTER);
-		label_6.setBounds(15, 540, 106, 21);
+		label_6.setFont(new Font("宋体", Font.PLAIN, 14));
+		label_6.setHorizontalAlignment(SwingConstants.LEFT);
+		label_6.setBounds(26, 540, 95, 21);
 		panel.add(label_6);
 		
 		JSlider slider_Sharpness = new JSlider();
+		slider_Sharpness.setPaintTicks(true);
+		slider_Sharpness.setMajorTickSpacing(100);
+		slider_Sharpness.setMinorTickSpacing(10);
+		slider_Sharpness.setSnapToTicks(true);
+		slider_Sharpness.setPaintLabels(true);
 		slider_Sharpness.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				props.setSharpness(slider_Sharpness.getValue());
@@ -232,15 +290,21 @@ public class RSFaceFrameForTest extends JFrame {
 		slider_Sharpness.setValue(50);
 		slider_Sharpness.setMinimum(0);
 		slider_Sharpness.setMaximum(100);
-		slider_Sharpness.setBounds(137, 540, 200, 26);
+		slider_Sharpness.setBounds(137, 540, 207, 44);
 		panel.add(slider_Sharpness);
 		
 		JLabel label_7 = new JLabel("白平衡");
-		label_7.setHorizontalAlignment(SwingConstants.CENTER);
-		label_7.setBounds(15, 594, 106, 21);
+		label_7.setFont(new Font("宋体", Font.PLAIN, 14));
+		label_7.setHorizontalAlignment(SwingConstants.LEFT);
+		label_7.setBounds(26, 594, 95, 21);
 		panel.add(label_7);
 		
 		JSlider slider_WhitenBalance = new JSlider();
+		slider_WhitenBalance.setPaintTicks(true);
+		slider_WhitenBalance.setMajorTickSpacing(2800);
+		slider_WhitenBalance.setMinorTickSpacing(400);
+		slider_WhitenBalance.setSnapToTicks(true);
+		slider_WhitenBalance.setPaintLabels(true);
 		slider_WhitenBalance.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				props.setWhitebalance(slider_WhitenBalance.getValue());
@@ -250,7 +314,7 @@ public class RSFaceFrameForTest extends JFrame {
 		slider_WhitenBalance.setValue(4600);
 		slider_WhitenBalance.setMinimum(2800);
 		slider_WhitenBalance.setMaximum(5600);
-		slider_WhitenBalance.setBounds(137, 594, 200, 26);
+		slider_WhitenBalance.setBounds(137, 594, 207, 41);
 		panel.add(slider_WhitenBalance);
 		
 		

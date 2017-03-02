@@ -45,6 +45,7 @@ import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.task.AutoLogonJob;
 import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.utils.IDCardUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
@@ -142,30 +143,29 @@ public class DeviceEventListener implements Runnable {
 	/**
 	 * 测试用例
 	 */
-//	public void offerDeviceEventTest() {
+//	private void offerDeviceEvent() {
 //		log.info("offerDeviceEvent readCardEvent");
 //		IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
-//		IDCard idCard = createIDCard("C:/maven/git/pitchecking/zp.jpg");
+//		IDCard idCard = IDCardUtil.createIDCard("zp.jpg");
 //		readCardEvent.setIdCard(idCard);
-//		this.offerDeviceEvent(readCardEvent);
+//		DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
 //
 //		QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(Config.QRReaderEvent);
 //		Ticket ticket = new Ticket();
 //		ticket.setCardNo("520203197912141119");
 //		ticket.setTicketNo("T129999");
-//		ticket.setTrainDate(CalUtils.getStringDateShort2());
 //		ticket.setFromStationCode("IZQ");
 //		ticket.setEndStationCode("SZQ");
 //		ticket.setTicketType("0");
 //		ticket.setCardType("1");
+//		ticket.setTrainDate(CalUtils.getStringDateShort2());
 //		qrEvent.setTicket(ticket);
-//		this.offerDeviceEvent(qrEvent);
+//		DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
 //		log.info("offerDeviceEvent qrEvent");
 //	}
 
 	@Override
 	public void run() {
-
 		IDeviceEvent e;
 		try {
 			if (isDealDeviceEvent) {
@@ -223,7 +223,6 @@ public class DeviceEventListener implements Runnable {
 				log.debug("票证核验通过，停止寻卡，打开第一道闸门，开始人证比对");
 				if (Config.getInstance().getIsUseGatDll() == 0) {
 					this.setReceiveOpenFirstDoorCmd(false);
-					// FirstGateDevice.getInstance().openFirstDoor();// 打开第一道门
 					for (int rc = 0; rc < 3; rc++) {
 						if (!this.isReceiveOpenFirstDoorCmd) {
 							FirstGateDevice.getInstance().openFirstDoor();
@@ -250,7 +249,6 @@ public class DeviceEventListener implements Runnable {
 				log.debug("人脸比对通过，开第二道闸门");
 				if (Config.getInstance().getIsUseGatDll() == 0) { // 不调用门控dll
 					this.setReceiveOpenSecondDoorCmd(false);
-					// SecondGateDevice.getInstance().openTheSecondDoor(); //
 					SecondGateDevice.getInstance().LightGreenLED();
 					CommUtil.sleep(20);
 					for (int rc = 0; rc < 3; rc++) {
@@ -268,6 +266,21 @@ public class DeviceEventListener implements Runnable {
 
 				int displayTimeOut = 3 - 1;
 				CAMDevice.getInstance().CAM_ScreenDisplay("人证核验成功#请通过", displayTimeOut);
+				
+				
+				//------------------------------just test
+//				TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+//						ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+//				DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+//				DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+//
+//				if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+//					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+//							.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
+//					DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+//				}
+//				log.debug("人证比对完成，第二道闸门已经关闭，重新寻卡");
+				//-------------------------------------------------------------------
 
 				if (Config.getInstance().getDoorCountMode() == DeviceConfig.SINGLEDOOR) {
 					DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
@@ -538,12 +551,8 @@ public class DeviceEventListener implements Runnable {
 
 		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		scheduler.scheduleWithFixedDelay(BarCodeReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
-		// 求助按钮事件处理线程
-		// scheduler.scheduleWithFixedDelay(EmerButtonTask.getInstance(), 0,
-		// 100, TimeUnit.MILLISECONDS);
-		// // 语音调用线程
-		// scheduler.scheduleWithFixedDelay(AudioPlayTask.getInstance(), 0, 100,
-		// TimeUnit.MILLISECONDS);
+		
+		
 		// 门模块状态
 		// scheduler.scheduleWithFixedDelay(GATStatusQuery.getInstance(), 0,
 		// 100, TimeUnit.MILLISECONDS);

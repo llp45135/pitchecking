@@ -169,44 +169,36 @@ public class MqttReceiverBroker {
 			// log.info("消息级别(0,1,2): " + Qos);
 			// log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
+			String trackClientId = DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum();
 			String mqttMessage = new String(payload);
 
 			if (topicName.equals("pub_topic")) {
 				// log.debug("mqttMessage==" + mqttMessage);
-				if (mqttMessage.indexOf("CAM_Open") != -1) {
+				if (mqttMessage.indexOf("CAM_Open") != -1) { // 程序启动时连接摄像头
 					ObjectMapper mapper = new ObjectMapper();
 					CAMOpenBean camOpenBean = mapper.readValue(mqttMessage, CAMOpenBean.class);
 
-					// CAMOpenBean camOpenBean = new CAMOpenBean();
-					// camOpenBean = (CAMOpenBean)
-					// JsonUtils.toJavaBean(camOpenBean,
-					// JsonUtils.toMap(mqttMessage));
 					int faceTimeout = camOpenBean.getTimeout(); // 从cam_open输出的结构体获取到总超时时间
 					Config.getInstance().setFaceCheckDelayTime(faceTimeout);
 					log.info("CAM_Open faceTimeout==" + faceTimeout);//
 					camOpenBean.setEventDirection(2);
 
 					String camOpenResultJson = mapper.writeValueAsString(camOpenBean);
-					// String camOpenResultJson = "{\"eventDirection\" :
-					// 2,\"eventName\" : \"CAM_Open\", \"threshold\" : 77,
-					// \"timeout\" : 3000}";
-
-					// String camOpenResultJson =
-					// JsonUtils.toJSON(camOpenBean).toString();
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(SEND_TOPIC,
-							camOpenResultJson);
+					MqttSenderBroker.getInstance(trackClientId).sendMessage(SEND_TOPIC, camOpenResultJson);
 
 				} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
-					log.info("@@@@@@@@@@@@@@@收到CAM_Notify请求@@@@@@@@@@@@@@@@");
-
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setNotifyJson(mqttMessage); // 把notify
-																												// jsonstring保存起来
+					log.info("--------收到CAM_Notify请求--------");
+					// 把notify-jsonstring保存起来
+					MqttSenderBroker.getInstance(trackClientId).setNotifyJson(mqttMessage);
+					
+					// 将身份证信息通知前置摄像头进程
+					GatCtrlSenderBroker.getInstance(trackClientId).sendMessage(DeviceConfig.EventTopic,mqttMessage);
 
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyEventBean b1 = mapper.readValue(mqttMessage, PIVerifyEventBean.class);
 
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setUuid(b1.getUuid());
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).setIdcardBytes(b1.getIdPhoto());
+					MqttSenderBroker.getInstance(trackClientId).setUuid(b1.getUuid());
+					MqttSenderBroker.getInstance(trackClientId).setIdcardBytes(b1.getIdPhoto());
 
 					if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyEASEN)) {
 						String easenzp = Config.getInstance().getEasenConfigPath() + "/easenzp.jpg";
@@ -218,6 +210,10 @@ public class MqttReceiverBroker {
 						log.info("易胜版本--将读取的身份证照片转存至：" + Config.getInstance().getEasenConfigPath());
 					}
 
+					// 通知其他进程开始检脸
+					GatCtrlSenderBroker.getInstance(trackClientId).sendMessage(DeviceConfig.EventTopic,
+							DeviceConfig.Event_StartTracking);
+
 					b1.setEventName(Config.BeginVerifyFaceEvent);
 					b1.setEventDirection(2);
 					String ss = "";
@@ -225,8 +221,7 @@ public class MqttReceiverBroker {
 
 					String notifyResultJson = mapper.writeValueAsString(b1);
 					log.info("notifyResultJson==" + notifyResultJson);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(SEND_TOPIC,
-							notifyResultJson);
+					MqttSenderBroker.getInstance(trackClientId).sendMessage(SEND_TOPIC, notifyResultJson);
 
 				} else if (mqttMessage.indexOf("CAM_GetPhotoInfo") != -1) {
 					// System.out.println("^^^^^^^^^^^^^^^^^^^");
@@ -240,16 +235,16 @@ public class MqttReceiverBroker {
 					if (idCardNo != null && idCardNo.trim().length() == 18) {
 						// 收到调用CAM_GetPhotoInfo方式的请求开始人脸检测
 						if (DeviceConfig.getInstance().getVersionFlag() == 1) {
-							eventHandler.InComeEventHandler(
-									MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getNotifyJson());
+							eventHandler
+									.InComeEventHandler(MqttSenderBroker.getInstance(trackClientId).getNotifyJson());
 						}
 
 						if (DeviceConfig.getInstance().getVersionFlag() == 0) {
-							MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).testPublishFace();
+							MqttSenderBroker.getInstance(trackClientId).testPublishFace();
 						}
 					} else {
 						log.info("########PublishWrongIDNo  身份号错误########");
-						MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).PublishWrongIDNo();
+						MqttSenderBroker.getInstance(trackClientId).PublishWrongIDNo();
 					}
 				} else if (mqttMessage.indexOf("CAM_ScreenDisplay") != -1) {
 					ObjectMapper mapper = new ObjectMapper();
@@ -259,22 +254,19 @@ public class MqttReceiverBroker {
 					log.info("CAM_ScreenDisplay faceScreenDisplay==" + faceScreenDisplay);
 					log.info("CAM_ScreenDisplay displayTimeout==" + displayTimeout);
 
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-							.setFaceScreenDisplay(faceScreenDisplay);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-							.setFaceScreenDisplayTimeout(displayTimeout);
+					MqttSenderBroker.getInstance(trackClientId).setFaceScreenDisplay(faceScreenDisplay);
+					MqttSenderBroker.getInstance(trackClientId).setFaceScreenDisplayTimeout(displayTimeout);
 
 					screenDisplayBean.setEventName(Config.ScreenDisplayEvent);
 					screenDisplayBean.setEventDirection(2);
 
 					String screenDisplayResultJson = mapper.writeValueAsString(screenDisplayBean);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage(SEND_TOPIC,
-							screenDisplayResultJson);
+					MqttSenderBroker.getInstance(trackClientId).sendMessage(SEND_TOPIC, screenDisplayResultJson);
 
 					// 语音："验证成功，请通过"
-					if (faceScreenDisplay.indexOf("成功") != -1) {
+					if (faceScreenDisplay.indexOf("成功") != -1 || faceScreenDisplay.indexOf("succed") != -1) {
 						log.info("播放语音：验证成功，请通过");
-						MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).sendMessage("PITEventTopic",
+						MqttSenderBroker.getInstance(trackClientId).sendMessage("PITEventTopic",
 								ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag, "FaceAudio"));
 					}
 
@@ -293,7 +285,8 @@ public class MqttReceiverBroker {
 	}
 
 	public static void main(String[] args) {
-		MqttReceiverBroker mqttBroker = MqttReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT);
+		MqttReceiverBroker mqttBroker = MqttReceiverBroker
+				.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum());
 		// MqttSenderBroker.getInstance().sendMessage("pub_topic", "DoorCmd12");
 
 	}

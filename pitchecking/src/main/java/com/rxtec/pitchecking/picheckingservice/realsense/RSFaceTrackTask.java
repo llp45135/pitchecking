@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,13 +23,17 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
+import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
+import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.task.FaceScreenListener;
 import com.rxtec.pitchecking.utils.CalUtils;
+import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.utils.IDCardUtil;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
 import intel.rssdk.PXCMBase;
@@ -51,6 +57,7 @@ import intel.rssdk.pxcmStatus;
 import intel.rssdk.PXCMCapture.Device;
 import intel.rssdk.PXCMCapture.Device.PropertyInfo;
 import intel.rssdk.PXCMCapture.Sample;
+import intel.rssdk.PXCMCaptureManager;
 
 public class RSFaceTrackTask implements Runnable {
 
@@ -609,16 +616,12 @@ public class RSFaceTrackTask implements Runnable {
 	}
 
 	/**
-	 * 设置摄像头参数 
-	 * SetColorExposure 设置曝光值 范围 -8--0 step 1.0 ,系统缺省值 -6 。值越小曝光值越小,可设为自动曝光
-	 * ColorBrightness 设置亮度 范围 -64--64 step 1.0， 0 设置画面亮度
-	 * Gain 图像增益 0--128,64，1,false
-	 * Gamma 灰度 100--500,300,1，false
-	 * HUE 色相 -180--180,0,1，false
-	 * Saturation 色彩饱和度 0--100,64,1,false
-	 * Sharpness 清晰度 0--100,50,1，false
-	 * WhitenBalance 白平衡 2800--5600,4600,10，true
-	 * DepthConfidenceTHRESHOLD  深度信息可信度阈值 0--15,3,1，flse
+	 * 设置摄像头参数 SetColorExposure 设置曝光值 范围 -8--0 step 1.0 ,系统缺省值 -6
+	 * 。值越小曝光值越小,可设为自动曝光 ColorBrightness 设置亮度 范围 -64--64 step 1.0， 0 设置画面亮度 Gain
+	 * 图像增益 0--128,64，1,false Gamma 灰度 100--500,300,1，false HUE 色相
+	 * -180--180,0,1，false Saturation 色彩饱和度 0--100,64,1,false Sharpness 清晰度
+	 * 0--100,50,1，false WhitenBalance 白平衡 2800--5600,4600,10，true
+	 * DepthConfidenceTHRESHOLD 深度信息可信度阈值 0--15,3,1，flse
 	 * 
 	 * PROPERTY_IVCAM_FILTER_OPTION SR300摄像头平滑系数 0-9 缺省值5 代表中等距离
 	 * 
@@ -629,11 +632,12 @@ public class RSFaceTrackTask implements Runnable {
 	 *            设备参数
 	 */
 	public void setupColorCameraDevice(RealsenseDeviceProperties properties) {
+		// log.info("Camera Device==" + dev);
 		if (dev == null)
 			return;
 		PXCMCapture.DeviceInfo info = new PXCMCapture.DeviceInfo();
 		dev.QueryDeviceInfo(info);
-		log.info("Using Camera: " + info.name);
+		// log.info("Using Camera: " + info.name);
 
 		dev.SetColorAutoExposure(properties.isColorAutoExposure());
 		dev.SetColorAutoWhiteBalance(properties.isColorAutoWhiteBalance());
@@ -641,12 +645,9 @@ public class RSFaceTrackTask implements Runnable {
 
 		dev.SetColorBrightness(properties.getColorBrightness());
 		dev.SetColorExposure(properties.getColorExposure());
-		
-		
+
 		dev.SetIVCAMFilterOption(properties.getIVCAM_Option());
-		
-		
-		
+
 		dev.SetSR300_HDR_MODE(properties.getSR300_HDR());
 		dev.SetColorContrast(properties.getContrast());
 		dev.SetColorGamma(properties.getGamma());
@@ -655,65 +656,93 @@ public class RSFaceTrackTask implements Runnable {
 		dev.SetColorHue(properties.getHue());
 		dev.SetColorSaturation(properties.getSaturation());
 		dev.SetColorSharpness(properties.getSharpness());
-		//dev.SetColorWhiteBalance(properties.getWhitebalance());
-		
-		
-//		log.info("ColorBrightness=" + dev.QueryColorBrightness());
-//		log.info("ColorExposure=" + dev.QueryColorExposure());
-//		//log.info("isSR300_HDR=" + d);
-//		log.info("ColorContrast=" + dev.QueryColorContrast());
-//		log.info("ColorFocalLengthMM=" + dev.QueryColorFocalLengthMM());
-//		log.info("Gamma=" + dev.QueryColorGamma());
-//		log.info("HUE=" + dev.QueryColorHue());
-//		log.info("Gain=" + dev.QueryColorGain());
-//		log.info("DepthFocalLengthMM=" + dev.QueryDepthFocalLengthMM());
-//		log.info("DepthConfidenceThreshold=" + dev.QueryDepthConfidenceThreshold());
-//		log.info("IVCAMFilterOption=" + dev.QueryIVCAMFilterOption());
-//		log.info("QueryIVCAMLaserPower=" + dev.QueryIVCAMLaserPower());
-//		log.info("IVCAMAccuracy=" + dev.QueryIVCAMAccuracy());
-//		log.info("ColorGainInfo=" + dev.QueryColorGainInfo());
-//		PropertyInfo pinfo = dev.QueryColorGainInfo();
-//		log.info("GainInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//		
-//		pinfo = dev.QueryColorBrightnessInfo();
-//		log.info("BrightnessInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//		
-//		pinfo = dev.QueryColorContrastInfo();
-//		log.info("ContrastInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//		
-//		pinfo = dev.QueryColorExposureInfo();
-//		log.info("ColorExposureInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//		
-//		pinfo = dev.QueryColorGammaInfo();
-//		log.info("ColorGammaInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//		
-//		pinfo = dev.QueryColorHueInfo();
-//		log.info("ColorHueInfo(): defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//
-//		pinfo = dev.QueryColorSaturationInfo();
-//		log.info("ColorSaturationInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//		
-//		pinfo = dev.QueryColorSharpnessInfo();
-//		log.info("ColorSharpnessInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//
-//		pinfo = dev.QueryColorWhiteBalanceInfo();
-//		log.info("ColorWhiteBalanceInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//
-//		pinfo = dev.QueryDepthConfidenceThresholdInfo();
-//		log.info("DepthConfidenceThresholdInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//
-//		
-//		pinfo = dev.QueryIVCAMFilterOptionInfo();
-//		log.info("IVCAMFilterOptionInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//
-//		pinfo = dev.QueryIVCAMLaserPowerInfo();
-//		log.info("IVCAMLaserPowerInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//
-//		pinfo = dev.QueryIVCAMMotionRangeTradeOffInfo();
-//		log.info("IVCAMMotionRangeTradeOffInfo: defaultValue=" + pinfo.defaultValue + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +" isAuto:" + pinfo.automatic);
-//
-//		
-		
+		// dev.SetColorWhiteBalance(properties.getWhitebalance());
+
+		// log.info("ColorBrightness=" + dev.QueryColorBrightness());
+		// log.info("ColorExposure=" + dev.QueryColorExposure());
+		// //log.info("isSR300_HDR=" + d);
+		// log.info("ColorContrast=" + dev.QueryColorContrast());
+		// log.info("ColorFocalLengthMM=" + dev.QueryColorFocalLengthMM());
+		// log.info("Gamma=" + dev.QueryColorGamma());
+		// log.info("HUE=" + dev.QueryColorHue());
+		// log.info("Gain=" + dev.QueryColorGain());
+		// log.info("DepthFocalLengthMM=" + dev.QueryDepthFocalLengthMM());
+		// log.info("DepthConfidenceThreshold=" +
+		// dev.QueryDepthConfidenceThreshold());
+		// log.info("IVCAMFilterOption=" + dev.QueryIVCAMFilterOption());
+		// log.info("QueryIVCAMLaserPower=" + dev.QueryIVCAMLaserPower());
+		// log.info("IVCAMAccuracy=" + dev.QueryIVCAMAccuracy());
+		// log.info("ColorGainInfo=" + dev.QueryColorGainInfo());
+		// PropertyInfo pinfo = dev.QueryColorGainInfo();
+		// log.info("GainInfo: defaultValue=" + pinfo.defaultValue + " Range "+
+		// pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step +"
+		// isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryColorBrightnessInfo();
+		// log.info("BrightnessInfo: defaultValue=" + pinfo.defaultValue + "
+		// Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" +
+		// pinfo.step +" isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryColorContrastInfo();
+		// log.info("ContrastInfo: defaultValue=" + pinfo.defaultValue + " Range
+		// "+ pinfo.range.min + "--" + pinfo.range.max + " step:" + pinfo.step
+		// +" isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryColorExposureInfo();
+		// log.info("ColorExposureInfo: defaultValue=" + pinfo.defaultValue + "
+		// Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" +
+		// pinfo.step +" isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryColorGammaInfo();
+		// log.info("ColorGammaInfo: defaultValue=" + pinfo.defaultValue + "
+		// Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" +
+		// pinfo.step +" isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryColorHueInfo();
+		// log.info("ColorHueInfo(): defaultValue=" + pinfo.defaultValue + "
+		// Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" +
+		// pinfo.step +" isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryColorSaturationInfo();
+		// log.info("ColorSaturationInfo: defaultValue=" + pinfo.defaultValue +
+		// " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" +
+		// pinfo.step +" isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryColorSharpnessInfo();
+		// log.info("ColorSharpnessInfo: defaultValue=" + pinfo.defaultValue + "
+		// Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" +
+		// pinfo.step +" isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryColorWhiteBalanceInfo();
+		// log.info("ColorWhiteBalanceInfo: defaultValue=" + pinfo.defaultValue
+		// + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" +
+		// pinfo.step +" isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryDepthConfidenceThresholdInfo();
+		// log.info("DepthConfidenceThresholdInfo: defaultValue=" +
+		// pinfo.defaultValue + " Range "+ pinfo.range.min + "--" +
+		// pinfo.range.max + " step:" + pinfo.step +" isAuto:" +
+		// pinfo.automatic);
+		//
+		//
+		// pinfo = dev.QueryIVCAMFilterOptionInfo();
+		// log.info("IVCAMFilterOptionInfo: defaultValue=" + pinfo.defaultValue
+		// + " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" +
+		// pinfo.step +" isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryIVCAMLaserPowerInfo();
+		// log.info("IVCAMLaserPowerInfo: defaultValue=" + pinfo.defaultValue +
+		// " Range "+ pinfo.range.min + "--" + pinfo.range.max + " step:" +
+		// pinfo.step +" isAuto:" + pinfo.automatic);
+		//
+		// pinfo = dev.QueryIVCAMMotionRangeTradeOffInfo();
+		// log.info("IVCAMMotionRangeTradeOffInfo: defaultValue=" +
+		// pinfo.defaultValue + " Range "+ pinfo.range.min + "--" +
+		// pinfo.range.max + " step:" + pinfo.step +" isAuto:" +
+		// pinfo.automatic);
+		//
+		//
+
 		// PropertyInfo pColorBrightness = dev.QueryColorBrightnessInfo();
 		// PropertyInfo pColorExposure = dev.QueryColorExposureInfo();
 		// PropertyInfo pBackLight = dev.QueryColorBackLightCompensationInfo();
@@ -726,6 +755,55 @@ public class RSFaceTrackTask implements Runnable {
 	public void doTracking() throws Exception {
 		pid = ProcessUtil.getCurrentProcessID();
 		PXCMSession session = PXCMSession.CreateInstance();
+
+		/**
+		 * 在有多个realsense摄像头的情况下，首先列出每个设备的DeviceInfo,再根据DeviceInfo进行过滤
+		 */
+		PXCMSession.ImplDesc desc = new PXCMSession.ImplDesc();
+		PXCMSession.ImplDesc outDesc = new PXCMSession.ImplDesc();
+		desc.group = EnumSet.of(PXCMSession.ImplGroup.IMPL_GROUP_SENSOR);
+		desc.subgroup = EnumSet.of(PXCMSession.ImplSubgroup.IMPL_SUBGROUP_VIDEO_CAPTURE);
+
+		Map<Integer, PXCMCapture.DeviceInfo> map = new HashMap<Integer, PXCMCapture.DeviceInfo>();
+
+		int numDevices = 0;
+		for (int i = 0;; i++) {
+			// log.debug("i==" + i);
+			if (session.QueryImpl(desc, i, outDesc).isError())
+				break;
+
+			PXCMCapture capture = new PXCMCapture();
+			if (session.CreateImpl(outDesc, capture).isError())
+				continue;
+
+			for (int j = 0;; j++) {
+				// log.debug("j==" + j);
+				PXCMCapture.DeviceInfo info = new PXCMCapture.DeviceInfo();
+				if (capture.QueryDeviceInfo(j, info).isError())
+					break;
+				log.debug(info.name);
+				if (info.name.startsWith("Intel(R)")) {
+					map.put(numDevices, info);
+					numDevices++;
+				}
+			}
+		}
+		log.info("Found " + numDevices + " RealSense Devices");
+
+		 if (numDevices < Config.getInstance().getCameraNum()) {
+		 log.error("A sufficient number of camera not detected!!");
+		 return;
+		 }
+
+		PXCMCapture.DeviceInfo devInfo = null;
+		log.info("getCameraNum==" + Config.getInstance().getCameraNum());
+		if (Config.getInstance().getCameraNum() == 1) {
+			devInfo = map.get(0);
+		}
+		if (Config.getInstance().getCameraNum() == 2) {
+			devInfo = map.get(1);
+		}
+
 		PXCMPowerState ps = session.CreatePowerManager();
 		// Set the power state
 		ps.SetState(PXCMPowerState.State.PERFORMANCE);
@@ -768,6 +846,10 @@ public class RSFaceTrackTask implements Runnable {
 		// faceConfig.Update();
 		faceConfig.ApplyChanges();
 
+		// sm is a PXCMSenseManager instance
+		PXCMCaptureManager captureMgr = senseMgr.QueryCaptureManager();
+		captureMgr.FilterByDeviceInfo(devInfo);
+
 		sts = senseMgr.Init();
 
 		if (sts.isError()) {
@@ -782,7 +864,8 @@ public class RSFaceTrackTask implements Runnable {
 			return;
 		}
 
-		dev = senseMgr.QueryCaptureManager().QueryDevice();
+		dev = senseMgr.QueryCaptureManager().QueryDevice(); // 获取device对象
+
 		/**
 		 * 启动摄像头时，判断当前时间，选择白天设置或夜间设置
 		 */
@@ -792,40 +875,54 @@ public class RSFaceTrackTask implements Runnable {
 		if (nowTime >= dayCameraTime && nowTime < nightCameraTime) { // 08:00<=now<18:00
 			log.debug("当前设置为白天模式");
 			RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
-			
-//			realsenseProp.setColorAutoExposure(cameraColorBean.getColorautoexposure());
-//			realsenseProp.setColorAutoWhiteBalance(cameraColorBean.getColorautowhitebalance());
-//			realsenseProp.setColorBackLightCompensation(cameraColorBean.getColorbacklightcompensation());
+
+			// realsenseProp.setColorAutoExposure(cameraColorBean.getColorautoexposure());
+			// realsenseProp.setColorAutoWhiteBalance(cameraColorBean.getColorautowhitebalance());
+			// realsenseProp.setColorBackLightCompensation(cameraColorBean.getColorbacklightcompensation());
 			realsenseProp.setColorBrightness(Config.getInstance().getInitColorBrightness());
 			realsenseProp.setColorExposure(Config.getInstance().getInitColorExposure());
-//			realsenseProp.setSR300_HDR(cameraColorBean.getHdr());
+			// realsenseProp.setSR300_HDR(cameraColorBean.getHdr());
 			realsenseProp.setContrast(Config.getInstance().getInitContrast());
-//			realsenseProp.setGamma(cameraColorBean.getGamma());
+			// realsenseProp.setGamma(cameraColorBean.getGamma());
 			realsenseProp.setGain(Config.getInstance().getInitGain());
-			
-			setupColorCameraDevice(realsenseProp);
-			log.debug("InitColorExposure=="+Config.getInstance().getInitColorExposure()+",InitColorBrightness=="+Config.getInstance().getInitColorBrightness());
-			log.debug("InitContrast=="+Config.getInstance().getInitContrast()+",InitGain=="+Config.getInstance().getInitGain());
+
+			setupColorCameraDevice(realsenseProp); // 设置摄像头参数
+			log.debug("InitColorExposure==" + Config.getInstance().getInitColorExposure() + ",InitColorBrightness=="
+					+ Config.getInstance().getInitColorBrightness());
+			log.debug("InitContrast==" + Config.getInstance().getInitContrast() + ",InitGain=="
+					+ Config.getInstance().getInitGain());
 		} else {
 			log.debug("当前设置为夜晚模式");
 			RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
-			
-//			realsenseProp.setColorAutoExposure(cameraColorBean.getColorautoexposure());
-//			realsenseProp.setColorAutoWhiteBalance(cameraColorBean.getColorautowhitebalance());
-//			realsenseProp.setColorBackLightCompensation(cameraColorBean.getColorbacklightcompensation());
+
+			// realsenseProp.setColorAutoExposure(cameraColorBean.getColorautoexposure());
+			// realsenseProp.setColorAutoWhiteBalance(cameraColorBean.getColorautowhitebalance());
+			// realsenseProp.setColorBackLightCompensation(cameraColorBean.getColorbacklightcompensation());
 			realsenseProp.setColorBrightness(Config.getInstance().getNightColorBrightness());
 			realsenseProp.setColorExposure(Config.getInstance().getNightColorExposure());
-//			realsenseProp.setSR300_HDR(cameraColorBean.getHdr());
+			// realsenseProp.setSR300_HDR(cameraColorBean.getHdr());
 			realsenseProp.setContrast(Config.getInstance().getNightContrast());
-//			realsenseProp.setGamma(cameraColorBean.getGamma());
+			// realsenseProp.setGamma(cameraColorBean.getGamma());
 			realsenseProp.setGain(Config.getInstance().getNightGain());
-			
+
 			setupColorCameraDevice(realsenseProp);
-			log.debug("NightColorExposure=="+Config.getInstance().getNightColorExposure()+",NightColorBrightness=="+Config.getInstance().getNightColorBrightness());
-			log.debug("NightContrast=="+Config.getInstance().getNightContrast()+",NightGain=="+Config.getInstance().getNightGain());
+			log.debug("NightColorExposure==" + Config.getInstance().getNightColorExposure() + ",NightColorBrightness=="
+					+ Config.getInstance().getNightColorBrightness());
+			log.debug("NightContrast==" + Config.getInstance().getNightContrast() + ",NightGain=="
+					+ Config.getInstance().getNightGain());
 		}
 
+		ProcessUtil.writeHeartbeat(pid, Config.getInstance().getHeartBeatLogFile()); // 写心跳日志
+		FaceScreenListener.getInstance().setPidStr(pid); // 设为允许写心跳
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
+				.sendDoorCmd("PITEventTopic", DeviceConfig.Event_CameraStartupSucc);
+		Config.getInstance().setCameraWork(true);
+
+		/**
+		 * 
+		 */
 		while (startCapture) {
+			CommUtil.sleep(50); // 双摄像头版本增加
 			try {
 				sts = senseMgr.AcquireFrame(true);
 				if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0) {
@@ -881,16 +978,39 @@ public class RSFaceTrackTask implements Runnable {
 
 						fd.setFaceDistance(sf.distance);
 						if (fd != null) {
-							if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {
-								fd.setIdCard(currentIDCard);
-								fd.setTicket(currentTicket);
-								if (pae != null) {
-									fd.setFacePosePitch(pae.pitch);
-									fd.setFacePoseRoll(pae.roll);
-									fd.setFacePoseYaw(pae.yaw);
+							if (!FaceCheckingService.getInstance().isFrontCamera()) { // 后置摄像头
+								if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {
+									fd.setIdCard(currentIDCard);
+									fd.setTicket(currentTicket);
+									if (pae != null) {
+										fd.setFacePosePitch(pae.pitch);
+										fd.setFacePoseRoll(pae.roll);
+										fd.setFacePoseYaw(pae.yaw);
+									}
+//									log.info("Begin to verify face........." + fd);
+									FaceCheckingService.getInstance().offerDetectedFaceData(fd); // 将人脸插入待检队列
 								}
-								log.info("Begin to verify face........." + fd);
-								FaceCheckingService.getInstance().offerDetectedFaceData(fd); // 将人脸插入待检队列
+							} else { // 前置摄像头
+								if (fd.isDetectedFace()) { // 双摄像头版本增加
+									currentIDCard = FaceCheckingService.getInstance().getIdcard();
+									if (currentIDCard != null) {
+										log.debug("idNo==" + currentIDCard.getIdNo() + ",age==" + currentIDCard.getAge()
+												+ ",gender==" + currentIDCard.getGender() + ",name=="
+												+ currentIDCard.getPersonName());
+									}
+									// 双摄像头版本增加
+									currentTicket = new Ticket();
+									fd.setIdCard(currentIDCard);
+									fd.setTicket(currentTicket);
+									if (pae != null) {
+										fd.setFacePosePitch(pae.pitch);
+										fd.setFacePoseRoll(pae.roll);
+										fd.setFacePoseYaw(pae.yaw);
+									}
+									// log.info("Begin to verify face........."
+									// + fd);
+									FaceCheckingService.getInstance().offerDetectedFaceData(fd); // 将人脸插入待检队列
+								}
 							}
 						}
 					}

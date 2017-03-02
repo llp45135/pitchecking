@@ -47,7 +47,7 @@ import io.aeron.driver.MediaDriver;
 public class PTVerifyPublisher implements Runnable {
 
 	private Logger log = LoggerFactory.getLogger("PTVerifyPublisher");
-	private static final int STREAM_ID = Config.PIVerify_Begin_STREAM_ID;
+	private static final int STREAM_ID = Config.PIVerify_Begin_STREAM_ID;  //10 通知独立人脸比对进程开始人脸比对
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
 	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 256, 32));

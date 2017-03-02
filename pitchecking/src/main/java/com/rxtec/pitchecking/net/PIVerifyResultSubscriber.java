@@ -41,7 +41,7 @@ public class PIVerifyResultSubscriber implements Runnable{
 
 	private Logger log = LoggerFactory.getLogger("PIVerifyResultSubscriber");
 
-	private static final int STREAM_ID = Config.PIVerify_Result_STREAM_ID;
+	private static final int STREAM_ID = Config.PIVerify_Result_STREAM_ID;  // 11 独立人脸比对进程发布比对结果
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	
 	private static PIVerifyResultSubscriber _instance = new PIVerifyResultSubscriber();
@@ -83,7 +83,7 @@ public class PIVerifyResultSubscriber implements Runnable{
 				final Subscription subscription = aeron.addSubscription(CHANNEL, STREAM_ID)) {
 			log.info("CHANNEL=" + CHANNEL +" STREAM_ID="+STREAM_ID + "  PIVerifyResultSubscriber connected,and begin Subscription!");
 			ResultSubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
-			log.info("PIVerifyEventSubscriber Shutting down...");
+			log.info("PIVerifyResultSubscriber Shutting down...");
 		}
 		
 	}
@@ -151,7 +151,7 @@ class ResultSubscriberUtils {
 			try {
 				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
 				PITVerifyData fd = (PITVerifyData)ois.readObject();
-				
+//				System.out.println("received from FaceCheckingStandaloneTask:"+fd);
 				if(fd.getVerifyResult() >= Config.getInstance().getFaceCheckThreshold()){
 					//比对成功的offer到成功队列
 					FaceCheckingService.getInstance().offerPassFaceData(fd);

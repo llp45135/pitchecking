@@ -31,7 +31,7 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "170203.20.01";
+	public static String softVersion = "170301.15.01";
 	private String softIdNo = "520203197912141118,440111197209283012,440881199502176714";
 
 	public static int SINGLEDOOR = 1;
@@ -74,6 +74,7 @@ public class DeviceConfig {
 	public static String AudioTakeCardWav = "./wav/takeCard.wav";
 	public static String AudioTrackFaceWav = "./wav/trackFace.wav";
 	public static String AudioTakeTicketWav = "./wav/longCheck.wav";
+	public static String AudioTakeAndTrackWav = "./wav/takeAndTrack.wav";
 	public static String AudioCheckFailedWav = "./wav/checkFailed.wav";
 	public static String AudioCheckSuccWav = "./wav/checkSucc.wav";
 	public static String AudioFailedIdCardWav = "./wav/failedIdCard.wav";
@@ -172,6 +173,8 @@ public class DeviceConfig {
 	public static String Event_QRDeviceException = "{\"Event\": -1,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 二维码读卡器故障
 	public static String Event_IDDeviceException = "{\"Event\": -2,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 二代证读卡器故障
 	public static String Event_DeviceStartupSucc = "{\"Event\": 10000,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 设备启动成功
+	public static String Event_CameraStartupSucc = "{\"Event\": 10001,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 摄像头启动成功
+	public static String Event_ClosePC = "{\"Event\": 10002,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 立刻关闭PC
 
 	public static String Clear_QrCode_Jms = "{\"EventSource\":\"QRDevice\",\"QRCode\":\"\",\"Target\":\"127.0.0.1\"}";
 
@@ -193,6 +196,7 @@ public class DeviceConfig {
 
 	public static int Event_SecondDoorHasClosed = 20; // 第二道门已关
 
+	private boolean isAllowOpenFirstDoor = true; // 是否允许开第一道门
 	private boolean isAllowOpenSecondDoor = true; // 是否允许开第二道门
 	private boolean isInTracking = false; // 是否处于人脸核验中
 
@@ -204,9 +208,20 @@ public class DeviceConfig {
 
 	private int stopCheckMinutes;
 	private int NotStartCheckMinutes;
+	
+	
+	// ----------------------------------------------------------------------------------------
 
 	public int getStopCheckMinutes() {
 		return stopCheckMinutes;
+	}
+
+	public boolean isAllowOpenFirstDoor() {
+		return isAllowOpenFirstDoor;
+	}
+
+	public void setAllowOpenFirstDoor(boolean isAllowOpenFirstDoor) {
+		this.isAllowOpenFirstDoor = isAllowOpenFirstDoor;
 	}
 
 	public void setStopCheckMinutes(int stopCheckMinutes) {
@@ -767,7 +782,7 @@ public class DeviceConfig {
 							String trainCode = tempString.substring(0, k).startsWith("0") ? tempString.substring(1, k)
 									: tempString.substring(0, k);
 							String startTime = tempString.substring(k + 1, k + 6);
-							log.info("trainCode==" + trainCode + ",startTime==" + " " + startTime);
+//							log.info("trainCode==" + trainCode + ",startTime==" + " " + startTime);
 							trainsMap.put(trainCode, startTime);
 						}
 					}

@@ -62,7 +62,7 @@ public class PITInfoPolicePublisher {
 
 		
 	/**
-	 * 将人脸数据转成json并offer进verifyDataQueue
+	 * 将人脸数据转成广铁公安局网安处所需要的json并offer进verifyDataQueue
 	 * @param d
 	 */
 	public void offerVerifyData(PITVerifyData d) {

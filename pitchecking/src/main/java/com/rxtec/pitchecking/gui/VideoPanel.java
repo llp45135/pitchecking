@@ -13,6 +13,8 @@ import javax.swing.JPanel;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
+import com.rxtec.pitchecking.task.FaceScreenListener;
+import com.rxtec.pitchecking.task.LuminanceListenerTask;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 
 public class VideoPanel extends JPanel {
@@ -35,6 +37,8 @@ public class VideoPanel extends JPanel {
 		if (Config.getInstance().getIsUseManualMQ() == 1 && Config.getInstance().getIsSendFrame() == 1) {
 			RemoteMonitorPublisher.getInstance().offerFrameData(ImageToolkit.getImageBytes(image, "jpeg"));
 		}
+		
+		FaceScreenListener.getInstance().setFrameImage(image);
 
 		Graphics2D g = (Graphics2D) this.getGraphics();
 		g.drawImage(image, 0, 0, null);

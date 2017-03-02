@@ -123,7 +123,7 @@ public class PITInfoJmsReceiver implements MessageListener {
 							fd.setFrameImg(BASE64.decryptBASE64(pitInfoJsonBean.getFrameImageBase64()));
 							fd.setIdCardImg(BASE64.decryptBASE64(pitInfoJsonBean.getIdPicImageBase64()));
 							fd.setPitDate(CalUtils.getStringDateShort2());
-							fd.setPitStation("IZQ");
+							fd.setPitStation(pitInfoJsonBean.getDbCode());
 							fd.setAge(pitInfoJsonBean.getAge());
 							fd.setGender(pitInfoJsonBean.getGender());
 							fd.setGateIp(pitInfoJsonBean.getIpAddress());
@@ -160,6 +160,8 @@ public class PITInfoJmsReceiver implements MessageListener {
 
 							pitInfoJsonBean.setIdCardNo(idNo);
 							pitInfoJsonBean.setPitTime(CalUtils.getStringDateHaomiao());
+							String dbcode = pitInfoJsonBean.getDbCode();
+							String gateNo = pitInfoJsonBean.getGateNo();
 							// pitInfoJsonBean.setFrameImageBase64(
 							// new
 							// String(BASE64.decryptBASE64(pitInfoJsonBean.getFrameImageBase64())));
@@ -177,16 +179,18 @@ public class PITInfoJmsReceiver implements MessageListener {
 									+ "/";
 							int ret = CommUtil.createDir(dirName);
 							if (ret == 0 || ret == 1) {
-								String fileName = dirName + idNo + "_" + CalUtils.getStringFullTimeHaomiao() + ".json";
+								String fileName = dirName + idNo + "_" + idNo + "_" + dbcode + "_" + gateNo + "_"
+										+ CalUtils.getStringFullTimeHaomiao() + ".json";
 								log.info("fileName==" + fileName);
-//								 ProcessUtil.writeFileContent(fileName, pitInfoNewJson);
+								// ProcessUtil.writeFileContent(fileName,
+								// pitInfoNewJson);
 								ProcessUtil.writeFileContent(fileName, pitInfoNewJson, "utf-8");
 
-//								File logFile = new File(fileName);
-//								if (!logFile.exists()) {
-//									logFile.createNewFile();
-//								}
-//								mapper.writeValue(logFile, pitInfoJsonBean);
+								// File logFile = new File(fileName);
+								// if (!logFile.exists()) {
+								// logFile.createNewFile();
+								// }
+								// mapper.writeValue(logFile, pitInfoJsonBean);
 							}
 						}
 					}

@@ -3,75 +3,45 @@ package com.rxtec.pitchecking.mqtt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 /**
- * 本类用来向本地PITEventTopic发送门控消息,同GAT_RXTa.dll通信，间接控制门模块
+ * 本类用来向其他闸机的 PITEventTopic 发送关闭电脑等消息
  * 
  * @author ZhaoLin
  *
  */
-public class GatCtrlSenderBroker {
+public class ClosePCEventSenderBroker {
 	// 连接参数
-	Logger log = LoggerFactory.getLogger("GatCtrlSenderBroker");
+	Logger log = LoggerFactory.getLogger("ClosePCEventSenderBroker");
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
-	private String CLIENT_ID = "GCS";// 客户端标识
+	private String CLIENT_ID = "CPES";// 客户端标识
 	private final static int[] QOS_VALUES = { 0 };// 对应主题的消息级别
 	private final static String[] TOPICS = { "PITEventTopic" };
 	// private String[] UNSUB_TOPICS = { "sub_topic" };
 	private final static String SEND_TOPIC = "PITEventTopic";
-	private static GatCtrlSenderBroker _instance;
-	private ObjectMapper mapper = new ObjectMapper();
+	private static ClosePCEventSenderBroker _instance;
 
 	private MqttClient mqttClient;
-	private String notifyJson;
-	private String faceScreenDisplay = "";
-	private int faceScreenDisplayTimeout = 0;
-
-	public String getFaceScreenDisplay() {
-		return faceScreenDisplay;
-	}
-
-	public void setFaceScreenDisplay(String faceScreenDisplay) {
-		this.faceScreenDisplay = faceScreenDisplay;
-	}
-
-	public int getFaceScreenDisplayTimeout() {
-		return faceScreenDisplayTimeout;
-	}
-
-	public void setFaceScreenDisplayTimeout(int faceScreenDisplayTimeout) {
-		this.faceScreenDisplayTimeout = faceScreenDisplayTimeout;
-	}
-
-	public String getNotifyJson() {
-		return notifyJson;
-	}
-
-	public void setNotifyJson(String notifyJson) {
-		this.notifyJson = notifyJson;
-	}
 
 	/**
 	 * 返回实例对象
 	 * 
 	 * @return
 	 */
-	public static synchronized GatCtrlSenderBroker getInstance(String pidname) {
+	public static synchronized ClosePCEventSenderBroker getInstance(String pidname) {
 		if (_instance == null)
-			_instance = new GatCtrlSenderBroker(pidname);
+			_instance = new ClosePCEventSenderBroker(pidname);
 		return _instance;
 	}
 
-	private GatCtrlSenderBroker(String pidname) {
+	private ClosePCEventSenderBroker(String pidname) {
 		CLIENT_ID = CLIENT_ID + DeviceConfig.getInstance().getIpAddress() + pidname;
 		while (true) {
 			try {
@@ -80,7 +50,7 @@ public class GatCtrlSenderBroker {
 				}
 			} catch (MqttException e) {
 				// TODO Auto-generated catch block
-				log.error("connect:", e);
+				log.error("connect failed!!");
 				CommUtil.sleep(5000);
 				continue;
 			}
@@ -95,7 +65,7 @@ public class GatCtrlSenderBroker {
 			mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 			flag = 0;
 		} catch (MqttException ex) {
-			log.error("GatCtrlSenderBroker reconnect", ex);
+			log.error("ManualEventSenderBroker reconnect failed!");
 			flag = -1;
 		}
 		return flag;
@@ -105,18 +75,16 @@ public class GatCtrlSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
-				+ this.CLIENT_ID);
-		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
+		log.info("start connect to " + Config.getInstance().getClosePCCmdUrl() + "# MyClientID==" + this.CLIENT_ID);
+		mqttClient = new MqttClient(Config.getInstance().getClosePCCmdUrl());
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
 		mqttClient.registerSimpleHandler(simpleCallbackHandler);// 注册接收消息方法
 		mqttClient.connect(CLIENT_ID, CLEAN_START, KEEP_ALIVE);
-		log.debug("***********subscribe receiver topics***********");
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		// mqttClient.unsubscribe(UNSUB_TOPICS);
 
-		log.info("**" + this.CLIENT_ID + " 连接 " + DeviceConfig.getInstance().getMQTT_CONN_STR() + " 成功**");
+		log.info("**ClosePCEventSenderBroker,连接 " + Config.getInstance().getClosePCCmdUrl() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息
@@ -140,9 +108,9 @@ public class GatCtrlSenderBroker {
 			mqttClient.publish(clientId, message.getBytes(), 0, false);
 			log.debug("sendMessage ok");
 		} catch (MqttException e) {
-			log.error("GatCtrlSenderBroker sendMessage", e);
+			log.error("ManualEventSenderBroker sendMessage", e);
 		} catch (Exception e) {
-			log.error("GatCtrlSenderBroker sendMessage", e);
+			log.error("ManualEventSenderBroker sendMessage", e);
 		}
 	}
 
@@ -153,13 +121,12 @@ public class GatCtrlSenderBroker {
 	 */
 	public void sendDoorCmd(String cmdstr) {
 		try {
-			log.debug("cmdstr=="+cmdstr);
 			mqttClient.publish(SEND_TOPIC, cmdstr.getBytes(), 0, false);
-			log.debug("sendDoorCmd ok");
+			log.debug("sendClosePCCmd ok");
 		} catch (MqttException e) {
-			log.error("GatCtrlSenderBroker sendMessage", e);
+			log.error("ManualEventSenderBroker sendMessage", e);
 		} catch (Exception e) {
-			log.error("GatCtrlSenderBroker sendMessage", e);
+			log.error("ManualEventSenderBroker sendMessage", e);
 		}
 	}
 
@@ -174,9 +141,9 @@ public class GatCtrlSenderBroker {
 			mqttClient.publish(clientId, cmdstr.getBytes(), 0, false);
 			log.debug("sendDoorCmd ok");
 		} catch (MqttException e) {
-			log.error("GatCtrlSenderBroker sendMessage", e);
+			log.error("ManualEventSenderBroker sendMessage", e);
 		} catch (Exception e) {
-			log.error("GatCtrlSenderBroker sendMessage", e);
+			log.error("ManualEventSenderBroker sendMessage", e);
 		}
 	}
 
@@ -228,12 +195,31 @@ public class GatCtrlSenderBroker {
 	}
 
 	public static void main(String[] args) {
-		// GatCtrlSenderBroker gatCtrlSenderBroker =
-		// GatCtrlSenderBroker.getInstance("Track");
-		// gatCtrlSenderBroker.sendDoorCmd("PITEventTopic","{\"Event\":
-		// 2,\"Target\": \"192.168.1.79\",\"EventSource\":\"Manual\"}");
+		String ss = "{\"Event\": 80004,\"Target\": \"" + DeviceConfig.getInstance().getIpAddress()
+				+ "\",\"EventSource\":\"Manual\"}";
+		// String ss = "{\"Event\": 5,\"Target\":
+		// \""+DeviceConfig.getInstance().getIpAddress()+"\",\"EventSource\":\"Manual\"}";
 
-		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
-				.sendDoorCmd(ProcessUtil.createAudioJson(90202,"TK"));
+		// String ss = "{ \"Event\": \"123321\", \"Target\": \"192.168.85.1\",
+		// \"EventSource\": \"Manual\", \"ColorAutoExposure\": true,
+		// \"ColorAutoWhiteBalance\": true, \"ColorBackLightCompensation\":
+		// true, \"ColorBrightness\": -16, \"ColorExposure\": -6 }";
+		ClosePCEventSenderBroker gatCtrlSenderBroker = ClosePCEventSenderBroker.getInstance("Verify");
+		gatCtrlSenderBroker.sendDoorCmd(ss);
+		//
+		// CommUtil.sleep(2000);
+		// String pid = ProcessUtil.getCurrentProcessID();
+		// try {
+		// Runtime.getRuntime().exec("taskkill /F /PID " + pid);
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+
+		// String mqttMessage = "{\"Event\": 1,\"Target\":
+		// \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
+		// mqttMessage=mqttMessage.replace("127.0.0.1",
+		// DeviceConfig.getInstance().getIpAddress());
+		// System.out.println("来自铁科主控端消息:" + mqttMessage);
 	}
 }

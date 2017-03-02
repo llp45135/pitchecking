@@ -12,6 +12,7 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.FaceTrackingScreen;
 import com.rxtec.pitchecking.gui.FaceCheckFrame;
 import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
@@ -352,7 +353,8 @@ public class CAMDevice {
 	 */
 	public static void main(String[] args) {
 		Logger log = LoggerFactory.getLogger("DeviceEventListener");
-		MqttReceiverBroker mqtt = MqttReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT);
+		MqttReceiverBroker mqtt = MqttReceiverBroker
+				.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum());
 		FaceTrackingScreen faceTrackingScreen = FaceTrackingScreen.getInstance();
 		FaceCheckFrame faceCheckFrame = new FaceCheckFrame();
 		faceTrackingScreen.setFaceFrame(faceCheckFrame);

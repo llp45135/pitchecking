@@ -20,6 +20,7 @@ import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 
 import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.utils.IDCardUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
 
 public class TKIDCDevice {
@@ -33,6 +34,7 @@ public class TKIDCDevice {
 	JNative jnativeIDC_ReadIDCardInfo = null;
 	JNative jnativeBmp = null;
 	static TKIDCDevice _instance = new TKIDCDevice();
+	private int idcInitRet = -1;
 
 	public static TKIDCDevice getInstance() {
 		return _instance;
@@ -42,6 +44,14 @@ public class TKIDCDevice {
 		JNative.setLoggingEnabled(false);
 		this.initJnative();
 		this.IDC_Init();
+	}
+
+	public int getIdcInitRet() {
+		return idcInitRet;
+	}
+
+	public void setIdcInitRet(int idcInitRet) {
+		this.idcInitRet = idcInitRet;
 	}
 
 	/**
@@ -84,6 +94,7 @@ public class TKIDCDevice {
 			retval = jnativeIDC_Init.getRetVal();
 			log.debug("IDC_Init retval==" + retval);
 			if (retval.equals("0")) {
+				this.setIdcInitRet(0);
 				byte[] iLogicCode = new byte[4];
 				for (int k = 0; k < 4; k++) {
 					iLogicCode[k] = pointerOut.getAsByte(k);
@@ -119,6 +130,8 @@ public class TKIDCDevice {
 					acReserve[k] = pointerOut.getAsByte(k + 4 + 4 + 4 + 128);
 				}
 				log.debug("acReserve==" + new String(acReserve));
+			} else {
+				this.setIdcInitRet(Integer.parseInt(retval));
 			}
 			pointerOut.dispose();
 		} catch (NativeException e) {
@@ -191,50 +204,51 @@ public class TKIDCDevice {
 			jnativeIDC_FetchCard.invoke();
 
 			retval = jnativeIDC_FetchCard.getRetVal();
-//			log.debug("IDC_FetchCard retval==" + retval);
+			// log.debug("IDC_FetchCard retval==" + retval);
 			if (retval.equals("0")) {
 				log.debug("已经寻到二代证");
-//				byte[] iCardType = new byte[4];
-//				for (int k = 0; k < 4; k++) {
-//					iCardType[k] = pointerCardType.getAsByte(k);
-//				}
-//				log.debug("iCardType==" + CommUtil.bytesToInt(iCardType, 0));
-//
-//				byte[] iLogicCode = new byte[4];
-//				for (int k = 0; k < 4; k++) {
-//					iLogicCode[k] = pointerOut.getAsByte(k);
-//				}
-//				log.debug("iLogicCode==" + CommUtil.bytesToInt(iLogicCode, 0));
-//
-//				byte[] iPhyCode = new byte[4];
-//				for (int k = 0; k < 4; k++) {
-//					iPhyCode[k] = pointerOut.getAsByte(k + 4);
-//				}
-//				log.debug("iPhyCode==" + CommUtil.bytesToInt(iPhyCode, 0));
-//
-//				byte[] iHandle = new byte[4];
-//				for (int k = 0; k < 4; k++) {
-//					iHandle[k] = pointerOut.getAsByte(k + 4 + 4);
-//				}
-//				log.debug("iHandle==" + CommUtil.bytesToInt(iHandle, 0));
-//
-//				byte[] iType = new byte[4];
-//				for (int k = 0; k < 4; k++) {
-//					iType[k] = pointerOut.getAsByte(k + 4 + 4);
-//				}
-//				log.debug("iType==" + CommUtil.bytesToInt(iType, 0));
-//
-//				byte[] acDevReturn = new byte[128];
-//				for (int k = 0; k < 128; k++) {
-//					acDevReturn[k] = pointerOut.getAsByte(k + 4 + 4 + 4);
-//				}
-//				log.debug("acDevReturn==" + new String(acDevReturn));
-//
-//				byte[] acReserve = new byte[128];
-//				for (int k = 0; k < 128; k++) {
-//					acReserve[k] = pointerOut.getAsByte(k + 4 + 4 + 4 + 128);
-//				}
-//				log.debug("acReserve==" + new String(acReserve));
+				// byte[] iCardType = new byte[4];
+				// for (int k = 0; k < 4; k++) {
+				// iCardType[k] = pointerCardType.getAsByte(k);
+				// }
+				// log.debug("iCardType==" + CommUtil.bytesToInt(iCardType, 0));
+				//
+				// byte[] iLogicCode = new byte[4];
+				// for (int k = 0; k < 4; k++) {
+				// iLogicCode[k] = pointerOut.getAsByte(k);
+				// }
+				// log.debug("iLogicCode==" + CommUtil.bytesToInt(iLogicCode,
+				// 0));
+				//
+				// byte[] iPhyCode = new byte[4];
+				// for (int k = 0; k < 4; k++) {
+				// iPhyCode[k] = pointerOut.getAsByte(k + 4);
+				// }
+				// log.debug("iPhyCode==" + CommUtil.bytesToInt(iPhyCode, 0));
+				//
+				// byte[] iHandle = new byte[4];
+				// for (int k = 0; k < 4; k++) {
+				// iHandle[k] = pointerOut.getAsByte(k + 4 + 4);
+				// }
+				// log.debug("iHandle==" + CommUtil.bytesToInt(iHandle, 0));
+				//
+				// byte[] iType = new byte[4];
+				// for (int k = 0; k < 4; k++) {
+				// iType[k] = pointerOut.getAsByte(k + 4 + 4);
+				// }
+				// log.debug("iType==" + CommUtil.bytesToInt(iType, 0));
+				//
+				// byte[] acDevReturn = new byte[128];
+				// for (int k = 0; k < 128; k++) {
+				// acDevReturn[k] = pointerOut.getAsByte(k + 4 + 4 + 4);
+				// }
+				// log.debug("acDevReturn==" + new String(acDevReturn));
+				//
+				// byte[] acReserve = new byte[128];
+				// for (int k = 0; k < 128; k++) {
+				// acReserve[k] = pointerOut.getAsByte(k + 4 + 4 + 4 + 128);
+				// }
+				// log.debug("acReserve==" + new String(acReserve));
 			}
 			pointerCardType.dispose();
 			pointerOut.dispose();
@@ -272,37 +286,38 @@ public class TKIDCDevice {
 				for (int k = 0; k < 4; k++) {
 					iLogicCode[k] = pointerOut.getAsByte(k);
 				}
-				log.debug("iLogicCode==" + CommUtil.bytesToInt(iLogicCode, 0));
+				// log.debug("iLogicCode==" + CommUtil.bytesToInt(iLogicCode,
+				// 0));
 
 				byte[] iPhyCode = new byte[4];
 				for (int k = 0; k < 4; k++) {
 					iPhyCode[k] = pointerOut.getAsByte(k + 4);
 				}
-				log.debug("iPhyCode==" + CommUtil.bytesToInt(iPhyCode, 0));
+				// log.debug("iPhyCode==" + CommUtil.bytesToInt(iPhyCode, 0));
 
 				byte[] iHandle = new byte[4];
 				for (int k = 0; k < 4; k++) {
 					iHandle[k] = pointerOut.getAsByte(k + 4 + 4);
 				}
-				log.debug("iHandle==" + CommUtil.bytesToInt(iHandle, 0));
+				// log.debug("iHandle==" + CommUtil.bytesToInt(iHandle, 0));
 
 				byte[] iType = new byte[4];
 				for (int k = 0; k < 4; k++) {
 					iType[k] = pointerOut.getAsByte(k + 4 + 4);
 				}
-				log.debug("iType==" + CommUtil.bytesToInt(iType, 0));
+				// log.debug("iType==" + CommUtil.bytesToInt(iType, 0));
 
 				byte[] acDevReturn = new byte[128];
 				for (int k = 0; k < 128; k++) {
 					acDevReturn[k] = pointerOut.getAsByte(k + 4 + 4 + 4);
 				}
-				log.debug("acDevReturn==" + new String(acDevReturn));
+				// log.debug("acDevReturn==" + new String(acDevReturn));
 
 				byte[] acReserve = new byte[128];
 				for (int k = 0; k < 128; k++) {
 					acReserve[k] = pointerOut.getAsByte(k + 4 + 4 + 4 + 128);
 				}
-				log.debug("acReserve==" + new String(acReserve));
+				// log.debug("acReserve==" + new String(acReserve));
 			}
 			pointerOut.dispose();
 		} catch (NativeException e) {
@@ -350,7 +365,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < 30; k++) {
 					IDName[k] = pointerCardInfo.getAsByte(k);
 				}
-				String personName = new String(IDName, "GBK");
+				String personName = new String(IDName, "GBK").trim();
 				log.debug("IDName==" + personName);
 				synIDCard.setPersonName(personName); // set personName
 
@@ -358,8 +373,8 @@ public class TKIDCDevice {
 				for (int k = 0; k < 2; k++) {
 					IDSex[k] = pointerCardInfo.getAsByte(k + 30);
 				}
-				String gender = new String(IDSex, "GBK");
-//				log.debug("IDSex==" + gender);
+				String gender = new String(IDSex, "GBK").trim();
+				log.debug("IDSex==" + gender + "#");
 				if (gender.equals("1")) {
 					synIDCard.setGender(1);
 					synIDCard.setGenderCH("男");// set gender
@@ -372,60 +387,77 @@ public class TKIDCDevice {
 				for (int k = 0; k < 4; k++) {
 					IDNation[k] = pointerCardInfo.getAsByte(k + 30 + 2);
 				}
-//				log.debug("IDNation==" + new String(IDNation, "GBK"));
+				String IDNationstr = new String(IDNation, "GBK").trim();
+				log.debug("IDNation==" + IDNationstr + "#");
+				synIDCard.setIDNation(IDNationstr);
+				synIDCard.setIDNationCH(IDCardUtil.getIDNationCH(IDNationstr));
 
 				byte[] IDBirth = new byte[16];
 				for (int k = 0; k < IDBirth.length; k++) {
 					IDBirth[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4);
 				}
-				String birthstr = new String(IDBirth, "GBK");
-//				log.debug("IDBirth==" + birthstr);
+				String birthstr = new String(IDBirth, "GBK").trim();
+				log.debug("IDBirth==" + birthstr + "#");
+				synIDCard.setIDBirth(birthstr);
+
 				String birthday = birthstr.substring(0, 4) + "-" + birthstr.substring(4, 6) + "-"
 						+ birthstr.substring(6, 8);
 				String today = CalUtils.getStringDateShort();
 				// log.debug("birthday==" + birthday);
 				int personAge = CalUtils.getAge(birthday, today);
 				synIDCard.setAge(personAge); // set age
-//				log.debug("出生年月：" + birthstr.substring(0, 4) + "年" + birthstr.substring(4, 6) + "月"
-//						+ birthstr.substring(6, 8) + "日" + ",personAge==" + personAge);
+				// log.debug("出生年月：" + birthstr.substring(0, 4) + "年" +
+				// birthstr.substring(4, 6) + "月"
+				// + birthstr.substring(6, 8) + "日" + ",personAge==" +
+				// personAge);
 
 				byte[] IDDwelling = new byte[70];
 				for (int k = 0; k < IDDwelling.length; k++) {
 					IDDwelling[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16);
 				}
-//				log.debug("IDDwelling==" + new String(IDDwelling, "GBK"));
+				String idDwelling = new String(IDDwelling, "GBK").trim();
+				log.debug("IDDwelling==" + idDwelling);
+				synIDCard.setIDDwelling(idDwelling);
 
 				byte[] IDCode = new byte[36];
 				for (int k = 0; k < IDCode.length; k++) {
 					IDCode[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70);
 				}
-				String IDCardNoStr = new String(IDCode, "GBK");
-//				log.debug("IDCode==" + IDCardNoStr);
+				String IDCardNoStr = new String(IDCode, "GBK").trim();
+				log.debug("IDCode==" + IDCardNoStr);
 				synIDCard.setIdNo(IDCardNoStr.trim());
 
 				byte[] IDIssue = new byte[30];
 				for (int k = 0; k < IDIssue.length; k++) {
 					IDIssue[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36);
 				}
-//				log.debug("IDIssue==" + new String(IDIssue, "GBK"));
+				String idIssue = new String(IDIssue, "GBK").trim();
+				log.debug("IDIssue==" + idIssue);
+				synIDCard.setIDIssue(idIssue);
 
 				byte[] IDEfficb = new byte[16];
 				for (int k = 0; k < IDEfficb.length; k++) {
 					IDEfficb[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30);
 				}
-//				log.debug("IDEfficb==" + new String(IDEfficb, "GBK"));
+				String idEfficb = new String(IDEfficb, "GBK").trim();
+				log.debug("IDEfficb==" + idEfficb);
+				synIDCard.setIDEfficb(idEfficb);
 
 				byte[] IDEffice = new byte[16];
 				for (int k = 0; k < IDEfficb.length; k++) {
 					IDEffice[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30 + 16);
 				}
-//				log.debug("IDEffice==" + new String(IDEffice, "GBK"));
+				String idEffice = new String(IDEffice, "GBK").trim();
+				log.debug("IDEffice==" + idEffice);
+				synIDCard.setIDEffice(idEffice);
 
 				byte[] IDNewAddr = new byte[70];
 				for (int k = 0; k < IDNewAddr.length; k++) {
 					IDNewAddr[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30 + 16 + 16);
 				}
-//				log.debug("IDNewAddr==" + new String(IDNewAddr, "GBK"));
+				String idNewAddr = new String(IDNewAddr, "GBK").trim();
+				log.debug("IDNewAddr==" + idNewAddr);
+				synIDCard.setIDNewAddr(idNewAddr);
 
 				byte[] IDPhoto = new byte[1024];
 				for (int k = 0; k < IDPhoto.length; k++) {
@@ -457,7 +489,7 @@ public class TKIDCDevice {
 				String photoFile = "zp.jpg";
 				log.debug("photoFile==" + photoFile);
 				File idcardFile = new File(photoFile);
-				
+
 				BufferedImage idCardImage = null;
 				idCardImage = ImageIO.read(idcardFile);
 				if (idCardImage != null) {

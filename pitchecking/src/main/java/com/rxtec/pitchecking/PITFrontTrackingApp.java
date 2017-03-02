@@ -31,7 +31,7 @@ import com.rxtec.pitchecking.task.ManualCheckingTask;
  * @author lenovo
  *
  */
-public class PITrackingApp {
+public class PITFrontTrackingApp {
 
 	static Logger log = LoggerFactory.getLogger("DeviceEventListener");
 
@@ -39,9 +39,9 @@ public class PITrackingApp {
 	// FaceTrackingScreen.getInstance();
 
 	public static void main(String[] args) throws InterruptedException {
-		log.info("/*************后置摄像头检脸进程启动主入口****************/");
+		log.info("/*************前置摄像头检脸进程启动主入口****************/");
 		Config appConfig = Config.getInstance();
-		Config.getInstance().setCameraNum(appConfig.getBehindCameraNo());  //设置摄像头序号
+		Config.getInstance().setCameraNum(appConfig.getFrontCameraNo());  //设置摄像头序号
 		log.debug("getCameraNum=="+appConfig.getCameraNum());
 		VideoPanel videoPanel = null;
 
@@ -97,27 +97,25 @@ public class PITrackingApp {
 			videoPanel = SingleFaceTrackingScreen.getInstance().getVideoPanel();
 		}
 
-		// PIVerifyEventSubscriber.getInstance().startSubscribing(); //启动
-		// 闸机主控程序发送事件的订阅者
-		// PTVerifyPublisher.getInstance();
-
-		MqttReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()); // 同CAM_RXTa.dll通信
+//		MqttReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()); // 同CAM_RXTa.dll通信
 
 		GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum());// 启动PITEventTopic本地监听
 		
 		FaceCheckingService.getInstance().addQuartzJobs();
 
+		FaceCheckingService.getInstance().setFrontCamera(true);
+		FaceCheckingService.getInstance().setSubscribeVerifyResult(false);  //前置摄像头不订阅验证结果，全部放在后置摄像头进程来处理
 		FaceCheckingService.getInstance().beginFaceCheckerTask(); // 启动人脸发布和比对结果订阅
 
 		// 跳屏恢复调用线程
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleWithFixedDelay(FaceScreenListener.getInstance(), 0, 2000, TimeUnit.MILLISECONDS);
 
-		if (Config.getInstance().getIsUseManualMQ() == 1) {// 是否连人工窗控制台
-			ExecutorService executorService = Executors.newSingleThreadExecutor();
-			ManualCheckingTask manualCheckingTask = new ManualCheckingTask(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum());
-			executorService.execute(manualCheckingTask);
-		}
+//		if (Config.getInstance().getIsUseManualMQ() == 1) {// 是否连人工窗控制台
+//			ExecutorService executorService = Executors.newSingleThreadExecutor();
+//			ManualCheckingTask manualCheckingTask = new ManualCheckingTask(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum());
+//			executorService.execute(manualCheckingTask);
+//		}
 
 		Thread.sleep(1000);
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {

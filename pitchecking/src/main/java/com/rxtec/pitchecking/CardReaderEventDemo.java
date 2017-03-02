@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.event.QRCodeReaderEvent;
+import com.rxtec.pitchecking.utils.CalUtils;
+import com.rxtec.pitchecking.utils.IDCardUtil;
 
 public class CardReaderEventDemo {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
@@ -21,8 +23,7 @@ public class CardReaderEventDemo {
 	public void offerDeviceEvent() {
 		log.info("offerDeviceEvent readCardEvent");
 		IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
-		IDCard idCard = new IDCard();
-		idCard.setIdNo("520203197912141119");
+		IDCard idCard = IDCardUtil.createIDCard("zp.jpg");
 		readCardEvent.setIdCard(idCard);
 		DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
 
@@ -34,6 +35,7 @@ public class CardReaderEventDemo {
 		ticket.setEndStationCode("SZQ");
 		ticket.setTicketType("0");
 		ticket.setCardType("1");
+		ticket.setTrainDate(CalUtils.getStringDateShort2());
 		qrEvent.setTicket(ticket);
 		DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
 		log.info("offerDeviceEvent qrEvent");

@@ -17,7 +17,7 @@ import com.rxtec.pitchecking.utils.CommUtil;
 
 public class FaceCheckingStandaloneTask implements Runnable {
 
-	PTVerifyResultPublisher publisher = PTVerifyResultPublisher.getInstance();
+	PTVerifyResultPublisher publisher = PTVerifyResultPublisher.getInstance(); // 启动人脸比对结果向外发布
 	FaceVerifyInterface faceVerify = null;
 	private Logger log = LoggerFactory.getLogger("FaceCheckingStandaloneTask");
 
@@ -40,19 +40,22 @@ public class FaceCheckingStandaloneTask implements Runnable {
 	public void run() {
 
 		if (initDllStatus < 1) {
-			log.error("!!!!!!!!!!!!!!!!!!VerifyDLL init failed!!!!!!!!!!!!!!!");
+			log.error("!!!!!!!!!VerifyDLL init failed!!!!!!未启动循环");
 			return;
 		} else {
 			FaceCheckingService.getInstance().setFaceVerify(faceVerify);
 		}
+		log.info("begin going while loop...");
 		while (true) {
 
 			try {
 				Thread.sleep(50);
 				PITVerifyData fd = FaceCheckingService.getInstance().takeFaceVerifyData();// 从待验证人脸队列中取出人脸对象
 				if (fd != null) {
-					if (fd.getIdCardImg() == null)
+					if (fd.getIdCardImg() == null) {
+//						log.info("没有检测到身份证照片，不比对人脸,fd==" + fd);
 						continue;
+					}
 					long nowMils = Calendar.getInstance().getTimeInMillis();
 					float resultValue = 0;
 					byte[] extractFaceImageBytes = fd.getFaceImg();
@@ -68,8 +71,12 @@ public class FaceCheckingStandaloneTask implements Runnable {
 						FaceImageLog.saveFaceDataToDsk(fd);
 						continue;
 					}
-					if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyEASEN)) {
-						resultValue = faceVerify.verify(fd.getFaceImg());
+					if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyEASEN)) { // 易胜sdk比对人脸	
+						if(FaceCheckingService.getInstance().getIdCardPhotoRet()!=0){
+							continue;
+						}
+						log.info("证照齐全,开始比对人脸...");
+						resultValue = faceVerify.verify(fd.getFrameImg());
 					} else {
 						resultValue = faceVerify.verify(extractFaceImageBytes, fd.getIdCardImg());// 比对人脸
 					}
@@ -79,6 +86,8 @@ public class FaceCheckingStandaloneTask implements Runnable {
 					if (resultValue >= Config.getInstance().getFaceCheckThreshold()) {
 						FaceCheckingService.getInstance().resetFaceDataQueue();
 					}
+					
+				
 					publisher.publishResult(fd); // 比对结果公布
 
 					if (Config.getInstance().getIsUseManualMQ() == 1) { // 将人脸数据传输至人工验证台

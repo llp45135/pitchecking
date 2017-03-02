@@ -3,8 +3,10 @@ package com.rxtec.pitchecking.picheckingservice;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -17,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.easen.EasenVerifyResult;
 import com.rxtec.pitchecking.device.easen.Main.SDKMethod;
+import com.rxtec.pitchecking.utils.CalUtils;
+import com.rxtec.pitchecking.utils.CommUtil;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -91,7 +95,7 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 			log.info("currentHwid==" + getCurrentHWID(256));
 
 			File file = new File(Config.getInstance().getEasenActivationFile());
-			log.info("getEasenActivationFile=="+Config.getInstance().getEasenActivationFile());
+			log.info("getEasenActivationFile==" + Config.getInstance().getEasenActivationFile());
 			FileInputStream fis = new FileInputStream(file);
 			licenseBytes = new byte[(int) file.length() + 1];
 			Arrays.fill(licenseBytes, (byte) 0);
@@ -109,14 +113,14 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 
 				ret = SDKMethod.INSTANCE.initializeSDK(pathBytes);
 				log.info("初始化Easen initializeSDK ret = " + ret);
-//				log.info("初始化Easen initializeSDK 成功!  ret: " + ret);// 获取返回值
+				// log.info("初始化Easen initializeSDK 成功! ret: " + ret);// 获取返回值
 				if (ret != SDKMethod.SDK_NO_ERROR) {
 					log.error("初始化Easen initializeSDK Failed!");
 				} else {
 					log.info("初始化Easen initializeSDK 成功!!");
 					initStatus = 1;
 				}
-			}else{
+			} else {
 				log.error("Easen setActivation Failed!");
 			}
 		} catch (Exception e) {
@@ -208,6 +212,8 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 
 		} else if (ret == SDKMethod.SDK_NOT_FACE_DETECTED) {
 			log.info("Face Detection Failed!");
+//			saveFaceImage(Config.getInstance().getImagesLogDir() + "FailedDetection/",
+//					CalUtils.getStringFullTimeHaomiao() + ".jpg", faceImgBytes);
 		} else if (ret == SDKMethod.SDK_NONE_IDCARD_SET) {
 			log.info("None ID Photo Set!");
 		}
@@ -277,6 +283,33 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 		}
 
 		return dist;
+	}
+
+	/**
+	 * 
+	 * @param dirName
+	 * @param fileName
+	 * @param fd
+	 */
+	private static void saveFaceImage(String dirName, String fileName, byte[] faceImgBytes) {
+		if (faceImgBytes == null)
+			return;
+		int ret = CommUtil.createDir(dirName);
+		if (ret == 0 || ret == 1) {
+			String fn = dirName + fileName;
+
+			DataOutputStream out;
+			if (faceImgBytes != null) {
+				try {
+					out = new DataOutputStream(new FileOutputStream(fn));
+					out.write(faceImgBytes);
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	public static void main(String[] args) {

@@ -287,7 +287,7 @@ public class MqttSenderBroker {
 	 */
 	public boolean publishResult(PITVerifyData data, int verifyStatus) {
 		log.info("********准备发送人脸比对结果到DLL by MQ********verifyStatus==" + verifyStatus);
-		log.info("PITVerifyData==" + data);
+//		log.info("PITVerifyData==" + data);
 		if (data == null)
 			return false;
 		PIVerifyResultBean resultBean = new PIVerifyResultBean();

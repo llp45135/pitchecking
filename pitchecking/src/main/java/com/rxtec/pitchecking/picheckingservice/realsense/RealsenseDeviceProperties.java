@@ -18,14 +18,14 @@ public class RealsenseDeviceProperties {
 	private boolean ColorAutoWhiteBalance = true;
 	private boolean ColorBackLightCompensation = true;
 	private float sr300_hdr = 1.0f;
-	private int ColorBrightness = 0;  //0
-	private int ColorExposure = -6;   //-6
+	private int ColorBrightness = 0;  //-64 ~ 64
+	private int ColorExposure = -6;   //曝光值  -8 ~ 0
 	private int IVCAM_Option = 5;		//平滑系数，5代表中等距离 6,7代表远距离
 	private int contrast = 50;		//对比度0-100
 	private int gamma = 300;			//灰度 1-500
 	private int focalLength = 100*10;	//对焦距离
 	private int gain = 64;				//图像增益
-	private int hue = 0;				//色相 -180--180
+	private int hue = 0;				//色相 -180 ~ 180
 	private int saturation = 64;		//色彩饱和度 0-100
 	private int sharpness = 50;			//清晰度 0-100
 	private int whitebalance = 4600;		//白平衡 2800-5600

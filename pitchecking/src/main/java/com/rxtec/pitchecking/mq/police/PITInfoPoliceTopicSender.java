@@ -13,6 +13,8 @@ import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rxtec.pitchecking.device.DeviceConfig;
@@ -26,6 +28,7 @@ public class PITInfoPoliceTopicSender implements Runnable {
 	private MessageProducer producer = null;
 	private boolean isInitOK = false;
 	private Log log = LogFactory.getLog("PITInfoTopic");
+	private Log deviceEventListenerLog = LogFactory.getLog("DeviceEventListener");
 
 	private LinkedBlockingQueue<PITInfoJson> infoQueue;
 
@@ -107,9 +110,11 @@ public class PITInfoPoliceTopicSender implements Runnable {
 				} else if (info.getMsgType() == PITInfoJson.MSG_TYPE_FRAME) {
 					log.info("通道帧图片准备发送至公安处MQ");
 				}
+				
 				String msg = info.getJsonStr();
 				if (msg != null && isInitOK)
 					sendMessage(msg);
+//				deviceEventListenerLog.info("发送至公安的json==" + msg);
 			} catch (Exception e) {
 				log.error("buildPITDataJsonBytes error", e);
 			}

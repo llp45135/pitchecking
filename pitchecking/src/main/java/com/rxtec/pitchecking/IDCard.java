@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 
@@ -12,15 +13,91 @@ import org.openimaj.image.MBFImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IDCard {
-	private String idNo;
-	private String personName;
+public class IDCard implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private String idNo="";
+	private String personName="";
 	private int gender;
 	private String genderCH;
 	private int age;
+	private String IDBirth = ""; // 出生日期
+	private String IDNation = ""; // 民族
+	private String IDNationCH = "";
+	private String IDDwelling = "";
+	private String IDIssue = "";
+	private String IDEfficb = "";
+	private String IDEffice = "";
+	private String IDNewAddr = "";
 	private static Logger log = LoggerFactory.getLogger("IDCard");
 	private byte[] cardImageBytes = null;
 	private BufferedImage cardImage;
+
+	public String getIDNationCH() {
+		return IDNationCH;
+	}
+
+	public void setIDNationCH(String iDNationCH) {
+		IDNationCH = iDNationCH;
+	}
+
+	public String getIDBirth() {
+		return IDBirth;
+	}
+
+	public void setIDBirth(String iDBirth) {
+		IDBirth = iDBirth;
+	}
+
+	public String getIDNation() {
+		return IDNation;
+	}
+
+	public void setIDNation(String iDNation) {
+		IDNation = iDNation;
+	}
+
+	public String getIDDwelling() {
+		return IDDwelling;
+	}
+
+	public void setIDDwelling(String iDDwelling) {
+		IDDwelling = iDDwelling;
+	}
+
+	public String getIDIssue() {
+		return IDIssue;
+	}
+
+	public void setIDIssue(String iDIssue) {
+		IDIssue = iDIssue;
+	}
+
+	public String getIDEfficb() {
+		return IDEfficb;
+	}
+
+	public void setIDEfficb(String iDEfficb) {
+		IDEfficb = iDEfficb;
+	}
+
+	public String getIDEffice() {
+		return IDEffice;
+	}
+
+	public void setIDEffice(String iDEffice) {
+		IDEffice = iDEffice;
+	}
+
+	public String getIDNewAddr() {
+		return IDNewAddr;
+	}
+
+	public void setIDNewAddr(String iDNewAddr) {
+		IDNewAddr = iDNewAddr;
+	}
 
 	public byte[] getCardImageBytes() {
 		return cardImageBytes;

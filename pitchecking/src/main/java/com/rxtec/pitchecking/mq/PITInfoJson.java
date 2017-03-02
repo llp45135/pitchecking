@@ -8,18 +8,17 @@ import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.BASE64;
 import com.rxtec.pitchecking.utils.JsonUtils;
 
+/**
+ * 传到公安的对象
+ * 
+ * @author ZhaoLin
+ *
+ */
 public class PITInfoJson implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private int msgType = -1;
-	private int idHashCode = -1;
-	private String idCardNo = "";
-	private String qrCode="";
-	private int gender = 0;
-	private int event = -1;
-	private String ipAddress = "";
 	public static int Male = 1;
 	public static int Female = 2;
 
@@ -29,12 +28,104 @@ public class PITInfoJson implements Serializable {
 	public static int VERIFY_PASSED = 1;
 	public static int VERIFY_FAILED = 0;
 
+	private int msgType = -1;
+	private int idHashCode = -1;
+	private String idCardNo = ""; // 二代证号
+	private String qrCode = "";
+	private int gender = 0; // 性别（二代证）
+	private int event = -1;
+	private String ipAddress = "";
+
 	private int age = -1;
+
+	private String dbCode = ""; // 车站电报码
+	private String gateNo = ""; // 闸机窗口号
+	private String citizenName = ""; // 身份证公民姓名
+	private String IDBirth = ""; // 出生日期
+	private String IDNation = ""; // 民族
+	private String IDDwelling = ""; // 住址
+	private String IDIssue = ""; // 签发单位
+	private String IDEfficb = ""; // 有效期开始
+	private String IDEffice = ""; // 有效期截至
+
+	private float similarity = 0;
+	private int isVerifyPassed = -1;
 	private String idPicImageBase64 = "";
 	private String faceImageBase64 = "";
 	private String frameImageBase64 = "";
-	private float similarity = 0;
-	private int isVerifyPassed = -1;
+
+	// ----------------------------------------------------------------------------
+	public String getDbCode() {
+		return dbCode;
+	}
+
+	public void setDbCode(String dbCode) {
+		this.dbCode = dbCode;
+	}
+
+	public String getGateNo() {
+		return gateNo;
+	}
+
+	public void setGateNo(String gateNo) {
+		this.gateNo = gateNo;
+	}
+
+	public String getCitizenName() {
+		return citizenName;
+	}
+
+	public void setCitizenName(String citizenName) {
+		this.citizenName = citizenName;
+	}
+
+	public String getIDBirth() {
+		return IDBirth;
+	}
+
+	public void setIDBirth(String iDBirth) {
+		IDBirth = iDBirth;
+	}
+
+	public String getIDNation() {
+		return IDNation;
+	}
+
+	public void setIDNation(String iDNation) {
+		IDNation = iDNation;
+	}
+
+	public String getIDDwelling() {
+		return IDDwelling;
+	}
+
+	public void setIDDwelling(String iDDwelling) {
+		IDDwelling = iDDwelling;
+	}
+
+	public String getIDIssue() {
+		return IDIssue;
+	}
+
+	public void setIDIssue(String iDIssue) {
+		IDIssue = iDIssue;
+	}
+
+	public String getIDEfficb() {
+		return IDEfficb;
+	}
+
+	public void setIDEfficb(String iDEfficb) {
+		IDEfficb = iDEfficb;
+	}
+
+	public String getIDEffice() {
+		return IDEffice;
+	}
+
+	public void setIDEffice(String iDEffice) {
+		IDEffice = iDEffice;
+	}
 
 	public String getQrCode() {
 		return qrCode;
@@ -178,7 +269,20 @@ public class PITInfoJson implements Serializable {
 			this.setFaceImageBase64(BASE64.encryptBASE64(pitData.getFaceImg()));
 
 		this.ipAddress = DeviceConfig.getInstance().getIpAddress();
-		this.msgType = PITInfoJson.MSG_TYPE_VERIFY;		
+		this.dbCode = DeviceConfig.getInstance().getBelongStationCode();
+		this.gateNo = DeviceConfig.getInstance().getGateNo();
+
+		if (pitData.getIdCard() != null) {
+			this.citizenName = pitData.getIdCard().getPersonName();
+			this.IDBirth = pitData.getIdCard().getIDBirth();
+			this.IDDwelling = pitData.getIdCard().getIDDwelling();
+			this.IDIssue = pitData.getIdCard().getIDIssue();
+			this.IDEfficb = pitData.getIdCard().getIDEfficb();
+			this.IDEffice = pitData.getIdCard().getIDEffice();
+			this.IDNation = pitData.getIdCard().getIDNationCH();
+		}
+
+		this.msgType = PITInfoJson.MSG_TYPE_VERIFY;
 		jsonStr = JsonUtils.serialize(this);
 	}
 

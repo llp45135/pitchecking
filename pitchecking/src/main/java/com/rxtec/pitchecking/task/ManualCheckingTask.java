@@ -27,9 +27,9 @@ public class ManualCheckingTask implements Runnable {
 				RemoteMonitorPublisher.getInstance().startService(4);// 启动Event转发线程
 				ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);
 			}
-			if (taskType.equals(DeviceConfig.GAT_MQ_Track_CLIENT)) {  //人脸检测进程
+			if (taskType.equals(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())) {  //人脸检测进程
 				RemoteMonitorPublisher.getInstance().startService(1); // 启动整帧图片转发线程
-				ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT);
+				ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum());
 			}
 		}
 	}

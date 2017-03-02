@@ -35,7 +35,7 @@ import io.aeron.Publication;
 public class PTVerifyResultPublisher {
 	private Logger log = LoggerFactory.getLogger("PTVerifyResultPublisher");
 
-	private static final int STREAM_ID = Config.PIVerify_Result_STREAM_ID;
+	private static final int STREAM_ID = Config.PIVerify_Result_STREAM_ID;  // 11 独立人脸比对进程发布比对结果
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
 	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 256, 32));
@@ -106,7 +106,7 @@ public class PTVerifyResultPublisher {
 			}
 			return false;
 		} else {
-			log.info("FaceVerifyResult has sended! data length=" + buf.length);
+			log.info("FaceVerifyResult has sended!fd data=="+data+", data length=" + buf.length);
 			return true;
 		}
 	}

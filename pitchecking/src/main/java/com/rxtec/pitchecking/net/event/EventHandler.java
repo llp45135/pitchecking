@@ -79,7 +79,7 @@ public class EventHandler {
 
 
 	/**
-	 * 
+	 * 由MqttReceiver发起调用，请求开始后摄像头开始检脸
 	 * @param jsonString
 	 * @throws JsonParseException
 	 * @throws IOException

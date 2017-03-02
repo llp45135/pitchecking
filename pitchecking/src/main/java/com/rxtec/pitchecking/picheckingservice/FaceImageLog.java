@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking.picheckingservice;
 
+import java.awt.image.BufferedImage;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,11 +13,13 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jacob.com.Variant;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.db.MongoDB;
 import com.rxtec.pitchecking.db.PitRecordLoger;
 import com.rxtec.pitchecking.db.mysql.PitRecordSqlLoger;
 import com.rxtec.pitchecking.mq.police.dao.PITInfoImgPath;
+import com.rxtec.pitchecking.utils.CalUtils;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class FaceImageLog {
@@ -524,6 +527,39 @@ public class FaceImageLog {
 			fileName = "";
 		}
 		return fileName;
+	}
+
+	/**
+	 * 
+	 * @param dirName
+	 * @param frameImage
+	 * @param luminance
+	 */
+	public static void saveImageFromFrame(String dirName, BufferedImage frameImage, float luminance) {
+		if (frameImage == null)
+			return;
+		int ret = CommUtil.createDir(dirName);
+		if (ret == 0 || ret == 1) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(dirName);
+			sb.append("/VF-");
+			sb.append("" + luminance);
+			sb.append("@");
+			sb.append(CalUtils.getStringDateShort());
+			sb.append(" ");
+			sb.append(CalUtils.getStringFullTimeHaomiao());
+			sb.append(".jpg");
+			String fn = sb.toString();
+			DataOutputStream out;
+			try {
+				out = new DataOutputStream(new FileOutputStream(fn));
+				out.write(CommUtil.getImageBytesFromImageBuffer(frameImage));
+				out.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public static void main(String[] args) {

@@ -24,6 +24,16 @@ public class PITInfoJmsObj implements Serializable {
 	private float similarity = -1;
 	private int isVerifyPassed = -1;
 	private String jsonStr = "";
+	
+	private String dbCode="";
+	private String gateNo="";
+	private String citizenName="";
+	private String ideffice="";
+	private String idefficb="";
+	private String idissue="";
+	private String iddwelling="";
+	private String idbirth="";
+	private String idnation="";
 	/**
 	 * 票面信息
 	 */
@@ -45,6 +55,78 @@ public class PITInfoJmsObj implements Serializable {
 
 	public PITInfoJmsObj() {
 		// TODO Auto-generated constructor stub
+	}
+
+	public String getDbCode() {
+		return dbCode;
+	}
+
+	public void setDbCode(String dbCode) {
+		this.dbCode = dbCode;
+	}
+
+	public String getGateNo() {
+		return gateNo;
+	}
+
+	public void setGateNo(String gateNo) {
+		this.gateNo = gateNo;
+	}
+
+	public String getCitizenName() {
+		return citizenName;
+	}
+
+	public void setCitizenName(String citizenName) {
+		this.citizenName = citizenName;
+	}
+
+	public String getIdeffice() {
+		return ideffice;
+	}
+
+	public void setIdeffice(String ideffice) {
+		this.ideffice = ideffice;
+	}
+
+	public String getIdefficb() {
+		return idefficb;
+	}
+
+	public void setIdefficb(String idefficb) {
+		this.idefficb = idefficb;
+	}
+
+	public String getIdissue() {
+		return idissue;
+	}
+
+	public void setIdissue(String idissue) {
+		this.idissue = idissue;
+	}
+
+	public String getIddwelling() {
+		return iddwelling;
+	}
+
+	public void setIddwelling(String iddwelling) {
+		this.iddwelling = iddwelling;
+	}
+
+	public String getIdbirth() {
+		return idbirth;
+	}
+
+	public void setIdbirth(String idbirth) {
+		this.idbirth = idbirth;
+	}
+
+	public String getIdnation() {
+		return idnation;
+	}
+
+	public void setIdnation(String idnation) {
+		this.idnation = idnation;
 	}
 
 	public String getQrCode() {

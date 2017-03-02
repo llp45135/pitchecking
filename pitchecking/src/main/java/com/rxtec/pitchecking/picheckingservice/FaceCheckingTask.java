@@ -11,6 +11,12 @@ import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.domain.FailedFace;
 
+/**
+ * 2017-02-25
+ * 该类用于普通高清摄像头的人脸比对，暂时未使用
+ * @author ZhaoLin
+ *
+ */
 public class FaceCheckingTask implements Runnable {
 
 	FaceVerifyInterface faceVerify = null;

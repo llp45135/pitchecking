@@ -1,19 +1,31 @@
 package com.rxtec.pitchecking.task;
 
+import java.awt.image.BufferedImage;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jacob.com.Variant;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.FaceTrackingScreen;
 import com.rxtec.pitchecking.SingleFaceTrackingScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.device.LightLevelControl;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
+import com.rxtec.pitchecking.picheckingservice.FaceImageLog;
+import com.rxtec.pitchecking.utils.CalUtils;
+import com.rxtec.pitchecking.utils.ImageLuminanceUtil;
 
 public class FaceScreenListener implements Runnable {
 	private Logger log = LoggerFactory.getLogger("FaceScreenListener");
 	private Logger mainlog = LoggerFactory.getLogger("DeviceEventListener");
+	private Logger luminanceLog = LoggerFactory.getLogger("ImageLuminanceUtil");
 	private String pidStr = null;
 	private static FaceScreenListener _instance;
+
+	private BufferedImage frameImage = null;
 
 	public static synchronized FaceScreenListener getInstance() {
 		if (_instance == null) {
@@ -24,6 +36,14 @@ public class FaceScreenListener implements Runnable {
 
 	private FaceScreenListener() {
 		mainlog.info("初始化人脸检测屏位置监控");
+	}
+
+	public BufferedImage getFrameImage() {
+		return frameImage;
+	}
+
+	public void setFrameImage(BufferedImage frameImage) {
+		this.frameImage = frameImage;
 	}
 
 	public String getPidStr() {
@@ -41,13 +61,33 @@ public class FaceScreenListener implements Runnable {
 			log.debug("检脸线程正在启动中,还未开始写心跳,pidStr==" + pidStr + "#");
 		} else {
 			if (!pidStr.equals("")) {
-				ProcessUtil.writeHeartbeat(pidStr,Config.getInstance().getHeartBeatLogFile()); // 写心跳日志
+				ProcessUtil.writeHeartbeat(pidStr, Config.getInstance().getHeartBeatLogFile()); // 写心跳日志
 				this.setPidStr("");
 				// log.debug("写检脸心跳日志,pidStr==" + pidStr);
 			} else {
 				log.debug("检脸线程故障，停止写心跳日志,pidStr==" + pidStr + "#");
 			}
 		}
+
+//		if (Config.getInstance().getIsUseLuminanceListener() == 1) {
+//			if (this.frameImage != null) {
+//				float luminanceResult = ImageLuminanceUtil.getInstance().getLuminanceResult(frameImage).getFloat();
+//				luminanceLog.debug("Luminance Result = " + luminanceResult);
+//				
+//				
+//				if (Config.getInstance().getIsSaveLuminanceImage() == 1) {
+//					int nowTime = Integer.parseInt(CalUtils.getStringTime()); // HHmm
+//					if (nowTime >= Integer.parseInt("0700") && nowTime < Integer.parseInt("1000")) { // 08:00<=now<18:00
+//						String dirName = Config.getInstance().getImagesLogDir();
+//						SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+//						dirName += formatter.format(new Date());
+//						String luminanceDir = dirName + "/Luminance";
+//						FaceImageLog.saveImageFromFrame(luminanceDir, frameImage, luminanceResult);
+//						luminanceLog.debug("当前图片保存至" + luminanceDir);
+//					}
+//				}
+//			}
+//		}
 
 		int frameX = 0;
 		if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
@@ -58,7 +98,7 @@ public class FaceScreenListener implements Runnable {
 		if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR && frameX == 0) {
 			for (int i = 0; i < 3; i++) {
 				try {
-					log.debug("Start 重置人脸检测屏的位置，恢复至第二块屏");
+//					log.debug("Start 重置人脸检测屏的位置，恢复至第二块屏");
 					if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
 						FaceTrackingScreen.getInstance().initUI(DeviceConfig.getInstance().getFaceScreen());
 						FaceTrackingScreen.getInstance().repainFaceFrame();
@@ -70,7 +110,7 @@ public class FaceScreenListener implements Runnable {
 					log.error("重置人脸检测屏的位置失败!再次重置...");
 					continue;
 				}
-				log.debug("重置人脸检测屏的位置成功!");
+//				log.debug("重置人脸检测屏的位置成功!");
 				break;
 			}
 		}

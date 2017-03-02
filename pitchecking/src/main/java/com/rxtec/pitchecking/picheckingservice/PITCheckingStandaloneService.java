@@ -15,8 +15,10 @@ import com.rxtec.pitchecking.db.mysql.PitRecordSqlLoger;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.LightControlBoard;
 import com.rxtec.pitchecking.mbean.PITProcessDetect;
+import com.rxtec.pitchecking.mqtt.ClosePCEventSenderBroker;
 import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
+import com.rxtec.pitchecking.task.ClosePCSendingTask;
 import com.rxtec.pitchecking.task.ManualCheckingTask;
 import com.rxtec.pitchecking.task.PoliceSendingTask;
 
@@ -88,8 +90,16 @@ public class PITCheckingStandaloneService {
 
 		GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);// 启动PITEventTopic本地监听
 
+		if (Config.getInstance().getIsSendClosePCCmd() == 1) {  //是否需要向其他闸机发送同步关机命令
+			ExecutorService executorService = Executors.newSingleThreadExecutor();
+			ClosePCSendingTask closePCSendingTask = new ClosePCSendingTask(DeviceConfig.GAT_MQ_Standalone_CLIENT);
+			executorService.execute(closePCSendingTask);
+		}
+
+		FaceCheckingService.getInstance().addQueryUPSJob();
+
 		FaceCheckingService.getInstance().beginFaceCheckerStandaloneTask();
-		PIVerifySubscriber piVerifySubscriber = new PIVerifySubscriber();
+		PIVerifySubscriber piVerifySubscriber = new PIVerifySubscriber();  //开启订阅由人脸检测进程发过来的人脸比对请求 
 
 	}
 

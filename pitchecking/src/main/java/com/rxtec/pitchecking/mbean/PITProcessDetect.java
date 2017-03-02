@@ -58,9 +58,17 @@ public class PITProcessDetect implements Runnable {
 
 	public PITProcessDetect() {
 		log.info("初始化心跳侦测线程");
+		this.deleteHeartLog();
 		this.addQuartzJobs();
 	}
 	
+	private void deleteHeartLog(){
+		File file = new File("D:/pitchecking/work/HEART.log");
+		if(file.exists()){
+			file.delete();
+		}
+	}
+
 	/**
 	 * 定时启动任务
 	 */
@@ -99,13 +107,14 @@ public class PITProcessDetect implements Runnable {
 				log.error("PITProcessDetect getLastHeartBeat：", ex);
 			}
 			// log.debug("HeartBeatStr==" + HeartBeatStr + "##");
+
 			if (HeartBeatStr != null) {
 				HeartBeatStr = HeartBeatStr.trim();
 				if (!HeartBeatStr.equals("")) {
 					pid = HeartBeatStr.split("@")[0];
 					String t = HeartBeatStr.split("@")[1];
-					String nowHT = CalUtils.getStringDateHaomiao();// (new
-																	// Date()).getTime();
+					String nowHT = CalUtils.getStringDateHaomiao();
+
 					// log.debug(pid + " last heartbeat time=" + t);
 					long heartWaitTime = 0;
 					try {
@@ -113,25 +122,33 @@ public class PITProcessDetect implements Runnable {
 					} catch (Exception ex) {
 						log.error("Cal heartWaitTime:", ex);
 					}
+
 					// log.debug("heartWaitTime===" + heartWaitTime);
-					// log.info("rebackFlag=="+Config.getInstance().isRebackTrackFlag());
-					if (!Config.getInstance().isRebackTrackFlag()) {
+					// log.info("--------------------------------");
+					// log.info("是否允许恢复检脸进程==" +
+					// Config.getInstance().isRebackTrackFlag());
+					// log.info("摄像头是否启动==" +
+					// Config.getInstance().isCameraWork());
+
+					if (Config.getInstance().isRebackTrackFlag()) { // true允许恢复
+						log.debug("--------------------------------");
+						log.debug("是否允许恢复检脸进程==" + Config.getInstance().isRebackTrackFlag());
+						log.debug("摄像头是否启动==" + Config.getInstance().isCameraWork());
 						try {
-							Config.getInstance().setRebackTrackFlag(true);
+							Config.getInstance().setRebackTrackFlag(false);
 							log.info("准备执行恢复检脸进程的批处理");
 							Runtime.getRuntime().exec(Config.getInstance().getStartPITTrackCmd());
-							log.info("Resatrt PITTrackApp cmd=="+Config.getInstance().getStartPITTrackCmd());
-							
-							CommUtil.sleep(5000);
-							
-							this.setStartStatus(true);
+							log.info("Resatrt PITTrackApp cmd==" + Config.getInstance().getStartPITTrackCmd());
 						} catch (Exception ex) {
 							log.error("Resatrt PITTrackApp......:", ex);
 						}
+
+						CommUtil.sleep(2000);
 						
 						try {
-//							File heartFile = new File(Config.getInstance().getHeartBeatLogFile());
-//							heartFile.delete();
+							// File heartFile = new
+							// File(Config.getInstance().getHeartBeatLogFile());
+							// heartFile.delete();
 							log.info("已经执行恢复检脸进程的批处理");
 							GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
 									.sendDoorCmd("PITEventTopic", DeviceConfig.OPEN_SECONDDOOR);
@@ -146,17 +163,17 @@ public class PITProcessDetect implements Runnable {
 					 * 超时未收到心跳，需要杀死当前检脸进程
 					 */
 					if (heartWaitTime > Config.getInstance().getHEART_BEAT_DELAY()) {
+						log.debug("--------------------------------");
 						log.debug("heartWaitTime==" + heartWaitTime + ",pid==" + pid);
-						if (startStatus) {
-							this.setStartStatus(false);
+						log.debug("是否允许恢复检脸进程==" + Config.getInstance().isRebackTrackFlag());
+						log.debug("摄像头是否启动==" + Config.getInstance().isCameraWork());
+						if (Config.getInstance().isCameraWork()) { // 摄像头处于启动状态，可以杀死
 							try {
+								Config.getInstance().setCameraWork(false);
 								log.info("准备杀死进程 " + pid);
-								Config.getInstance().setRebackTrackFlag(false);
 								Runtime.getRuntime().exec("taskkill /F /PID " + pid);
 
-								// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
-								// .sendDoorCmd("PITEventTopic",
-								// DeviceConfig.OPEN_SECONDDOOR);
+								Config.getInstance().setRebackTrackFlag(true);
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								log.error("PITProcessDetect taskkill:", e);
@@ -165,19 +182,6 @@ public class PITProcessDetect implements Runnable {
 							}
 						}
 					}
-				} else if (HeartBeatStr.equals("null")) {
-					if (startStatus) {
-						try {
-							Runtime.getRuntime().exec(Config.getInstance().getStartPITTrackCmd());
-							CommUtil.sleep(10 * 1000);
-							log.info("Resatrt PITCheckApp......When hbs is null");
-							this.setStartStatus(true);
-						} catch (Exception ex) {
-							log.error("Resatrt:", ex);
-						}
-					}
-				} else {
-					// log.debug("未读取到 HEART work log");
 				}
 			}
 
