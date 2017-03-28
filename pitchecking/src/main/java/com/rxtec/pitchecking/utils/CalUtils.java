@@ -649,6 +649,7 @@ public class CalUtils {
 		System.out.println(getPreSerivalDaysShort(getStringDateShort(), 1));
 		System.out.println("hhmm==" + getStringFullTimeHaomiao());
 		System.out.println(""+howLong("ms", "2016-10-12 14:00:00.100", "2016-10-12 14:00:09.300"));
+		System.out.println("getCalcDateShort=="+getCalcDateShort("20170316", "20160315"));
 	}
 
 }

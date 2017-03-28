@@ -22,8 +22,8 @@ public class ClosePCSendingTask implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 		if (Config.getInstance().getIsSendClosePCCmd() == 1) { // 是否需要向其他闸机发送同步关机命令
-			if (taskType.equals(DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 人脸比对进程
-				ClosePCEventSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);
+			if (taskType.equals(DeviceConfig.GAT_MQ_PidProtect_CLIENT)) { // 人脸比对进程
+				ClosePCEventSenderBroker.getInstance(DeviceConfig.GAT_MQ_PidProtect_CLIENT);
 			}
 		}
 	}

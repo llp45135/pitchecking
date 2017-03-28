@@ -23,7 +23,7 @@ public class PitRecordLoger implements Runnable {
 	private PitRecordDAO dao;
 	
 	private PitRecordLoger(){
-		log.info("初始化MongoDB存储Photos线程");
+		log.debug("初始化MongoDB存储Photos线程");
 		dao = new PitRecordDAO();
 	}
 	public void startThread(){
@@ -42,7 +42,7 @@ public class PitRecordLoger implements Runnable {
 
 		Date today = new Date();
 		String dn = sFormat.format(new Date(today.getTime() - days * 24 * 60 * 60 * 1000));
-		log.info("ClearExpirationData rows = " + dao.deleteRecords(dn));
+		log.debug("ClearExpirationData rows = " + dao.deleteRecords(dn));
 		
 		
 	}

@@ -81,7 +81,7 @@ public class AudioDevice {
 
 	public void killpid(String pidstr) {
 		try {
-			log.info("准备杀死进程" + pidstr);
+			log.debug("准备杀死进程" + pidstr);
 			Runtime.getRuntime().exec("taskkill /F /PID " + pidstr);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -126,67 +126,67 @@ public class AudioDevice {
 		this.cleanLastAudio();
 		try {
 			if (audioFlag == DeviceConfig.AudioTakeTicketFlag) {
-				log.info("开始右声道播放语音" + DeviceConfig.AudioTakeTicketWav);
+				log.debug("开始右声道播放语音" + DeviceConfig.AudioTakeTicketWav);
 				VolumeControl.getInstance().LeftClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioTakeTicketWav);
 				this.setLastingTime((long) (8.2 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioTakeCardFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.AudioTakeAndTrackWav);
-				VolumeControl.getInstance().RightClose();
+				log.debug("开始双声道播放语音" + DeviceConfig.AudioTakeAndTrackWav);
+				VolumeControl.getInstance().AllOpen();
 				fileIn = new FileInputStream(DeviceConfig.AudioTakeAndTrackWav);
 				this.setLastingTime((long) (15 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioTrackFaceFlag) {
-				log.info("开始右声道播放语音" + DeviceConfig.AudioTrackFaceWav);
+				log.debug("开始右声道播放语音" + DeviceConfig.AudioTrackFaceWav);
 				VolumeControl.getInstance().LeftClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioTrackFaceWav);
 				this.setLastingTime((long) (12.5 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioCheckFailedFlag) {
-				log.info("开始右声道播放语音" + DeviceConfig.AudioCheckFailedWav);
+				log.debug("开始右声道播放语音" + DeviceConfig.AudioCheckFailedWav);
 				VolumeControl.getInstance().LeftClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioCheckFailedWav);
 				this.setLastingTime((long) (5.6 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioCheckSuccFlag) {
-				log.info("开始右声道播放语音" + DeviceConfig.AudioCheckSuccWav);
+				log.debug("开始右声道播放语音" + DeviceConfig.AudioCheckSuccWav);
 				VolumeControl.getInstance().LeftClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioCheckSuccWav);
 				this.setLastingTime((long) (0.8 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioUseHelpFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.AudioUseHelpWav);
+				log.debug("开始左声道播放语音" + DeviceConfig.AudioUseHelpWav);
 				VolumeControl.getInstance().RightClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioUseHelpWav);
 				this.setLastingTime((long) (60 * 60 * 24 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioFailedIdCardFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.AudioFailedIdCardWav);
+				log.debug("开始左声道播放语音" + DeviceConfig.AudioFailedIdCardWav);
 				VolumeControl.getInstance().RightClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioFailedIdCardWav);
 				this.setLastingTime((long) (4.1 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioFailedQrcodeFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.AudioFailedQrcodeWav);
+				log.debug("开始左声道播放语音" + DeviceConfig.AudioFailedQrcodeWav);
 				VolumeControl.getInstance().RightClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioFailedQrcodeWav);
 				this.setLastingTime((long) (4 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioNeverTimeFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.AudioNeverTimeWav);
+				log.debug("开始左声道播放语音" + DeviceConfig.AudioNeverTimeWav);
 				VolumeControl.getInstance().RightClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioNeverTimeWav);
 				this.setLastingTime((long) (2.9 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioPassTimeFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.AudioPassTimeWav);
+				log.debug("开始左声道播放语音" + DeviceConfig.AudioPassTimeWav);
 				VolumeControl.getInstance().RightClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioPassTimeWav);
 				this.setLastingTime((long) (2.9 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioPassStationFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.AudioPassStationWav);
+				log.debug("开始左声道播放语音" + DeviceConfig.AudioPassStationWav);
 				VolumeControl.getInstance().RightClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioPassStationWav);
 				this.setLastingTime((long) (2.2 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioValidIDandTicketFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.AudioValidIDandTicketWav);
+				log.debug("开始左声道播放语音" + DeviceConfig.AudioValidIDandTicketWav);
 				VolumeControl.getInstance().RightClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioValidIDandTicketWav);
 				this.setLastingTime((long) (3.3 * 1000));
 			} else if (audioFlag == DeviceConfig.AudioWrongStationFlag) {
-				log.info("开始左声道播放语音" + DeviceConfig.AudioWrongStationWav);
+				log.debug("开始左声道播放语音" + DeviceConfig.AudioWrongStationWav);
 				VolumeControl.getInstance().RightClose();
 				fileIn = new FileInputStream(DeviceConfig.AudioWrongStationWav);
 				this.setLastingTime((long) (2.4 * 1000));

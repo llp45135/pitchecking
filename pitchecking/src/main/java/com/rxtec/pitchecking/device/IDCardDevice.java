@@ -110,7 +110,7 @@ public class IDCardDevice {
 			// TODO Auto-generated catch block
 			log.error("IDCardDevice:" + e);
 			try {
-				log.info("自动注销计算机...");
+				log.debug("自动注销计算机...");
 				Runtime.getRuntime().exec(Config.AutoLogonCmd);				
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
@@ -161,7 +161,7 @@ public class IDCardDevice {
 			findUSBReaderJNative.setRetVal(Type.INT);
 			findUSBReaderJNative.invoke();
 			retval = findUSBReaderJNative.getRetVal();
-			log.info("Syn_FindUSBReader:retval==" + retval);// 获取返回值
+			log.debug("Syn_FindUSBReader:retval==" + retval);// 获取返回值
 			if (retval.equals("0")) {
 				DeviceConfig.getInstance().setIdDeviceStatus(Integer.parseInt(retval));
 			} else {

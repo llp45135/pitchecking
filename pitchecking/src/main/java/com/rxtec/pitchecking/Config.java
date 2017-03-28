@@ -44,9 +44,9 @@ public class Config {
 
 	public static int frameRate = 30;
 
-	public static float FACE_POSE_YAW = 15;
-	public static float FACE_POSE_PITCH = 15;
-	public static float FACE_POSE_ROLL = 15;
+	public static float FACE_POSE_YAW = 20;
+	public static float FACE_POSE_PITCH = 20;
+	public static float FACE_POSE_ROLL = 20;
 
 	public static int Is_Check_RealFace = 1;
 
@@ -64,7 +64,8 @@ public class Config {
 	public static int PIVerify_Result_STREAM_ID = 11; // 独立人脸比对进程发布比对结果 用于睿新版本
 
 	public static int PIVerifyEvent_STREAM_ID = 12; // 通知独立人脸比对进程开始人脸比对 用于铁科版本
-	public static int PIVerifyResultEvent_STREAM_ID = 13; // 独立人脸比对进程发布比对结果 用于铁科版本
+	public static int PIVerifyResultEvent_STREAM_ID = 13; // 独立人脸比对进程发布比对结果
+															// 用于铁科版本
 
 	public static String PIVerify_CHANNEL = "aeron:ipc";
 	// public static String PIVerify_CHANNEL =
@@ -100,7 +101,7 @@ public class Config {
 	private String heartBeatLogFile = "D:/pitchecking/work/HEART.log"; // 检脸进程心跳日志
 	private String ticketVerifyHeartFile = "D:/pitchecking/work/TicketVerifyHeart.log";
 	private int TicketVerify_Heard_DELAY = 3 * 1000;
-	private String rebackTrackFile = "D:/pitchecking/work/RebackFlag.log";
+	// private String rebackTrackFile = "D:/pitchecking/work/RebackFlag.log";
 	private String pausePitcheckFile = "D:/pitchecking/work/PAUSE.log";
 	private String startPITVerifyCmd = "D:/pitchecking/work/RestartPITVerify.bat";
 	private String startPITTrackCmd = "D:/pitchecking/work/RestartPITTrack.bat";
@@ -219,9 +220,31 @@ public class Config {
 
 	private int isSendClosePCCmd = 0;
 	private String closePCCmdUrl = "tcp://127.0.0.1:1883";
-	private int cameraNum = 0;  //准备启动的摄像头顺序号
-	private int frontCameraNo = 1;  //前置摄像头序号
-	private int behindCameraNo = 2;  //后置摄像头序号
+	private int cameraNum = 0; // 准备启动的摄像头顺序号
+	private int frontCameraNo = 1; // 前置摄像头序号
+	private int behindCameraNo = 2; // 后置摄像头序号
+	private String frontHeartBeatLogFile = "D:/pitchecking/work/FrontHeart.log"; // 前置摄像头检脸进程心跳日志
+	private String restartFrontTrackCmd = "D:/pitchecking/work/RestartFrontTrack.bat";
+	private boolean rebackFrontTrackFlag = false; // 是否允许恢复检脸进程
+	private boolean isFrontCameraWork = true; // 摄像头是否启动成功
+	private boolean isAllowRebackMain = false; // 是否允许恢复java版主控
+	private boolean isMainCrtlWork = true; // java版主控是否启动成功
+	private float frontCameraWindowOpacity = 0.2f;    //前置摄像头窗口透明度
+	private long secondDoorWaitTime = 2000;           //比对通过到开2门的时间
+	private int cameraCount = 1;
+	private String StandaloneCheckHeartFile = "D:/pitchecking/work/PhotoCheckHeart.log";
+	private String restartStandaloneCheckCmd = "D:/pitchecking/work/RestartCheckPhoto.bat";
+	private boolean isAllowRebackStandalone = false; // 是否允许恢复独立比对进程
+	private boolean isStandaloneCheckWork = true; // 独立比对进程是否启动成功
+	private int successFontSize = 150;    //请通过的字号
+	private int shutdownPCMode = 2;   //打下空开时重启模式  1：注销   2：重启   3：彻底关闭
+	private int isSavePhotoByTK = 0;  //是否按照铁科格式保存照片
+	private int isMatchTodayByFirst=0;  //票证校验时，是否优先匹配当日票规则
+	private int frontFaceTrackMode = 2;  //前置摄像头检脸模式
+	private int transferFaceMode = 1;    //进程间传输face的方式   1：aeron  2:mqtt
+	private int pitVerifyMode = 1;       //java版主控版本  1:正式程序   0：测试程序
+	private int openSecondDoorMode = 1;   //打开后门的模式   1：人证一致即开门   2：人证一致后还需要判断前门是否已经关闭，前门关闭才开后门
+	private int waitFirstDoorClosedTime = 3; //等待前门关闭的时间  单位：秒
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
 	 */
@@ -250,6 +273,182 @@ public class Config {
 
 	public int getNightColorExposure() {
 		return nightColorExposure;
+	}
+
+	public int getWaitFirstDoorClosedTime() {
+		return waitFirstDoorClosedTime;
+	}
+
+	public void setWaitFirstDoorClosedTime(int waitFirstDoorClosedTime) {
+		this.waitFirstDoorClosedTime = waitFirstDoorClosedTime;
+	}
+
+	public int getOpenSecondDoorMode() {
+		return openSecondDoorMode;
+	}
+
+	public void setOpenSecondDoorMode(int openSecondDoorMode) {
+		this.openSecondDoorMode = openSecondDoorMode;
+	}
+
+	public int getPitVerifyMode() {
+		return pitVerifyMode;
+	}
+
+	public void setPitVerifyMode(int pitVerifyMode) {
+		this.pitVerifyMode = pitVerifyMode;
+	}
+
+	public int getTransferFaceMode() {
+		return transferFaceMode;
+	}
+
+	public void setTransferFaceMode(int transferFaceMode) {
+		this.transferFaceMode = transferFaceMode;
+	}
+
+	public int getFrontFaceTrackMode() {
+		return frontFaceTrackMode;
+	}
+
+	public void setFrontFaceTrackMode(int frontFaceTrackMode) {
+		this.frontFaceTrackMode = frontFaceTrackMode;
+	}
+
+	public int getIsMatchTodayByFirst() {
+		return isMatchTodayByFirst;
+	}
+
+	public void setIsMatchTodayByFirst(int isMatchTodayByFirst) {
+		this.isMatchTodayByFirst = isMatchTodayByFirst;
+	}
+
+	public int getIsSavePhotoByTK() {
+		return isSavePhotoByTK;
+	}
+
+	public void setIsSavePhotoByTK(int isSavePhotoByTK) {
+		this.isSavePhotoByTK = isSavePhotoByTK;
+	}
+
+	public int getShutdownPCMode() {
+		return shutdownPCMode;
+	}
+
+	public void setShutdownPCMode(int shutdownPCMode) {
+		this.shutdownPCMode = shutdownPCMode;
+	}
+
+	public int getSuccessFontSize() {
+		return successFontSize;
+	}
+
+	public void setSuccessFontSize(int successFontSize) {
+		this.successFontSize = successFontSize;
+	}
+
+	public boolean isStandaloneCheckWork() {
+		return isStandaloneCheckWork;
+	}
+
+	public void setStandaloneCheckWork(boolean isStandaloneCheckWork) {
+		this.isStandaloneCheckWork = isStandaloneCheckWork;
+	}
+
+	public boolean isAllowRebackStandalone() {
+		return isAllowRebackStandalone;
+	}
+
+	public void setAllowRebackStandalone(boolean isAllowRebackStandalone) {
+		this.isAllowRebackStandalone = isAllowRebackStandalone;
+	}
+
+	public String getRestartStandaloneCheckCmd() {
+		return restartStandaloneCheckCmd;
+	}
+
+	public void setRestartStandaloneCheckCmd(String restartStandaloneCheckCmd) {
+		this.restartStandaloneCheckCmd = restartStandaloneCheckCmd;
+	}
+
+	public String getStandaloneCheckHeartFile() {
+		return StandaloneCheckHeartFile;
+	}
+
+	public void setStandaloneCheckHeartFile(String standaloneCheckHeartFile) {
+		StandaloneCheckHeartFile = standaloneCheckHeartFile;
+	}
+
+	public int getCameraCount() {
+		return cameraCount;
+	}
+
+	public void setCameraCount(int cameraCount) {
+		this.cameraCount = cameraCount;
+	}
+
+	public long getSecondDoorWaitTime() {
+		return secondDoorWaitTime;
+	}
+
+	public void setSecondDoorWaitTime(long secondDoorWaitTime) {
+		this.secondDoorWaitTime = secondDoorWaitTime;
+	}
+
+	public float getFrontCameraWindowOpacity() {
+		return frontCameraWindowOpacity;
+	}
+
+	public void setFrontCameraWindowOpacity(float frontCameraWindowOpacity) {
+		this.frontCameraWindowOpacity = frontCameraWindowOpacity;
+	}
+
+	public boolean isAllowRebackMain() {
+		return isAllowRebackMain;
+	}
+
+	public void setAllowRebackMain(boolean isAllowRebackMain) {
+		this.isAllowRebackMain = isAllowRebackMain;
+	}
+
+	public boolean isMainCrtlWork() {
+		return isMainCrtlWork;
+	}
+
+	public void setMainCrtlWork(boolean isMainCrtlWork) {
+		this.isMainCrtlWork = isMainCrtlWork;
+	}
+
+	public boolean isRebackFrontTrackFlag() {
+		return rebackFrontTrackFlag;
+	}
+
+	public void setRebackFrontTrackFlag(boolean rebackFrontTrackFlag) {
+		this.rebackFrontTrackFlag = rebackFrontTrackFlag;
+	}
+
+	public boolean isFrontCameraWork() {
+		return isFrontCameraWork;
+	}
+
+	public void setFrontCameraWork(boolean isFrontCameraWork) {
+		this.isFrontCameraWork = isFrontCameraWork;
+	}
+
+	public String getRestartFrontTrackCmd() {
+		return restartFrontTrackCmd;
+	}
+
+	public void setRestartFrontTrackCmd(String restartFrontTrackCmd) {
+		this.restartFrontTrackCmd = restartFrontTrackCmd;
+	}
+
+	public String getFrontHeartBeatLogFile() {
+		return frontHeartBeatLogFile;
+	}
+
+	public void setFrontHeartBeatLogFile(String frontHeartBeatLogFile) {
+		this.frontHeartBeatLogFile = frontHeartBeatLogFile;
 	}
 
 	public int getFrontCameraNo() {
@@ -283,8 +482,6 @@ public class Config {
 	public void setIsSendClosePCCmd(int isSendClosePCCmd) {
 		this.isSendClosePCCmd = isSendClosePCCmd;
 	}
-
-	
 
 	public String getClosePCCmdUrl() {
 		return closePCCmdUrl;
@@ -666,14 +863,6 @@ public class Config {
 		this.rebackTrackFlag = rebackTrackFlag;
 	}
 
-	public String getRebackTrackFile() {
-		return rebackTrackFile;
-	}
-
-	public void setRebackTrackFile(String rebackTrackFile) {
-		this.rebackTrackFile = rebackTrackFile;
-	}
-
 	public int getHEART_BEAT_DELAY() {
 		return HEART_BEAT_DELAY;
 	}
@@ -998,7 +1187,7 @@ public class Config {
 		}
 
 		try {
-			log.info("conf.properties dir==" + fn);
+			log.debug("conf.properties dir==" + fn);
 
 			p.load(is);
 			this.faceCheckThreshold = Float.valueOf(p.getProperty("FaceCheckThreshold", "0.7"));
@@ -1029,9 +1218,9 @@ public class Config {
 			this.faceDetectionScale = Float.valueOf(p.getProperty("FaceDetectionScale", "1.3"));
 			this.pausePitcheckFile = p.getProperty("pausePitcheckFile", "D:/pitchecking/work/PAUSE.log");
 			this.heartBeatLogFile = p.getProperty("HeartBeatLogFile", "D:/pitchecking/work/HEART.log");
-			this.ticketVerifyHeartFile = p.getProperty("ticketVerifyHeartFile",
-					"D:/pitchecking/work/TicketVerifyHeart.log");
-			this.rebackTrackFile = p.getProperty("rebackTrackFile", "D:/pitchecking/work/RebackFlag.log");
+			this.ticketVerifyHeartFile = p.getProperty("ticketVerifyHeartFile",	"D:/pitchecking/work/TicketVerifyHeart.log");
+			// this.rebackTrackFile = p.getProperty("rebackTrackFile",
+			// "D:/pitchecking/work/RebackFlag.log");
 			this.startPITTrackCmd = p.getProperty("StartPITTrackCmd", "D:/pitchecking/work/RestartPITTrack.bat");
 			this.startPITVerifyCmd = p.getProperty("StartPITVerifyCmd", "D:/pitchecking/work/RestartPITVerify.bat");
 			this.KillTKExeCmd = p.getProperty("KillTKExeCmd", "C:/AFC/shared/kill.exe");
@@ -1085,6 +1274,21 @@ public class Config {
 			this.closePCCmdUrl = p.getProperty("closePCCmdUrl", "tcp://127.0.0.1:1883");
 			this.frontCameraNo = Integer.valueOf(p.getProperty("frontCameraNo", "1"));
 			this.behindCameraNo = Integer.valueOf(p.getProperty("behindCameraNo", "2"));
+			this.frontHeartBeatLogFile = p.getProperty("frontHeartBeatLogFile", "D:/pitchecking/work/FrontHeart.log");
+			this.restartFrontTrackCmd = p.getProperty("restartFrontTrackCmd", "D:/pitchecking/work/RestartFrontTrack.bat");
+			this.frontCameraWindowOpacity = Float.valueOf(p.getProperty("frontCameraWindowOpacity", "0.2"));
+			this.secondDoorWaitTime = Long.valueOf(p.getProperty("secondDoorWaitTime", "2000"));
+			this.cameraCount = Integer.valueOf(p.getProperty("cameraCount", "2"));
+			this.StandaloneCheckHeartFile = p.getProperty("StandaloneCheckHeartFile", "D:/pitchecking/work/PhotoCheckHeart.log");
+			this.successFontSize = Integer.valueOf(p.getProperty("successFontSize", "150"));
+			this.shutdownPCMode = Integer.valueOf(p.getProperty("shutdownPCMode", "2"));
+			this.isSavePhotoByTK = Integer.valueOf(p.getProperty("isSavePhotoByTK", "0"));
+			this.isMatchTodayByFirst = Integer.valueOf(p.getProperty("isMatchTodayByFirst", "0"));
+			this.frontFaceTrackMode = Integer.valueOf(p.getProperty("frontFaceTrackMode", "2"));
+			this.transferFaceMode = Integer.valueOf(p.getProperty("transferFaceMode", "1"));
+			this.pitVerifyMode = Integer.valueOf(p.getProperty("pitVerifyMode", "1"));
+			this.openSecondDoorMode = Integer.valueOf(p.getProperty("openSecondDoorMode", "1"));
+			this.waitFirstDoorClosedTime = Integer.valueOf(p.getProperty("waitFirstDoorClosedTime", "3"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1106,6 +1310,7 @@ public class Config {
 		System.out.println("getClosePCCmdUrl==" + Config.getInstance().getClosePCCmdUrl());
 		System.out.println("frontCameraNo==" + Config.getInstance().getFrontCameraNo());
 		System.out.println("behindCameraNo==" + Config.getInstance().getBehindCameraNo());
+		System.out.println("getStandaloneCheckHeartFile=="+Config.getInstance().getStandaloneCheckHeartFile());
 	}
 
 }

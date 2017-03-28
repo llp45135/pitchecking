@@ -25,7 +25,7 @@ public class AudioPlayTask implements Runnable {
 
 	private AudioPlayTask() {
 		String pidStr = ProcessUtil.getCurrentProcessID();
-		log.info("" + pidStr);
+		log.debug("" + pidStr);
 		AudioDevice.getInstance().setPidstr(pidStr);
 	}
 
@@ -40,7 +40,7 @@ public class AudioPlayTask implements Runnable {
 	@Override
 	public void run() {
 		if (CalUtils.getStringFullTime().equals("230000")) {
-			log.info("超过23:00:00,必须停止引导语音");
+			log.debug("超过23:00:00,必须停止引导语音");
 			AudioDevice.getInstance().cleanLastAudio();
 			AudioDevice.getInstance().setStartPlayTime("");
 		}

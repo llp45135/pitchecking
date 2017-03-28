@@ -24,7 +24,7 @@ public class SpringMongoConfig {
 	public Mongo mongo() throws Exception {
 		String uri = "mongodb://pitcheck_writer:PitcheckWriter61336956" + "@" + Config.getInstance().getMongoDBAddress()
 				+ ":" + Config.getInstance().getMongoDBPort() + "/?authSource=pitcheck";
-		log.info("连接到mongodb uri==" + uri);
+		log.debug("连接到mongodb uri==" + uri);
 		// String uri = "mongodb://root:root"+"@"+
 		// Config.getInstance().getMongoDBAddress()
 		// + ":" + Config.getInstance().getMongoDBPort() + "/?authSource=admin";

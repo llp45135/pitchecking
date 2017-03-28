@@ -75,7 +75,7 @@ public class ClosePCEventSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("start connect to " + Config.getInstance().getClosePCCmdUrl() + "# MyClientID==" + this.CLIENT_ID);
+		log.debug("start connect to " + Config.getInstance().getClosePCCmdUrl() + "# MyClientID==" + this.CLIENT_ID);
 		mqttClient = new MqttClient(Config.getInstance().getClosePCCmdUrl());
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
@@ -84,7 +84,7 @@ public class ClosePCEventSenderBroker {
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		// mqttClient.unsubscribe(UNSUB_TOPICS);
 
-		log.info("**ClosePCEventSenderBroker,连接 " + Config.getInstance().getClosePCCmdUrl() + " 成功**");
+		log.debug("**ClosePCEventSenderBroker,连接 " + Config.getInstance().getClosePCCmdUrl() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息

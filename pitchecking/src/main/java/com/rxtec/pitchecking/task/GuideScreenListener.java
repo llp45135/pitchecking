@@ -28,7 +28,7 @@ public class GuideScreenListener implements Runnable {
 	}
 
 	private GuideScreenListener() {
-		mainlog.info("初始化GuideScreen位置监控");
+		mainlog.debug("初始化GuideScreen位置监控");
 	}
 
 	@Override

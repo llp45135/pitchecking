@@ -22,7 +22,7 @@ public class JmsReceiverTask implements Runnable {
 				}
 			}
 			if (jmsReceiver != null) {
-				log.info("JmsReceiverTask JmsReceiver 实例化已经成功");
+				log.debug("JmsReceiverTask JmsReceiver 实例化已经成功");
 				break;
 			}
 			CommUtil.sleep(1000);

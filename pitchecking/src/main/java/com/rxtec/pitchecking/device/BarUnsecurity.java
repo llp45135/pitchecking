@@ -107,27 +107,27 @@ public class BarUnsecurity {
 	}
 
 	private void printTicketInfo(Ticket ticket) {
-		log.info("getTicketNo==" + ticket.getTicketNo());
-		log.info("getFromStationCode==" + ticket.getFromStationCode());
-		log.info("getEndStationCode==" + ticket.getEndStationCode());
-		log.info("getChangeStationCode==" + ticket.getChangeStationCode());
-		log.info("getTrainCode==" + ticket.getTrainCode());
-		log.info("getCoachNo==" + ticket.getCoachNo());
-		log.info("getSeatCode==" + ticket.getSeatCode());
-		log.info("getTicketType==" + ticket.getTicketType());
-		log.info("getSeatNo==" + ticket.getSeatNo());
-		log.info("getTicketPrice==" + ticket.getTicketPrice());
-		log.info("getTrainDate==" + ticket.getTrainDate());
-		log.info("getChangeFlag==" + ticket.getChangeFlag());
-		log.info("getTicketSourceCenter==" + ticket.getTicketSourceCenter());
-		log.info("getBzsFlag==" + ticket.getBzsFlag());
-		log.info("getSaleOfficeNo==" + ticket.getSaleOfficeNo());
-		log.info("getSaleWindowNo==" + ticket.getSaleWindowNo());
-		log.info("getSaleDate==" + ticket.getSaleDate());
-		log.info("getCardType==" + ticket.getCardType());
-		log.info("getCardNo==" + ticket.getCardNo());
-		log.info("getPassengerName==" + ticket.getPassengerName());
-		log.info("getSpecialStr==" + ticket.getSpecialStr());
+		log.debug("getTicketNo==" + ticket.getTicketNo());
+		log.debug("getFromStationCode==" + ticket.getFromStationCode());
+		log.debug("getEndStationCode==" + ticket.getEndStationCode());
+		log.debug("getChangeStationCode==" + ticket.getChangeStationCode());
+		log.debug("getTrainCode==" + ticket.getTrainCode());
+		log.debug("getCoachNo==" + ticket.getCoachNo());
+		log.debug("getSeatCode==" + ticket.getSeatCode());
+		log.debug("getTicketType==" + ticket.getTicketType());
+		log.debug("getSeatNo==" + ticket.getSeatNo());
+		log.debug("getTicketPrice==" + ticket.getTicketPrice());
+		log.debug("getTrainDate==" + ticket.getTrainDate());
+		log.debug("getChangeFlag==" + ticket.getChangeFlag());
+		log.debug("getTicketSourceCenter==" + ticket.getTicketSourceCenter());
+		log.debug("getBzsFlag==" + ticket.getBzsFlag());
+		log.debug("getSaleOfficeNo==" + ticket.getSaleOfficeNo());
+		log.debug("getSaleWindowNo==" + ticket.getSaleWindowNo());
+		log.debug("getSaleDate==" + ticket.getSaleDate());
+		log.debug("getCardType==" + ticket.getCardType());
+		log.debug("getCardNo==" + ticket.getCardNo());
+		log.debug("getPassengerName==" + ticket.getPassengerName());
+		log.debug("getSpecialStr==" + ticket.getSpecialStr());
 	}
 
 	/**

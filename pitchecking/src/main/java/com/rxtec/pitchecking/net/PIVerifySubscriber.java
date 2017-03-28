@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
+import com.rxtec.pitchecking.picheckingservice.FaceImageLog;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 
@@ -64,10 +65,11 @@ public class PIVerifySubscriber {
 		// clean up resources when this try block is finished
 		try (final Aeron aeron = Aeron.connect(ctx);
 				final Subscription subscription = aeron.addSubscription(CHANNEL, STREAM_ID)) {
-			log.info("CHANNEL=" + CHANNEL +" STREAM_ID="+STREAM_ID + "  PIVerifySubscriber connected,and begin Subscription!");
+			log.debug("CHANNEL=" + CHANNEL + " STREAM_ID=" + STREAM_ID
+					+ "  PIVerifySubscriber connected,and begin Subscription!");
 			PIVerifySubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
 
-			log.info("PIVerifySubscriber Shutting down...");
+			log.debug("PIVerifySubscriber Shutting down...");
 		}
 
 	}
@@ -135,8 +137,23 @@ class PIVerifySubscriberUtils {
 			try {
 				ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
 				PITVerifyData fd = (PITVerifyData) ois.readObject();
+				/**
+				 * 收到第一个后置摄像头送来的人脸时，首先做一次清理
+				 */
+				if (!FaceCheckingService.getInstance().isReceiveBehindCameraFace() && fd.getCameraPosition() == 2) {
+					FaceCheckingService.getInstance().setReceiveBehindCameraFace(true);
+					FaceCheckingService.getInstance().resetFaceDataQueue();
+					// Log.debug("收到第一个后置摄像头送来的人脸时，首先做一次清理");
+				}
+
 				FaceCheckingService.getInstance().offerFaceVerifyData(fd); // 加入待验证队列
-				Log.info("Receive request message : " + fd);
+				// Log.debug("Receive request message : " + fd);
+				//
+//				if (Config.getInstance().getIsSavePhotoByTK() == 1) {
+//					if (fd.getIdNo() != null && fd.getIdCardImg() != null) {
+//						FaceImageLog.saveFaceDataToDskByTK(fd);
+//					}
+//				}
 			} catch (IOException | ClassNotFoundException e) {
 				Log.error("processMessage", e);
 			}

@@ -34,7 +34,7 @@ public class PITEventTopicSender implements Runnable {
 	}
 
 	private void connectMQ() {
-		log.info("Sender准备连接人工控制台MQ..." + DeviceConfig.getInstance().getManualCheck_MQURL());
+		log.debug("Sender准备连接人工控制台MQ..." + DeviceConfig.getInstance().getManualCheck_MQURL());
 		try {
 			initialize();
 			isInitOK = true;
@@ -61,20 +61,20 @@ public class PITEventTopicSender implements Runnable {
 		// 消息的目的地（Queue/Topic）
 		// destination = session.createQueue(SUBJECT);
 		destination = session.createTopic("PITEventTopic");
-		log.info("TOPIC==" + destination);
+		log.debug("TOPIC==" + destination);
 		// 消息的提供者（生产者）
 		producer = session.createProducer(destination);
 		// 不持久化消息
 		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-		log.info("PITEventTopic Sender连接人工控制台MQ成功!");
+		log.debug("PITEventTopic Sender连接人工控制台MQ成功!");
 	}
 
 	public void sendMessage(String strMsg) throws JMSException, Exception {
-		// log.info("starting send one Message...");
+		// log.debug("starting send one Message...");
 		TextMessage msg = session.createTextMessage();
 		msg.setText(strMsg);
 		producer.send(msg);
-		// log.info("send one Message####"+strMsg);
+		// log.debug("send one Message####"+strMsg);
 	}
 
 	// 关闭连接
@@ -93,7 +93,7 @@ public class PITEventTopicSender implements Runnable {
 		String info = null;
 		try {
 			info = infoQueue.poll();
-			// log.info("infoQueue.take=="+info);
+			// log.debug("infoQueue.take=="+info);
 		} catch (Exception e) {
 			log.error("pitDataQueue take data error", e);
 		}

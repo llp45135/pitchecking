@@ -36,7 +36,7 @@ public class PitRecordSqlLoger implements Runnable {
 	private PitRecordSqlDao pitRecordSqlDao;
 
 	private PitRecordSqlLoger() {
-		log.info("初始化MySQL存储Photos线程");
+		log.debug("初始化MySQL存储Photos线程");
 		pitRecordSqlDao = new PitRecordSqlDao("127.0.0.1");
 		this.addQuartzJobs();
 	}
@@ -85,7 +85,7 @@ public class PitRecordSqlLoger implements Runnable {
 	// Date today = new Date();
 	// String dn = sFormat.format(new Date(today.getTime() - days * 24 * 60 * 60
 	// * 1000));
-	// log.info("ClearExpirationData rows = " + dao.deleteRecords(dn));
+	// log.debug("ClearExpirationData rows = " + dao.deleteRecords(dn));
 	//
 	//
 	// }

@@ -31,7 +31,8 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "170301.15.01";
+	public static String softVersion = "ZTRX_1.10.09"; // 软件版本号
+
 	private String softIdNo = "520203197912141118,440111197209283012,440881199502176714";
 
 	public static int SINGLEDOOR = 1;
@@ -150,6 +151,7 @@ public class DeviceConfig {
 	public static String GAT_MQ_Track_CLIENT = "T";// "Track";
 	public static String GAT_MQ_Standalone_CLIENT = "A";// "Alone";
 	public static String GAT_MQ_Guide_CLIENT = "G";// "Guide";
+	public static String GAT_MQ_PidProtect_CLIENT = "P";// "PidProtect";
 
 	public static String OPEN_FIRSTDOOR = "{\"Event\": 1,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
 	// public static String CLOSE_FIRSTDOOR = "DoorCmd01";
@@ -175,7 +177,16 @@ public class DeviceConfig {
 	public static String Event_DeviceStartupSucc = "{\"Event\": 10000,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 设备启动成功
 	public static String Event_CameraStartupSucc = "{\"Event\": 10001,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 摄像头启动成功
 	public static String Event_ClosePC = "{\"Event\": 10002,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 立刻关闭PC
+	public static String Event_StopSend_FrontCameraFace = "{\"Event\": 10003,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 停止送前置摄像头的人脸
+	public static String Event_FrontCameraStartupSucc = "{\"Event\": 10004,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 前置摄像头启动成功
+	public static String Event_MainCrtlStartupSucc = "{\"Event\": 10005,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // java版主控启动成功
+	public static String Event_StandaloneCheckStartupSucc = "{\"Event\": 10006,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 独立比对启动成功
+	public static String Event_LetSend_FrontCameraFace = "{\"Event\": 10007,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 允许送前置摄像头的人脸
 
+	public static String Event_PressOpenSecondDoorButton = "{\"Event\":10022,\"Eventsource\":\"Gate\",\"Target\":\"127.0.0.1\"}";
+	public static String Event_SecondDoor_NormalClosed = "{\"Event\":10020,\"Eventsource\":\"Gate\",\"Target\":\"127.0.0.1\"}";
+	public static String Event_SecondDoor_OvertimeClosed = "{\"Event\":10021,\"Eventsource\":\"Gate\",\"Target\":\"127.0.0.1\"}";
+	
 	public static String Clear_QrCode_Jms = "{\"EventSource\":\"QRDevice\",\"QRCode\":\"\",\"Target\":\"127.0.0.1\"}";
 
 	// 开关门
@@ -202,18 +213,91 @@ public class DeviceConfig {
 
 	private boolean isInService = true; // 是否处于服务中
 
+	private boolean isFirstGateClosed = true;
+	private boolean isSecondGateOpened = false;
+	private int secondGateOpenCount = 0; // 第2道门动作次数 1-开门 2-关门 3-超时关门
+
 	private String gateIPList = "192.168.0.2,192.168.0.3,192.168.0.4,192.168.0.5";
 
 	private Map<String, String> SZQTrainsMap;
 
 	private int stopCheckMinutes;
 	private int NotStartCheckMinutes;
-	
-	
+
+	private String cameraDirection = "后置";
+
+	private String heartBStr = "";
+	private String heartFStr = "";
+	private String heartAStr = "";
+	private String heartVStr = "";
 	// ----------------------------------------------------------------------------------------
 
 	public int getStopCheckMinutes() {
 		return stopCheckMinutes;
+	}
+
+	public String getHeartBStr() {
+		return heartBStr;
+	}
+
+	public void setHeartBStr(String heartBStr) {
+		this.heartBStr = heartBStr;
+	}
+
+	public String getHeartFStr() {
+		return heartFStr;
+	}
+
+	public void setHeartFStr(String heartFStr) {
+		this.heartFStr = heartFStr;
+	}
+
+	public String getHeartAStr() {
+		return heartAStr;
+	}
+
+	public void setHeartAStr(String heartAStr) {
+		this.heartAStr = heartAStr;
+	}
+
+	public String getHeartVStr() {
+		return heartVStr;
+	}
+
+	public void setHeartVStr(String heartVStr) {
+		this.heartVStr = heartVStr;
+	}
+
+	public String getCameraDirection() {
+		return cameraDirection;
+	}
+
+	public void setCameraDirection(String cameraDirection) {
+		this.cameraDirection = cameraDirection;
+	}
+
+	public int getSecondGateOpenCount() {
+		return secondGateOpenCount;
+	}
+
+	public void setSecondGateOpenCount(int secondGateOpenCount) {
+		this.secondGateOpenCount = secondGateOpenCount;
+	}
+
+	public boolean isFirstGateClosed() {
+		return isFirstGateClosed;
+	}
+
+	public void setFirstGateClosed(boolean isFirstGateClosed) {
+		this.isFirstGateClosed = isFirstGateClosed;
+	}
+
+	public boolean isSecondGateOpened() {
+		return isSecondGateOpened;
+	}
+
+	public void setSecondGateOpened(boolean isSecondGateOpened) {
+		this.isSecondGateOpened = isSecondGateOpened;
 	}
 
 	public boolean isAllowOpenFirstDoor() {
@@ -611,6 +695,21 @@ public class DeviceConfig {
 	}
 
 	/**
+	 * 
+	 * @param pid
+	 * @param heartType
+	 * @return
+	 */
+	public String getHeartStr(String pid, String heartType) {
+		String heartStr = "";
+		if (pid != null && !pid.equals("")) {
+			heartStr = "Heart-" + heartType + ":" + pid + "@" + CalUtils.getStringDateHaomiao();// "4424@2017-03-15
+																								// 22:35:14.002";
+		}
+		return heartStr;
+	}
+
+	/**
 	 * 读取本地站名表文件
 	 * 
 	 * @throws FileNotFoundException
@@ -763,7 +862,10 @@ public class DeviceConfig {
 		if (this.belongStationCode.equals("GGQ")) {
 			fileName = "./conf/train_list.txt";
 		}
-		log.info("fileName==" + fileName);
+		if (this.belongStationCode.equals("SYT")) {
+			fileName = "./conf/train_list.txt";
+		}
+		log.debug("fileName==" + fileName);
 		if (!fileName.equals("")) {
 			File file = new File(fileName);
 			BufferedReader reader = null;
@@ -777,12 +879,12 @@ public class DeviceConfig {
 						int k = tempString.indexOf("@");
 						int j = tempString.lastIndexOf("@");
 						String stationCode = tempString.substring(j + 1);
-						// log.info("stationCode=="+stationCode);
+						// log.debug("stationCode=="+stationCode);
 						if (stationCode.equals(this.belongStationCode)) {
 							String trainCode = tempString.substring(0, k).startsWith("0") ? tempString.substring(1, k)
 									: tempString.substring(0, k);
 							String startTime = tempString.substring(k + 1, k + 6);
-//							log.info("trainCode==" + trainCode + ",startTime==" + " " + startTime);
+							log.debug("trainCode==" + trainCode + ",startTime==" + " " + startTime);
 							trainsMap.put(trainCode, startTime);
 						}
 					}
@@ -802,7 +904,7 @@ public class DeviceConfig {
 			}
 
 			this.SZQTrainsMap = trainsMap;
-			log.info("TrainsMap.size==" + this.SZQTrainsMap.size());
+			log.debug("TrainsMap.size==" + this.SZQTrainsMap.size());
 		}
 	}
 
@@ -840,5 +942,6 @@ public class DeviceConfig {
 			System.out.println("getSZQTrainsMap.size==" + dconfig.getSZQTrainsMap().size());
 		System.out.println("getStopCheckMinutes==" + dconfig.getStopCheckMinutes());
 		System.out.println("getNotStartCheckMinutes==" + dconfig.getNotStartCheckMinutes());
+		System.out.println("2A5401232A040123".indexOf("2A040123"));
 	}
 }

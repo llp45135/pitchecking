@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
+import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.task.FaceScreenListener;
 import com.rxtec.pitchecking.task.LuminanceListenerTask;
 import com.rxtec.pitchecking.utils.ImageToolkit;
@@ -34,11 +35,13 @@ public class VideoPanel extends JPanel {
 
 	public void paintImg() {
 		// 通过MQ发送帧画面
-		if (Config.getInstance().getIsUseManualMQ() == 1 && Config.getInstance().getIsSendFrame() == 1) {
-			RemoteMonitorPublisher.getInstance().offerFrameData(ImageToolkit.getImageBytes(image, "jpeg"));
+		if (!FaceCheckingService.getInstance().isFrontCamera()) { // 后置摄像头
+			if (Config.getInstance().getIsUseManualMQ() == 1 && Config.getInstance().getIsSendFrame() == 1) {
+				RemoteMonitorPublisher.getInstance().offerFrameData(ImageToolkit.getImageBytes(image, "jpeg"));
+			}
 		}
-		
-		FaceScreenListener.getInstance().setFrameImage(image);
+
+		FaceScreenListener.getInstance().setFrameImage(image);   //此帧图片是给光亮度分析任务使用
 
 		Graphics2D g = (Graphics2D) this.getGraphics();
 		g.drawImage(image, 0, 0, null);

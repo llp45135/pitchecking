@@ -45,10 +45,30 @@ public class PITVerifyData implements Serializable, Comparable<PITVerifyData> {
 	private float facePosePitch;
 	private float facePoseRoll;
 	private float facePoseYaw;
+	
+	private int cameraPosition;
+	private int cameraFaceMode;
 
 	// --------------------------------------------------------------------------
+	
 	public IDCard getIdCard() {
 		return idCard;
+	}
+
+	public int getCameraFaceMode() {
+		return cameraFaceMode;
+	}
+
+	public void setCameraFaceMode(int cameraFaceMode) {
+		this.cameraFaceMode = cameraFaceMode;
+	}
+
+	public int getCameraPosition() {
+		return cameraPosition;
+	}
+
+	public void setCameraPosition(int cameraPosition) {
+		this.cameraPosition = cameraPosition;
 	}
 
 	public void setIdCard(IDCard idCard) {
@@ -267,7 +287,8 @@ public class PITVerifyData implements Serializable, Comparable<PITVerifyData> {
 			this.age = pd.getIdCard().getAge();
 			this.gender = pd.getIdCard().getGender();
 		}
-		
+		this.cameraPosition = pd.getCameraPosition();
+		this.cameraFaceMode = pd.getCameraFaceMode();
 		this.ticket = pd.getTicket();
 		this.faceImg = ImageToolkit.getImageBytes(pd.getFaceImage(), "JPEG");
 		this.faceDistance = pd.getFaceDistance();

@@ -66,7 +66,7 @@ public class ManualEventReceiverBroker {
 	}
 
 	private void initMQ() {
-		log.info("人工控制台主题PITEventTopic监听,initMQ..." + DeviceConfig.getInstance().getManualCheck_MQTTURL());
+		log.debug("人工控制台主题PITEventTopic监听,initMQ..." + DeviceConfig.getInstance().getManualCheck_MQTTURL());
 		while (true) {
 			try {
 				if (mqttClient == null || !mqttClient.isConnected()) {
@@ -99,18 +99,18 @@ public class ManualEventReceiverBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("start connect to " + DeviceConfig.getInstance().getManualCheck_MQTTURL() + "# MyClientID=="
+		log.debug("start connect to " + DeviceConfig.getInstance().getManualCheck_MQTTURL() + "# MyClientID=="
 				+ this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getManualCheck_MQTTURL());
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
 		mqttClient.registerSimpleHandler(simpleCallbackHandler);// 注册接收消息方法
 		mqttClient.connect(CLIENT_ID, CLEAN_START, KEEP_ALIVE);
-		log.info("subscribe receiver topics==" + TOPICS[0]);
+		log.debug("subscribe receiver topics==" + TOPICS[0]);
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		mqttClient.unsubscribe(unSubscribeTopics);
 
-		log.info("**人工控制台主题PITEventTopic监听,连接 " + DeviceConfig.getInstance().getManualCheck_MQTTURL() + " 成功**");
+		log.debug("**人工控制台主题PITEventTopic监听,连接 " + DeviceConfig.getInstance().getManualCheck_MQTTURL() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息
@@ -171,15 +171,15 @@ public class ManualEventReceiverBroker {
 		@Override
 		public void publishArrived(String topicName, byte[] payload, int Qos, boolean retained) {
 			// TODO Auto-generated method stub
-			// log.info("订阅主题: " + topicName);
-			// log.info("消息数据: " + new String(payload));
-			// log.info("消息级别(0,1,2): " + Qos);
-			// log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
+			// log.debug("订阅主题: " + topicName);
+			// log.debug("消息数据: " + new String(payload));
+			// log.debug("消息级别(0,1,2): " + Qos);
+			// log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 			try {
 				String mqttMessage = new String(payload);
-				// log.info("mqttMessage==" + mqttMessage);
+				// log.debug("mqttMessage==" + mqttMessage);
 				if (topicName.equals("PITEventTopic")) {
-					// log.info("mqttMessage==" + mqttMessage);
+					// log.debug("mqttMessage==" + mqttMessage);
 					if (mqttMessage.toLowerCase().indexOf("eventsource") != -1) { // 收到门控制发回的指令
 
 						if (mqttMessage.toLowerCase().indexOf("123321") != -1) { // 设置摄像头曝光度等模式
@@ -234,7 +234,7 @@ public class ManualEventReceiverBroker {
 										|| gatCrtlBean.getEvent() == DeviceConfig.Event_OpenThirdDoor) { // 开1门或开3门指令
 									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
 											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
-										log.info("是否允许开1门==" + DeviceConfig.getInstance().isAllowOpenFirstDoor());
+										log.debug("是否允许开1门==" + DeviceConfig.getInstance().isAllowOpenFirstDoor());
 										if (DeviceConfig.getInstance().isAllowOpenFirstDoor()) {
 											DeviceConfig.getInstance().setAllowOpenFirstDoor(false);
 
@@ -251,13 +251,13 @@ public class ManualEventReceiverBroker {
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenSecondDoor) { // 收到开后门指令，即“放行”指令
 									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
 											+ DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())) { // 由检脸进程处理
-										log.info("isAllowOpenSecondDoor=="
+										log.debug("isAllowOpenSecondDoor=="
 												+ DeviceConfig.getInstance().isAllowOpenSecondDoor());
 
 										if (DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
 											DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
 
-											log.info("isInTracking==" + DeviceConfig.getInstance().isInTracking());
+											log.debug("isInTracking==" + DeviceConfig.getInstance().isInTracking());
 
 											if (DeviceConfig.getInstance().isInTracking()) { // 如果处于人脸核验中，那么必须立即结束本次核验，视为核验成功
 												PITVerifyData failedFd = FaceCheckingService.getInstance()
@@ -311,10 +311,10 @@ public class ManualEventReceiverBroker {
 											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 
 										if (DeviceConfig.getInstance().isInService()) {
-											log.info("准备执行暂停服务指令");
+											log.debug("准备执行暂停服务指令");
 											if (Config.getInstance().getIsUseGatDll() == 1) {
 												Runtime.getRuntime().exec(Config.getInstance().getKillTKExeCmd()); // 杀死中铁程gui.exe
-												log.info("已经执行暂停服务指令KillTKExeCmd");
+												log.debug("已经执行暂停服务指令KillTKExeCmd");
 											}
 
 											DeviceConfig.getInstance().setInService(false);
@@ -328,7 +328,7 @@ public class ManualEventReceiverBroker {
 											GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
 													.sendDoorCmd("PITEventTopic", mqttMessage);
 										} else {
-											log.info("服务已经处于暂停中!");
+											log.debug("服务已经处于暂停中!");
 										}
 									}
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_ContinueService) { // 恢复服务
@@ -336,7 +336,7 @@ public class ManualEventReceiverBroker {
 											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 
 										if (!DeviceConfig.getInstance().isInService()) {
-											log.info("准备执行恢复服务指令");
+											log.debug("准备执行恢复服务指令");
 											// String pauseFlagStr =
 											// ProcessUtil.getLastPauseFlag();
 											// if (pauseFlagStr != null &&
@@ -352,7 +352,7 @@ public class ManualEventReceiverBroker {
 											if (Config.getInstance().getIsUseGatDll() == 1) {
 												Runtime.getRuntime().exec(Config.getInstance().getStartTKExeCmd()); // 启动gui.exe
 												CommUtil.sleep(3000);
-												log.info("已经执行恢复服务指令StartTKExeCmd=="
+												log.debug("已经执行恢复服务指令StartTKExeCmd=="
 														+ Config.getInstance().getStartTKExeCmd());
 											}
 
@@ -365,7 +365,7 @@ public class ManualEventReceiverBroker {
 											GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
 													.sendDoorCmd("PITEventTopic", mqttMessage);
 										} else {
-											log.info("已经处于正常服务状态!!");
+											log.debug("已经处于正常服务状态!!");
 										}
 									}
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_ResetService) { // 重启闸机

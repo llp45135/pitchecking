@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -785,6 +786,30 @@ public class CommUtil {
 		src[1] = (byte) ((value >> 8) & 0xFF);
 		src[0] = (byte) (value & 0xFF);
 		return src;
+	}
+	
+	
+	/**
+	 * 
+	 * @param o
+	 * @return
+	 */
+	public static byte[] serialObjToBytes(Object o) {
+		byte[] buf = null;
+		try {
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			ObjectOutputStream oo = new ObjectOutputStream(bos);
+			oo.writeObject(o);
+			buf = bos.toByteArray();
+			oo.close();
+			bos.close();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			log.error("serialObjToBytes",e);
+		}
+
+		return buf;
 	}
 
 }

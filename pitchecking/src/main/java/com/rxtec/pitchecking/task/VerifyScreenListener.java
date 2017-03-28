@@ -7,6 +7,7 @@ import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.TicketVerifyScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
+import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 
 public class VerifyScreenListener implements Runnable {
 	private Logger log = LoggerFactory.getLogger("FaceScreenListener");
@@ -31,14 +32,16 @@ public class VerifyScreenListener implements Runnable {
 	}
 
 	private VerifyScreenListener() {
-		mainlog.info("初始化VerifyScreen位置监控");
+		mainlog.debug("初始化VerifyScreen位置监控");
 	}
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 		String pidStr = ProcessUtil.getCurrentProcessID();
-		ProcessUtil.writeHeartbeat(pidStr,Config.getInstance().getTicketVerifyHeartFile()); // 写心跳日志
+//		ProcessUtil.writeHeartbeat(pidStr,Config.getInstance().getTicketVerifyHeartFile()); // 写心跳日志
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendMessage(DeviceConfig.EventTopic,
+				DeviceConfig.getInstance().getHeartStr(pidStr, "V"));
 		
 		int frameX = TicketVerifyScreen.getInstance().getTicketFrame().getX();
 //		log.debug("frameX=="+frameX);

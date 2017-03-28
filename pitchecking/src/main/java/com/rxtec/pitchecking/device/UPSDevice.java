@@ -114,7 +114,7 @@ public class UPSDevice implements SerialPortEventListener {
 	public int queryUPSStatus() {
 		try {
 			String cmd = "51310D";
-			log.debug("queryUPSStatus cmd==" + cmd);
+			// log.debug("queryUPSStatus cmd==" + cmd);
 			readBuffer.delete(0, readBuffer.length());
 			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
 			for (int i = 0; i < cmdData.length; i++) {
@@ -186,17 +186,30 @@ public class UPSDevice implements SerialPortEventListener {
 				// ss.length());
 
 				if (ss.length() >= 94) {
-					log.debug("query cmd received all");
+					// log.debug("query cmd received all");
 					if (ss.startsWith("283030") && !isClosePC) {
 						log.debug("工控机空开被打下!");
-						Runtime.getRuntime()
-								.exec("shutdown -s -t " + String.valueOf(Config.getInstance().getClosePCDelay()));
-						this.isClosePC = true;
-						log.debug("已发出" + Config.getInstance().getClosePCDelay() + "秒后关机命令!");
+						if (Config.getInstance().getShutdownPCMode() == 3) {
+							Runtime.getRuntime()
+									.exec("shutdown -s -t " + String.valueOf(Config.getInstance().getClosePCDelay()));
+							this.isClosePC = true;
+							log.debug("已发出" + Config.getInstance().getClosePCDelay() + "秒后关机命令!");
+						}
+						if (Config.getInstance().getShutdownPCMode() == 2) {
+							Runtime.getRuntime()
+									.exec("shutdown -r -t " + String.valueOf(Config.getInstance().getClosePCDelay()));
+							this.isClosePC = true;
+							log.debug("已发出" + Config.getInstance().getClosePCDelay() + "秒后重启命令!");
+						}
+						if (Config.getInstance().getShutdownPCMode() == 1) {
+							Runtime.getRuntime().exec("shutdown -l");
+							this.isClosePC = true;
+							log.debug("已发出注销命令!");
+						}
 						// 给同组的其他闸机发送关闭PC消息命令
 						if (Config.getInstance().getIsSendClosePCCmd() == 1) {
 							log.debug("已经向" + Config.getInstance().getClosePCCmdUrl() + "发出关机命令!");
-							ClosePCEventSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
+							ClosePCEventSenderBroker.getInstance(DeviceConfig.GAT_MQ_PidProtect_CLIENT)
 									.sendDoorCmd(DeviceConfig.Event_ClosePC);
 						}
 					}

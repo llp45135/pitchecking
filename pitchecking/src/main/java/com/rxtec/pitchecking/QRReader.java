@@ -113,13 +113,13 @@ public class QRReader implements Runnable {
 	private void initQRDevice() {
 		log.debug("初始化二维码扫描器...");
 		if (DeviceConfig.getInstance().getQrDeviceType().equals("V")) {
-			log.info("启用微光扫描器");
+			log.debug("启用微光扫描器");
 			// 应用设置
 			VguangApi.applyDeviceSetting();
 			// 打开设备
 			VguangApi.openDevice();
 		} else if (DeviceConfig.getInstance().getQrDeviceType().equals("H")) {
-			log.info("启用HoneyWell扫描器");
+			log.debug("启用HoneyWell扫描器");
 			try {
 				HoneyWellQRDevice.getInstance().connect(DeviceConfig.getInstance().getHoneywellQRPort());
 				DeviceConfig.getInstance().setQrdeviceStatus(1);

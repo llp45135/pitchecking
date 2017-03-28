@@ -3,6 +3,7 @@ package com.rxtec.pitchecking.picheckingservice.realsense;
 import intel.rssdk.*;
 import intel.rssdk.PXCMCapture.Device;
 import intel.rssdk.PXCMCapture.Sample;
+import sun.security.krb5.Config;
 
 import java.lang.System.*;
 import java.util.*;
@@ -30,7 +31,7 @@ import java.awt.image.*;
 import java.awt.*;
 
 public class RSFaceDetectionService implements IFaceTrackService {
-
+	private static RSFaceDetectionService _instance = null;
 	static int cWidth = 640;
 	static int cHeight = 480;
 	static int dWidth, dHeight;
@@ -42,19 +43,33 @@ public class RSFaceDetectionService implements IFaceTrackService {
 	private boolean enableExpression = true;
 	private boolean enableFaceLandmark = true;
 
-	RSFaceTrackTask trackTask;
+	Object trackTask;
 	private IDCard currentIDCard = null;
 	private Ticket currentTicket = null;
 
 	private int maxTrackedFaces = 4;
 	private static int LandmarkAlignment = -3;
 
-	private RSModuleStatus rsStatus;
+	// private RSModuleStatus rsStatus;
 	private int cameraMode = -1; // 摄像头模式
+	private int cameraPosition = 2; // 摄像头位置 1：前置 2：后置
 	// --------------------------------------------------
 
 	public void setVideoPanel(JPanel videoPanel) {
-		trackTask.setVideoPanel(videoPanel);
+		if (cameraPosition == 2) {
+			((RSFaceTrackTask) trackTask).setVideoPanel(videoPanel);
+		}
+		if (cameraPosition == 1) {
+			((RSFaceFrontTrackTask) trackTask).setVideoPanel(videoPanel);
+		}
+	}
+
+	public int getCameraPosition() {
+		return cameraPosition;
+	}
+
+	public void setCameraPosition(int cameraPosition) {
+		this.cameraPosition = cameraPosition;
 	}
 
 	public int getCameraMode() {
@@ -105,10 +120,16 @@ public class RSFaceDetectionService implements IFaceTrackService {
 		this.exist = exist;
 	}
 
-	private static RSFaceDetectionService _instance = null;
-
 	private RSFaceDetectionService() {
-		trackTask = new RSFaceTrackTask(null);
+		if (FaceCheckingService.getInstance().isFrontCamera()) {  //前置摄像头
+			this.cameraPosition = 1;
+		}
+		if (cameraPosition == 2) {
+			trackTask = new RSFaceTrackTask(null);
+		}
+		if (cameraPosition == 1) {
+			trackTask = new RSFaceFrontTrackTask(null);
+		}
 	}
 
 	public static synchronized RSFaceDetectionService getInstance() {
@@ -119,15 +140,26 @@ public class RSFaceDetectionService implements IFaceTrackService {
 
 	public void setDeviceProperties(RealsenseDeviceProperties props) {
 		if (trackTask != null) {
-			trackTask.setupColorCameraDevice(props);
+			if (cameraPosition == 2) {
+				((RSFaceTrackTask) trackTask).setupColorCameraDevice(props);
+			}
+			if (cameraPosition == 1) {
+				((RSFaceFrontTrackTask) trackTask).setupColorCameraDevice(props);
+			}
 		}
 	}
 
+	/**
+	 * RealSense输出视频流同时开始检脸
+	 */
 	public void beginVideoCaptureAndTracking() {
-		// ExecutorService executer = Executors.newCachedThreadPool();
-		// executer.execute(trackTask);
 		try {
-			trackTask.doTracking();
+			if (cameraPosition == 2) {
+				((RSFaceTrackTask) trackTask).doTracking();
+			}
+			if (cameraPosition == 1) {
+				((RSFaceFrontTrackTask) trackTask).doTracking();
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			log.error("trackTask.doTracking:", e);
@@ -135,18 +167,28 @@ public class RSFaceDetectionService implements IFaceTrackService {
 	}
 
 	public void beginCheckingFace(IDCard idCard, Ticket t) {
-		FaceCheckingService.getInstance().resetFaceDataQueue(); // by zhao
-																// 20160705
+		FaceCheckingService.getInstance().resetFaceDataQueue(); // by
+																// zhao-20160705
 		currentIDCard = idCard;
 		currentTicket = t;
-		trackTask.beginCheckingFace(idCard, currentTicket);
+		if (cameraPosition == 2) {
+			((RSFaceTrackTask) trackTask).beginCheckingFace(idCard, currentTicket);
+		}
+		if (cameraPosition == 1) {
+			((RSFaceFrontTrackTask) trackTask).beginCheckingFace(idCard, currentTicket);
+		}
 
 	}
 
 	public void stopCheckingFace() {
 		currentIDCard = null;
 		currentTicket = null;
-		trackTask.stopCheckingFace();
+		if (cameraPosition == 2) {
+			((RSFaceTrackTask) trackTask).stopCheckingFace();
+		}
+		if (cameraPosition == 1) {
+			((RSFaceFrontTrackTask) trackTask).stopCheckingFace();
+		}
 		FaceCheckingService.getInstance().resetFaceDataQueue();
 	}
 
@@ -160,15 +202,15 @@ public class RSFaceDetectionService implements IFaceTrackService {
 
 }
 
-class VideoPanelListener extends WindowAdapter {
-	public boolean exit = false;
+// class VideoPanelListener extends WindowAdapter {
+// public boolean exit = false;
+//
+// @Override
+// public void windowClosing(WindowEvent e) {
+// exit = true;
+// }
+// }
 
-	@Override
-	public void windowClosing(WindowEvent e) {
-		exit = true;
-	}
-}
-
-enum RSModuleStatus {
-	Succ, InitError;
-}
+// enum RSModuleStatus {
+// Succ, InitError;
+// }

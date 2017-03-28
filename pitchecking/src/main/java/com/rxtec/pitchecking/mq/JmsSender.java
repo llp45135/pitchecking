@@ -50,7 +50,7 @@ public class JmsSender {
 		// 消息的目的地（Queue/Topic）
 		// destination = session.createQueue(SUBJECT);
 		destination = session.createTopic(DeviceConfig.getInstance().getTOPIC());
-		log.info("TOPIC==" + destination);
+		log.debug("TOPIC==" + destination);
 		// destination = session.createTopic(SUBJECT);
 		// 消息的提供者（生产者）
 		producer = session.createProducer(destination);

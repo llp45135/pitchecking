@@ -52,7 +52,7 @@ public class JmsSenderTask implements Runnable {
 				log.error("JmsSenderTask JmsSender 实例化失败");
 			}
 			if (jmsSender != null) {
-				log.info("JmsSenderTask JmsSender 实例化已经成功");
+				log.debug("JmsSenderTask JmsSender 实例化已经成功");
 			}
 		}
 
@@ -63,7 +63,7 @@ public class JmsSenderTask implements Runnable {
 			} catch (InterruptedException e) {
 				log.error("takeFailedFace失败");
 			} 
-			log.info("JmsSenderTask faceData==" + faceData);
+			log.debug("JmsSenderTask faceData==" + faceData);
 			if (faceData != null) {
 				try {
 					jmsSender.sendMessage("map", "", faceData);

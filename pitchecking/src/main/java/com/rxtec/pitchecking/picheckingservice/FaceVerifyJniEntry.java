@@ -94,7 +94,7 @@ public class FaceVerifyJniEntry {
 			result = aArrIntInputf.getAsFloat(0);
 			aArrIntInputf.dispose();
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.info("Using " + usingTime + " ms, value=" + df.format(result));
+			log.debug("Using " + usingTime + " ms, value=" + df.format(result));
 
 		} catch (NativeException e) {
 			log.error("FaceVerifyJniEntry verify failed!", e);

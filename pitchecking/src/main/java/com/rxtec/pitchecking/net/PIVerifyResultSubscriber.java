@@ -81,9 +81,9 @@ public class PIVerifyResultSubscriber implements Runnable{
 		// clean up resources when this try block is finished
 		try (final Aeron aeron = Aeron.connect(ctx);
 				final Subscription subscription = aeron.addSubscription(CHANNEL, STREAM_ID)) {
-			log.info("CHANNEL=" + CHANNEL +" STREAM_ID="+STREAM_ID + "  PIVerifyResultSubscriber connected,and begin Subscription!");
+			log.debug("CHANNEL=" + CHANNEL +" STREAM_ID="+STREAM_ID + "  PIVerifyResultSubscriber connected,and begin Subscription!");
 			ResultSubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
-			log.info("PIVerifyResultSubscriber Shutting down...");
+			log.debug("PIVerifyResultSubscriber Shutting down...");
 		}
 		
 	}

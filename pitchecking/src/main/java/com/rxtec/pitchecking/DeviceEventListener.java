@@ -114,9 +114,20 @@ public class DeviceEventListener implements Runnable {
 		return _instance;
 	}
 
+	/**
+	 * 
+	 * @param e
+	 */
 	public void offerDeviceEvent(IDeviceEvent e) {
 		// 队列满了需要处理Exception,注意！
 		deviceEventQueue.offer(e);
+	}
+
+	/**
+	 * 清理读票证事件
+	 */
+	public void clearDeviceEvent() {
+		this.deviceEventQueue.clear();
 	}
 
 	/**
@@ -125,44 +136,44 @@ public class DeviceEventListener implements Runnable {
 	 * @param fn
 	 * @return
 	 */
-//	private static IDCard createIDCard(String fn) {
-//		IDCard card = new IDCard();
-//		card.setIdNo("520203197912141119");
-//		BufferedImage bi = null;
-//		try {
-//			bi = ImageIO.read(new File(fn));
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		card.setCardImageBytes(ImageToolkit.getImageBytes(bi, "jpeg"));
-//		card.setCardImage(bi);
-//		card.setAge(44);
-//		return card;
-//	}
+	// private static IDCard createIDCard(String fn) {
+	// IDCard card = new IDCard();
+	// card.setIdNo("520203197912141119");
+	// BufferedImage bi = null;
+	// try {
+	// bi = ImageIO.read(new File(fn));
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// card.setCardImageBytes(ImageToolkit.getImageBytes(bi, "jpeg"));
+	// card.setCardImage(bi);
+	// card.setAge(44);
+	// return card;
+	// }
 
 	/**
 	 * 测试用例
 	 */
-//	private void offerDeviceEvent() {
-//		log.info("offerDeviceEvent readCardEvent");
-//		IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
-//		IDCard idCard = IDCardUtil.createIDCard("zp.jpg");
-//		readCardEvent.setIdCard(idCard);
-//		DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
-//
-//		QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(Config.QRReaderEvent);
-//		Ticket ticket = new Ticket();
-//		ticket.setCardNo("520203197912141119");
-//		ticket.setTicketNo("T129999");
-//		ticket.setFromStationCode("IZQ");
-//		ticket.setEndStationCode("SZQ");
-//		ticket.setTicketType("0");
-//		ticket.setCardType("1");
-//		ticket.setTrainDate(CalUtils.getStringDateShort2());
-//		qrEvent.setTicket(ticket);
-//		DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
-//		log.info("offerDeviceEvent qrEvent");
-//	}
+	// private void offerDeviceEvent() {
+	// log.debug("offerDeviceEvent readCardEvent");
+	// IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
+	// IDCard idCard = IDCardUtil.createIDCard("zp.jpg");
+	// readCardEvent.setIdCard(idCard);
+	// DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
+	//
+	// QRCodeReaderEvent qrEvent = new QRCodeReaderEvent(Config.QRReaderEvent);
+	// Ticket ticket = new Ticket();
+	// ticket.setCardNo("520203197912141119");
+	// ticket.setTicketNo("T129999");
+	// ticket.setFromStationCode("IZQ");
+	// ticket.setEndStationCode("SZQ");
+	// ticket.setTicketType("0");
+	// ticket.setCardType("1");
+	// ticket.setTrainDate(CalUtils.getStringDateShort2());
+	// qrEvent.setTicket(ticket);
+	// DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
+	// log.debug("offerDeviceEvent qrEvent");
+	// }
 
 	@Override
 	public void run() {
@@ -189,7 +200,7 @@ public class DeviceEventListener implements Runnable {
 	private void processEvent(IDeviceEvent e) {
 		// if (isDealDeviceEvent) {
 		// this.setDealDeviceEvent(false);//停止处理新的事件
-		log.debug("/*************Start*******************/");
+		log.info("/*************Start*******************/");
 		if (e.getEventType() == Config.QRReaderEvent && e.getData() != null) {
 			/**
 			 * 二维码读卡器读到新数据
@@ -203,7 +214,7 @@ public class DeviceEventListener implements Runnable {
 			ticketVerify.setIdCard((IDCard) e.getData());
 			verifyTicket();
 		}
-		log.debug("/################End######################/");
+		log.info("/################End######################/");
 		// this.setDealDeviceEvent(true);//允许处理新的事件
 		// } else {
 		// return;
@@ -219,8 +230,10 @@ public class DeviceEventListener implements Runnable {
 		if (ticketVerifyResult == Config.TicketVerifySucc) { // 核验成功
 			this.setDeviceReader(false);// 停止寻卡
 
+			DeviceConfig.getInstance().setSecondGateOpenCount(0);
+
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式需要开第一道门
-				log.debug("票证核验通过，停止寻卡，打开第一道闸门，开始人证比对");
+				log.info("票证核验通过，停止寻卡，打开第一道闸门，开始人证比对");
 				if (Config.getInstance().getIsUseGatDll() == 0) {
 					this.setReceiveOpenFirstDoorCmd(false);
 					for (int rc = 0; rc < 3; rc++) {
@@ -246,9 +259,19 @@ public class DeviceEventListener implements Runnable {
 
 			// 开始进行人脸检测和比对
 			if (this.verifyFace(ticketVerify.getIdCard(), ticketVerify.getTicket()) == 0) { // 人脸比对通过
-				log.debug("人脸比对通过，开第二道闸门");
+				log.info("人脸比对通过，开第二道闸门");
 				if (Config.getInstance().getIsUseGatDll() == 0) { // 不调用门控dll
 					this.setReceiveOpenSecondDoorCmd(false);
+
+					if (Config.getInstance().getOpenSecondDoorMode() == 2) { // 需要等待前门关闭才可以开后门
+						for (int sc = 0; sc < Config.getInstance().getWaitFirstDoorClosedTime() * 100; sc++) {
+							if (DeviceConfig.getInstance().isFirstGateClosed()) {
+								break;
+							}
+							CommUtil.sleep(10);
+						}
+					}
+
 					SecondGateDevice.getInstance().LightGreenLED();
 					CommUtil.sleep(20);
 					for (int rc = 0; rc < 3; rc++) {
@@ -264,23 +287,27 @@ public class DeviceEventListener implements Runnable {
 							.sendDoorCmd(DeviceConfig.OPEN_SECONDDOOR);
 				}
 
-				int displayTimeOut = 3 - 1;
+				int displayTimeOut = 5 - 1;
 				CAMDevice.getInstance().CAM_ScreenDisplay("人证核验成功#请通过", displayTimeOut);
-				
-				
-				//------------------------------just test
-//				TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-//						ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
-//				DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
-//				DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
-//
-//				if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
-//					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-//							.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
-//					DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
-//				}
-//				log.debug("人证比对完成，第二道闸门已经关闭，重新寻卡");
-				//-------------------------------------------------------------------
+
+				// ------------------------------just test
+				// TicketVerifyScreen.getInstance().offerEvent(new
+				// ScreenElementModifyEvent(0,
+				// ScreenCmdEnum.ShowTicketDefault.getValue(), null, null,
+				// null)); // 恢复初始界面
+				// DeviceEventListener.getInstance().setDeviceReader(true); //
+				// 允许寻卡
+				// DeviceEventListener.getInstance().setDealDeviceEvent(true);
+				// // 允许处理新的事件
+				//
+				// if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+				// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+				// .sendDoorCmd("PITEventTopic",
+				// DeviceConfig.Close_SECONDDOOR_Jms);
+				// DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+				// }
+				// log.debug("人证比对完成，第二道闸门已经关闭，重新寻卡");
+				// -------------------------------------------------------------------
 
 				if (Config.getInstance().getDoorCountMode() == DeviceConfig.SINGLEDOOR) {
 					DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
@@ -288,10 +315,11 @@ public class DeviceEventListener implements Runnable {
 				}
 			} else { // 人脸比对失败
 				if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
-					log.debug("人脸比对失败，开第三道电磁门");
+					log.info("人脸比对失败，开第三道电磁门");
 					if (Config.getInstance().getIsUseGatDll() == 0) {// 不调用门控dll
 						SecondGateDevice.getInstance().LightRedLED();
-//						SecondGateDevice.getInstance().openEmerDoor(); // 打开电磁门
+						// SecondGateDevice.getInstance().openEmerDoor(); //
+						// 打开电磁门
 					} else {
 						GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 								.sendDoorCmd(DeviceConfig.OPEN_THIRDDOOR);
@@ -359,9 +387,9 @@ public class DeviceEventListener implements Runnable {
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_InvalidCardAndTicket);
 			}
-			
+
 			CommUtil.sleep(600);
-			ticketVerify.reset();			
+			ticketVerify.reset();
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyStationRuleFail) { // 非本站乘车
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
@@ -378,7 +406,7 @@ public class DeviceEventListener implements Runnable {
 						.sendDoorCmd(DeviceConfig.Event_InvalidStation);
 			}
 			CommUtil.sleep(600);
-			ticketVerify.reset();			
+			ticketVerify.reset();
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyTrainDateRuleFail) { // 非当日乘车
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
@@ -395,7 +423,7 @@ public class DeviceEventListener implements Runnable {
 						.sendDoorCmd(DeviceConfig.Event_InvalidTrainDate);
 			}
 			CommUtil.sleep(600);
-			ticketVerify.reset();			
+			ticketVerify.reset();
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyNotStartCheckFail) { // 车票未到进站时间
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
@@ -403,16 +431,15 @@ public class DeviceEventListener implements Runnable {
 						.sendDoorCmd(DeviceConfig.Event_NotInTime);
 
 				TicketVerifyScreen.getInstance()
-						.offerEvent(new ScreenElementModifyEvent(0,
-								ScreenCmdEnum.showETicketNotInTime.getValue(), ticketVerify.getTicket(),
-								ticketVerify.getIdCard(), null));
+						.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.showETicketNotInTime.getValue(),
+								ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 			} else {
 				log.debug("车票未到进站时间,ticketVerifyResult==" + ticketVerifyResult);
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_NotInTime);
 			}
 			CommUtil.sleep(600);
-			ticketVerify.reset();			
+			ticketVerify.reset();
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		} else if (ticketVerifyResult == Config.TicketVerifyStopCheckFail) { // 车票已过进站时间
 			if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
@@ -420,16 +447,15 @@ public class DeviceEventListener implements Runnable {
 						.sendDoorCmd(DeviceConfig.Event_PassCheckTime);
 
 				TicketVerifyScreen.getInstance()
-						.offerEvent(new ScreenElementModifyEvent(0,
-								ScreenCmdEnum.showETicketPassTime.getValue(), ticketVerify.getTicket(),
-								ticketVerify.getIdCard(), null));
+						.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.showETicketPassTime.getValue(),
+								ticketVerify.getTicket(), ticketVerify.getIdCard(), null));
 			} else {
 				log.debug("车票未到进站时间,ticketVerifyResult==" + ticketVerifyResult);
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 						.sendDoorCmd(DeviceConfig.Event_PassCheckTime);
 			}
 			CommUtil.sleep(600);
-			ticketVerify.reset();			
+			ticketVerify.reset();
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 		}
 	}
@@ -481,6 +507,9 @@ public class DeviceEventListener implements Runnable {
 		// }
 		//
 		// ProcessUtil.writePauseLog(ProcessUtil.getCurrentProcessID());
+
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+				.sendDoorCmd(DeviceConfig.Event_MainCrtlStartupSucc);
 
 		log.debug("核验软件版本");
 		if (DeviceConfig.getInstance().getVersionFlag() != 1) {
@@ -551,8 +580,7 @@ public class DeviceEventListener implements Runnable {
 
 		scheduler.scheduleWithFixedDelay(IDReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
 		scheduler.scheduleWithFixedDelay(BarCodeReader.getInstance(), 0, 150, TimeUnit.MILLISECONDS);
-		
-		
+
 		// 门模块状态
 		// scheduler.scheduleWithFixedDelay(GATStatusQuery.getInstance(), 0,
 		// 100, TimeUnit.MILLISECONDS);
@@ -569,7 +597,7 @@ public class DeviceEventListener implements Runnable {
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
 					.sendDoorCmd(DeviceConfig.Event_DeviceStartupSucc);
 		}
-		log.debug("DeviceEventListener 初始化成功");
+		log.info("DeviceEventListener 初始化成功");
 		if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {// 双门模式
 			TicketVerifyScreen.getInstance().offerEvent(
 					new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null));
@@ -718,7 +746,7 @@ public class DeviceEventListener implements Runnable {
 
 			// CommUtil.sleep(5000);
 			// try {
-			// log.info("自动注销计算机...");
+			// log.debug("自动注销计算机...");
 			// Runtime.getRuntime().exec(Config.AutoLogonCmd);
 			// } catch (Exception e) {
 			// // TODO Auto-generated catch block
@@ -750,7 +778,7 @@ public class DeviceEventListener implements Runnable {
 
 			// CommUtil.sleep(5000);
 			// try {
-			// log.info("自动注销计算机...");
+			// log.debug("自动注销计算机...");
 			// Runtime.getRuntime().exec(Config.AutoLogonCmd);
 			// } catch (Exception e) {
 			// // TODO Auto-generated catch block
@@ -777,12 +805,12 @@ public class DeviceEventListener implements Runnable {
 	public void resetTicketAndIDCard() {
 		ticketVerify.reset();
 	}
-	
-	public void clearTicket(){
+
+	public void clearTicket() {
 		ticketVerify.clearTicket();
 	}
-	
-	public void clearIdCard(){
+
+	public void clearIdCard() {
 		ticketVerify.clearIdCard();
 	}
 

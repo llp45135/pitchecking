@@ -219,7 +219,7 @@ public class IDCDeviceTest extends JFrame {
 						idimgLabel.setIcon(new ImageIcon(idCard.getCardImage()));
 					}
 				} else {
-					log.info("findval==" + findval);
+					log.debug("findval==" + findval);
 					label.setText("没有寻到二代证!FetchCard code=" + findval);
 				}
 			}
@@ -246,7 +246,7 @@ public class IDCDeviceTest extends JFrame {
 		label.setBounds(10, 457, 774, 34);
 		contentPane.add(label);
 
-		log.info("getIdcInitRet==" + tkIDCDevice.getIdcInitRet());
+		log.debug("getIdcInitRet==" + tkIDCDevice.getIdcInitRet());
 		if (tkIDCDevice.getIdcInitRet() == 0) {
 			label.setText("二代证读卡器初始化成功!");
 		} else {

@@ -16,6 +16,8 @@ import com.rxtec.pitchecking.gui.singledoor.SingleVerifyFrame;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
 import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
 import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
+import com.rxtec.pitchecking.mqtt.pitevent.PTVerifyResultReceiver;
+import com.rxtec.pitchecking.mqtt.pitevent.PTVerifyThread;
 import com.rxtec.pitchecking.net.PIVerifyEventSubscriber;
 import com.rxtec.pitchecking.net.PIVerifyResultSubscriber;
 import com.rxtec.pitchecking.net.PTVerifyPublisher;
@@ -39,10 +41,13 @@ public class PITrackingApp {
 	// FaceTrackingScreen.getInstance();
 
 	public static void main(String[] args) throws InterruptedException {
-		log.info("/*************后置摄像头检脸进程启动主入口****************/");
+		log.debug("/*************后置摄像头检脸进程启动主入口****************/");
 		Config appConfig = Config.getInstance();
-		Config.getInstance().setCameraNum(appConfig.getBehindCameraNo());  //设置摄像头序号
-		log.debug("getCameraNum=="+appConfig.getCameraNum());
+		Config.getInstance().setCameraNum(appConfig.getBehindCameraNo()); // 设置摄像头序号
+		log.debug("getCameraNum==" + appConfig.getCameraNum());
+
+		FaceCheckingService.getInstance().noticeCameraStatus();
+
 		VideoPanel videoPanel = null;
 
 		if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
@@ -97,17 +102,23 @@ public class PITrackingApp {
 			videoPanel = SingleFaceTrackingScreen.getInstance().getVideoPanel();
 		}
 
-		// PIVerifyEventSubscriber.getInstance().startSubscribing(); //启动
-		// 闸机主控程序发送事件的订阅者
-		// PTVerifyPublisher.getInstance();
+		MqttReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum()); // 同CAM_RXTa.dll通信
 
-		MqttReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()); // 同CAM_RXTa.dll通信
+		GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum());// 启动PITEventTopic本地监听
 
-		GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum());// 启动PITEventTopic本地监听
-		
 		FaceCheckingService.getInstance().addQuartzJobs();
 
-		FaceCheckingService.getInstance().beginFaceCheckerTask(); // 启动人脸发布和比对结果订阅
+		if (Config.getInstance().getTransferFaceMode() == 1) {  //aeron
+			FaceCheckingService.getInstance().beginFaceCheckerTask(); // 启动人脸发布和比对结果订阅
+		}
+		// mq方式发布待验证人脸
+		if (Config.getInstance().getTransferFaceMode() == 2) {   //mqtt
+			PTVerifyThread ptVerifyThread = new PTVerifyThread(
+					DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum());
+			ExecutorService executor = Executors.newSingleThreadExecutor();
+			executor.execute(ptVerifyThread);
+			PTVerifyResultReceiver.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum()); // mq方式比对结果订阅
+		}
 
 		// 跳屏恢复调用线程
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -115,11 +126,13 @@ public class PITrackingApp {
 
 		if (Config.getInstance().getIsUseManualMQ() == 1) {// 是否连人工窗控制台
 			ExecutorService executorService = Executors.newSingleThreadExecutor();
-			ManualCheckingTask manualCheckingTask = new ManualCheckingTask(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum());
+			ManualCheckingTask manualCheckingTask = new ManualCheckingTask(
+					DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum());
 			executorService.execute(manualCheckingTask);
 		}
 
 		Thread.sleep(1000);
+
 		if (Config.getInstance().getVideoType() == Config.RealSenseVideo) {
 			RSFaceDetectionService.getInstance().setVideoPanel(videoPanel);
 			RSFaceDetectionService.getInstance().beginVideoCaptureAndTracking(); // 启动人脸检测线程

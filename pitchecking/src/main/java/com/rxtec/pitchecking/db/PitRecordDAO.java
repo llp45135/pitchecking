@@ -30,7 +30,7 @@ public class PitRecordDAO {
 
 	public void save(PitRecord rec) {
 		PitRecord oldRec = queryRecord(rec.getIdNo(), rec.getTicket().getTrainDate(), rec.getTicket().getTrainCode());
-		log.info("PitRecord.oldRec==" + oldRec);
+		log.debug("PitRecord.oldRec==" + oldRec);
 		if (oldRec == null) {
 			mongo.save(rec);
 		} else {
@@ -47,7 +47,7 @@ public class PitRecordDAO {
 				mongo.findAndModify(query, update, PitRecord.class);
 			}
 		}
-		log.info("PitRecord save done by mongo");
+		log.debug("PitRecord save done by mongo");
 	}
 
 	public PitRecord queryRecord(String idNo, String trainDate, String trainCode) {

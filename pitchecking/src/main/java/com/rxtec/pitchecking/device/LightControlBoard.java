@@ -92,7 +92,7 @@ public class LightControlBoard {
 			Cb_InitJnative.setRetVal(Type.INT);
 			Cb_InitJnative.invoke();
 			retval = Cb_InitJnative.getRetValAsInt();
-			log.info("Cb_InitJnative:retval==" + retval);// 获取返回值
+			log.debug("Cb_InitJnative:retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -111,7 +111,7 @@ public class LightControlBoard {
 			// Cb_ExitJnative.setRetVal(Type.INT);
 			Cb_ExitJnative.invoke();
 			// retval = Cb_InitJnative.getRetValAsInt();
-			// log.info("Cb_ExitJnative : retval==" + retval);// 获取返回值
+			// log.debug("Cb_ExitJnative : retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -136,7 +136,7 @@ public class LightControlBoard {
 			Cb_OpenComJnative.setRetVal(Type.INT);
 			Cb_OpenComJnative.invoke();
 			retval = Cb_OpenComJnative.getRetValAsInt();
-			log.info("Cb_OpenComJnative : retval==" + retval);// 获取返回值
+			log.debug("Cb_OpenComJnative : retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -157,7 +157,7 @@ public class LightControlBoard {
 			Cb_ScanAndOpenComJnative.setRetVal(Type.INT);
 			Cb_ScanAndOpenComJnative.invoke();
 			retval = Cb_ScanAndOpenComJnative.getRetValAsInt();
-			log.info("Cb_ScanAndOpenComJnative : retval==" + retval);// 获取返回值
+			log.debug("Cb_ScanAndOpenComJnative : retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -181,7 +181,7 @@ public class LightControlBoard {
 			Cb_IsComOpenJnative.setRetVal(Type.INT);
 			Cb_IsComOpenJnative.invoke();
 			retval = Cb_IsComOpenJnative.getRetValAsInt();
-			log.info("Cb_IsComOpenJnative : retval==" + retval);// 获取返回值
+			log.debug("Cb_IsComOpenJnative : retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -201,7 +201,7 @@ public class LightControlBoard {
 			Cb_CloseComJnative.setRetVal(Type.INT);
 			Cb_CloseComJnative.invoke();
 			retval = Cb_CloseComJnative.getRetValAsInt();
-			log.info("Cb_CloseComJnative : retval==" + retval);// 获取返回值
+			log.debug("Cb_CloseComJnative : retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -225,7 +225,7 @@ public class LightControlBoard {
 			Cb_LightUnitOnJnative.setRetVal(Type.INT);
 			Cb_LightUnitOnJnative.invoke();
 			retval = Cb_LightUnitOnJnative.getRetValAsInt();
-			log.info("Cb_LightUnitOnJnative : retval==" + retval);// 获取返回值
+			log.debug("Cb_LightUnitOnJnative : retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -248,7 +248,7 @@ public class LightControlBoard {
 			Cb_LightUnitOffJnative.setRetVal(Type.INT);
 			Cb_LightUnitOffJnative.invoke();
 			retval = Cb_LightUnitOffJnative.getRetValAsInt();
-			log.info("Cb_LightUnitOffJnative : retval==" + retval);// 获取返回值
+			log.debug("Cb_LightUnitOffJnative : retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -270,7 +270,7 @@ public class LightControlBoard {
 			Cb_EnableShortPressJnative.setRetVal(Type.INT);
 			Cb_EnableShortPressJnative.invoke();
 			retval = Cb_EnableShortPressJnative.getRetValAsInt();
-			log.info("Cb_EnableShortPressJnative : retval==" + retval);// 获取返回值
+			log.debug("Cb_EnableShortPressJnative : retval==" + retval);// 获取返回值
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

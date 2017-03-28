@@ -16,7 +16,7 @@ public class QueryUPSStatusTask implements Job {
 
 	public QueryUPSStatusTask() {
 		// TODO Auto-generated constructor stub
-		
+
 	}
 
 	@Override
@@ -26,10 +26,12 @@ public class QueryUPSStatusTask implements Job {
 			upsDevice.queryUPSStatus();
 		}
 
-		if (upsDevice.isClosePC() && !upsDevice.isCloseUPS()) {
-			upsDevice.setCloseUPS(true);
-			upsDevice.closeUPS();
-			log.debug("已发出关闭UPS命令");
+		if (Config.getInstance().getShutdownPCMode() == 3) {
+			if (upsDevice.isClosePC() && !upsDevice.isCloseUPS()) {
+				upsDevice.setCloseUPS(true);
+				upsDevice.closeUPS();
+				log.debug("已发出关闭UPS命令");
+			}
 		}
 	}
 

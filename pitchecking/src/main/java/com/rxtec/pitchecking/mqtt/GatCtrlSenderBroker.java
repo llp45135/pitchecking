@@ -105,7 +105,7 @@ public class GatCtrlSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
+		log.debug("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
 				+ this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
 
@@ -116,7 +116,7 @@ public class GatCtrlSenderBroker {
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		// mqttClient.unsubscribe(UNSUB_TOPICS);
 
-		log.info("**" + this.CLIENT_ID + " 连接 " + DeviceConfig.getInstance().getMQTT_CONN_STR() + " 成功**");
+		log.debug("**" + this.CLIENT_ID + " 连接 " + DeviceConfig.getInstance().getMQTT_CONN_STR() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息
@@ -138,7 +138,7 @@ public class GatCtrlSenderBroker {
 			// message);
 			// 发布自己的消息
 			mqttClient.publish(clientId, message.getBytes(), 0, false);
-			log.debug("sendMessage ok");
+//			log.debug("sendMessage ok");
 		} catch (MqttException e) {
 			log.error("GatCtrlSenderBroker sendMessage", e);
 		} catch (Exception e) {

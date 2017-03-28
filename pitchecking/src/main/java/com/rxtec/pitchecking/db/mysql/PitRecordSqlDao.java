@@ -41,7 +41,7 @@ public class PitRecordSqlDao {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(url, username, password);
-			log.info("connSQLDB successfully!!");
+			log.debug("connSQLDB successfully!!");
 		}
 		// 捕获加载驱动程序异常
 		catch (ClassNotFoundException cnfex) {
@@ -147,7 +147,7 @@ public class PitRecordSqlDao {
 		try {
 			statement = conn.prepareStatement(sql);
 			statement.executeUpdate();
-			log.info("insert one pitFaceRecord successfully");
+			log.debug("insert one pitFaceRecord successfully");
 			return true;
 		} catch (SQLException sqlex) {
 			log.error("insertSQL:", sqlex);

@@ -92,10 +92,10 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 		int ret;
 		byte[] licenseBytes = null;
 		try {
-			log.info("currentHwid==" + getCurrentHWID(256));
+			log.debug("currentHwid==" + getCurrentHWID(256));
 
 			File file = new File(Config.getInstance().getEasenActivationFile());
-			log.info("getEasenActivationFile==" + Config.getInstance().getEasenActivationFile());
+			log.debug("getEasenActivationFile==" + Config.getInstance().getEasenActivationFile());
 			FileInputStream fis = new FileInputStream(file);
 			licenseBytes = new byte[(int) file.length() + 1];
 			Arrays.fill(licenseBytes, (byte) 0);
@@ -103,7 +103,7 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 			fis.close();
 
 			ret = SDKMethod.INSTANCE.setActivation(licenseBytes);
-			log.info("Activation ret = " + ret);
+			log.debug("Activation ret = " + ret);
 			if (ret == SDKMethod.SDK_NO_ERROR) {
 				String strPath = Config.getInstance().getEasenConfigPath();
 				byte[] path = strPath.getBytes("UTF-16LE");
@@ -112,12 +112,12 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 				System.arraycopy(path, 0, pathBytes, 0, path.length);
 
 				ret = SDKMethod.INSTANCE.initializeSDK(pathBytes);
-				log.info("初始化Easen initializeSDK ret = " + ret);
-				// log.info("初始化Easen initializeSDK 成功! ret: " + ret);// 获取返回值
+				log.debug("初始化Easen initializeSDK ret = " + ret);
+				// log.debug("初始化Easen initializeSDK 成功! ret: " + ret);// 获取返回值
 				if (ret != SDKMethod.SDK_NO_ERROR) {
 					log.error("初始化Easen initializeSDK Failed!");
 				} else {
-					log.info("初始化Easen initializeSDK 成功!!");
+					log.debug("初始化Easen initializeSDK 成功!!");
 					initStatus = 1;
 				}
 			} else {
@@ -156,19 +156,19 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 	 * @param nHeight
 	 */
 	public int setIDCardPhoto(BufferedImage idCardImg) {
-		log.info("starting setIDCardPhoto...");
+		log.debug("starting setIDCardPhoto...");
 		int retval = -1;
 		byte[] pixels = ((DataBufferByte) idCardImg.getRaster().getDataBuffer()).getData();
 		byte[] rgbPixels = ConvertToEngineBuffer(pixels, idCardImg.getWidth(), idCardImg.getHeight());
 
 		retval = SDKMethod.INSTANCE.setIDCardPhoto(rgbPixels, idCardImg.getWidth(), idCardImg.getHeight());
-		log.info("retval==" + retval);
+		log.debug("retval==" + retval);
 		if (retval == SDKMethod.SDK_NO_ERROR) {
-			log.info("setIDCardPhoto succfully!");
+			log.debug("setIDCardPhoto succfully!");
 		} else if (retval == SDKMethod.SDK_NOT_FACE_DETECTED) {
-			log.info("Face Detection Failed!");
+			log.debug("Face Detection Failed!");
 		} else if (retval == SDKMethod.SDK_NOT_ID_PHOTO) {
-			log.info("Not ID Photo!!");
+			log.debug("Not ID Photo!!");
 		}
 		return retval;
 	}
@@ -181,7 +181,7 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 	 * @return
 	 */
 	public float verify(byte[] faceImgBytes) {
-		log.info("starting match with easen...");
+		log.debug("starting match with easen...");
 		float result = 0;
 		int ret = -1;
 		BufferedImage faceImg = ByteToBufferedImg(faceImgBytes);
@@ -197,11 +197,11 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 		int[] faceHeight = new int[1];
 		ret = SDKMethod.INSTANCE.match(rgbPixels, faceImg.getWidth(), faceImg.getHeight(), matchingScore, yesNo,
 				matchingTime, faceX, faceY, faceWidth, faceHeight);
-		log.info("retval==" + ret);
+		log.debug("retval==" + ret);
 		if (ret == SDKMethod.SDK_NO_ERROR) {
-			log.info("match succfully!");
+			log.debug("match succfully!");
 			result = matchingScore[0] / 100;
-			log.info("verifyResult==" + result + ",matchTime==" + matchingTime[0]);
+			log.debug("verifyResult==" + result + ",matchTime==" + matchingTime[0]);
 			// verifyResult.setMatchingScore(matchingScore);
 			// verifyResult.setYesNo(yesNo);
 			// verifyResult.setMatchingTime(matchingTime);
@@ -211,11 +211,11 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 			// verifyResult.setFaceHeight(faceHeight);
 
 		} else if (ret == SDKMethod.SDK_NOT_FACE_DETECTED) {
-			log.info("Face Detection Failed!");
+			log.debug("Face Detection Failed!");
 //			saveFaceImage(Config.getInstance().getImagesLogDir() + "FailedDetection/",
 //					CalUtils.getStringFullTimeHaomiao() + ".jpg", faceImgBytes);
 		} else if (ret == SDKMethod.SDK_NONE_IDCARD_SET) {
-			log.info("None ID Photo Set!");
+			log.debug("None ID Photo Set!");
 		}
 
 		return result;

@@ -33,7 +33,7 @@ public class FaceVerifyEasenJniEntry {
 	private void initJNIContext() {
 
 		try {
-			log.info("DLLName=="+DLLName);
+			log.debug("DLLName=="+DLLName);
 			getCurrentHWIDJnative = new JNative(DLLName, "getCurrentHWID");
 			setActivationJnative = new JNative(DLLName, "setActivation");
 			initializeSDKJnative = new JNative(DLLName, "initializeSDK");
@@ -41,7 +41,7 @@ public class FaceVerifyEasenJniEntry {
 			matchJnative = new JNative(DLLName, "match");
 			detectFaceJnative = new JNative(DLLName, "detectFace");
 			finalizeSDKJnative = new JNative(DLLName, "finalizeSDK");
-			log.info("initJNIContext complete!");
+			log.debug("initJNIContext complete!");
 		} catch (NativeException e) {
 			log.error("FaceVerifyEasenJniEntry initJNIContext failed!", e);
 		}
@@ -106,7 +106,7 @@ public class FaceVerifyEasenJniEntry {
 			setActivationJnative.invoke();
 
 			retval = setActivationJnative.getRetValAsInt();
-			log.info("SetActivation retval==" + retval);
+			log.debug("SetActivation retval==" + retval);
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("FaceVerifyEasenJniEntry SetActivationJnative:", e);
@@ -134,7 +134,7 @@ public class FaceVerifyEasenJniEntry {
 			initializeSDKJnative.invoke();
 
 			retval = initializeSDKJnative.getRetValAsInt();
-			log.info("initializeSDK retval==" + retval);
+			log.debug("initializeSDK retval==" + retval);
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("FaceVerifyEasenJniEntry initializeSDK:", e);
@@ -166,7 +166,7 @@ public class FaceVerifyEasenJniEntry {
 			setIDCardPhotoJnative.invoke();
 
 			retval = setIDCardPhotoJnative.getRetValAsInt();
-			log.info("setIDCardPhoto retval==" + retval);
+			log.debug("setIDCardPhoto retval==" + retval);
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("FaceVerifyEasenJniEntry setIDCardPhoto:", e);
@@ -192,7 +192,7 @@ public class FaceVerifyEasenJniEntry {
 			finalizeSDKJnative.invoke();
 
 			retval = finalizeSDKJnative.getRetValAsInt();
-			log.info("finalizeSDK retval==" + retval);
+			log.debug("finalizeSDK retval==" + retval);
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("FaceVerifyEasenJniEntry finalizeSDK:", e);

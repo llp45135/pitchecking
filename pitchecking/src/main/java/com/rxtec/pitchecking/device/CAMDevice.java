@@ -81,7 +81,7 @@ public class CAMDevice {
 			jnativeCAM_Open.invoke();
 
 			retval = jnativeCAM_Open.getRetValAsInt();
-			log.info("CAM_Open retval==" + retval);
+			log.debug("CAM_Open retval==" + retval);
 			pointerIn.dispose();
 			pointerOut.dispose();
 		} catch (NativeException e) {
@@ -171,7 +171,7 @@ public class CAMDevice {
 			jnativeCAM_Notify.invoke();
 
 			retval = jnativeCAM_Notify.getRetValAsInt();
-			log.info("CAM_Notify retval==" + retval);
+			log.debug("CAM_Notify retval==" + retval);
 			pointerIn.dispose();
 			pointerOut.dispose();
 		} catch (NativeException e) {
@@ -199,7 +199,7 @@ public class CAMDevice {
 		int retval = -1;
 		Pointer pointerUUID = null;
 		Pointer pointerOut = null;
-		log.info("CAM_GetPhotoInfo 开始等待==");
+		log.debug("CAM_GetPhotoInfo 开始等待==");
 		try {
 			pointerUUID = new Pointer(MemoryBlockFactory.createMemoryBlock(36));
 
@@ -215,7 +215,7 @@ public class CAMDevice {
 
 			pointerOut.zeroMemory();
 
-			// log.info("size=="+pointerOut.getSize());
+			// log.debug("size=="+pointerOut.getSize());
 
 			int i = 0;
 
@@ -226,7 +226,7 @@ public class CAMDevice {
 			jnativeCAM_GetPhotoInfo.invoke();
 
 			retval = jnativeCAM_GetPhotoInfo.getRetValAsInt();
-			log.info("CAM_GetPhotoInfo retval==" + retval);
+			log.debug("CAM_GetPhotoInfo retval==" + retval);
 
 			if (retval == 0) {
 				// byte[] iResult = new byte[4];
@@ -318,7 +318,7 @@ public class CAMDevice {
 
 			pointerOut.zeroMemory();
 
-			// log.info("size=="+pointerOut.getSize());
+			// log.debug("size=="+pointerOut.getSize());
 
 			int i = 0;
 
@@ -329,7 +329,7 @@ public class CAMDevice {
 			jnativeCAM_ScreenDisplay.invoke();
 
 			retval = jnativeCAM_ScreenDisplay.getRetValAsInt();
-			log.info("CAM_ScreenDisplay retval==" + retval);
+			log.debug("CAM_ScreenDisplay retval==" + retval);
 
 			if (retval == 0) {
 

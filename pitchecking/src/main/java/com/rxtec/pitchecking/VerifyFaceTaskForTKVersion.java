@@ -68,6 +68,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 		DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
 		DeviceConfig.getInstance().setInTracking(true);
 
+		FaceCheckingService.getInstance().setLastIdCard(null);
 		// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).sendMessage(DeviceConfig.EventTopic,
 		// DeviceConfig.Event_StartTracking);
 
@@ -95,8 +96,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			fd.setFaceImg(idCard.getCardImageBytes());
 			fd.setFrameImg(idCard.getCardImageBytes());
 			fd.setVerifyResult(1);
-			log.debug("老人或小孩Age=" + idCard.getAge() + "：PITVerifyData==" + fd);
-			CommUtil.sleep(4000);
+			log.info("老人或小孩Age=" + idCard.getAge() + "：PITVerifyData==" + fd);
+			CommUtil.sleep(3000);
 
 			// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
 
@@ -136,12 +137,12 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 		// 如果返回结果为空，则代表人脸比对失败
 		if (fd == null) {
 			long usingTime = Calendar.getInstance().getTimeInMillis() - nowMils;
-			log.debug("pollPassFaceData, using " + usingTime + " value = null");
+			log.info("pollPassFaceData, using " + usingTime + " value = null");
 			log.info("验证超时失败，请从侧门离开通道");
 			// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
 
 			PITVerifyData failedFd = FaceCheckingService.getInstance().pollFailedFaceData();
-			log.debug("Timeout return PITVerifyData = " + failedFd);
+			log.info("Timeout return PITVerifyData = " + failedFd);
 			if (failedFd != null) {
 				mqttSenderBroker.publishResult(failedFd, Config.VerifyFailedStatus); // MQTT版本,比对结果发布,人脸比对失败！状态为1
 			}
@@ -163,7 +164,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 			// // 语音："验证失败，请从侧门离开通道"
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
 					.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag, "FaceAudio"));
-			
+
 			// 通知人工控制台
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
 					.sendMessage(DeviceConfig.EventTopic, DeviceConfig.Event_VerifyFaceFailed);
@@ -181,6 +182,13 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 				// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).sendDoorCmd(DeviceConfig.Clear_QrCode_Jms);//清空二维码
 
 				// eventResultPublisher.publishResult(fd); //Aeron版本 比对结果发布
+				long totalTime = Config.getInstance().getSecondDoorWaitTime();
+				if (usingTime < totalTime) {
+					long tt = totalTime - usingTime;
+					log.info("检脸过快，设置" + tt + "ms后再开门");
+					CommUtil.sleep(tt);
+				}
+
 				mqttSenderBroker.publishResult(fd, Config.VerifyPassedStatus); // MQTT版本,比对结果发布,人脸比对成功,状态为0
 				// mqttSenderBroker.testPublishFace();
 
@@ -191,6 +199,8 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 						.sendMessage(DeviceConfig.EventTopic, DeviceConfig.Event_VerifyFaceSucc);
 
 				DeviceConfig.getInstance().setAllowOpenSecondDoor(true); // 允许重新开2门
+				
+				FaceCheckingService.getInstance().setLastIdCard(fd.getIdCard());
 			} else {
 				log.info("验证失败，请从侧门离开通道");
 				mqttSenderBroker.publishResult(fd, Config.VerifyFailedStatus); // MQTT版本,比对结果发布,人脸比对成功,状态为0
@@ -198,7 +208,7 @@ public class VerifyFaceTaskForTKVersion implements IVerifyFaceTask {
 				// 语音："验证失败，请从侧门离开通道"
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
 						.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioCheckFailedFlag, "FaceAudio"));
-				
+
 				// 通知人工控制台
 				GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
 						.sendMessage(DeviceConfig.EventTopic, DeviceConfig.Event_VerifyFaceFailed);

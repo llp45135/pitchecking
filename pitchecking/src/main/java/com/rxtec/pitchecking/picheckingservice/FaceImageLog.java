@@ -185,23 +185,37 @@ public class FaceImageLog {
 					PitRecordLoger.getInstance().offer(fd);
 					FaceVerifyServiceStatistics.getInstance().update(result, usingTime, fd.getFaceDistance());
 				}
-				// offer into MySQL的处理队列
-				if (Config.getInstance().getIsUseMySQLDB() == 1) {
-					if (result > 0) {
-						// log.debug("offer MySQLDB:vfFileName==" + vfFileName);
-						// log.debug("offer MySQLDB:fiFileName==" + fiFileName);
-						// log.debug("offer MySQLDB:idFileName==" + idFileName);
-
-						fd.setFrameImg(vfFileName.getBytes());
-						fd.setFaceImg(fiFileName.getBytes());
-						fd.setIdCardImg(idFileName.getBytes());
-						PitRecordSqlLoger.getInstance().offer(fd);
-						FaceVerifyServiceStatistics.getInstance().update(result, usingTime, fd.getFaceDistance());
-					}
-				}
 			}
 		} catch (Exception ex) {
 			log.error("saveFaceDataToDskAndMongoDB:", ex);
+		}
+	}
+
+	/**
+	 * 
+	 * @param fd
+	 * @param usingTime
+	 */
+	public static void saveFaceDataToMySQL(PITVerifyData fd, int usingTime) {
+		try {
+			float result = fd.getVerifyResult();
+			String vfFileName = "", fiFileName = "", idFileName = "";
+			// offer into MySQL的处理队列
+			if (Config.getInstance().getIsUseMySQLDB() == 1) {
+				if (result > 0) {
+					// log.debug("offer MySQLDB:vfFileName==" + vfFileName);
+					// log.debug("offer MySQLDB:fiFileName==" + fiFileName);
+					// log.debug("offer MySQLDB:idFileName==" + idFileName);
+
+					fd.setFrameImg(vfFileName.getBytes());
+					fd.setFaceImg(fiFileName.getBytes());
+					fd.setIdCardImg(idFileName.getBytes());
+					PitRecordSqlLoger.getInstance().offer(fd);
+					FaceVerifyServiceStatistics.getInstance().update(result, usingTime, fd.getFaceDistance());
+				}
+			}
+		} catch (Exception ex) {
+			log.error("saveFaceDataToMySQL:", ex);
 		}
 	}
 
@@ -233,6 +247,29 @@ public class FaceImageLog {
 	}
 
 	/**
+	 * a)?身份证(身份证号码进行加密处理)：身份证号码.bmp，存放目录名“Id_card”
+	 * b)?图像照片(分辨率不低于1920*1080，全身图像)：身份证号码_1.jpg、身份证号码_2.jpg、身份证号码_3.jpg，存放目录名“
+	 * Photo”
+	 * 
+	 * @param fd
+	 */
+	public static void saveFaceDataToDskByTK(PITVerifyData fd) {
+		// log.info("准备存储照片saveFaceDataToDskByTK");
+		String dirName = Config.getInstance().getImagesLogDir();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+		dirName += formatter.format(new Date());
+
+		String idcardDir = dirName + "/Id_card/";
+		String photoDir = dirName + "/Photo/";
+		String faceDir = dirName + "/Faces/";
+
+		float result = fd.getVerifyResult();
+		saveFrameImageByTK(photoDir, fd);
+		saveIDCardImageByTK(idcardDir, fd);
+		saveFaceImageByTK(faceDir, fd);
+	}
+
+	/**
 	 * 写通道帧图像
 	 * 
 	 * @param dirName
@@ -261,6 +298,92 @@ public class FaceImageLog {
 				try {
 					out = new DataOutputStream(new FileOutputStream(fn));
 					out.write(fd.getFrameImg());
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 图像照片(分辨率不低于1920*1080，全身图像)：身份证号码_1.jpg、身份证号码_2.jpg、身份证号码_3.jpg，存放目录名“
+	 * Photo”
+	 * 
+	 * @param dirName
+	 * @param fd
+	 */
+	private static void saveFrameImageByTK(String dirName, PITVerifyData fd) {
+		if (fd == null || fd.getFrameImg() == null)
+			return;
+		int ret = CommUtil.createDir(dirName);
+		if (ret == 0 || ret == 1) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss-SSS");
+
+			String fn = "";
+			for (int k = 1; k <= 3; k++) {
+				StringBuffer sb = new StringBuffer();
+				sb.append(dirName);
+				sb.append(fd.getIdNo().hashCode());
+				sb.append("_");
+				sb.append(k);
+				sb.append(".jpg");
+				fn = sb.toString();
+				if (!new File(fn).exists()) {
+					break;
+				}
+			}
+			if (fn == null || fn.equals("")) {
+				return;
+			}
+			DataOutputStream out;
+			if (fd.getFaceImg() != null) {
+				try {
+					out = new DataOutputStream(new FileOutputStream(fn));
+					out.write(fd.getFrameImg());
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param dirName
+	 * @param fd
+	 */
+	private static void saveFaceImageByTK(String dirName, PITVerifyData fd) {
+		if (fd == null || fd.getFaceImg() == null)
+			return;
+		int ret = CommUtil.createDir(dirName);
+		if (ret == 0 || ret == 1) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss-SSS");
+
+			String fn = "";
+			for (int k = 1; k <= 3; k++) {
+				StringBuffer sb = new StringBuffer();
+				sb.append(dirName);
+				sb.append(fd.getIdNo().hashCode());
+				sb.append("_");
+				sb.append(k);
+				sb.append(".jpg");
+				fn = sb.toString();
+				if (!new File(fn).exists()) {
+					break;
+				}
+			}
+			if (fn == null || fn.equals("")) {
+				return;
+			}
+			DataOutputStream out;
+			if (fd.getFaceImg() != null) {
+				try {
+					out = new DataOutputStream(new FileOutputStream(fn));
+					out.write(fd.getFaceImg());
 					out.close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -382,6 +505,37 @@ public class FaceImageLog {
 			sb.append("/ID");
 			sb.append(fd.getIdNo().hashCode());
 			sb.append(".jpg");
+			String fn = sb.toString();
+			DataOutputStream out;
+			if (fd.getFaceImg() != null) {
+				try {
+					out = new DataOutputStream(new FileOutputStream(fn));
+					out.write(fd.getIdCardImg());
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 按中铁程测试统一路径存放身份证照片 身份证(身份证号码进行加密处理)：身份证号码.bmp，存放目录名“Id_card”
+	 * 
+	 * @param dirName
+	 * @param fd
+	 */
+	private static void saveIDCardImageByTK(String dirName, PITVerifyData fd) {
+		if (fd == null || fd.getIdCardImg() == null)
+			return;
+
+		int ret = CommUtil.createDir(dirName);
+		if (ret == 0 || ret == 1) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(dirName);
+			sb.append(fd.getIdNo().hashCode());
+			sb.append(".bmp");
 			String fn = sb.toString();
 			DataOutputStream out;
 			if (fd.getFaceImg() != null) {

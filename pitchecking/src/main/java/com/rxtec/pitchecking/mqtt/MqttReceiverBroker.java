@@ -35,7 +35,6 @@ import com.rxtec.pitchecking.utils.CalUtils;
 public class MqttReceiverBroker {
 	// 连接参数
 	Logger log = LoggerFactory.getLogger("MqttReceiverBroker");
-	Logger logTrack = LoggerFactory.getLogger("RSFaceTrackTask");
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
 	private String CLIENT_ID = "PIR";// 客户端标识
@@ -93,7 +92,7 @@ public class MqttReceiverBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
+		log.debug("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
 				+ this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
 
@@ -103,7 +102,7 @@ public class MqttReceiverBroker {
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		mqttClient.unsubscribe(unsubscribeTopics);
 
-		log.info("**" + this.CLIENT_ID + " 连接 " + DeviceConfig.getInstance().getMQTT_CONN_STR() + " 成功**");
+		log.debug("**" + this.CLIENT_ID + " 连接 " + DeviceConfig.getInstance().getMQTT_CONN_STR() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息
@@ -164,10 +163,10 @@ public class MqttReceiverBroker {
 		@Override
 		public void publishArrived(String topicName, byte[] payload, int Qos, boolean retained) throws Exception {
 			// TODO Auto-generated method stub
-			// log.info("订阅主题: " + topicName);
-			// log.info("消息数据: " + new String(payload));
-			// log.info("消息级别(0,1,2): " + Qos);
-			// log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
+			// log.debug("订阅主题: " + topicName);
+			// log.debug("消息数据: " + new String(payload));
+			// log.debug("消息级别(0,1,2): " + Qos);
+			// log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String trackClientId = DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum();
 			String mqttMessage = new String(payload);
@@ -180,14 +179,14 @@ public class MqttReceiverBroker {
 
 					int faceTimeout = camOpenBean.getTimeout(); // 从cam_open输出的结构体获取到总超时时间
 					Config.getInstance().setFaceCheckDelayTime(faceTimeout);
-					log.info("CAM_Open faceTimeout==" + faceTimeout);//
+					log.debug("CAM_Open faceTimeout==" + faceTimeout);//
 					camOpenBean.setEventDirection(2);
 
 					String camOpenResultJson = mapper.writeValueAsString(camOpenBean);
 					MqttSenderBroker.getInstance(trackClientId).sendMessage(SEND_TOPIC, camOpenResultJson);
 
 				} else if (mqttMessage.indexOf("CAM_Notify") != -1) {
-					log.info("--------收到CAM_Notify请求--------");
+					log.debug("--------收到CAM_Notify请求--------");
 					// 把notify-jsonstring保存起来
 					MqttSenderBroker.getInstance(trackClientId).setNotifyJson(mqttMessage);
 					
@@ -207,7 +206,7 @@ public class MqttReceiverBroker {
 							zpFile.delete();
 						}
 						CommUtil.byte2image(b1.getIdPhoto(), easenzp);
-						log.info("易胜版本--将读取的身份证照片转存至：" + Config.getInstance().getEasenConfigPath());
+						log.debug("易胜版本--将读取的身份证照片转存至：" + Config.getInstance().getEasenConfigPath());
 					}
 
 					// 通知其他进程开始检脸
@@ -220,7 +219,7 @@ public class MqttReceiverBroker {
 					b1.setIdPhoto(ss.getBytes());
 
 					String notifyResultJson = mapper.writeValueAsString(b1);
-					log.info("notifyResultJson==" + notifyResultJson);
+					log.debug("notifyResultJson==" + notifyResultJson);
 					MqttSenderBroker.getInstance(trackClientId).sendMessage(SEND_TOPIC, notifyResultJson);
 
 				} else if (mqttMessage.indexOf("CAM_GetPhotoInfo") != -1) {
@@ -228,8 +227,8 @@ public class MqttReceiverBroker {
 					ObjectMapper mapper = new ObjectMapper();
 					PIVerifyRequestBean bean = mapper.readValue(mqttMessage, PIVerifyRequestBean.class);
 					String idCardNo = bean.getUuid();
-					log.info("CAM_GetPhotoInfo.uuid==" + bean.getUuid());
-					log.info("CAM_GetPhotoInfo.iDelay==" + bean.getiDelay()); // 控制通过速率的延时时间
+					log.debug("CAM_GetPhotoInfo.uuid==" + bean.getUuid());
+					log.debug("CAM_GetPhotoInfo.iDelay==" + bean.getiDelay()); // 控制通过速率的延时时间
 					Config.getInstance().setCheckDelayPassTime(bean.getiDelay());
 
 					if (idCardNo != null && idCardNo.trim().length() == 18) {
@@ -243,7 +242,7 @@ public class MqttReceiverBroker {
 							MqttSenderBroker.getInstance(trackClientId).testPublishFace();
 						}
 					} else {
-						log.info("########PublishWrongIDNo  身份号错误########");
+						log.debug("########PublishWrongIDNo  身份号错误########");
 						MqttSenderBroker.getInstance(trackClientId).PublishWrongIDNo();
 					}
 				} else if (mqttMessage.indexOf("CAM_ScreenDisplay") != -1) {
@@ -251,8 +250,8 @@ public class MqttReceiverBroker {
 					ScreenDisplayBean screenDisplayBean = mapper.readValue(mqttMessage, ScreenDisplayBean.class);
 					int displayTimeout = screenDisplayBean.getTimeout(); // 从CAM_ScreenDisplay输出的结构体获取到屏幕超时时间
 					String faceScreenDisplay = screenDisplayBean.getScreenDisplay();
-					log.info("CAM_ScreenDisplay faceScreenDisplay==" + faceScreenDisplay);
-					log.info("CAM_ScreenDisplay displayTimeout==" + displayTimeout);
+					log.debug("CAM_ScreenDisplay faceScreenDisplay==" + faceScreenDisplay);
+					log.debug("CAM_ScreenDisplay displayTimeout==" + displayTimeout);
 
 					MqttSenderBroker.getInstance(trackClientId).setFaceScreenDisplay(faceScreenDisplay);
 					MqttSenderBroker.getInstance(trackClientId).setFaceScreenDisplayTimeout(displayTimeout);
@@ -265,7 +264,7 @@ public class MqttReceiverBroker {
 
 					// 语音："验证成功，请通过"
 					if (faceScreenDisplay.indexOf("成功") != -1 || faceScreenDisplay.indexOf("succed") != -1) {
-						log.info("播放语音：验证成功，请通过");
+						log.debug("播放语音：验证成功，请通过");
 						MqttSenderBroker.getInstance(trackClientId).sendMessage("PITEventTopic",
 								ProcessUtil.createAudioJson(DeviceConfig.AudioCheckSuccFlag, "FaceAudio"));
 					}

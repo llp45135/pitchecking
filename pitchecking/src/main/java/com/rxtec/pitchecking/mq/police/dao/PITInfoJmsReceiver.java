@@ -65,7 +65,7 @@ public class PITInfoJmsReceiver implements MessageListener {
 		// 目的地是客户用来指定他生产消息的目标还有他消费消息的来源的对象.
 		// dest = session.createQueue(SUBJECT);
 		dest = session.createTopic("PITInfoTopic");
-		log.info("TOPIC_RESULT==" + dest);
+		log.debug("TOPIC_RESULT==" + dest);
 		// dest = session.createTopic(SUBJECT);
 		// 会话创建消息的生产者将消息发送到目的地
 		consumer = session.createConsumer(dest);
@@ -91,26 +91,26 @@ public class PITInfoJmsReceiver implements MessageListener {
 		try {
 			if (msg instanceof TextMessage) {
 				TextMessage message = (TextMessage) msg;
-				log.info("------Received TextMessage------");
+				log.debug("------Received TextMessage------");
 				// Y192.168.0.201*201605281634158191
 				String pitInfoMsg = message.getText();
-				// log.info("闸机传回的jms数据==" + pitInfoMsg);
+				// log.debug("闸机传回的jms数据==" + pitInfoMsg);
 
 				ObjectMapper mapper = new ObjectMapper();
 				try {
 					PITInfoJmsObj pitInfoJsonBean = mapper.readValue(pitInfoMsg, PITInfoJmsObj.class);
-					log.info("getMsgType==" + pitInfoJsonBean.getMsgType());
+					log.debug("getMsgType==" + pitInfoJsonBean.getMsgType());
 					if (pitInfoJsonBean.getMsgType() == 2) {
 
-						// log.info("getEvent==" + pitInfoJson.getEvent());
-						log.info("IpAddress==" + pitInfoJsonBean.getIpAddress());
-						// log.info("getAge==" + pitInfoJson.getAge());
-						// log.info("getGender==" + pitInfoJson.getGender());
-						// log.info("getIdHashCode==" +
+						// log.debug("getEvent==" + pitInfoJson.getEvent());
+						log.debug("IpAddress==" + pitInfoJsonBean.getIpAddress());
+						// log.debug("getAge==" + pitInfoJson.getAge());
+						// log.debug("getGender==" + pitInfoJson.getGender());
+						// log.debug("getIdHashCode==" +
 						// pitInfoJson.getIdHashCode());
-						log.info("IsVerifyPassed==" + pitInfoJsonBean.getIsVerifyPassed());
-						log.info("Similarity==" + pitInfoJsonBean.getSimilarity());
-						log.info("idcard.CardNo==" + new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdCardNo())));
+						log.debug("IsVerifyPassed==" + pitInfoJsonBean.getIsVerifyPassed());
+						log.debug("Similarity==" + pitInfoJsonBean.getSimilarity());
+						log.debug("idcard.CardNo==" + new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdCardNo())));
 
 						if (pitInfoJsonBean.getSimilarity() > 0) {
 							String idNo = new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdCardNo()));
@@ -131,15 +131,15 @@ public class PITInfoJmsReceiver implements MessageListener {
 							PITInfoImgPath imgPath = new PITInfoImgPath();
 							FaceImageLog.saveFaceDataToPoliceDsk(fd, imgPath);
 
-							log.info("getQrCode==" + pitInfoJsonBean.getQrCode());
+							log.debug("getQrCode==" + pitInfoJsonBean.getQrCode());
 							Ticket ticket = null;
 							if (pitInfoJsonBean.getQrCode() != null
 									&& pitInfoJsonBean.getQrCode().trim().length() == 144) {
 								ticket = BarUnsecurity.getInstance().buildTicket(BarUnsecurity.getInstance().uncompress(
 										pitInfoJsonBean.getQrCode(), CalUtils.getStringDateShort2().substring(0, 4)));
-								log.info("ticket.TrainCode==" + ticket.getTrainCode());
-								log.info("ticket.CardNo==" + ticket.getCardNo());
-								log.info("ticket.PassengerName==" + ticket.getPassengerName());
+								log.debug("ticket.TrainCode==" + ticket.getTrainCode());
+								log.debug("ticket.CardNo==" + ticket.getCardNo());
+								log.debug("ticket.PassengerName==" + ticket.getPassengerName());
 
 								pitInfoJsonBean.setFromStationCode(ticket.getFromStationCode());
 								pitInfoJsonBean.setEndStationCode(ticket.getEndStationCode());
@@ -181,7 +181,7 @@ public class PITInfoJmsReceiver implements MessageListener {
 							if (ret == 0 || ret == 1) {
 								String fileName = dirName + idNo + "_" + idNo + "_" + dbcode + "_" + gateNo + "_"
 										+ CalUtils.getStringFullTimeHaomiao() + ".json";
-								log.info("fileName==" + fileName);
+								log.debug("fileName==" + fileName);
 								// ProcessUtil.writeFileContent(fileName,
 								// pitInfoNewJson);
 								ProcessUtil.writeFileContent(fileName, pitInfoNewJson, "utf-8");
@@ -204,16 +204,16 @@ public class PITInfoJmsReceiver implements MessageListener {
 
 			} else if (msg instanceof StreamMessage) {
 				StreamMessage message = (StreamMessage) msg;
-				log.info("------Received StreamMessage------");
-				log.info(message.readString());
-				log.info(message.readBoolean());
-				log.info(message.readLong());
+				log.debug("------Received StreamMessage------");
+				log.debug(message.readString());
+				log.debug(message.readBoolean());
+				log.debug(message.readLong());
 			} else if (msg instanceof ObjectMessage) {
-				log.info("------Received ObjectMessage------");
+				log.debug("------Received ObjectMessage------");
 				ObjectMessage message = (ObjectMessage) msg;
 
 			} else if (msg instanceof BytesMessage) {
-				log.info("------Received BytesMessage------");
+				log.debug("------Received BytesMessage------");
 				BytesMessage message = (BytesMessage) msg;
 				byte[] byteContent = new byte[1024];
 				int length = -1;
@@ -221,9 +221,9 @@ public class PITInfoJmsReceiver implements MessageListener {
 				while ((length = message.readBytes(byteContent)) != -1) {
 					content.append(new String(byteContent, 0, length));
 				}
-				log.info(content.toString());
+				log.debug(content.toString());
 			} else {
-				log.info(msg);
+				log.debug(msg);
 			}
 			stop = true;
 		} catch (JMSException e) {
@@ -240,7 +240,7 @@ public class PITInfoJmsReceiver implements MessageListener {
 
 	// 关闭连接
 	public void close() throws JMSException {
-		log.info("Consumer:->Closing connection");
+		log.debug("Consumer:->Closing connection");
 		if (consumer != null)
 			consumer.close();
 		if (session != null)

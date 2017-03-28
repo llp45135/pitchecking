@@ -54,7 +54,7 @@ public class JmsReceiver implements MessageListener {
 		// 目的地是客户用来指定他生产消息的目标还有他消费消息的来源的对象.
 		// dest = session.createQueue(SUBJECT);
 		dest = session.createTopic(DeviceConfig.getInstance().getTOPIC_RESULT());
-		log.info("TOPIC_RESULT==" + dest);
+		log.debug("TOPIC_RESULT==" + dest);
 		// dest = session.createTopic(SUBJECT);
 		// 会话创建消息的生产者将消息发送到目的地
 		consumer = session.createConsumer(dest);
@@ -80,22 +80,22 @@ public class JmsReceiver implements MessageListener {
 		try {
 			if (msg instanceof TextMessage) {
 				TextMessage message = (TextMessage) msg;
-				log.info("------Received TextMessage------");
+				log.debug("------Received TextMessage------");
 				// Y192.168.0.201*201605281634158191
 				String backMsg = message.getText();
-				log.info("人工验证返回的结果：" + backMsg);
+				log.debug("人工验证返回的结果：" + backMsg);
 				if (backMsg.indexOf(DeviceConfig.getInstance().getIpAddress()) != -1) {
 					if (backMsg.startsWith("reboot")) {
 						try {
 							Runtime.getRuntime().exec(Config.AutoRestartCmd);
-							log.info("Resatrt Computer......");
+							log.debug("Resatrt Computer......");
 						} catch (Exception ex) {
 							log.error("Resatrt Computer:", ex);
 						}
 					} else if (backMsg.startsWith("relogon")) {
 						try {
 							Runtime.getRuntime().exec(Config.AutoLogonCmd);
-							log.info("ReLogon Computer......");
+							log.debug("ReLogon Computer......");
 						} catch (Exception ex) {
 							log.error("ReLogon Computer:", ex);
 						}
@@ -109,16 +109,16 @@ public class JmsReceiver implements MessageListener {
 				}
 			} else if (msg instanceof MapMessage) {
 				MapMessage message = (MapMessage) msg;
-				log.info("idCardNo==" + message.getString("idCardNo"));
-				log.info("ipAddress==" + message.getString("ipAddress"));
-				log.info("gateNo==" + message.getString("gateNo"));
+				log.debug("idCardNo==" + message.getString("idCardNo"));
+				log.debug("ipAddress==" + message.getString("ipAddress"));
+				log.debug("gateNo==" + message.getString("gateNo"));
 
 				byte[] idCardAarray = message.getBytes("cardImage");
-				log.info("idCardAarray length==" + idCardAarray.length);
+				log.debug("idCardAarray length==" + idCardAarray.length);
 				CommUtil.getFileFromBytes(idCardAarray, "dd.jpg");
 
 				byte[] faceArrayy = message.getBytes("faceImage");
-				log.info("faceArray.length==" + faceArrayy.length);
+				log.debug("faceArray.length==" + faceArrayy.length);
 				CommUtil.getFileFromBytes(faceArrayy, "zhaobak1.jpg");
 				CommUtil.byte2image(faceArrayy, "zhaobak2.jpg");
 
@@ -132,31 +132,31 @@ public class JmsReceiver implements MessageListener {
 
 			} else if (msg instanceof StreamMessage) {
 				StreamMessage message = (StreamMessage) msg;
-				log.info("------Received StreamMessage------");
-				log.info(message.readString());
-				log.info(message.readBoolean());
-				log.info(message.readLong());
+				log.debug("------Received StreamMessage------");
+				log.debug(message.readString());
+				log.debug(message.readBoolean());
+				log.debug(message.readLong());
 			} else if (msg instanceof ObjectMessage) {
-				log.info("------Received ObjectMessage------");
+				log.debug("------Received ObjectMessage------");
 				ObjectMessage message = (ObjectMessage) msg;
 				// JmsObjectMessageBean jmsObject = (JmsObjectMessageBean)
 				// message.getObject();
 				FailedFace failedFace = (FailedFace) message.getObject();
-				// log.info(jmsObject.getUserName() + "__" + jmsObject.getAge()
+				// log.debug(jmsObject.getUserName() + "__" + jmsObject.getAge()
 				// + "__" + jmsObject.isFlag());
-				log.info("idCard no==" + failedFace.getIdNo());
-				log.info("getIpAddress==" + failedFace.getIpAddress());
+				log.debug("idCard no==" + failedFace.getIdNo());
+				log.debug("getIpAddress==" + failedFace.getIpAddress());
 
 				byte[] idCardAarray = failedFace.getCardImage();
-				log.info("idCardAarray length==" + idCardAarray.length);
+				log.debug("idCardAarray length==" + idCardAarray.length);
 				CommUtil.getFileFromBytes(idCardAarray, "dd.jpg");
 
 				byte[] faceArrayy = failedFace.getFaceImage();
-				log.info("faceArray.length==" + faceArrayy.length);
+				log.debug("faceArray.length==" + faceArrayy.length);
 				CommUtil.getFileFromBytes(faceArrayy, "zhaobak1.jpg");
 				CommUtil.byte2image(faceArrayy, "zhaobak2.jpg");
 			} else if (msg instanceof BytesMessage) {
-				log.info("------Received BytesMessage------");
+				log.debug("------Received BytesMessage------");
 				BytesMessage message = (BytesMessage) msg;
 				byte[] byteContent = new byte[1024];
 				int length = -1;
@@ -164,9 +164,9 @@ public class JmsReceiver implements MessageListener {
 				while ((length = message.readBytes(byteContent)) != -1) {
 					content.append(new String(byteContent, 0, length));
 				}
-				log.info(content.toString());
+				log.debug(content.toString());
 			} else {
-				log.info(msg);
+				log.debug(msg);
 			}
 			stop = true;
 		} catch (JMSException e) {
@@ -183,7 +183,7 @@ public class JmsReceiver implements MessageListener {
 
 	// 关闭连接
 	public void close() throws JMSException {
-		log.info("Consumer:->Closing connection");
+		log.debug("Consumer:->Closing connection");
 		if (consumer != null)
 			consumer.close();
 		if (session != null)

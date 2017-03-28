@@ -88,7 +88,7 @@ public class PIVerifyEventSubscriber implements Runnable{
 		// clean up resources when this try block is finished
 		try (final Aeron aeron = Aeron.connect(ctx);
 				final Subscription subscription = aeron.addSubscription(CHANNEL, STREAM_ID)) {
-			log.info("CHANNEL=" + CHANNEL +" STREAM_ID="+STREAM_ID + "  PIVerifyEventSubscriber connected,and begin Subscription!");
+			log.debug("CHANNEL=" + CHANNEL +" STREAM_ID="+STREAM_ID + "  PIVerifyEventSubscriber connected,and begin Subscription!");
 //			log.debug("registrationId = " + subscription.registrationId());
 			PIVerifyEventSubscriberUtils.subscriberLoop(fragmentHandler, 256, running).accept(subscription);
 		}

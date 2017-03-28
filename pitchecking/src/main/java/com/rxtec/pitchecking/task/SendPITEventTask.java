@@ -40,7 +40,7 @@ public class SendPITEventTask implements Runnable {
 		String info = null;
 		try {
 			info = infoQueue.poll();
-			// log.info("infoQueue.take=="+info);
+			// log.debug("infoQueue.take=="+info);
 		} catch (Exception e) {
 			log.error("pitDataQueue take data error", e);
 		}

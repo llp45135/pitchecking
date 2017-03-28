@@ -55,6 +55,7 @@ import com.rxtec.pitchecking.utils.CalUtils;
 public class GatCtrlReceiverBroker {
 	// 连接参数
 	Logger log = LoggerFactory.getLogger("GatCtrlReceiverBroker");
+	Logger checkLog = LoggerFactory.getLogger("FaceCheckingStandaloneTask");
 	private final static boolean CLEAN_START = true;
 	private final static short KEEP_ALIVE = 30;// 低耗网络，但是又需要及时获取数据，心跳30s
 	private String CLIENT_ID = "GCR";// 客户端标识
@@ -112,7 +113,7 @@ public class GatCtrlReceiverBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
+		log.debug("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
 				+ this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
 
@@ -122,7 +123,7 @@ public class GatCtrlReceiverBroker {
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		mqttClient.unsubscribe(unSubscribeTopics);
 
-		log.info("**" + this.CLIENT_ID + " 连接 " + DeviceConfig.getInstance().getMQTT_CONN_STR() + " 成功**");
+		log.debug("**" + this.CLIENT_ID + " 连接 " + DeviceConfig.getInstance().getMQTT_CONN_STR() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息
@@ -183,14 +184,14 @@ public class GatCtrlReceiverBroker {
 		@Override
 		public void publishArrived(String topicName, byte[] payload, int Qos, boolean retained) throws Exception {
 			// TODO Auto-generated method stub
-			// log.info("订阅主题: " + topicName);
-			// log.info("消息数据: " + new String(payload));
-			// log.info("消息级别(0,1,2): " + Qos);
-			// log.info("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
+			// log.debug("订阅主题: " + topicName);
+			// log.debug("消息数据: " + new String(payload));
+			// log.debug("消息级别(0,1,2): " + Qos);
+			// log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String mqttMessage = new String(payload);
 			String orignMqttMessage = mqttMessage;
-			// log.info("orign mqttMessage==" + orignMqttMessage);
+			// log.debug("orign mqttMessage==" + orignMqttMessage);
 
 			try {
 				String qrcode = "";
@@ -209,15 +210,15 @@ public class GatCtrlReceiverBroker {
 								String tt = st.nextToken();
 								if (tt.indexOf("\"event\"") != -1) {
 									String event = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
-									// log.info("event==" + event);
+									// log.debug("event==" + event);
 									gatCrtlBean.setEvent(Integer.parseInt(event));
 								} else if (tt.indexOf("\"target\"") != -1) {
 									String target = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
-									// log.info("target==" + target);
+									// log.debug("target==" + target);
 									gatCrtlBean.setTarget(target);
 								} else if (tt.indexOf("\"eventsource\"") != -1) {
 									String eventsource = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
-									// log.info("eventsource==" + eventsource);
+									// log.debug("eventsource==" + eventsource);
 									gatCrtlBean.setEventsource(eventsource);
 								} else if (tt.indexOf("qrcode") != -1) {
 									qrcode = tt.substring(tt.indexOf(":") + 1).replace("\"", "");
@@ -231,7 +232,7 @@ public class GatCtrlReceiverBroker {
 							gatCrtlBean = mapper.readValue(mqttMessage, GatCrtlBean.class);
 						}
 
-						// log.info("mqttMessage===" + mqttMessage);
+						// log.debug("mqttMessage===" + mqttMessage);
 						log.debug("EventSource==" + gatCrtlBean.getEventsource() + ",Event==" + gatCrtlBean.getEvent()
 								+ ",Target==" + gatCrtlBean.getTarget());
 
@@ -296,6 +297,42 @@ public class GatCtrlReceiverBroker {
 						} else if (gatCrtlBean.getEventsource().equals("tk")) { // 来自铁科主控端消息
 							// log.debug("来自铁科主控端消息:" + mqttMessage);
 							if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+									+ DeviceConfig.GAT_MQ_PidProtect_CLIENT)) { // 进程保护
+								if (gatCrtlBean.getEvent() == 10001) { // 后置摄像头启动成功
+									Config.getInstance().setCameraWork(true);
+									log.debug("是否允许恢复后置检脸进程==" + Config.getInstance().isRebackTrackFlag());
+									log.debug("后置摄像头是否启动==" + Config.getInstance().isCameraWork());
+								} else if (gatCrtlBean.getEvent() == 10004) { // 前置摄像头启动成功
+									Config.getInstance().setFrontCameraWork(true);
+									log.debug("是否允许恢复前置检脸进程==" + Config.getInstance().isRebackFrontTrackFlag());
+									log.debug("前置摄像头是否启动==" + Config.getInstance().isFrontCameraWork());
+								} else if (gatCrtlBean.getEvent() == 10005) { // JAVA版主控启动成功
+									Config.getInstance().setMainCrtlWork(true);
+									log.debug("是否允许恢复java主控进程==" + Config.getInstance().isAllowRebackMain());
+									log.debug("java主控是否启动==" + Config.getInstance().isMainCrtlWork());
+								} else if (gatCrtlBean.getEvent() == 10006) { // 独立比对启动成功
+									Config.getInstance().setStandaloneCheckWork(true);
+									log.debug("是否允许恢复独立比对进程==" + Config.getInstance().isAllowRebackStandalone());
+									log.debug("独立比对是否启动==" + Config.getInstance().isStandaloneCheckWork());
+								} else if (gatCrtlBean.getEvent() == 10002) { // 立刻关闭PC
+									log.debug("收到关闭PC命令，立即执行!");
+
+									if (Config.getInstance().getShutdownPCMode() == 3) {
+										Runtime.getRuntime().exec("shutdown -s -t "
+												+ String.valueOf(Config.getInstance().getClosePCDelay()));
+										log.debug("已发出" + Config.getInstance().getClosePCDelay() + "秒后关机命令!");
+									}
+									if (Config.getInstance().getShutdownPCMode() == 2) {
+										Runtime.getRuntime().exec("shutdown -r -t "
+												+ String.valueOf(Config.getInstance().getClosePCDelay()));
+										log.debug("已发出" + Config.getInstance().getClosePCDelay() + "秒后重启命令!");
+									}
+									if (Config.getInstance().getShutdownPCMode() == 1) {
+										Runtime.getRuntime().exec("shutdown -l");
+										log.debug("已发出注销命令!");
+									}
+								}
+							} else if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
 									+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 独立比对进程
 								if (Config.getInstance().getIsUseManualMQ() == 1) { // 是否连人工窗
 									// RemoteMonitorPublisher.getInstance().offerEventData(gatCrtlBean.getEvent());
@@ -306,8 +343,11 @@ public class GatCtrlReceiverBroker {
 									log.debug("来自铁科主控端消息:" + orignMqttMessage);
 
 									if (gatCrtlBean.getEvent() == 10010) { // 收到开始检脸指令
-										log.debug("收到开始检脸指令");
+										// log.debug("收到开始检脸指令");
+										checkLog.debug("----------------------");
+										checkLog.debug("收到开始检脸指令");
 										DeviceConfig.getInstance().setInTracking(true);
+
 										if (Config.getInstance().getFaceVerifyType().equals(Config.FaceVerifyEASEN)) { // 易胜sdk
 											File easenIdcardZp = new File(
 													Config.getInstance().getEasenConfigPath() + "/easenzp.jpg");
@@ -316,19 +356,23 @@ public class GatCtrlReceiverBroker {
 													.setIDCardPhoto(easenIdcardZpBufferedImage);
 											FaceCheckingService.getInstance().setIdCardPhotoRet(retval);
 										}
-									} else if (gatCrtlBean.getEvent() == 10001) { // 摄像头启动成功
-										Config.getInstance().setCameraWork(true);
-										log.debug("是否允许恢复检脸进程==" + Config.getInstance().isRebackTrackFlag());
-										log.debug("摄像头是否启动==" + Config.getInstance().isCameraWork());
-									} else if (gatCrtlBean.getEvent() == 10002) { // 立刻关闭PC
-										log.debug("收到关闭PC命令，立即执行!");
-										Runtime.getRuntime().exec("shutdown -s -t "
-												+ String.valueOf(Config.getInstance().getClosePCDelay()));
+									} else if (gatCrtlBean.getEvent() == 10003) { // 停止送前置摄像头的人脸
+										FaceCheckingService.getInstance().setSendFrontCameraFace(false);
+										checkLog.debug("停止送前置摄像头的人脸");
+										// FaceCheckingService.getInstance().resetFaceDataQueue();
 									} else if (gatCrtlBean.getEvent() == 10011 || gatCrtlBean.getEvent() == 10012) { // 10011:人脸核验成功--10012:人脸核验失败
-										if (gatCrtlBean.getEvent() == 10011)
-											log.debug("人脸核验成功");
-										if (gatCrtlBean.getEvent() == 10012)
-											log.debug("人脸核验失败");
+										FaceCheckingService.getInstance().setSendFrontCameraFace(true);
+										FaceCheckingService.getInstance().setReceiveBehindCameraFace(false); // 设置为还没有接收到后置人脸
+										if (gatCrtlBean.getEvent() == 10011) {
+											// log.debug("人脸核验成功");
+											checkLog.debug("人脸核验成功");
+											checkLog.debug("#############################");
+										}
+										if (gatCrtlBean.getEvent() == 10012) {
+											// log.debug("人脸核验失败");
+											checkLog.debug("人脸核验失败");
+											checkLog.debug("#############################");
+										}
 
 										FaceCheckingService.getInstance().setIdcard(null);
 										FaceCheckingService.getInstance().setIdCardPhotoRet(-1);
@@ -357,11 +401,26 @@ public class GatCtrlReceiverBroker {
 							} else if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
 									+ DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())) { // 由检脸进程处理
 								log.debug("检脸进程处理来自铁科主控端的消息:" + mqttMessage);
-								if (gatCrtlBean.getEvent() == 10011 || gatCrtlBean.getEvent() == 10012) { // 检脸成功
-									// 清除身份证信息，不再让前置摄像头使用
-									FaceCheckingService.getInstance().setIdcard(null);
-									FaceCheckingService.getInstance().setIdCardPhotoRet(-1);
-									log.debug("清除身份证信息，不再让前置摄像头使用");
+								if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) { // 双门模式
+									if (gatCrtlBean.getEvent() == 10010) { // 人脸开始核验
+										// CommUtil.sleep(400);
+										// FaceCheckingService.getInstance().setSendFrontCameraFace(false);
+										// log.debug("停止送前置摄像头的人脸");
+									} else if (gatCrtlBean.getEvent() == 10003) { // 停止送前置摄像头的人脸
+										FaceCheckingService.getInstance().setSendFrontCameraFace(false);
+										log.debug("停止送前置摄像头的人脸");
+									} else if (gatCrtlBean.getEvent() == 10007) { // 允许送前置摄像头的人脸
+										FaceCheckingService.getInstance().setDealNoneTrackFace(false);
+										FaceCheckingService.getInstance().setSendFrontCameraFace(true);
+										log.debug("允许送前置摄像头的人脸");
+									} else if (gatCrtlBean.getEvent() == 10011 || gatCrtlBean.getEvent() == 10012) { // 检脸成功
+										// 清除身份证信息，不再让前置摄像头使用
+										FaceCheckingService.getInstance().setSendFrontCameraFace(true); // 允许送前置摄像头人脸
+										log.debug("允许送前置摄像头人脸");
+										FaceCheckingService.getInstance().setIdcard(null);
+										FaceCheckingService.getInstance().setIdCardPhotoRet(-1);
+										log.debug("清除身份证信息，不再让前置摄像头使用");
+									}
 								}
 
 								if (Config.getInstance().getDoorCountMode() == DeviceConfig.SINGLEDOOR) { // 单门模式
@@ -422,6 +481,13 @@ public class GatCtrlReceiverBroker {
 										SingleFaceTrackingScreen.getInstance().offerEvent(new ScreenElementModifyEvent(
 												0, ScreenCmdEnum.ShowIDDeviceException.getValue(), null, null, null));
 									}
+								}
+
+							} else if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+									+ DeviceConfig.GAT_MQ_Verify_CLIENT)) { // 由Java主控进程处理
+								if (gatCrtlBean.getEvent() == 10011 || gatCrtlBean.getEvent() == 10012) { // 检脸成功或失败
+									DeviceEventListener.getInstance().resetTicketAndIDCard();
+									DeviceEventListener.getInstance().clearDeviceEvent();
 								}
 
 							} else if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
@@ -527,7 +593,7 @@ public class GatCtrlReceiverBroker {
 									AudioPlayTask.getInstance().start(DeviceConfig.AudioTakeCardFlag);
 									// CommUtil.sleep((long) (2.2 * 1000));
 
-//									AudioPlayTask.getInstance().start(DeviceConfig.AudioTrackFaceFlag);
+									// AudioPlayTask.getInstance().start(DeviceConfig.AudioTrackFaceFlag);
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioUseHelpFlag) { // 引导帮助
 									AudioPlayTask.getInstance().start(DeviceConfig.AudioUseHelpFlag);
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.AudioFailedIdCardFlag) { // 读二代证失败
@@ -562,11 +628,11 @@ public class GatCtrlReceiverBroker {
 							}
 						} else if (gatCrtlBean.getEventsource().equals("gate")) {
 							log.debug("来自开二门的按钮或遥控消息:" + mqttMessage);
-							if (gatCrtlBean.getEvent() == 10022) {
+							if (gatCrtlBean.getEvent() == 10022) { // Event_PressOpenSecondDoorButton
 								if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
 										+ DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())) {
 
-									log.info("isInTracking==" + DeviceConfig.getInstance().isInTracking());
+									log.debug("isInTracking==" + DeviceConfig.getInstance().isInTracking());
 
 									if (DeviceConfig.getInstance().isInTracking()) { // 如果处于人脸核验中，那么必须立即结束本次核验，视为核验成功
 										PITVerifyData failedFd = FaceCheckingService.getInstance().pollFailedFaceData();
@@ -611,6 +677,30 @@ public class GatCtrlReceiverBroker {
 							log.debug("该条消息暂时不做处理：" + mqttMessage);
 						}
 
+						if (gatCrtlBean.getEvent() == DeviceConfig.Event_SecondDoorHasClosed
+								|| gatCrtlBean.getEvent() == 10020 || gatCrtlBean.getEvent() == 10021) { // 第二道门关闭
+							DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+							log.debug("已收到第二道门的关门回执 by " + gatCrtlBean.getEventsource() + "!允许重新转发手动开第二道门指令");
+							log.debug("是否允许手动开第二道门==" + DeviceConfig.getInstance().isAllowOpenSecondDoor());
+
+							if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+									+ DeviceConfig.GAT_MQ_Verify_CLIENT)) { // java版主控进程
+								if (Config.getInstance().getIsUseGatDll() == 1) { // 调用门控Dll
+									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
+											ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+									DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+									DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+									log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
+								}
+							} else if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+									+ DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())) { // 人脸检测进程
+								FaceCheckingService.getInstance().setDealNoneTrackFace(true); // 后门关闭则触发后置摄像头开始在非检脸状态采集人脸
+							}
+						}
+
+						/**
+						 * 用于门控进程通过mq控制开门
+						 */
 						if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
 								+ DeviceConfig.GAT_MQ_Verify_CLIENT)) { // java版主控进程
 							if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
@@ -653,27 +743,10 @@ public class GatCtrlReceiverBroker {
 							}
 						}
 
-						if (gatCrtlBean.getEvent() == DeviceConfig.Event_SecondDoorHasClosed) { // 第二道门关闭
-							DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
-							log.debug("已收到第二道门的关门回执 by " + gatCrtlBean.getEventsource() + "!允许重新转发手动开第二道门指令");
-							log.debug("是否允许手动开第二道门==" + DeviceConfig.getInstance().isAllowOpenSecondDoor());
-
-							if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
-									+ DeviceConfig.GAT_MQ_Verify_CLIENT)) { // java版主控进程
-								if (Config.getInstance().getIsUseGatDll() == 1) { // 调用门控Dll
-									TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-											ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
-									DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
-									DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
-									log.debug("人证比对完成，第三道闸门已经关闭，重新寻卡");
-								}
-							}
-						}
-
-					} else {
-						log.info("-----------收到非Event事件-----------");
+					} else { // 收到非Event事件
+						// log.debug("-----------收到非Event事件-----------");
 						if (mqttMessage.indexOf("CAM_Notify") != -1) {
-							log.info("--------GatCtrlReciver 收到CAM_Notify请求--------");
+							log.debug("--------GatCtrlReciver 收到CAM_Notify请求--------");
 							ObjectMapper mapper = new ObjectMapper();
 							PIVerifyEventBean notifyEvent = mapper.readValue(mqttMessage, PIVerifyEventBean.class);
 							IDCard notifyIdCard = new IDCard();
@@ -683,6 +756,22 @@ public class GatCtrlReceiverBroker {
 							notifyIdCard.setPersonName(notifyEvent.getPersonName());
 							notifyIdCard.setCardImageBytes(notifyEvent.getIdPhoto());
 							FaceCheckingService.getInstance().setIdcard(notifyIdCard);
+						} else if (mqttMessage.indexOf("Heart") != -1) {
+							if (CLIENT_ID.equals("GCR" + DeviceConfig.getInstance().getIpAddress()
+									+ DeviceConfig.GAT_MQ_PidProtect_CLIENT)) {
+								// log.debug("--------GatCtrlReciver
+								// 收到Heart心跳--" + mqttMessage);
+								String heartType = mqttMessage.substring(6, 7);
+								if (heartType.equals("B")) {
+									DeviceConfig.getInstance().setHeartBStr(mqttMessage.substring(8));
+								} else if (heartType.equals("F")) {
+									DeviceConfig.getInstance().setHeartFStr(mqttMessage.substring(8));
+								} else if (heartType.equals("A")) {
+									DeviceConfig.getInstance().setHeartAStr(mqttMessage.substring(8));
+								} else if (heartType.equals("V")) {
+									DeviceConfig.getInstance().setHeartVStr(mqttMessage.substring(8));
+								}
+							}
 						}
 					}
 				}

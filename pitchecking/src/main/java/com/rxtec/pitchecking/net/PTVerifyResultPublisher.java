@@ -70,7 +70,7 @@ public class PTVerifyResultPublisher {
 		try {
 			final Aeron aeron = Aeron.connect(ctx);
 			publication = aeron.addPublication(CHANNEL, STREAM_ID);
-			log.info("PTVerifyResultPublisher connected! CHANNEL = " + CHANNEL +" STREAM_ID = "+STREAM_ID);
+			log.debug("PTVerifyResultPublisher connected! CHANNEL = " + CHANNEL +" STREAM_ID = "+STREAM_ID);
 
 
 		} catch (Exception ex) {
@@ -106,7 +106,7 @@ public class PTVerifyResultPublisher {
 			}
 			return false;
 		} else {
-			log.info("FaceVerifyResult has sended!fd data=="+data+", data length=" + buf.length);
+			log.debug("FaceVerifyResult has sended!fd data=="+data+", data length=" + buf.length);
 			return true;
 		}
 	}

@@ -38,7 +38,7 @@ public class PITInfoPoliceTopicSender implements Runnable {
 	}
 
 	private void connectMQ() {
-		log.info("Sender准备连接公安处MQ..." + DeviceConfig.getInstance().getPoliceServer_MQURL());
+		log.debug("Sender准备连接公安处MQ..." + DeviceConfig.getInstance().getPoliceServer_MQURL());
 		try {
 			initialize();
 			isInitOK = true;
@@ -66,20 +66,20 @@ public class PITInfoPoliceTopicSender implements Runnable {
 		// 消息的目的地（Queue/Topic）
 		// destination = session.createQueue(SUBJECT);
 		destination = session.createTopic("PITInfoTopic");
-		log.info("TOPIC==" + destination);
+		log.debug("TOPIC==" + destination);
 		// 消息的提供者（生产者）
 		producer = session.createProducer(destination);
 		// 不持久化消息
 		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-		log.info("Sender连接公安处MQ成功!");
+		log.debug("Sender连接公安处MQ成功!");
 	}
 
 	public void sendMessage(String strMsg) throws JMSException, Exception {
-		// log.info("starting send one Message...");
+		// log.debug("starting send one Message...");
 		TextMessage msg = session.createTextMessage();
 		msg.setText(strMsg);
 		producer.send(msg);
-		// log.info("send one Message####"+strMsg);
+		// log.debug("send one Message####"+strMsg);
 	}
 
 	// 关闭连接
@@ -98,7 +98,7 @@ public class PITInfoPoliceTopicSender implements Runnable {
 		PITInfoJson info = null;
 		try {
 			info = infoQueue.poll();
-			// log.info("infoQueue.take=="+info);
+			// log.debug("infoQueue.take=="+info);
 		} catch (Exception e) {
 			log.error("pitDataQueue take data error", e);
 		}
@@ -106,15 +106,15 @@ public class PITInfoPoliceTopicSender implements Runnable {
 		if (info != null) {
 			try {
 				if (info.getMsgType() == PITInfoJson.MSG_TYPE_VERIFY) {
-					log.info("人脸图片准备发送至公安处MQ");
+					log.debug("人脸图片准备发送至公安处MQ");
 				} else if (info.getMsgType() == PITInfoJson.MSG_TYPE_FRAME) {
-					log.info("通道帧图片准备发送至公安处MQ");
+					log.debug("通道帧图片准备发送至公安处MQ");
 				}
 				
 				String msg = info.getJsonStr();
 				if (msg != null && isInitOK)
 					sendMessage(msg);
-//				deviceEventListenerLog.info("发送至公安的json==" + msg);
+//				deviceEventListenerlog.debug("发送至公安的json==" + msg);
 			} catch (Exception e) {
 				log.error("buildPITDataJsonBytes error", e);
 			}

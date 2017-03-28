@@ -56,7 +56,7 @@ public class MulticastSender implements Runnable {
 		port = Config.getInstance().getMulticastPort();
 		mss = new MulticastSocket(port);
 		mss.joinGroup(group);
-		log.info("MulticastSender init......");
+		log.debug("MulticastSender init......");
 	}
 
 	public void send(PITData pitData) {

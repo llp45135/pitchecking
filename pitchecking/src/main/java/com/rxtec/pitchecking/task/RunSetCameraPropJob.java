@@ -21,7 +21,7 @@ public class RunSetCameraPropJob implements Job {
 	@Override
 	public void execute(JobExecutionContext jobContext) throws JobExecutionException {
 		// TODO Auto-generated method stub
-		log.info("定时设置摄像头参数任务,开始执行！ By " + jobContext.getJobDetail().getJobClass());
+		log.debug("定时设置摄像头参数任务,开始执行！ By " + jobContext.getJobDetail().getJobClass());
 		int dayCameraTime = Integer.parseInt(Config.getInstance().getDayCameraTime());
 		int nightCameraTime = Integer.parseInt(Config.getInstance().getNightCameraTime());
 		int nowTime = Integer.parseInt(CalUtils.getStringTime()); // HHmm

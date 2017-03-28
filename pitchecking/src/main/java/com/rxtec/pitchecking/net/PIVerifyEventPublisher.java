@@ -97,7 +97,7 @@ public class PIVerifyEventPublisher {
 					log.error("  Offer failed due to unknown reason");
 				}
 			} else {
-				// log.info("Send Face verify request message succ!");
+				// log.debug("Send Face verify request message succ!");
 			}
 
 		} catch (Exception e) {

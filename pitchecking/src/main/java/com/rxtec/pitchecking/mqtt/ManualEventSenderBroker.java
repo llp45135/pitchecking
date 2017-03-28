@@ -75,7 +75,7 @@ public class ManualEventSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("start connect to "+DeviceConfig.getInstance().getManualCheck_MQTTURL()+"# MyClientID==" + this.CLIENT_ID);
+		log.debug("start connect to "+DeviceConfig.getInstance().getManualCheck_MQTTURL()+"# MyClientID==" + this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getManualCheck_MQTTURL());
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
@@ -84,7 +84,7 @@ public class ManualEventSenderBroker {
 		mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 		// mqttClient.unsubscribe(UNSUB_TOPICS);
 
-		log.info("**ManualEventSenderBroker,连接 " + DeviceConfig.getInstance().getManualCheck_MQTTURL() + " 成功**");
+		log.debug("**ManualEventSenderBroker,连接 " + DeviceConfig.getInstance().getManualCheck_MQTTURL() + " 成功**");
 
 		// /**
 		// * 完成订阅后，可以增加心跳，保持网络通畅，也可以发布自己的消息

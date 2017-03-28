@@ -83,7 +83,7 @@ public class PTVerifyPublisher implements Runnable {
 
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 			executor.execute(this);
-			log.info("PTVerifyPublisher connected! CHANNEL = " + CHANNEL +" STREAM_ID = "+STREAM_ID);
+			log.debug("PTVerifyPublisher connected! CHANNEL = " + CHANNEL +" STREAM_ID = "+STREAM_ID);
 
 		} catch (Exception ex) {
 			log.error("initAeronContext",ex);
@@ -120,7 +120,7 @@ public class PTVerifyPublisher implements Runnable {
 						log.error("  Offer failed due to unknown reason");
 					}
 				} else {
-//					log.info("Send Face verify request message succ!");
+//					log.debug("Send Face verify request message succ!");
 				}
 
 			} catch (Exception e) {

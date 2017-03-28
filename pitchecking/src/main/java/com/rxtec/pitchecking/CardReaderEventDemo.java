@@ -21,7 +21,7 @@ public class CardReaderEventDemo {
 	}
 
 	public void offerDeviceEvent() {
-		log.info("offerDeviceEvent readCardEvent");
+		log.debug("offerDeviceEvent readCardEvent");
 		IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
 		IDCard idCard = IDCardUtil.createIDCard("zp.jpg");
 		readCardEvent.setIdCard(idCard);
@@ -38,6 +38,6 @@ public class CardReaderEventDemo {
 		ticket.setTrainDate(CalUtils.getStringDateShort2());
 		qrEvent.setTicket(ticket);
 		DeviceEventListener.getInstance().offerDeviceEvent(qrEvent);
-		log.info("offerDeviceEvent qrEvent");
+		log.debug("offerDeviceEvent qrEvent");
 	}
 }

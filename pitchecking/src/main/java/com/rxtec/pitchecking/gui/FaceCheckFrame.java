@@ -49,6 +49,7 @@ import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 import com.rxtec.pitchecking.mqtt.MqttSenderBroker;
+import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITData;
 import com.rxtec.pitchecking.utils.CommUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
@@ -108,13 +109,15 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					frame.showDefaultContent();
 					// CommUtil.sleep(3 * 1000);
 					// frame.setVisible(true);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).setFaceScreenDisplayTimeout(5);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
+					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
+							.setFaceScreenDisplayTimeout(5);
+					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
 							.setFaceScreenDisplay("人证核验失败#请从侧门离开");
 					// MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
 					frame.showFaceDisplayFromTK();
 					// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
-					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
+					GatCtrlSenderBroker
+							.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
 							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag, "FaceAudio"));
 					// frame.showBeginCheckFaceContent();
 					// frame.showFaceCheckPassContent();
@@ -285,7 +288,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 
 		bootTimeLabel.setText("启动时间：" + CalUtils.getStringDate());
 		IPLabel.setText("本机IP：" + DeviceConfig.getInstance().getIpAddress());
-		trackVerLabel.setText("软件版本：" + DeviceConfig.softVersion);
+		trackVerLabel.setText("软件版本：" + DeviceConfig.softVersion + DeviceConfig.getInstance().getCameraDirection());
 
 		bootTimeLabel.setBorder(null);
 		IPLabel.setBorder(null);
@@ -295,7 +298,14 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 
 		// this.setLocationRelativeTo(null);
 		// setUndecorated(true);
-		setAlwaysOnTop(true);
+		if (!FaceCheckingService.getInstance().isFrontCamera()) { // 后置摄像头
+			setAlwaysOnTop(true);
+		} else {
+			log.debug("自动将前置摄像头界面缩小至最小化");
+			setUndecorated(true);
+			// setDefaultLookAndFeelDecorated(true);
+			com.sun.awt.AWTUtilities.setWindowOpacity(this, Config.getInstance().getFrontCameraWindowOpacity());
+		}
 
 	}
 
@@ -317,7 +327,9 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	public void showFaceDisplayFromTK() {
 		timeIntevel = 0;
 
-		String displayStr = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplay();
+		String displayStr = MqttSenderBroker
+				.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
+				.getFaceScreenDisplay();
 
 		// this.displayMsg = displayStr.replace("#", "！");
 		//
@@ -344,19 +356,25 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
 
 		if (displayStr.indexOf("成功") != -1) {
-			// ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
-			// this.showPassStatusImage(icon);
-			timeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplayTimeout();// 5;
+			timeIntevel = MqttSenderBroker
+					.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
+					.getFaceScreenDisplayTimeout();// 5;
 			// //
 			// 成功时的提示信息存在时间
-			// 暂时设置为5s
+			timeIntevel = 5;// 暂时设置为5s
 		} else {
 			// ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
 			// this.showPassStatusImage(icon);
-			timeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplayTimeout();
+			timeIntevel = MqttSenderBroker
+					.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
+					.getFaceScreenDisplayTimeout();
 		}
 		titleStrType = 4; // 4:覆盖一层panel 5：不覆盖
 
+		if (displayStr.indexOf("成功") != -1) {
+			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, Config.getInstance().getSuccessFontSize()));
+			displayStr = "请通过";
+		}
 		if (displayStr.indexOf("#") != -1) { // 由#号，分两行
 			int kk = displayStr.indexOf("#");
 			String displayMsg1 = displayStr.substring(0, kk);
@@ -447,11 +465,12 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 			if (CalUtils.isDateAfter(startPlayTime) && CalUtils.isDateBefore(endPlayTime)) {
 				if (Config.getInstance().getIsPlayHelpAudio() == 1) {
 					// 循环播放引导使用语音
-					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
+					GatCtrlSenderBroker
+							.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
 							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioUseHelpFlag, "FaceAudio"));
 				}
 			} else {
-				log.info("当前时间段不在" + startPlayTime + "--" + endPlayTime + "之间,不可以播放引导语音");
+				log.debug("当前时间段不在" + startPlayTime + "--" + endPlayTime + "之间,不可以播放引导语音");
 			}
 		}
 
@@ -526,7 +545,6 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 						"<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>"
 								+ (timeIntevel - 1) + "</di></html>");
 			} else if (this.titleStrType == 4) {
-				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
 				msgTopLabel.setText(displayMsg + "<div align='center'>" + (timeIntevel - 1) + "</div>" + "</html>");
 			} else if (this.titleStrType == 5) {
 				label_title.setText(displayMsg + "  " + (timeIntevel - 1));

@@ -39,7 +39,7 @@ public class FaceTrackingScreen {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice[] gs = ge.getScreenDevices();
 		GraphicsDevice gd = gs[screenNo];
-		// log.info("GraphicsDevice=="+gd);
+		// log.debug("GraphicsDevice=="+gd);
 		if (gd != null) {
 			GraphicsConfiguration gc = gd.getDefaultConfiguration();
 			int xOff = gc.getBounds().x;
@@ -47,7 +47,7 @@ public class FaceTrackingScreen {
 			faceFrame.setVisible(true);
 			faceFrame.setLocation(xOff, yOff);
 		}
-		// log.info("当前的人脸检测屏位置：face.x=="+faceFrame.getBounds().x+",face.y=="+faceFrame.getBounds().y);
+		// log.debug("当前的人脸检测屏位置：face.x=="+faceFrame.getBounds().x+",face.y=="+faceFrame.getBounds().y);
 	}
 
 	public VideoPanel getVideoPanel() {

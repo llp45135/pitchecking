@@ -146,7 +146,7 @@ public class MqttSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.info("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
+		log.debug("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
 				+ this.CLIENT_ID);
 		log.debug("connect to MqttSenderBroker.");
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
@@ -182,15 +182,15 @@ public class MqttSenderBroker {
 			// message);
 			// 发布自己的消息
 			if (message.indexOf("CAM_GetPhotoInfo") != -1) {
-				log.info("准备发送 CAM_GetPhotoInfo消息...");
+				log.debug("准备发送 CAM_GetPhotoInfo消息...");
 			} else if (message.indexOf("CAM_ScreenDisplay") != -1) {
-				log.info("准备发送 CAM_ScreenDisplay:send message==" + message);
+				log.debug("准备发送 CAM_ScreenDisplay:send message==" + message);
 			}
 			mqttClient.publish(clientId, message.getBytes(), 0, false);
 			if (message.indexOf("CAM_GetPhotoInfo") != -1) {
-				log.info("sendMessage CAM_GetPhotoInfo消息 is OK!");
+				log.debug("sendMessage CAM_GetPhotoInfo消息 is OK!");
 			} else if (message.indexOf("CAM_ScreenDisplay") != -1) {
-				log.info("sendMessage CAM_ScreenDisplay消息 is OK!");
+				log.debug("sendMessage CAM_ScreenDisplay消息 is OK!");
 			} else {
 				log.debug("sendMessage ok");
 			}
@@ -205,7 +205,7 @@ public class MqttSenderBroker {
 	 * 当主控端传入的uuid，即身份证号为空时，立即返回检脸失败
 	 */
 	public void PublishWrongIDNo() {
-		log.info("########PublishWrongIDNo  身份号错误########");
+		log.debug("########PublishWrongIDNo  身份号错误########");
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			PIVerifyResultBean PIVBean = new PIVerifyResultBean();
@@ -222,7 +222,7 @@ public class MqttSenderBroker {
 			PIVBean.setVerifyStatus(1);
 
 			String jsonString = mapper.writeValueAsString(PIVBean);
-			log.info("PublishWrongIDNo json==" + jsonString);
+			log.debug("PublishWrongIDNo json==" + jsonString);
 
 			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
 
@@ -236,7 +236,7 @@ public class MqttSenderBroker {
 	 * 测试用例
 	 */
 	public void testPublishFace() {
-		log.info("testPublishFace###############");
+		log.debug("testPublishFace###############");
 		try {
 			ObjectMapper mapper = new ObjectMapper();
 			PIVerifyResultBean PIVBean = new PIVerifyResultBean();
@@ -286,15 +286,15 @@ public class MqttSenderBroker {
 	 * @param data
 	 */
 	public boolean publishResult(PITVerifyData data, int verifyStatus) {
-		log.info("********准备发送人脸比对结果到DLL by MQ********verifyStatus==" + verifyStatus);
-//		log.info("PITVerifyData==" + data);
+		log.debug("********准备发送人脸比对结果到DLL by MQ********verifyStatus==" + verifyStatus);
+//		log.debug("PITVerifyData==" + data);
 		if (data == null)
 			return false;
 		PIVerifyResultBean resultBean = new PIVerifyResultBean();
 		float faceResult = 1f;
 		try {
 			faceResult = CommUtil.round(2, data.getVerifyResult());
-			// log.info("faceResult==" + (int) (faceResult * 100));
+			// log.debug("faceResult==" + (int) (faceResult * 100));
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			log.error("faceResult round:", e1);
@@ -321,9 +321,9 @@ public class MqttSenderBroker {
 		if (jsonString == null)
 			return false;
 		try {
-			// log.info("jsonString==" + jsonString);
+			// log.debug("jsonString==" + jsonString);
 			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
-			log.info("##########人脸比对结果发送结束##########");
+			log.debug("##########人脸比对结果发送结束##########");
 		} catch (MqttException e) {
 			log.error("publish json failed!", e);
 			return false;

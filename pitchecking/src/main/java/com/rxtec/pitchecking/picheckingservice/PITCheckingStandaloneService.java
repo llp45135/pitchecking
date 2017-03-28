@@ -17,6 +17,9 @@ import com.rxtec.pitchecking.device.LightControlBoard;
 import com.rxtec.pitchecking.mbean.PITProcessDetect;
 import com.rxtec.pitchecking.mqtt.ClosePCEventSenderBroker;
 import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
+import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
+import com.rxtec.pitchecking.mqtt.pitevent.PTVerifyReceiver;
+import com.rxtec.pitchecking.mqtt.pitevent.PTVerifyResultSender;
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
 import com.rxtec.pitchecking.task.ClosePCSendingTask;
 import com.rxtec.pitchecking.task.ManualCheckingTask;
@@ -33,9 +36,9 @@ public class PITCheckingStandaloneService {
 
 	public static void main(String[] args) {
 		// 启动检脸进程保护的线程
-		ExecutorService executer = Executors.newSingleThreadExecutor();
-		PITProcessDetect pitProcessDetect = new PITProcessDetect();
-		executer.execute(pitProcessDetect);
+		// ExecutorService executer = Executors.newSingleThreadExecutor();
+		// PITProcessDetect pitProcessDetect = new PITProcessDetect();
+		// executer.execute(pitProcessDetect);
 
 		// MBeanServer server = ManagementFactory.getPlatformMBeanServer();
 		// FaceVerifyServiceManager mbean = new FaceVerifyServiceManager();
@@ -49,6 +52,9 @@ public class PITCheckingStandaloneService {
 		// e.printStackTrace();
 		// }
 
+		// FaceCheckingService.getInstance().deleteHeartLog();
+		// FaceCheckingService.getInstance().startupApp();
+
 		// 是否启用monodb保存人脸数据
 		if (Config.getInstance().getIsUseMongoDB() == 1) {
 			PitRecordLoger.getInstance().clearExpirationData();
@@ -61,13 +67,13 @@ public class PITCheckingStandaloneService {
 
 		if (Config.getInstance().getIsLightFaceLED() == 1) {
 			int lightLedRet = -1;
-			log.info("准备点亮补光灯");
+			log.debug("准备点亮补光灯");
 			try {
 				lightLedRet = LightControlBoard.getInstance().startLED(); // 点亮补光灯
 			} catch (Exception ex) {
 				log.error("PITCheckingStandaloneService:", ex);
 			}
-			log.info("点亮补光灯,lightLedRet==" + lightLedRet);
+			log.debug("点亮补光灯,lightLedRet==" + lightLedRet);
 		}
 
 		// 语音调用线程
@@ -90,17 +96,27 @@ public class PITCheckingStandaloneService {
 
 		GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);// 启动PITEventTopic本地监听
 
-		if (Config.getInstance().getIsSendClosePCCmd() == 1) {  //是否需要向其他闸机发送同步关机命令
-			ExecutorService executorService = Executors.newSingleThreadExecutor();
-			ClosePCSendingTask closePCSendingTask = new ClosePCSendingTask(DeviceConfig.GAT_MQ_Standalone_CLIENT);
-			executorService.execute(closePCSendingTask);
+		// if (Config.getInstance().getIsSendClosePCCmd() == 1) {
+		// //是否需要向其他闸机发送同步关机命令
+		// ExecutorService executorService =
+		// Executors.newSingleThreadExecutor();
+		// ClosePCSendingTask closePCSendingTask = new
+		// ClosePCSendingTask(DeviceConfig.GAT_MQ_Standalone_CLIENT);
+		// executorService.execute(closePCSendingTask);
+		// }
+
+		FaceCheckingService.getInstance().addStandaloneQuartzJobs();
+
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
+				.sendDoorCmd(DeviceConfig.Event_StandaloneCheckStartupSucc);
+
+		if (Config.getInstance().getTransferFaceMode() == 2) {  //mqtt
+			PTVerifyReceiver.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);
 		}
-
-		FaceCheckingService.getInstance().addQueryUPSJob();
-
 		FaceCheckingService.getInstance().beginFaceCheckerStandaloneTask();
-		PIVerifySubscriber piVerifySubscriber = new PIVerifySubscriber();  //开启订阅由人脸检测进程发过来的人脸比对请求 
-
+		if (Config.getInstance().getTransferFaceMode() == 1) {   //aeron
+			PIVerifySubscriber piVerifySubscriber = new PIVerifySubscriber(); // 开启订阅由人脸检测进程发过来的人脸比对请求
+		}
 	}
 
 }

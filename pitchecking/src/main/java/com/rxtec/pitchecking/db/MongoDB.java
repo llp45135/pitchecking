@@ -55,9 +55,9 @@ public class MongoDB {
 	
 	public void save(PITVerifyData data, boolean isPassed){
 		DBObject rec = new BasicDBObject();
-//		log.info("getIdNo=="+data.getIdNo());
-//		log.info("getPersonName=="+data.getPersonName());
-//		log.info("getAge=="+data.getAge());
+//		log.debug("getIdNo=="+data.getIdNo());
+//		log.debug("getPersonName=="+data.getPersonName());
+//		log.debug("getAge=="+data.getAge());
 		
 		rec.put("id_no", data.getIdNo());
 		rec.put("name",data.getPersonName());

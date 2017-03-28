@@ -27,7 +27,7 @@ public class AutoLogonJob implements Job {
 	public void execute(JobExecutionContext jobContext) throws JobExecutionException {
 		// TODO Auto-generated method stub
 		try {
-			log.info("闸机定时注销任务,开始执行！ By " + jobContext.getJobDetail().getJobClass());
+			log.debug("闸机定时注销任务,开始执行！ By " + jobContext.getJobDetail().getJobClass());
 //			Runtime.getRuntime().exec(Config.AutoLogonCmd);
 			Runtime.getRuntime().exec("shutdown -l");
 		} catch (Exception ex) {

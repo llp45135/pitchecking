@@ -106,28 +106,28 @@ public class ProcessUtil {
 	 * @param pid
 	 * @return
 	 */
-	public static boolean writeHeartbeat(String pid, String filaName) {
-		Date now = new Date();
-		String nowTime = CalUtils.getStringDateHaomiao();// Long.toString(now.getTime());
-		try {
-			File logFile = new File(filaName);
-			if (!logFile.exists()) {
-				logFile.createNewFile();
-			}
-			FileWriter fw = new FileWriter(logFile);
-			String pidStr = pid + "@" + nowTime;
-			// log.debug("pidStr==" + pidStr);
-			fw.write(pidStr);
-			fw.flush();
-			fw.close();
-			return true;
-
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			return false;
-		}
-	}
+//	public static boolean writeHeartbeat(String pid, String filaName) {
+//		Date now = new Date();
+//		String nowTime = CalUtils.getStringDateHaomiao();// Long.toString(now.getTime());
+//		try {
+//			File logFile = new File(filaName);
+//			if (!logFile.exists()) {
+//				logFile.createNewFile();
+//			}
+//			FileWriter fw = new FileWriter(logFile);
+//			String pidStr = pid + "@" + nowTime;
+//			// log.debug("pidStr==" + pidStr);
+//			fw.write(pidStr);
+//			fw.flush();
+//			fw.close();
+//			return true;
+//
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//			return false;
+//		}
+//	}
 
 	/**
 	 * 将字符串写成文件

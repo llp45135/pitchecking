@@ -62,7 +62,7 @@ public class VolumeControl {
 			jnativeSetDevice.invoke();
 
 			retval = jnativeSetDevice.getRetValAsInt();
-			log.info("jnativeSetDevice retval==" + retval);
+			log.debug("jnativeSetDevice retval==" + retval);
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("VolumeControl SetDevice:", e);
@@ -90,7 +90,7 @@ public class VolumeControl {
 			jnativeLeftClose.invoke();
 
 			retval = jnativeLeftClose.getRetValAsInt();
-			log.info("jnativeLeftClose retval==" + retval);
+			log.debug("jnativeLeftClose retval==" + retval);
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("VolumeControl LeftClose:", e);
@@ -114,7 +114,7 @@ public class VolumeControl {
 			jnativeRightClose.invoke();
 
 			retval = jnativeRightClose.getRetValAsInt();
-			log.info("jnativeRightClose retval==" + retval);
+			log.debug("jnativeRightClose retval==" + retval);
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("VolumeControl RightClose:", e);
@@ -139,7 +139,7 @@ public class VolumeControl {
 			jnativeAllOpen.invoke();
 
 			retval = jnativeAllOpen.getRetValAsInt();
-			log.info("jnativeAllOpen retval==" + retval);
+			log.debug("jnativeAllOpen retval==" + retval);
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("VolumeControl AllOpen:", e);
@@ -159,10 +159,10 @@ public class VolumeControl {
 		// TODO Auto-generated method stub
 		VolumeControl vcc = VolumeControl.getInstance();
 //		vcc.SetDevice(0);
-		vcc.LeftClose();
-		CommUtil.sleep(3000);
-		vcc.RightClose();
-		CommUtil.sleep(3000);
+//		vcc.LeftClose();
+//		CommUtil.sleep(3000);
+//		vcc.RightClose();
+//		CommUtil.sleep(3000);
 		vcc.AllOpen();
 	}
 

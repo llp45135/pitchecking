@@ -52,6 +52,24 @@ public class PITData implements Serializable {
 	private float facePosePitch;
 	private float facePoseRoll;
 	private float facePoseYaw;
+	private int cameraPosition = 2;
+	private int cameraFaceMode = 1;   //1：检脸中采集的人脸  2：非检脸状态下采集的人脸  
+
+	public int getCameraFaceMode() {
+		return cameraFaceMode;
+	}
+
+	public void setCameraFaceMode(int cameraFaceMode) {
+		this.cameraFaceMode = cameraFaceMode;
+	}
+
+	public int getCameraPosition() {
+		return cameraPosition;
+	}
+
+	public void setCameraPosition(int cameraPosition) {
+		this.cameraPosition = cameraPosition;
+	}
 
 	public Ticket getTicket() {
 		return ticket;

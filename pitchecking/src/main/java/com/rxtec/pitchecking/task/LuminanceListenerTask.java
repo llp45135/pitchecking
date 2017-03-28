@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.FaceImageLog;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.realsense.RealsenseDeviceProperties;
@@ -29,11 +30,12 @@ public class LuminanceListenerTask implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		// TODO Auto-generated method stub
-		if (Config.getInstance().getIsUseLuminanceListener() == 1) {
+		if (Config.getInstance().getIsUseLuminanceListener() == 1
+				&& !FaceCheckingService.getInstance().isFrontCamera()) {
 			BufferedImage frameImage = FaceScreenListener.getInstance().getFrameImage();
 			if (frameImage != null) {
 				float luminanceRet = ImageLuminanceUtil.getInstance().getLuminanceResult(frameImage).getFloat();
-//				luminanceLog.debug("Luminance Result = " + luminanceRet + ",getCameraMode==" + rsFaceDetectionService.getCameraMode());
+				// luminanceLog.debug("Luminance Result = " + luminanceRet + ",getCameraMode==" + rsFaceDetectionService.getCameraMode());
 				if (luminanceRet > 0) {
 					if (luminanceRet >= Config.getInstance().getMaxLuminance()) { // 光线高于上限值
 						int nowCameraMode = rsFaceDetectionService.getCameraMode();
@@ -48,7 +50,7 @@ public class LuminanceListenerTask implements Job {
 							rdp.setContrast(Config.getInstance().getInitContrast());
 							rdp.setGain(Config.getInstance().getInitGain());
 							rsFaceDetectionService.setDeviceProperties(rdp);
-//							luminanceLog.debug("光照度大于" + Config.getInstance().getMaxLuminance() + "，首先将摄像头设置为普通光模式");
+							// luminanceLog.debug("光照度大于" + Config.getInstance().getMaxLuminance() + "，首先将摄像头设置为普通光模式");
 							return;
 						}
 						if (nowCameraMode != 3) {
@@ -62,7 +64,7 @@ public class LuminanceListenerTask implements Job {
 							rdp.setContrast(Config.getInstance().getBackLightContrast());
 							rdp.setGain(Config.getInstance().getBackLightGain());
 							rsFaceDetectionService.setDeviceProperties(rdp);
-//							luminanceLog.debug("光照度大于" + Config.getInstance().getMaxLuminance() + "，其次将摄像头设置为强背光模式");
+							// luminanceLog.debug("光照度大于" + Config.getInstance().getMaxLuminance() + "，其次将摄像头设置为强背光模式");
 							return;
 						}
 					}
@@ -79,7 +81,7 @@ public class LuminanceListenerTask implements Job {
 							rdp.setContrast(Config.getInstance().getInitContrast());
 							rdp.setGain(Config.getInstance().getInitGain());
 							rsFaceDetectionService.setDeviceProperties(rdp);
-//							luminanceLog.debug("光照度小于" + Config.getInstance().getMinLuminance() + "，首先将摄像头设置为普通光模式");
+							// luminanceLog.debug("光照度小于" + Config.getInstance().getMinLuminance() + "，首先将摄像头设置为普通光模式");
 							return;
 						}
 						if (nowCameraMode != 2) {
@@ -93,7 +95,7 @@ public class LuminanceListenerTask implements Job {
 							rdp.setContrast(Config.getInstance().getNightContrast());
 							rdp.setGain(Config.getInstance().getNightGain());
 							rsFaceDetectionService.setDeviceProperties(rdp);
-//							luminanceLog.debug("光照度小于" + Config.getInstance().getMinLuminance() + "，其次将摄像头设置为夜晚模式");
+							// luminanceLog.debug("光照度小于" + Config.getInstance().getMinLuminance() + "，其次将摄像头设置为夜晚模式");
 							return;
 						}
 					}
@@ -111,7 +113,7 @@ public class LuminanceListenerTask implements Job {
 						// rdp.setContrast(Config.getInstance().getInitContrast());
 						// rdp.setGain(Config.getInstance().getInitGain());
 						// rsFaceDetectionService.setDeviceProperties(rdp);
-//						luminanceLog.debug("光照度在" + Config.getInstance().getMinLuminance() + "~~"	+ Config.getInstance().getMaxLuminance() + "之间，不需要改变模式");
+						// luminanceLog.debug("光照度在" + Config.getInstance().getMinLuminance() + "~~" + Config.getInstance().getMaxLuminance() + "之间，不需要改变模式");
 					}
 				}
 
@@ -126,7 +128,7 @@ public class LuminanceListenerTask implements Job {
 						dirName += formatter.format(new Date());
 						String luminanceDir = dirName + "/Luminance";
 						FaceImageLog.saveImageFromFrame(luminanceDir, frameImage, luminanceRet);
-//						luminanceLog.debug("当前图片保存至" + luminanceDir);
+						// luminanceLog.debug("当前图片保存至" + luminanceDir);
 					}
 				}
 			}

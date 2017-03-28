@@ -26,7 +26,7 @@ public class BASE64 {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String data = BASE64.encryptBASE64("520203197912181117".getBytes());
+		String data = BASE64.encryptBASE64("520203197912141118".getBytes());
 		System.out.println("编码后：" + data);
 		byte[] byteArray = BASE64.decryptBASE64(data);
 		System.out.println("解码后：" + new String(byteArray));
