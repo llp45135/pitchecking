@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PitCheckMsg>
-	<GateConfig versionFlag="1" gateNo="128" belongStationCode="GGQ"
+	<GateConfig versionFlag="1" gateNo="128" belongStationCode="SYT"
 		faceScreen="0" ticketScreen="0" guideScreen="0" checkTicketFlag="1" readerTimeDelay="3"
-		succTimeDelay="4" idDeviceType="T" qrDeviceType="T" autoLogonCron="0 0 5 * * ?" stopCheckMinutes="10" NotStartCheckMinutes="240" />
+		succTimeDelay="2" idDeviceType="T" qrDeviceType="T" autoLogonCron="0 0 5 * * ?" stopCheckMinutes="10" NotStartCheckMinutes="240" />
 	<GateCrtlConfig cameraLEDPort="3" firstGateCrtlPort="COM1"
 		secondGateCrtlPort="COM2" honeywellQRPort="COM3" gateCrtlRate="9600" />
 	<MQConfig mqStartFlag="0" MQURL="failover://tcp://localhost:61616"
