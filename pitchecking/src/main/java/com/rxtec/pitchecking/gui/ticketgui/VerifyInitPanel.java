@@ -19,11 +19,11 @@ public class VerifyInitPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public VerifyInitPanel() {
-		setSize(new Dimension(1024, 608));
+	public VerifyInitPanel(int panelWidth,int panelHeight) {
+		setSize(new Dimension(panelWidth, 608));
 		setBackground(Color.white);
-		setMinimumSize(new Dimension(1024, 608));
-		setMaximumSize(new Dimension(1024, 608));
+		setMinimumSize(new Dimension(panelWidth, 608));
+		setMaximumSize(new Dimension(panelWidth, 608));
 		setLayout(null);
 		
 		initImgLabel = new JLabel("");

@@ -159,10 +159,10 @@ public class VolumeControl {
 		// TODO Auto-generated method stub
 		VolumeControl vcc = VolumeControl.getInstance();
 //		vcc.SetDevice(0);
-//		vcc.LeftClose();
-//		CommUtil.sleep(3000);
-//		vcc.RightClose();
-//		CommUtil.sleep(3000);
+		vcc.LeftClose();
+		CommUtil.sleep(3000);
+		vcc.RightClose();
+		CommUtil.sleep(3000);
 		vcc.AllOpen();
 	}
 

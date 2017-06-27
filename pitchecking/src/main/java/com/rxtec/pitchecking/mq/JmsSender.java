@@ -1,10 +1,7 @@
 package com.rxtec.pitchecking.mq;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.File;
 
-import javax.imageio.ImageIO;
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -17,14 +14,12 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
-import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.domain.FailedFace;
-import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 
 public class JmsSender {
 	private Log log = LogFactory.getLog("JmsSender");
@@ -58,7 +53,7 @@ public class JmsSender {
 		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 	}
 
-	public void sendMessage(String msgType, String strMsg, FailedFace failedFace) throws JMSException, Exception {
+	public void sendMessage(String msgType, String strMsg, PITVerifyData failedFace) throws JMSException, Exception {
 		
 		// 发送文本消息
 		if ("text".equals(msgType)) {
@@ -72,12 +67,12 @@ public class JmsSender {
 		if ("map".equals(msgType)) {
 			MapMessage mapMsg = session.createMapMessage();
 			log.debug("failedFace.getIdNo=="+failedFace.getIdNo());
-			log.debug("failedFace.getGateNo=="+failedFace.getGateNo());
+			log.debug("failedFace.getGateNo=="+DeviceConfig.getInstance().getGateNo());
 			mapMsg.setString("idCardNo", failedFace.getIdNo());
-			mapMsg.setString("ipAddress", failedFace.getIpAddress());
-			mapMsg.setString("gateNo", failedFace.getGateNo());
-			mapMsg.setBytes("cardImage", failedFace.getCardImage());
-			mapMsg.setBytes("faceImage", failedFace.getFaceImage());
+			mapMsg.setString("ipAddress", DeviceConfig.getInstance().getIpAddress());
+			mapMsg.setString("gateNo", DeviceConfig.getInstance().getGateNo());
+			mapMsg.setBytes("cardImage", failedFace.getIdCardImg());
+			mapMsg.setBytes("faceImage", failedFace.getFaceImg());
 
 			producer.send(mapMsg);
 		}
@@ -94,14 +89,14 @@ public class JmsSender {
 		if ("object".equals(msgType)) {
 			// FailedFace failedFace = new FailedFace();
 			failedFace.setIdNo("520203197912141118");
-			failedFace.setIpAddress("192.168.0.137");
+//			failedFace.setIpAddress("192.168.0.137");
 
 			File image = null;
 			image = new File("zp.jpg");
-			failedFace.setCardImage(CommUtil.getBytesFromFile(image));
+//			failedFace.setCardImage(CommUtil.getBytesFromFile(image));
 
 			File faceImage = new File("zhao.jpg");
-			failedFace.setFaceImage(CommUtil.getBytesFromFile(faceImage));
+//			failedFace.setFaceImage(CommUtil.getBytesFromFile(faceImage));
 
 			ObjectMessage msg = session.createObjectMessage();
 			msg.setObject(failedFace);

@@ -43,7 +43,8 @@ public class TKIDCDevice {
 	private TKIDCDevice() {
 		JNative.setLoggingEnabled(false);
 		this.initJnative();
-		this.IDC_Init();
+//		this.IDC_Init();
+		// DeviceConfig.getInstance().setIDCardReaderID(this.IDC_GetSerial());
 	}
 
 	public int getIdcInitRet() {
@@ -79,7 +80,7 @@ public class TKIDCDevice {
 	/**
 	 * 对二代居民身份证识读单元进行初始化设置
 	 */
-	public void IDC_Init() {
+	public String IDC_Init() {
 		String retval = "";
 		Pointer pointerOut = null;
 
@@ -143,13 +144,15 @@ public class TKIDCDevice {
 		} catch (Exception e) {
 			log.error("TKIDCDevice IDC_Init:", e);
 		}
+		return retval;
 	}
 
 	/**
 	 * 读取二代居民身份证识读单元序列号
 	 */
-	public void IDC_GetSerial() {
+	public String IDC_GetSerial() {
 		String retval = "";
+		String cSerialNoStr = "";
 		Pointer pointerOut = null;
 
 		try {
@@ -161,13 +164,14 @@ public class TKIDCDevice {
 			jnativeIDC_GetSerial.invoke();
 
 			retval = jnativeIDC_GetSerial.getRetVal();
-			log.debug("IDC_GetSerial retval==" + retval);
+			log.info("IDC_GetSerial retval==" + retval);
 			if (retval.equals("0")) {
 				byte[] cSerialNo = new byte[32];
 				for (int k = 0; k < 32; k++) {
 					cSerialNo[k] = pointerOut.getAsByte(k);
 				}
-				log.debug("cSerialNo==" + new String(cSerialNo));
+				cSerialNoStr = new String(cSerialNo);
+				log.info("cSerialNo==" + cSerialNoStr);
 			}
 			pointerOut.dispose();
 		} catch (NativeException e) {
@@ -179,6 +183,7 @@ public class TKIDCDevice {
 		} catch (Exception e) {
 			log.error("TKIDCDevice IDC_GetSerial:", e);
 		}
+		return cSerialNoStr;
 	}
 
 	/**
@@ -191,7 +196,7 @@ public class TKIDCDevice {
 		String retval = "-1";
 		Pointer pointerCardType = null;
 		Pointer pointerOut = null;
-
+		int iLogicCodeNum = -1;
 		try {
 			pointerCardType = new Pointer(MemoryBlockFactory.createMemoryBlock(4));
 			pointerOut = new Pointer(MemoryBlockFactory.createMemoryBlock(4 * 4 + 128 + 128));
@@ -204,21 +209,22 @@ public class TKIDCDevice {
 			jnativeIDC_FetchCard.invoke();
 
 			retval = jnativeIDC_FetchCard.getRetVal();
-			// log.debug("IDC_FetchCard retval==" + retval);
+			log.debug("IDC_FetchCard retval==" + retval);
 			if (retval.equals("0")) {
 				log.debug("已经寻到二代证");
-				// byte[] iCardType = new byte[4];
-				// for (int k = 0; k < 4; k++) {
-				// iCardType[k] = pointerCardType.getAsByte(k);
-				// }
-				// log.debug("iCardType==" + CommUtil.bytesToInt(iCardType, 0));
-				//
-				// byte[] iLogicCode = new byte[4];
-				// for (int k = 0; k < 4; k++) {
-				// iLogicCode[k] = pointerOut.getAsByte(k);
-				// }
-				// log.debug("iLogicCode==" + CommUtil.bytesToInt(iLogicCode,
-				// 0));
+				byte[] iCardType = new byte[4];
+				for (int k = 0; k < 4; k++) {
+					iCardType[k] = pointerCardType.getAsByte(k);
+				}
+				int iCardTypeNum = CommUtil.bytesToInt(iCardType, 0);
+				log.info("iCardType==" + iCardTypeNum);
+
+				byte[] iLogicCode = new byte[4];
+				for (int k = 0; k < 4; k++) {
+					iLogicCode[k] = pointerOut.getAsByte(k);
+				}
+				iLogicCodeNum = CommUtil.bytesToInt(iLogicCode, 0);
+				log.info("iLogicCode==" + iLogicCodeNum);
 				//
 				// byte[] iPhyCode = new byte[4];
 				// for (int k = 0; k < 4; k++) {
@@ -345,8 +351,7 @@ public class TKIDCDevice {
 		Pointer pointerOut = null;
 		IDCard synIDCard = null;
 		try {
-			pointerCardInfo = new Pointer(
-					MemoryBlockFactory.createMemoryBlock(30 + 2 + 4 + 16 + 70 + 36 + 30 + 16 + 16 + 70 + 1024));
+			pointerCardInfo = new Pointer(MemoryBlockFactory.createMemoryBlock(30 + 2 + 4 + 16 + 70 + 36 + 30 + 16 + 16 + 70 + 1024));
 			pointerOut = new Pointer(MemoryBlockFactory.createMemoryBlock(4 * 4 + 128 + 128));
 			int i = 0;
 
@@ -365,6 +370,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < 30; k++) {
 					IDName[k] = pointerCardInfo.getAsByte(k);
 				}
+				synIDCard.setIDNameArray(IDName);
 				String personName = new String(IDName, "GBK").trim();
 				log.debug("IDName==" + personName);
 				synIDCard.setPersonName(personName); // set personName
@@ -373,6 +379,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < 2; k++) {
 					IDSex[k] = pointerCardInfo.getAsByte(k + 30);
 				}
+				synIDCard.setIDSexArray(IDSex);
 				String gender = new String(IDSex, "GBK").trim();
 				log.debug("IDSex==" + gender + "#");
 				if (gender.equals("1")) {
@@ -387,6 +394,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < 4; k++) {
 					IDNation[k] = pointerCardInfo.getAsByte(k + 30 + 2);
 				}
+				synIDCard.setIDNationArray(IDNation);
 				String IDNationstr = new String(IDNation, "GBK").trim();
 				log.debug("IDNation==" + IDNationstr + "#");
 				synIDCard.setIDNation(IDNationstr);
@@ -396,12 +404,12 @@ public class TKIDCDevice {
 				for (int k = 0; k < IDBirth.length; k++) {
 					IDBirth[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4);
 				}
+				synIDCard.setIDBirthArray(IDBirth);
 				String birthstr = new String(IDBirth, "GBK").trim();
 				log.debug("IDBirth==" + birthstr + "#");
 				synIDCard.setIDBirth(birthstr);
 
-				String birthday = birthstr.substring(0, 4) + "-" + birthstr.substring(4, 6) + "-"
-						+ birthstr.substring(6, 8);
+				String birthday = birthstr.substring(0, 4) + "-" + birthstr.substring(4, 6) + "-" + birthstr.substring(6, 8);
 				String today = CalUtils.getStringDateShort();
 				// log.debug("birthday==" + birthday);
 				int personAge = CalUtils.getAge(birthday, today);
@@ -415,6 +423,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < IDDwelling.length; k++) {
 					IDDwelling[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16);
 				}
+				synIDCard.setIDDwellingArray(IDDwelling);
 				String idDwelling = new String(IDDwelling, "GBK").trim();
 				log.debug("IDDwelling==" + idDwelling);
 				synIDCard.setIDDwelling(idDwelling);
@@ -423,6 +432,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < IDCode.length; k++) {
 					IDCode[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70);
 				}
+				synIDCard.setIDCodeArray(IDCode);
 				String IDCardNoStr = new String(IDCode, "GBK").trim();
 				log.debug("IDCode==" + IDCardNoStr);
 				synIDCard.setIdNo(IDCardNoStr.trim());
@@ -431,6 +441,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < IDIssue.length; k++) {
 					IDIssue[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36);
 				}
+				synIDCard.setIDIssueArray(IDIssue);
 				String idIssue = new String(IDIssue, "GBK").trim();
 				log.debug("IDIssue==" + idIssue);
 				synIDCard.setIDIssue(idIssue);
@@ -439,6 +450,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < IDEfficb.length; k++) {
 					IDEfficb[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30);
 				}
+				synIDCard.setIDEfficbArray(IDEfficb);
 				String idEfficb = new String(IDEfficb, "GBK").trim();
 				log.debug("IDEfficb==" + idEfficb);
 				synIDCard.setIDEfficb(idEfficb);
@@ -447,6 +459,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < IDEfficb.length; k++) {
 					IDEffice[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30 + 16);
 				}
+				synIDCard.setIDEfficeArray(IDEffice);
 				String idEffice = new String(IDEffice, "GBK").trim();
 				log.debug("IDEffice==" + idEffice);
 				synIDCard.setIDEffice(idEffice);
@@ -455,6 +468,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < IDNewAddr.length; k++) {
 					IDNewAddr[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30 + 16 + 16);
 				}
+				synIDCard.setIDNewAddrArray(IDNewAddr);
 				String idNewAddr = new String(IDNewAddr, "GBK").trim();
 				log.debug("IDNewAddr==" + idNewAddr);
 				synIDCard.setIDNewAddr(idNewAddr);
@@ -463,6 +477,7 @@ public class TKIDCDevice {
 				for (int k = 0; k < IDPhoto.length; k++) {
 					IDPhoto[k] = pointerCardInfo.getAsByte(k + 30 + 2 + 4 + 16 + 70 + 36 + 30 + 16 + 16 + 70);
 				}
+				synIDCard.setIDPhotoArray(IDPhoto);
 				try {
 					File myFile = new File("zp.wlt");
 					FileOutputStream out = new FileOutputStream(myFile);

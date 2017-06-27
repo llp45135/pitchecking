@@ -14,7 +14,7 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 /** * BASE64编码和解码 */
-public class BASE64 {
+public class BASE64Util {
 	/** * BASE64解码 * @param key * @return * @throws Exception */
 	public static byte[] decryptBASE64(String key) throws Exception {
 		return (new BASE64Decoder()).decodeBuffer(key);
@@ -26,9 +26,9 @@ public class BASE64 {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String data = BASE64.encryptBASE64("520203197912141118".getBytes());
+		String data = BASE64Util.encryptBASE64("520203197912141118".getBytes());
 		System.out.println("编码后：" + data);
-		byte[] byteArray = BASE64.decryptBASE64(data);
+		byte[] byteArray = BASE64Util.decryptBASE64(data);
 		System.out.println("解码后：" + new String(byteArray));
 
 		// File file1 = new
@@ -69,12 +69,12 @@ public class BASE64 {
 		System.out.println("getIdPicImageBase64==" + pitInfoJsonBean.getIdPicImageBase64());
 
 		PITVerifyData fd = new PITVerifyData();
-		fd.setIdNo(new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdCardNo())));
+		fd.setIdNo(new String(BASE64Util.decryptBASE64(pitInfoJsonBean.getIdCardNo())));
 		fd.setVerifyResult(pitInfoJsonBean.getSimilarity());
 		fd.setFaceDistance((float) 1.3);
-		fd.setFaceImg(BASE64.decryptBASE64(pitInfoJsonBean.getFaceImageBase64()));
-		fd.setFrameImg(BASE64.decryptBASE64(pitInfoJsonBean.getFrameImageBase64()));
-		fd.setIdCardImg(BASE64.decryptBASE64(pitInfoJsonBean.getIdPicImageBase64()));
+		fd.setFaceImg(BASE64Util.decryptBASE64(pitInfoJsonBean.getFaceImageBase64()));
+		fd.setFrameImg(BASE64Util.decryptBASE64(pitInfoJsonBean.getFrameImageBase64()));
+		fd.setIdCardImg(BASE64Util.decryptBASE64(pitInfoJsonBean.getIdPicImageBase64()));
 		fd.setPitDate(CalUtils.getStringDateShort2());
 		fd.setPitStation("IZQ");
 		fd.setAge(pitInfoJsonBean.getAge());

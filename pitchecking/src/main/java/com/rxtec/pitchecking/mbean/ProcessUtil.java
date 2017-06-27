@@ -35,7 +35,7 @@ public class ProcessUtil {
 		// System.out.println("last heartbeat time = " +
 		// getLastHeartBeat(Config.getInstance().getHeartBeatLogFile()));
 
-		System.out.println("" + createAudioJson(203, "FaceAudio"));
+		System.out.println("" + createTkEventJson(203, "FaceAudio"));
 
 	}
 
@@ -279,7 +279,7 @@ public class ProcessUtil {
 	 * @param audioEventType
 	 * @return
 	 */
-	public static String createAudioJson(int audioEventType, String eventSource) {
+	public static String createTkEventJson(int audioEventType, String eventSource) {
 		ObjectMapper mapper = new ObjectMapper();
 		AudioCtrlBean acBean = new AudioCtrlBean();
 		String json = "{\"Event\": " + audioEventType + ",\"Target\": \"127.0.0.1\",\"EventSource\":\"" + eventSource + "\"}";

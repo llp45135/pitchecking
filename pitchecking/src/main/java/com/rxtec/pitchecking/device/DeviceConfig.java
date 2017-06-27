@@ -31,7 +31,12 @@ public class DeviceConfig {
 	private Logger log = LoggerFactory.getLogger("DeviceConfig");
 	private static DeviceConfig _instance = new DeviceConfig();
 
-	public static String softVersion = "ZTRX_1.10.09"; // 软件版本号
+	public static String softVersion = "ZTRX_1.10.14"; // 软件版本号
+	public static String softVersionToTK = "RX_V1.10";
+	public static String companyCode = "RXTa";
+	public static String gateMachineType = "0JWAG-GT";
+
+	public static String monitorSoftVersion = "1.10.14";
 
 	private String softIdNo = "520203197912141118,440111197209283012,440881199502176714";
 
@@ -59,7 +64,11 @@ public class DeviceConfig {
 	// public static String initImgPath = "./img/init2.gif";
 	public static String initImgPath = "./img/initNew.gif";
 
+	public static String logoImgPath = "./img/logo.jpg";
+
 	public static String faceBgImgPath = "./img/bluebg.jpg";// "./img/bg.png";
+	public static String faceBgImgPath2 = "./img/bluebg2.jpg";
+	public static String faceBgImgPath3 = "./img/bluebg3.jpg";
 
 	// 语音文件
 	// public static String idReaderWav = "./wav/thanks.wav";
@@ -85,6 +94,16 @@ public class DeviceConfig {
 	public static String AudioPassTimeWav = "./wav/passTime.wav";
 	public static String AudioValidIDandTicketWav = "./wav/validIDandTicket.wav";
 	public static String AudioWrongStationWav = "./wav/wrongStation.wav";
+	public static String AudioForbidenTrailWav = "./wav/forbidenTrail.wav";
+	public static String AudioRepeatCheckWav = "./wav/repeatCheck.wav";
+	public static String AudioNoShipTicketWav = "./wav/noShipTicket.wav";
+	public static String AudioInvalidShipTicketWav = "./wav/invalidShipTicket.wav";
+
+	public static String AudioRoomOneWav = "./wav/roomOne.wav";
+	public static String AudioRoomTwoWav = "./wav/roomTwo.wav";
+	public static String AudioRoomThreeWav = "./wav/roomThree.wav";
+	public static String AudioRoomFourWav = "./wav/roomFour.wav";
+	public static String AudioRoomCityWav = "./wav/roomCity.wav";
 
 	// public static int AudiocameraFlag = 201;
 	public static int AudioCheckFailedFlag = 202;
@@ -100,6 +119,16 @@ public class DeviceConfig {
 	public static int AudioWrongStationFlag = 212;
 	public static int AudioTakeCardFlag = 213;
 	public static int AudioTrackFaceFlag = 214;
+	public static int AudioForbidenTrailFlag = 215;
+	public static int AudioRepeatCheckFlag = 216;
+	public static int AudioNoShipTicketFlag = 217;
+	public static int AudioInvalidShipTicketFlag = 218;
+
+	public static int AudioRoomOneFlag = 221;
+	public static int AudioRoomTwoFlag = 222;
+	public static int AudioRoomThreeFlag = 223;
+	public static int AudioRoomFourFlag = 224;
+	public static int AudioRoomCityFlag = 225;
 
 	private int versionFlag = 0;
 	private int readerTimeDelay = 10;
@@ -153,6 +182,8 @@ public class DeviceConfig {
 	public static String GAT_MQ_Guide_CLIENT = "G";// "Guide";
 	public static String GAT_MQ_PidProtect_CLIENT = "P";// "PidProtect";
 
+	public static String CAM_OPEN = "{\"eventDirection\" : 1,\"eventName\" : \"CAM_Open\",\"threshold\" : 65,\"timeout\" : 15}";
+
 	public static String OPEN_FIRSTDOOR = "{\"Event\": 1,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
 	// public static String CLOSE_FIRSTDOOR = "DoorCmd01";
 	public static String OPEN_SECONDDOOR = "{\"Event\": 2,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceVerify\"}";
@@ -161,32 +192,45 @@ public class DeviceConfig {
 	// public static String CLOSE_THIRDDOOR = "DoorCmd21";
 	public static String Close_SECONDDOOR_Jms = "{\"Event\": 20,\"Target\": \"127.0.0.1\",\"EventSource\":\"MainVerify\"}";
 
+	public static String Audio_TakeCard_Jms = "{\"Event\": 203,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceAudio\"}";
+
 	public static String EventTopic = "PITEventTopic";
 	public static String Event_StartTracking = "{\"Event\": 10010,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸开始核验
 	public static String Event_VerifyFaceSucc = "{\"Event\": 10011,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验成功
 	public static String Event_VerifyFaceFailed = "{\"Event\": 10012,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验失败
+	public static String Event_VerifyOvertimeFailed = "{\"Event\": 10013,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验超时
 	public static String Event_ReadIDCardFailed = "{\"Event\": 80004,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 读二代证失败
 	public static String Event_ReadTicketFailed = "{\"Event\": 80001,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 读二维码失败
 	public static String Event_InvalidCardAndTicket = "{\"Event\": 80002,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 票证不符
+	public static String Event_Trailling = "{\"Event\": 80003,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 有人尾随
 	public static String Event_InvalidStation = "{\"Event\": 51605,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 非本站乘车
 	public static String Event_InvalidTrainDate = "{\"Event\": 51666,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 非当日乘车
 	public static String Event_NotInTime = "{\"Event\": 90236,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 未到进站时间
 	public static String Event_PassCheckTime = "{\"Event\": 90238,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 已过进站时间
+	public static String Event_RepeatCheck = "{\"Event\": 80006,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 重复刷证
+	public static String Event_TrainStopped = "{\"Event\": 80007,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 列车已经停运
+	public static String Event_InvalidTrain = "{\"Event\": 80008,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 无效车次
+
+	public static String Event_NoShipTicket = "{\"Event\": 89001,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 无电子船票
+	public static String Event_InvalidShipTicket = "{\"Event\": 89002,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 船票不符
+	public static String Event_ConnTicketCerterFailed = "{\"Event\": 89004,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 内部服务器错误
+
 	public static String Event_QRDeviceException = "{\"Event\": -1,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 二维码读卡器故障
 	public static String Event_IDDeviceException = "{\"Event\": -2,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 二代证读卡器故障
 	public static String Event_DeviceStartupSucc = "{\"Event\": 10000,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 设备启动成功
-	public static String Event_CameraStartupSucc = "{\"Event\": 10001,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 摄像头启动成功
+	public static String Event_CameraStartupSucc = "{\"Event\": 10001,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 后置摄像头启动成功
 	public static String Event_ClosePC = "{\"Event\": 10002,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 立刻关闭PC
 	public static String Event_StopSend_FrontCameraFace = "{\"Event\": 10003,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 停止送前置摄像头的人脸
 	public static String Event_FrontCameraStartupSucc = "{\"Event\": 10004,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 前置摄像头启动成功
 	public static String Event_MainCrtlStartupSucc = "{\"Event\": 10005,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // java版主控启动成功
 	public static String Event_StandaloneCheckStartupSucc = "{\"Event\": 10006,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 独立比对启动成功
 	public static String Event_LetSend_FrontCameraFace = "{\"Event\": 10007,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 允许送前置摄像头的人脸
+	public static String Event_SetIDPhotoSuccess = "{\"Event\": 10008,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 易胜版本身份证建模成功
 
 	public static String Event_PressOpenSecondDoorButton = "{\"Event\":10022,\"Eventsource\":\"Gate\",\"Target\":\"127.0.0.1\"}";
 	public static String Event_SecondDoor_NormalClosed = "{\"Event\":10020,\"Eventsource\":\"Gate\",\"Target\":\"127.0.0.1\"}";
 	public static String Event_SecondDoor_OvertimeClosed = "{\"Event\":10021,\"Eventsource\":\"Gate\",\"Target\":\"127.0.0.1\"}";
-	
+
 	public static String Clear_QrCode_Jms = "{\"EventSource\":\"QRDevice\",\"QRCode\":\"\",\"Target\":\"127.0.0.1\"}";
 
 	// 开关门
@@ -230,10 +274,49 @@ public class DeviceConfig {
 	private String heartFStr = "";
 	private String heartAStr = "";
 	private String heartVStr = "";
+
+	private String faceScreenDisplay = "";
+	private int faceScreenDisplayTimeout = 0;
+
+	private String qrCode = "";
+
+	private String IDCardReaderID = "05-63110-01011";
 	// ----------------------------------------------------------------------------------------
 
 	public int getStopCheckMinutes() {
 		return stopCheckMinutes;
+	}
+
+	public String getIDCardReaderID() {
+		return IDCardReaderID;
+	}
+
+	public void setIDCardReaderID(String iDCardReaderID) {
+		IDCardReaderID = iDCardReaderID;
+	}
+
+	public String getQrCode() {
+		return qrCode;
+	}
+
+	public void setQrCode(String qrCode) {
+		this.qrCode = qrCode;
+	}
+
+	public String getFaceScreenDisplay() {
+		return faceScreenDisplay;
+	}
+
+	public void setFaceScreenDisplay(String faceScreenDisplay) {
+		this.faceScreenDisplay = faceScreenDisplay;
+	}
+
+	public int getFaceScreenDisplayTimeout() {
+		return faceScreenDisplayTimeout;
+	}
+
+	public void setFaceScreenDisplayTimeout(int faceScreenDisplayTimeout) {
+		this.faceScreenDisplayTimeout = faceScreenDisplayTimeout;
 	}
 
 	public String getHeartBStr() {
@@ -553,7 +636,7 @@ public class DeviceConfig {
 
 		this.getLocalIPAddress();
 
-		this.getSZQTrains();
+//		this.getSZQTrains();
 	}
 
 	public static synchronized DeviceConfig getInstance() {
@@ -792,10 +875,8 @@ public class DeviceConfig {
 			this.setIdDeviceType(root.getChild("GateConfig").getAttributeValue("idDeviceType"));
 			this.setQrDeviceType(root.getChild("GateConfig").getAttributeValue("qrDeviceType"));
 			this.setAutoLogonCron(root.getChild("GateConfig").getAttributeValue("autoLogonCron"));
-			this.setStopCheckMinutes(
-					Integer.parseInt(root.getChild("GateConfig").getAttributeValue("stopCheckMinutes")));
-			this.setNotStartCheckMinutes(
-					Integer.parseInt(root.getChild("GateConfig").getAttributeValue("NotStartCheckMinutes")));
+			this.setStopCheckMinutes(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("stopCheckMinutes")));
+			this.setNotStartCheckMinutes(Integer.parseInt(root.getChild("GateConfig").getAttributeValue("NotStartCheckMinutes")));
 
 			this.setCameraLEDPort(Integer.parseInt(root.getChild("GateCrtlConfig").getAttributeValue("cameraLEDPort")));
 			this.setFirstGateCrtlPort(root.getChild("GateCrtlConfig").getAttributeValue("firstGateCrtlPort"));
@@ -853,52 +934,43 @@ public class DeviceConfig {
 		Map<String, String> trainsMap = new HashMap<String, String>();
 
 		String fileName = "";
-		if (this.belongStationCode.equals("SZQ")) {
-			fileName = "./conf/train_list.txt";
-		}
-		if (this.belongStationCode.equals("CSQ")) {
-			fileName = "./conf/train_list.txt";
-		}
-		if (this.belongStationCode.equals("GGQ")) {
-			fileName = "./conf/train_list.txt";
-		}
-		if (this.belongStationCode.equals("SYT")) {
-			fileName = "./conf/train_list.txt";
-		}
-		log.debug("fileName==" + fileName);
+
+		fileName = "./conf/train_list.txt";
+		log.info("fileName==" + fileName);
 		if (!fileName.equals("")) {
 			File file = new File(fileName);
-			BufferedReader reader = null;
-			try {
-				reader = new BufferedReader(new FileReader(file));
-				String tempString = null;
-				int line = 1;
-				while ((tempString = reader.readLine()) != null) {
-					log.debug("line " + line + ": " + tempString);
-					if (!tempString.trim().equals("")) {
-						int k = tempString.indexOf("@");
-						int j = tempString.lastIndexOf("@");
-						String stationCode = tempString.substring(j + 1);
-						// log.debug("stationCode=="+stationCode);
-						if (stationCode.equals(this.belongStationCode)) {
-							String trainCode = tempString.substring(0, k).startsWith("0") ? tempString.substring(1, k)
-									: tempString.substring(0, k);
-							String startTime = tempString.substring(k + 1, k + 6);
-							log.debug("trainCode==" + trainCode + ",startTime==" + " " + startTime);
-							trainsMap.put(trainCode, startTime);
+			if (file.exists()) {
+				BufferedReader reader = null;
+				try {
+					reader = new BufferedReader(new FileReader(file));
+					String tempString = null;
+					int line = 1;
+					while ((tempString = reader.readLine()) != null) {
+						log.debug("line " + line + ": " + tempString);
+						if (!tempString.trim().equals("")) {
+							int k = tempString.indexOf("@");
+							int j = tempString.lastIndexOf("@");
+							String stationCode = tempString.substring(j + 1);
+							if (stationCode.equals(this.belongStationCode)) {
+								String trainCode = tempString.substring(0, k).startsWith("0") ? tempString.substring(1, k) : tempString.substring(0, k);
+								String planDepartTime = tempString.substring(k + 1, k + 20);
+								String DepartTime = tempString.substring(k + 21, k + 40);
+								log.info("所属站 = " + stationCode + ",trainCode==" + trainCode + ",planDepartTime==" + planDepartTime + ",DepartTime==" + DepartTime);
+								trainsMap.put(trainCode, planDepartTime);
+							}
 						}
+						line++;
 					}
-					line++;
-				}
-				reader.close();
-			} catch (IOException e) {
-				log.error("getSZQTrains:", e);
-			} finally {
-				if (reader != null) {
-					try {
-						reader.close();
-					} catch (IOException e1) {
-						log.error("getSZQTrains:", e1);
+					reader.close();
+				} catch (IOException e) {
+					log.error("getSZQTrains:", e.getMessage());
+				} finally {
+					if (reader != null) {
+						try {
+							reader.close();
+						} catch (IOException e1) {
+							log.error("getSZQTrains:", e1);
+						}
 					}
 				}
 			}
@@ -912,16 +984,14 @@ public class DeviceConfig {
 		DeviceConfig dconfig = DeviceConfig.getInstance();
 
 		System.out.println("getStationsMap.size==" + DeviceConfig.getInstance().getStationsMap().size());
-		System.out.println(
-				"GGQ's stationName==" + DeviceConfig.getInstance().getStationsMap().get("GGQ").getStationName());
+		System.out.println("GGQ's stationName==" + DeviceConfig.getInstance().getStationsMap().get("GGQ").getStationName());
 		System.out.println("KQW's stationName==" + DeviceConfig.getInstance().getStationName("KQW"));
 		System.out.println("getTicketTypesMap.size==" + DeviceConfig.getInstance().getTicketTypesMap().size());
 		System.out.println("getSeatTypesMap.size==" + DeviceConfig.getInstance().getSeatTypesMap().size());
 		System.out.println("seatType O is==" + DeviceConfig.getInstance().getSeatTypesMap().get("O"));
 
 		System.out.println("getBelongStationCode==" + dconfig.getBelongStationCode());
-		System.out.println(
-				"getStationName==" + DeviceConfig.getInstance().getStationName(dconfig.getBelongStationCode()));
+		System.out.println("getStationName==" + DeviceConfig.getInstance().getStationName(dconfig.getBelongStationCode()));
 		System.out.println("getGateNo==" + dconfig.getGateNo());
 		System.out.println("getCameraLEDPort==" + dconfig.getCameraLEDPort());
 		System.out.println("getFirstGateCrtlPort==" + dconfig.getFirstGateCrtlPort());

@@ -15,6 +15,7 @@ public class AudioPlayTask implements Runnable {
 	private Logger log = LoggerFactory.getLogger("AudioPlayTask");
 	private static AudioPlayTask _instance;
 	private int deviceStatus = Config.StopStatus;
+	private int lastAudioType = -1;
 
 	public static synchronized AudioPlayTask getInstance() {
 		if (_instance == null) {
@@ -27,6 +28,14 @@ public class AudioPlayTask implements Runnable {
 		String pidStr = ProcessUtil.getCurrentProcessID();
 		log.debug("" + pidStr);
 		AudioDevice.getInstance().setPidstr(pidStr);
+	}
+
+	public int getLastAudioType() {
+		return lastAudioType;
+	}
+
+	public void setLastAudioType(int lastAudioType) {
+		this.lastAudioType = lastAudioType;
 	}
 
 	public void start(int audioStatus) {
@@ -52,6 +61,8 @@ public class AudioPlayTask implements Runnable {
 				if (playtime >= AudioDevice.getInstance().getLastingTime()) {
 					AudioDevice.getInstance().cleanLastAudio();
 					AudioDevice.getInstance().setStartPlayTime("");
+					AudioDevice.getInstance().setInPlaying(false);
+					log.info("语音播放时间到，已经切断");
 				}
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
@@ -66,7 +77,15 @@ public class AudioPlayTask implements Runnable {
 					AudioDevice.getInstance().playAudio(deviceStatus);
 				}
 			} else {
-				AudioDevice.getInstance().playAudio(deviceStatus);
+				if (!AudioDevice.getInstance().isInPlaying() || (AudioDevice.getInstance().isInPlaying() && AudioDevice.getInstance().getNowPlayId() != deviceStatus)) {
+//					log.info("是否在播放中 = " + AudioDevice.getInstance().isInPlaying());
+//					log.info("是否满足条件：准备播放和正在播放的不一样 = " + (AudioDevice.getInstance().isInPlaying() && AudioDevice.getInstance().getNowPlayId() != deviceStatus));
+					AudioDevice.getInstance().playAudio(deviceStatus);
+				}
+//				else{
+//					log.info("是否在播放中 = " + AudioDevice.getInstance().isInPlaying());
+//					log.info("是否满足条件：准备播放和正在播放的不一样 = " + (AudioDevice.getInstance().isInPlaying() && AudioDevice.getInstance().getNowPlayId() != deviceStatus));
+//				}
 			}
 			this.stop();
 		}

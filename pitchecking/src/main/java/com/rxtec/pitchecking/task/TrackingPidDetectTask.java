@@ -10,8 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.device.smartmonitor.MonitorXMLUtil;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
+import com.rxtec.pitchecking.mqtt.MqttSenderBroker;
+import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.utils.CalUtils;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -28,9 +31,10 @@ public class TrackingPidDetectTask implements Job {
 		String pid = "";
 		String HeartBeatStr = "";
 		try {
-//			HeartBeatStr = ProcessUtil.getLastHeartBeat(Config.getInstance().getHeartBeatLogFile());
+			// HeartBeatStr =
+			// ProcessUtil.getLastHeartBeat(Config.getInstance().getHeartBeatLogFile());
 			HeartBeatStr = DeviceConfig.getInstance().getHeartBStr();
-//			log.debug("HeartBeatStr=="+HeartBeatStr);
+			// log.debug("HeartBeatStr=="+HeartBeatStr);
 		} catch (Exception ex) {
 			log.error("TrackingPidDetectTask getLastHeartBeat：", ex);
 		}
@@ -68,7 +72,7 @@ public class TrackingPidDetectTask implements Job {
 						Config.getInstance().setRebackTrackFlag(false);
 						log.info("准备执行恢复后置检脸进程的批处理");
 						Runtime.getRuntime().exec(Config.getInstance().getStartPITTrackCmd());
-						
+
 						DeviceConfig.getInstance().setHeartBStr("");
 						log.info("Resatrt PITTrackApp cmd==" + Config.getInstance().getStartPITTrackCmd());
 					} catch (Exception ex) {
@@ -79,9 +83,18 @@ public class TrackingPidDetectTask implements Job {
 
 					try {
 						log.info("已经执行恢复后置检脸进程的批处理");
-						GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_PidProtect_CLIENT)
-								.sendDoorCmd("PITEventTopic", DeviceConfig.OPEN_SECONDDOOR);
-						DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
+
+						if (Config.getInstance().getFaceControlMode() == 1) {
+							if (DeviceConfig.getInstance().isInTracking()) {
+								GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_PidProtect_CLIENT)
+										.sendDoorCmd("PITEventTopic", DeviceConfig.OPEN_SECONDDOOR);
+								DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
+								log.info("当前检脸中,无身份证,仅仅开门");
+							}
+						} else {
+							GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_PidProtect_CLIENT)
+									.sendDoorCmd("PITEventTopic", DeviceConfig.Event_PressOpenSecondDoorButton);
+						}
 						return;
 					} catch (Exception ex) {
 						log.error("Resatrt PITTrackApp......:", ex);
@@ -103,6 +116,12 @@ public class TrackingPidDetectTask implements Job {
 							Runtime.getRuntime().exec("taskkill /F /PID " + pid);
 
 							Config.getInstance().setRebackTrackFlag(true);
+							
+							
+							//更新前置摄像头状态
+							MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "002", 1);
+							MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "002", "002");
+							MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							log.error("TrackingPidDetectTask taskkill:", e);
@@ -110,22 +129,22 @@ public class TrackingPidDetectTask implements Job {
 							log.error("TrackingPidDetectTask taskkill:", ex);
 						}
 					}
-//					else { // 长时间未恢复，说明没有恢复成功，需要再次恢复
-//						if (heartWaitTime > 14 * 1000) {
-//							try {
-//								Config.getInstance().setCameraWork(false);
-//								log.debug("准备再次杀死后置检脸进程 " + pid);
-//								Runtime.getRuntime().exec("taskkill /F /PID " + pid);
-//
-//								Config.getInstance().setRebackTrackFlag(true);
-//							} catch (IOException e) {
-//								// TODO Auto-generated catch block
-//								log.error("TrackingPidDetectTask taskkill:", e);
-//							} catch (Exception ex) {
-//								log.error("TrackingPidDetectTask taskkill:", ex);
-//							}
-//						}
-//					}
+					// else { // 长时间未恢复，说明没有恢复成功，需要再次恢复
+					// if (heartWaitTime > 14 * 1000) {
+					// try {
+					// Config.getInstance().setCameraWork(false);
+					// log.debug("准备再次杀死后置检脸进程 " + pid);
+					// Runtime.getRuntime().exec("taskkill /F /PID " + pid);
+					//
+					// Config.getInstance().setRebackTrackFlag(true);
+					// } catch (IOException e) {
+					// // TODO Auto-generated catch block
+					// log.error("TrackingPidDetectTask taskkill:", e);
+					// } catch (Exception ex) {
+					// log.error("TrackingPidDetectTask taskkill:", ex);
+					// }
+					// }
+					// }
 				}
 			}
 		}

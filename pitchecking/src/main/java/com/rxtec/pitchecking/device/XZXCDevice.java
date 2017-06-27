@@ -535,10 +535,10 @@ public class XZXCDevice {
 					if (idCardImageBytes != null)
 						synIDCard.setCardImageBytes(idCardImageBytes);
 				}
-				boolean delFlag = idcardFile.delete();
-				log.debug("二代证jpg照片删除 flag=" + delFlag + ",二代证bmp照片删除 flag=" + (new File("zp.bmp")).delete());
+//				boolean delFlag = idcardFile.delete();
+//				log.debug("二代证jpg照片删除 flag=" + delFlag + ",二代证bmp照片删除 flag=" + (new File("zp.bmp")).delete());
 				if (synIDCard.getCardImage() != null && synIDCard.getCardImageBytes() != null)
-					log.debug("完整读取二代证全部信息成功！");
+					log.info("完整读取二代证全部信息成功！");
 			} else {
 				log.debug("读取二代证信息失败！请重试!!" + synIDCard.getCardImage());
 			}

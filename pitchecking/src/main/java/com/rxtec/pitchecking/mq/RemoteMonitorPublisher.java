@@ -9,10 +9,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.task.SendPITEventTask;
+import com.rxtec.pitchecking.utils.BASE64Util;
+import com.rxtec.pitchecking.utils.IDCardUtil;
 
 public class RemoteMonitorPublisher {
 
@@ -119,12 +122,57 @@ public class RemoteMonitorPublisher {
 	}
 
 	public static void main(String[] args) {
-		RemoteMonitorPublisher.getInstance().startService(3);
-		GatCtrlReceiverBroker.getInstance("Alone");// 启动PITEventTopic本地监听
+		// RemoteMonitorPublisher.getInstance().startService(3);
+		// GatCtrlReceiverBroker.getInstance("Alone");// 启动PITEventTopic本地监听
 		// RemoteMonitorPublisher.getInstance().offerFrameData(new byte[] { 1,
 		// 0, 2, 3 });
 		// RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenFirstDoor);
 		// RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenSecondDoor);
 		// RemoteMonitorPublisher.getInstance().offerEventData(DeviceConfig.Event_OpenThirdDoor);
+		try {
+			IDCard idcard = IDCardUtil.createIDCard("zp.jpg");
+
+			PITVerifyData pd = new PITVerifyData();
+			pd.setIdNo(idcard.getIdNo());
+			pd.setPersonName(idcard.getPersonName());
+			pd.setGender(1);
+			pd.setAge(36);
+			pd.setVerifyResult((float) 0.68);
+			pd.setPitDate("20161017");
+			pd.setPitStation("IZQ");
+			pd.setPitTime("1300");
+			pd.setIdCardImg(idcard.getCardImageBytes());
+			pd.setIdCardImgByBase64(BASE64Util.encryptBASE64(idcard.getCardImageBytes()));
+			pd.setFaceImg(idcard.getCardImageBytes());
+			pd.setFaceImgByBase64(BASE64Util.encryptBASE64(idcard.getCardImageBytes()));
+			pd.setFrameImg(idcard.getCardImageBytes());
+			pd.setFrameImgByBase64(BASE64Util.encryptBASE64(idcard.getCardImageBytes()));
+			pd.setFaceDistance((float) 1.3);
+			pd.setUseTime(560);
+			pd.setFacePosePitch((float) 0.55);
+			pd.setFacePoseRoll((float) 0.66);
+			pd.setFacePoseYaw((float) 0.77);
+
+			System.out.println(pd.getIdCardImg().length);
+
+			PITInfoJson info = null;
+			try {
+				info = new PITInfoJson(pd);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.out.println("info1:" + info.getJsonStr());
+
+			PITInfoJson info2 = null;
+			try {
+				info2 = new PITInfoJson(idcard.getCardImageBytes());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("info2:" + info2.getJsonStr());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

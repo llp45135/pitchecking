@@ -15,8 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.HXGCDevice;
+import com.rxtec.pitchecking.device.RSIVIDcardDevice;
 import com.rxtec.pitchecking.device.TKIDCDevice;
 import com.rxtec.pitchecking.device.XZXCDevice;
+import com.rxtec.pitchecking.device.smartmonitor.MonitorXMLUtil;
 import com.rxtec.pitchecking.event.IDCardReaderEvent;
 import com.rxtec.pitchecking.event.IDeviceEvent;
 import com.rxtec.pitchecking.gui.TicketCheckFrame;
@@ -29,9 +31,10 @@ public class IDReader implements Runnable {
 	private XZXCDevice xzxcDevice = null;
 	private HXGCDevice hxgcDevice = null;
 	private TKIDCDevice tkIDCDevice = null;
+	private RSIVIDcardDevice rsivIDCDevice = null;
 	private int deviceStatus = Config.StartStatus;
 	// 以下ticketFrame仅供测试用
-//	private TicketCheckFrame ticketFrame;
+	// private TicketCheckFrame ticketFrame;
 	private TicketVerifyFrame ticketFrame;
 
 	public TicketVerifyFrame getTicketFrame() {
@@ -41,6 +44,9 @@ public class IDReader implements Runnable {
 	public void setTicketFrame(TicketVerifyFrame ticketFrame) {
 		this.ticketFrame = ticketFrame;
 	}
+
+	private int lastStatusCode = -1;
+	private int disconnectCount = 0;
 
 	public static synchronized IDReader getInstance() {
 		if (instance == null) {
@@ -57,17 +63,32 @@ public class IDReader implements Runnable {
 		} else if (DeviceConfig.getInstance().getIdDeviceType().equals("H")) {
 			hxgcDevice = HXGCDevice.getInstance();
 			// openVal = hxgcDevice.Syn_OpenPort();
+		} else if (DeviceConfig.getInstance().getIdDeviceType().equals("R")) {
+			rsivIDCDevice = RSIVIDcardDevice.getInstance();
 		} else {
 			tkIDCDevice = TKIDCDevice.getInstance();
+			openVal = tkIDCDevice.IDC_Init();
 		}
-		// if (openVal.equals("0")) {
-		// DeviceConfig.getInstance().setIdDeviceStatus(DeviceConfig.idDeviceSucc);
-		// } else {
-		// DeviceConfig.getInstance().setIdDeviceStatus(Integer.parseInt(openVal));
-		// }
 
-		DeviceConfig.getInstance().setIdDeviceStatus(DeviceConfig.idDeviceSucc);
-		log.debug("二代证读卡器" + DeviceConfig.getInstance().getIdDeviceType() + "初始化成功!");
+		if (DeviceConfig.getInstance().getIdDeviceType().equals("R")) {
+			int fetchCode = rsivIDCDevice.IDC_FetchCard(3000);
+			this.lastStatusCode = fetchCode;
+			if (fetchCode == 36881) {
+				DeviceConfig.getInstance().setIdDeviceStatus(0);
+				log.info("二代证读卡器" + DeviceConfig.getInstance().getIdDeviceType() + "SIVIDC 初始化失败!");
+			} else {
+				DeviceConfig.getInstance().setIdDeviceStatus(DeviceConfig.idDeviceSucc);
+				log.info("二代证读卡器" + DeviceConfig.getInstance().getIdDeviceType() + "SIVIDC 初始化成功!");
+			}
+		} else {
+			if (openVal.equals("0")) {
+				DeviceConfig.getInstance().setIdDeviceStatus(DeviceConfig.idDeviceSucc);
+				log.info("二代证读卡器" + DeviceConfig.getInstance().getIdDeviceType() + "KIDC 初始化成功!");
+			} else {
+				DeviceConfig.getInstance().setIdDeviceStatus(Integer.parseInt(openVal));
+				log.info("二代证读卡器" + DeviceConfig.getInstance().getIdDeviceType() + "KIDC 初始化失败!");
+			}
+		}
 	}
 
 	@Override
@@ -88,6 +109,8 @@ public class IDReader implements Runnable {
 				hxgcDevice.Syn_OpenPort();
 				this.readUseHXGCDevice(hxgcDevice);
 				hxgcDevice.Syn_ClosePort();
+			} else if (DeviceConfig.getInstance().getIdDeviceType().equals("R")) {
+				this.readTkIDCDevice(rsivIDCDevice);
 			} else {
 				this.readTkIDCDevice(tkIDCDevice);
 			}
@@ -106,8 +129,7 @@ public class IDReader implements Runnable {
 			String selectval = device.Syn_SelectIDCard();
 			if (selectval.equals("0")) {
 				IDCard idCard = device.Syn_ReadBaseMsg();
-				if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null
-						&& idCard.getCardImageBytes() != null) {
+				if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null && idCard.getCardImageBytes() != null) {
 					if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 以下为正式代码
 						// if
 						// (DeviceEventListener.getInstance().isDealDeviceEvent())
@@ -136,8 +158,7 @@ public class IDReader implements Runnable {
 			String selectval = device.Syn_SelectIDCard();
 			if (selectval.equals("0")) {
 				IDCard idCard = device.Syn_ReadBaseMsg();
-				if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null
-						&& idCard.getCardImageBytes() != null) {
+				if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null && idCard.getCardImageBytes() != null) {
 					if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 以下为正式代码
 						if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
 							IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
@@ -159,24 +180,89 @@ public class IDReader implements Runnable {
 	 * @param device
 	 */
 	private void readTkIDCDevice(TKIDCDevice device) {
+		// device.IDC_GetSerial();
 		String findval = device.IDC_FetchCard(3000);
 		if (findval.equals("0")) {
 			IDCard idCard = device.IDC_ReadIDCardInfo(2);
-			if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null
-					&& idCard.getCardImageBytes() != null) {
+			if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null && idCard.getCardImageBytes() != null) {
 				if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 以下为正式代码
-					if (DeviceEventListener.getInstance().isDealDeviceEvent()) {
-						IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
-						readCardEvent.setIdCard(idCard);
-						log.debug("offerDeviceEvent idCard");
-						DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
-					}
+					// if
+					// (DeviceEventListener.getInstance().isDealDeviceEvent()) {
+					IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
+					readCardEvent.setIdCard(idCard);
+					log.info("offerDeviceEvent idCard");
+					DeviceEventListener.getInstance().getTicketVerify().setIdCard(idCard);
+					DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
+					// }
 				} else {
 					ticketFrame.showWaitInputContent(null, idCard, 1, 0);// 测试代码
 				}
 			}
 		}
 	}
+
+	/**
+	 * 鐵科新版讀卡器
+	 * 
+	 * @param device
+	 */
+	private void readTkIDCDevice(RSIVIDcardDevice device) {
+		// device.IDC_GetSerial();
+		log.debug("准备开始寻二代证");
+		int findval = device.IDC_FetchCard(3000);
+		if (findval == 36864) {
+			IDCard idCard = device.IDC_ReadIDCardInfo(2);
+			if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null && idCard.getCardImageBytes() != null) {
+				if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 以下为正式代码
+					// if
+					// (DeviceEventListener.getInstance().isDealDeviceEvent()) {
+					IDCardReaderEvent readCardEvent = new IDCardReaderEvent();
+					readCardEvent.setIdCard(idCard);
+					log.info("offerDeviceEvent idCard");
+					DeviceEventListener.getInstance().getTicketVerify().setIdCard(idCard);
+					DeviceEventListener.getInstance().offerDeviceEvent(readCardEvent);
+					// }
+				} else {
+					ticketFrame.showWaitInputContent(null, idCard, 1, 0);// 测试代码
+				}
+			}
+		}
+		if (findval == 36881) {
+			disconnectCount = disconnectCount + 1;
+			if (this.lastStatusCode != findval && disconnectCount > 3) {
+				log.info("二代证读卡连接失败");
+				MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "004", 1);
+				MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "004", "006");
+				MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
+				this.lastStatusCode = findval;
+			}
+		}
+		if (findval == 36880) {
+			disconnectCount = 0;
+			if (this.lastStatusCode != findval) {
+				log.info("二代证读卡已经恢复连接");
+				MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "004", 0);
+				MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "004", "000");
+				MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 0);
+				this.lastStatusCode = findval;
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param device
+	 * @return
+	 */
+	// public boolean getFetchCardStatus(TKIDCDevice device) {
+	// boolean flag = false;
+	// if (device.IDC_FetchCard(300).equals("0")) {
+	// flag = true;
+	// } else {
+	// flag = false;
+	// }
+	// return flag;
+	// }
 
 	public void start() {
 		deviceStatus = Config.StartStatus;

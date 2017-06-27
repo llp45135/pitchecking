@@ -1,33 +1,19 @@
 package com.rxtec.pitchecking.mqtt.pitevent;
 
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.Random;
 
-import javax.imageio.ImageIO;
-
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.net.event.CAMOpenBean;
-import com.rxtec.pitchecking.net.event.EventHandler;
-import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
-import com.rxtec.pitchecking.net.event.PIVerifyResultBean;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.ImageToolkit;
-
-import io.aeron.Publication;
 
 /**
  * 本类由人脸比对进程使用 ,发送已经比对过的人脸至PTVerifyResult主题
@@ -85,7 +71,7 @@ public class PTVerifyResultSender {
 			mqttClient.subscribe(TOPICS, QOS_VALUES);// 订阅接收主题
 			flag = 0;
 		} catch (MqttException ex) {
-			log.error("MqttSenderBroker reconnect", ex);
+			log.error("PTVerifyResultSender reconnect", ex);
 			flag = -1;
 		}
 		return flag;
@@ -118,18 +104,43 @@ public class PTVerifyResultSender {
 		// QOS_VALUES[0], true);// 增加心跳，保持网络通畅
 	}
 
+	/**
+	 * 
+	 */
 	private byte[] serialObjToBytes(Object o) {
 		byte[] buf = null;
+		ByteArrayOutputStream bos = null;
+		ObjectOutputStream oos = null;
 		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream oo = new ObjectOutputStream(bos);
-			oo.writeObject(o);
+			bos = new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(o);
 			buf = bos.toByteArray();
-			oo.close();
-
+			if (oos != null) {
+				oos.close();
+				oos = null;
+			}
+			if (bos != null) {
+				bos.close();
+				bos = null;
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("serialObjToBytes", e);
+		} finally {
+			try {
+				if (oos != null) {
+					oos.close();
+					oos = null;
+				}
+				if (bos != null) {
+					bos.close();
+					bos = null;
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				log.error("serialObjToBytes", e);
+			}
 		}
 
 		return buf;

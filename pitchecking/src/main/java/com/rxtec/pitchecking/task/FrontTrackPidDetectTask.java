@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.device.smartmonitor.MonitorXMLUtil;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.utils.CalUtils;
 
@@ -81,6 +82,11 @@ public class FrontTrackPidDetectTask implements Job {
 							Runtime.getRuntime().exec("taskkill /F /PID " + frontCamearPid);
 
 							Config.getInstance().setRebackFrontTrackFlag(true); // 进程已杀死，允许执行恢复操作
+							
+							//更新前置摄像头状态
+							MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "002", 1);
+							MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "002", "002");
+							MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							log.error("PITProcessDetect taskkill:", e);

@@ -7,12 +7,13 @@ import javax.jms.JMSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.domain.FailedFace;
+import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.CommUtil;
 
 public class JmsSenderTask implements Runnable {
 	private Logger log = LoggerFactory.getLogger("JmsSenderTask");
 	private static JmsSenderTask _instance;
-	private LinkedBlockingQueue<FailedFace> failedFaceQueue;
+	private LinkedBlockingQueue<PITVerifyData> failedFaceQueue;
 	private JmsSender jmsSender = null;
 
 	public static synchronized JmsSenderTask getInstance() {
@@ -23,10 +24,10 @@ public class JmsSenderTask implements Runnable {
 	}
 
 	private JmsSenderTask() {
-		failedFaceQueue = new LinkedBlockingQueue<FailedFace>(1);
+		failedFaceQueue = new LinkedBlockingQueue<PITVerifyData>(1);
 	}
 
-	public void offerFailedFace(FailedFace failedFace) {
+	public void offerFailedFace(PITVerifyData failedFace) {
 		// offer方法在添加元素时，如果发现队列已满无法添加的话，会直接返回false
 		boolean flag = failedFaceQueue.offer(failedFace);
 		if (flag) {
@@ -36,7 +37,7 @@ public class JmsSenderTask implements Runnable {
 		}
 	}
 
-	public FailedFace takeFailedFace() throws InterruptedException {
+	public PITVerifyData takeFailedFace() throws InterruptedException {
 		return failedFaceQueue.take();
 	}
 
@@ -57,7 +58,7 @@ public class JmsSenderTask implements Runnable {
 		}
 
 		if (jmsSender != null) {
-			FailedFace faceData = null;
+			PITVerifyData faceData = null;
 			try {
 				faceData = JmsSenderTask.getInstance().takeFailedFace();  // take若队列为空，发生阻塞，等待有元素
 			} catch (InterruptedException e) {

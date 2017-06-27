@@ -268,6 +268,23 @@ public class FaceImageLog {
 		saveIDCardImageByTK(idcardDir, fd);
 		saveFaceImageByTK(faceDir, fd);
 	}
+	
+	
+	public static void saveFaceDataToDskByReal(PITVerifyData fd) {
+		// log.info("准备存储照片saveFaceDataToDskByTK");
+		String dirName = Config.getInstance().getImagesLogDir();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+		dirName += formatter.format(new Date());
+
+		String idcardDir = dirName + "/Id_card/";		
+		String faceDir = dirName + "/Faces/";
+		String photoDir = dirName + "/Photo/";
+
+		float result = fd.getVerifyResult();
+		saveIDCardImageByReal(idcardDir, fd);
+		saveFaceImageByReal(faceDir, fd);
+		saveFrameImageByReal(photoDir, fd);
+	}
 
 	/**
 	 * 写通道帧图像
@@ -350,6 +367,51 @@ public class FaceImageLog {
 			}
 		}
 	}
+	
+	
+	/**
+	 * 
+	 * @param dirName
+	 * @param fd
+	 */
+	private static void saveFrameImageByReal(String dirName, PITVerifyData fd) {
+		if (fd == null || fd.getFrameImg() == null)
+			return;
+		int ret = CommUtil.createDir(dirName);
+		if (ret == 0 || ret == 1) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss-SSS");
+
+			String fn = "";
+			for (int k = 1; k <= 3; k++) {
+				StringBuffer sb = new StringBuffer();
+				sb.append(dirName);
+				sb.append(fd.getIdNo());
+				sb.append("_");
+//				sb.append(k);
+//				sb.append("_");
+				sb.append(fd.getVerifyResult());
+				sb.append(".jpg");
+				fn = sb.toString();
+				if (!new File(fn).exists()) {
+					break;
+				}
+			}
+			if (fn == null || fn.equals("")) {
+				return;
+			}
+			DataOutputStream out;
+			if (fd.getFaceImg() != null) {
+				try {
+					out = new DataOutputStream(new FileOutputStream(fn));
+					out.write(fd.getFrameImg());
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	/**
 	 * 
@@ -370,6 +432,51 @@ public class FaceImageLog {
 				sb.append(fd.getIdNo().hashCode());
 				sb.append("_");
 				sb.append(k);
+				sb.append(".jpg");
+				fn = sb.toString();
+				if (!new File(fn).exists()) {
+					break;
+				}
+			}
+			if (fn == null || fn.equals("")) {
+				return;
+			}
+			DataOutputStream out;
+			if (fd.getFaceImg() != null) {
+				try {
+					out = new DataOutputStream(new FileOutputStream(fn));
+					out.write(fd.getFaceImg());
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @param dirName
+	 * @param fd
+	 */
+	private static void saveFaceImageByReal(String dirName, PITVerifyData fd) {
+		if (fd == null || fd.getFaceImg() == null)
+			return;
+		int ret = CommUtil.createDir(dirName);
+		if (ret == 0 || ret == 1) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss-SSS");
+
+			String fn = "";
+			for (int k = 1; k <= 3; k++) {
+				StringBuffer sb = new StringBuffer();
+				sb.append(dirName);
+				sb.append(fd.getIdNo());
+				sb.append("_");
+//				sb.append(k);
+//				sb.append("_");
+				sb.append(String.valueOf(fd.getVerifyResult()));
 				sb.append(".jpg");
 				fn = sb.toString();
 				if (!new File(fn).exists()) {
@@ -535,6 +642,36 @@ public class FaceImageLog {
 			StringBuffer sb = new StringBuffer();
 			sb.append(dirName);
 			sb.append(fd.getIdNo().hashCode());
+			sb.append(".bmp");
+			String fn = sb.toString();
+			DataOutputStream out;
+			if (fd.getFaceImg() != null) {
+				try {
+					out = new DataOutputStream(new FileOutputStream(fn));
+					out.write(fd.getIdCardImg());
+					out.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param dirName
+	 * @param fd
+	 */
+	private static void saveIDCardImageByReal(String dirName, PITVerifyData fd) {
+		if (fd == null || fd.getIdCardImg() == null)
+			return;
+
+		int ret = CommUtil.createDir(dirName);
+		if (ret == 0 || ret == 1) {
+			StringBuffer sb = new StringBuffer();
+			sb.append(dirName);
+			sb.append(fd.getIdNo());
 			sb.append(".bmp");
 			String fn = sb.toString();
 			DataOutputStream out;

@@ -7,6 +7,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.db.mysql.PitRecordSqlDao;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.utils.CalUtils;
@@ -29,10 +33,12 @@ import java.awt.event.ActionEvent;
 
 public class CheckSumFrame extends JFrame {
 
+	private Logger log = LoggerFactory.getLogger("CheckSumFrame");
 	private JPanel contentPane;
 	private JTextField rqTextField;
 
 	PitRecordSqlDao pitRecordSqlDao;
+	private JTextField yzTextField;
 
 	/**
 	 * Launch the application.
@@ -93,6 +99,21 @@ public class CheckSumFrame extends JFrame {
 		rqTextField.setColumns(10);
 		
 		rqTextField.setText(CalUtils.getStringDateShort2());
+		
+		JLabel label_yz = new JLabel("统计阈值：");
+		label_yz.setHorizontalTextPosition(SwingConstants.LEFT);
+		label_yz.setFont(new Font("微软雅黑", Font.PLAIN, 30));
+		label_yz.setBounds(184, 625, 174, 34);
+		panel.add(label_yz);
+		
+		yzTextField = new JTextField();
+		yzTextField.setEditable(false);
+		yzTextField.setFont(new Font("微软雅黑", Font.PLAIN, 28));
+		yzTextField.setColumns(10);
+		yzTextField.setBounds(368, 625, 117, 34);
+		panel.add(yzTextField);
+		
+		yzTextField.setText(String.valueOf(Config.getInstance().getFaceCheckThreshold()));
 
 		JLabel gateLabel1 = new JLabel("1号闸机：");
 		gateLabel1.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -121,25 +142,25 @@ public class CheckSumFrame extends JFrame {
 		JLabel ipaddr1 = new JLabel("");
 		ipaddr1.setHorizontalTextPosition(SwingConstants.LEFT);
 		ipaddr1.setFont(new Font("微软雅黑", Font.PLAIN, 30));
-		ipaddr1.setBounds(421, 241, 229, 34);
+		ipaddr1.setBounds(368, 241, 307, 34);
 		panel.add(ipaddr1);
 
 		JLabel ipaddr2 = new JLabel("");
 		ipaddr2.setHorizontalTextPosition(SwingConstants.LEFT);
 		ipaddr2.setFont(new Font("微软雅黑", Font.PLAIN, 30));
-		ipaddr2.setBounds(421, 318, 229, 34);
+		ipaddr2.setBounds(368, 318, 307, 34);
 		panel.add(ipaddr2);
 
 		JLabel ipaddr3 = new JLabel("");
 		ipaddr3.setHorizontalTextPosition(SwingConstants.LEFT);
 		ipaddr3.setFont(new Font("微软雅黑", Font.PLAIN, 30));
-		ipaddr3.setBounds(421, 400, 229, 34);
+		ipaddr3.setBounds(368, 400, 307, 34);
 		panel.add(ipaddr3);
 
 		JLabel ipaddr4 = new JLabel("");
 		ipaddr4.setHorizontalTextPosition(SwingConstants.LEFT);
 		ipaddr4.setFont(new Font("微软雅黑", Font.PLAIN, 30));
-		ipaddr4.setBounds(421, 476, 229, 34);
+		ipaddr4.setBounds(368, 476, 307, 34);
 		panel.add(ipaddr4);
 
 		JLabel gateCount1 = new JLabel("0");
@@ -201,7 +222,8 @@ public class CheckSumFrame extends JFrame {
 							String targetIP = st.nextToken();
 							pitRecordSqlDao = new PitRecordSqlDao(targetIP);
 							String sqls = "select idNO from pit_face_verify where pitDate='"
-									+ rqTextField.getText().trim() + "' and verifyResult>=0.6 group by idNo";
+									+ rqTextField.getText().trim() + "' and verifyResult>= "+Config.getInstance().getFaceCheckThreshold()+" group by idNo";
+							log.info("sqls=="+sqls);
 							ResultSet rs = pitRecordSqlDao.selectSQL(sqls);							
 							
 							int total = 0;
@@ -293,6 +315,8 @@ public class CheckSumFrame extends JFrame {
 		JSeparator separator_3 = new JSeparator();
 		separator_3.setBounds(10, 520, 974, 10);
 		panel.add(separator_3);
+		
+		
 		
 		
 	}

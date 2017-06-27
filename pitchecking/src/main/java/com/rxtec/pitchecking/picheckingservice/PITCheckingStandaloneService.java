@@ -18,12 +18,19 @@ import com.rxtec.pitchecking.mbean.PITProcessDetect;
 import com.rxtec.pitchecking.mqtt.ClosePCEventSenderBroker;
 import com.rxtec.pitchecking.mqtt.GatCtrlReceiverBroker;
 import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
+import com.rxtec.pitchecking.mqtt.MqttCamResponseReceiver;
+import com.rxtec.pitchecking.mqtt.MqttReceiverBroker;
 import com.rxtec.pitchecking.mqtt.pitevent.PTVerifyReceiver;
 import com.rxtec.pitchecking.mqtt.pitevent.PTVerifyResultSender;
 import com.rxtec.pitchecking.net.PIVerifySubscriber;
+import com.rxtec.pitchecking.socket.pitevent.FaceReceiver;
+import com.rxtec.pitchecking.socket.pitevent.FaceResultReceiver;
+import com.rxtec.pitchecking.socket.pitevent.OcxFaceReceiver;
 import com.rxtec.pitchecking.task.ClosePCSendingTask;
 import com.rxtec.pitchecking.task.ManualCheckingTask;
 import com.rxtec.pitchecking.task.PoliceSendingTask;
+import com.rxtec.pitchecking.task.ThirdSendingTask;
+import com.rxtec.pitchecking.task.WharfSendingTask;
 
 /**
  * 单独比对人脸进程
@@ -94,6 +101,22 @@ public class PITCheckingStandaloneService {
 			executorService.execute(policeSendingTask);
 		}
 
+		if (Config.getInstance().getIsUseThirdMQ() == 1) {// 是否连第三方
+			ExecutorService executorService = Executors.newSingleThreadExecutor();
+			ThirdSendingTask thirdSendingTask = new ThirdSendingTask(DeviceConfig.GAT_MQ_Standalone_CLIENT);
+			executorService.execute(thirdSendingTask);
+		}
+		
+		if (Config.getInstance().getIsUseWharfMQ() == 1) {// 是否连桂林码头
+			ExecutorService executorService = Executors.newSingleThreadExecutor();
+			WharfSendingTask wharfSendingTask = new WharfSendingTask(DeviceConfig.GAT_MQ_Standalone_CLIENT);
+			executorService.execute(wharfSendingTask);
+		}
+
+		if (Config.getInstance().getFaceControlMode() == 2) { // 有人脸比对进程监听
+			MqttReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT); // 同CAM_RXTa.dll通信			
+		}
+
 		GatCtrlReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);// 启动PITEventTopic本地监听
 
 		// if (Config.getInstance().getIsSendClosePCCmd() == 1) {
@@ -105,17 +128,31 @@ public class PITCheckingStandaloneService {
 		// executorService.execute(closePCSendingTask);
 		// }
 
-		FaceCheckingService.getInstance().addStandaloneQuartzJobs();
+		if (Config.getInstance().getIsCheckStandaloneHeart() == 1) {
+			FaceCheckingService.getInstance().addStandaloneQuartzJobs();
+		}
 
-		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
-				.sendDoorCmd(DeviceConfig.Event_StandaloneCheckStartupSucc);
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT).sendDoorCmd(DeviceConfig.Event_StandaloneCheckStartupSucc);
 
-		if (Config.getInstance().getTransferFaceMode() == 2) {  //mqtt
-			PTVerifyReceiver.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);
+		if (Config.getInstance().getTransferFaceMode() == Config.TransferFaceByMqtt) { // Mqtt
+			PTVerifyReceiver.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT); // 开启订阅由人脸检测进程发过来的人脸比对请求-By-Mqtt
+		}
+		if (Config.getInstance().getTransferFaceMode() == Config.TransferFaceBySocket) { // Socket
+			/**
+			 * 人脸来源是realsense
+			 */
+			if (Config.getInstance().getSendFaceSourceBySocket() == 1)
+				FaceReceiver.getInstance().startSubscribing(); // 开启订阅由人脸检测进程发过来的人脸比对请求-BySocket
+			/**
+			 * 人脸来源是ocx方式的usb摄像头
+			 * 单门摄像头或者双门的后置摄像头
+			 */
+			if (Config.getInstance().getSendFaceSourceBySocket() == 2)
+				OcxFaceReceiver.getInstance().startSubscribing();
 		}
 		FaceCheckingService.getInstance().beginFaceCheckerStandaloneTask();
-		if (Config.getInstance().getTransferFaceMode() == 1) {   //aeron
-			PIVerifySubscriber piVerifySubscriber = new PIVerifySubscriber(); // 开启订阅由人脸检测进程发过来的人脸比对请求
+		if (Config.getInstance().getTransferFaceMode() == Config.TransferFaceByAeron) { // aeron
+			PIVerifySubscriber piVerifySubscriber = new PIVerifySubscriber(); // 开启订阅由人脸检测进程发过来的人脸比对请求-By-aeron
 		}
 	}
 

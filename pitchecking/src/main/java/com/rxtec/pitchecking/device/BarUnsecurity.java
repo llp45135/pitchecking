@@ -47,48 +47,52 @@ public class BarUnsecurity {
 		if (ticketArray.length == 117) {
 
 			String ticketStr = new String(ticketArray, "gbk");
+			log.debug("ticketStr=="+ticketStr+"##");
 
-			ticket.setTicketNo(ticketStr.substring(0, 7));
-			String fromStationCode = ticketStr.substring(7, 10);
+			ticket.setTicketNo(ticketStr.substring(0, 7));   //7位
+			String fromStationCode = ticketStr.substring(7, 10);  //3位
 			ticket.setFromStationCode(fromStationCode);
 			ticket.setFromStationName(DeviceConfig.getInstance().getStationName(fromStationCode));
-			String endStationCode = ticketStr.substring(10, 13);
+			String endStationCode = ticketStr.substring(10, 13);  //3位
 			ticket.setEndStationCode(endStationCode);
 			ticket.setToStationName(DeviceConfig.getInstance().getStationName(endStationCode));
-			ticket.setChangeStationCode(ticketStr.substring(13, 16));
-			String trainCodeStr = ticketStr.substring(16, 24).trim();
+			ticket.setChangeStationCode(ticketStr.substring(13, 16));  //3位
+			String trainCodeStr = ticketStr.substring(16, 24).trim();  //8位
+			log.debug("trainCodeStr==" + trainCodeStr+"#");
 			if (trainCodeStr.length() > 5) {
-				ticket.setTrainCode(
-						trainCodeStr.substring(0, 1) + String.valueOf(Integer.parseInt(trainCodeStr.substring(1))));
-			} else {
-				ticket.setTrainCode(String.valueOf(Integer.parseInt(trainCodeStr)));
+				ticket.setTrainCode(trainCodeStr.substring(0, 1) + String.valueOf(Integer.parseInt(trainCodeStr.substring(1))));
+			} else {				
+				ticket.setTrainCode(trainCodeStr);
 			}
-			ticket.setCoachNo(ticketStr.substring(24, 26));
-			ticket.setSeatCode(ticketStr.substring(26, 27));
-			ticket.setTicketType(ticketStr.substring(27, 29));
-			ticket.setSeatNo(ticketStr.substring(29, 33));
-			ticket.setTicketPrice(Integer.parseInt(ticketStr.substring(33, 38)));
+			log.debug("getTrainCode=="+ticket.getTrainCode()+"#");
+			ticket.setCoachNo(ticketStr.substring(24, 26));  //2位
+			ticket.setSeatCode(ticketStr.substring(26, 27));  //1位
+			ticket.setTicketType(ticketStr.substring(27, 29));  //2位
+			ticket.setSeatNo(ticketStr.substring(29, 33));  //座席号-4位
+			log.debug("ticketPriceStr=="+ticketStr.substring(33, 38)+"##");
+			ticket.setTicketPrice(0);  //票价-5位
 			byte[] trainDateArray = new byte[8];
 			for (int i = 0; i < 8; i++) {
 				trainDateArray[i] = ticketArray[i + 38];
 			}
-			ticket.setTrainDate(new String(trainDateArray));
-			ticket.setChangeFlag(ticketStr.substring(46, 47));
-			ticket.setTicketSourceCenter(ticketStr.substring(47, 49));
-			ticket.setBzsFlag(ticketStr.substring(49, 50));
-			ticket.setSaleOfficeNo(ticketStr.substring(50, 57));
-			ticket.setSaleWindowNo(ticketStr.substring(57, 60));
-			ticket.setSaleDate(ticketStr.substring(60, 68));
-			ticket.setCardType(ticketStr.substring(68, 70));
-			ticket.setCardNo(ticketStr.substring(72, 90));
+			ticket.setTrainDate(new String(trainDateArray));   //乘车日期-8位
+			ticket.setChangeFlag(ticketStr.substring(46, 47));  //中转票标记-1位
+			ticket.setTicketSourceCenter(ticketStr.substring(47, 49));  //票源中心-2位
+			ticket.setBzsFlag(ticketStr.substring(49, 50));   //本站售标识-1位
+			ticket.setSaleOfficeNo(ticketStr.substring(50, 57));  //售票处-7位
+			ticket.setSaleWindowNo(ticketStr.substring(57, 60));  //售票窗口号-3位
+			ticket.setSaleDate(ticketStr.substring(60, 68));    //结账日期-8位
+			ticket.setCardType(ticketStr.substring(68, 70));    //证件类型-2位
+			                                                    //证件号长度-2位
+			ticket.setCardNo(ticketStr.substring(72, 90));      //证件号：18位
 
 			byte[] passengerNameArray = new byte[20];
 			for (int i = 0; i < 20; i++) {
 				passengerNameArray[i] = ticketArray[i + 90];
 			}
-			String ss = new String(passengerNameArray, "gbk");
-			ticket.setPassengerName(ss.trim());
-			byte[] specialArray = new byte[7];
+			String ss = new String(passengerNameArray, "gbk");    
+			ticket.setPassengerName(ss.trim());                    //乘客姓名-20位
+			byte[] specialArray = new byte[7];                      //自定义-7位
 			for (int i = 0; i < 7; i++) {
 				specialArray[i] = ticketArray[i + 110];
 			}
@@ -99,8 +103,8 @@ public class BarUnsecurity {
 			trainDateArray = null;
 			passengerNameArray = null;
 			specialArray = null;
-			
-//			printTicketInfo(ticket);
+
+			// printTicketInfo(ticket);
 		}
 
 		return ticket;
@@ -182,17 +186,17 @@ public class BarUnsecurity {
 		}
 		return outStrArray;
 	}
-	
+
 	public static void main(String[] args) {
 		BarUnsecurity barUnsecurity = BarUnsecurity.getInstance();
 		Ticket ticket = null;
 		String barCode = "030662841131798439349199142258828536855229283991646592935582752300596297631667652340997372666399185220905450514101092520636404597435822209499692";
 		try {
 			ticket = barUnsecurity.buildTicket(barUnsecurity.uncompress(barCode, "2016"));
-			if(ticket!=null){
-				System.out.println("TrainCode=="+ticket.getTrainCode());
-				System.out.println("CardNo=="+ticket.getCardNo());
-				System.out.println("PassengerName=="+ticket.getPassengerName());
+			if (ticket != null) {
+				System.out.println("TrainCode==" + ticket.getTrainCode());
+				System.out.println("CardNo==" + ticket.getCardNo());
+				System.out.println("PassengerName==" + ticket.getPassengerName());
 			}
 		} catch (NumberFormatException | UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block

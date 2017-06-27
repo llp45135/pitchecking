@@ -71,6 +71,11 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 	private int titleStrType = 0;
 	private int backPanelType = 0;
 
+	private int screenX = 0;
+	private int screenY = 0;
+	private int screenWidth = 1024;
+	private int screenHeight = 768;
+
 	/**
 	 * Launch the application.
 	 */
@@ -103,7 +108,6 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		});
 	}
 
-
 	public int getBackPanelType() {
 		return backPanelType;
 	}
@@ -116,23 +120,31 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public TicketVerifyFrame() {
+		if (Config.getInstance().getFrontScreenMode() == 2) {
+			this.screenX = 0;
+			this.screenY = 950;
+			this.screenWidth = 1080;
+			this.screenHeight = 768;
+		}
+
 		setResizable(false);
-		setBounds(new Rectangle(0, 0, DeviceConfig.TICKET_FRAME_WIGHT, DeviceConfig.TICKET_FRAME_HEIGHT));
-		setMinimumSize(new Dimension(DeviceConfig.TICKET_FRAME_WIGHT, DeviceConfig.TICKET_FRAME_HEIGHT));
-		setMaximumSize(new Dimension(DeviceConfig.TICKET_FRAME_WIGHT, 768));
+		setBounds(new Rectangle(this.screenX, this.screenY, this.screenWidth, this.screenHeight));
+		setMinimumSize(new Dimension(screenWidth, screenHeight));
+		setMaximumSize(new Dimension(screenWidth, screenHeight));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		// contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
-		Color bgcolor = new Color(0, 113, 205);
+		// Color bgcolor = new Color(0, 113, 205);
+		Color bgcolor = new Color(2, 99, 154);
 
 		topPanel = new JPanel();
 		topPanel.setBackground(bgcolor);
-		topPanel.setMinimumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
-		topPanel.setMaximumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
+		topPanel.setMinimumSize(new Dimension(screenWidth, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
+		topPanel.setMaximumSize(new Dimension(screenWidth, DeviceConfig.TICKET_FRAME_TOPHEIGHT));
 		contentPane.add(topPanel);
 		topPanel.setLayout(null);
 
@@ -151,17 +163,17 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 
 		ticketPanel = new JPanel();
 		ticketPanel.setBackground(Color.WHITE);
-		ticketPanel.setMinimumSize(new Dimension(1024, 608));
-		ticketPanel.setMaximumSize(new Dimension(1024, 608));
+		ticketPanel.setMinimumSize(new Dimension(screenWidth, 608));
+		ticketPanel.setMaximumSize(new Dimension(screenWidth, 608));
 		contentPane.add(ticketPanel);
 		ticketPanel.setLayout(null);
 
 		/**
 		 * 初始化启动界面
 		 */
-		readedPanel = new ReadedPanel();
-		verifyInitPanel = new VerifyInitPanel();
-		verifyWaitPanel = new VerifyWaitPanel();
+		readedPanel = new ReadedPanel(this.screenWidth, this.screenHeight);
+		verifyInitPanel = new VerifyInitPanel(this.screenWidth, this.screenHeight);
+		verifyWaitPanel = new VerifyWaitPanel(this.screenWidth, this.screenHeight);
 
 		labelTrainCode = new JLabel("G6612");
 		labelTrainCode.setHorizontalAlignment(SwingConstants.CENTER);
@@ -237,8 +249,8 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 
 		bottomPanel = new JPanel();
 		bottomPanel.setBackground(bgcolor);
-		bottomPanel.setMinimumSize(new Dimension(1024, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT));
-		bottomPanel.setMaximumSize(new Dimension(1024, 60));
+		bottomPanel.setMinimumSize(new Dimension(screenWidth, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT));
+		bottomPanel.setMaximumSize(new Dimension(screenWidth, 60));
 		bottomPanel.setLayout(null);
 
 		labelVersion = new JLabel("版本号：pitcheck160709.02");
@@ -265,12 +277,11 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 		bootTime.setBounds(357, 0, 367, DeviceConfig.TICKET_FRAME_BOTTOMHEIGHT);
 		bottomPanel.add(bootTime);
 
-		// setUndecorated(true);
-		setAlwaysOnTop(true);
+//		setUndecorated(true);
+		if (Config.getInstance().getIsVerifyScreenAlwaysTop() == 1)
+			setAlwaysOnTop(true);
 
 		showDefaultContent();
-
-		
 
 		setSoftVersion("软件版本号：" + DeviceConfig.softVersion);
 		setGateIP("IP地址：" + DeviceConfig.getInstance().getIpAddress());
@@ -440,7 +451,8 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 
 			this.showSuccWait("请取走车票和身份证", "往前走进通道");
 
-			timeIntevel = DeviceConfig.getInstance().getSuccTimeDelay();
+			// timeIntevel = DeviceConfig.getInstance().getSuccTimeDelay();
+			timeIntevel = -1;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -456,6 +468,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 	 */
 	public void showSuccWait(String msg1, String msg2) {
 		try {
+
 			labelTitle.setText("");
 
 			verifyWaitPanel.showWaitMsg(msg1, msg2);
@@ -513,8 +526,7 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 	/**
 	 * 核验失败信息界面
 	 */
-	public void showFailedContent(DeviceConfig deviceConfig, Ticket ticket, int titleStrType, int backPanelType,
-			String failedMsg) {
+	public void showFailedContent(DeviceConfig deviceConfig, Ticket ticket, int titleStrType, int backPanelType, String failedMsg) {
 		this.titleStrType = titleStrType;
 		this.backPanelType = backPanelType;
 		try {
@@ -525,11 +537,9 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 			this.labelDz.setText(deviceConfig.getStationName(ticket.getEndStationCode()));
 			this.labelTrainCode.setText(ticket.getTrainCode());
 			this.label_rq.setText("乘车日期:");
-			String strTrainDate = ticket.getTrainDate().substring(0, 4) + "年" + ticket.getTrainDate().substring(4, 6)
-					+ "月" + ticket.getTrainDate().substring(6, 8) + "日";
+			String strTrainDate = ticket.getTrainDate().substring(0, 4) + "年" + ticket.getTrainDate().substring(4, 6) + "月" + ticket.getTrainDate().substring(6, 8) + "日";
 			this.labelTrainDate.setText(strTrainDate);
-			this.labelTicketType
-					.setText(deviceConfig.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
+			this.labelTicketType.setText(deviceConfig.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
 			this.labelSeatType.setText(deviceConfig.getSeatTypesMap().get(ticket.getSeatCode()));
 			ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
 			lableWarnmsg.setForeground(Color.RED);
@@ -631,16 +641,21 @@ public class TicketVerifyFrame extends JFrame implements ActionListener {
 
 		if (timeIntevel == 0) {
 			if (this.backPanelType == 0) {
-				log.debug("等待结束，回到TicketFrame初始界面.. " + timeIntevel);
-//				if (DeviceConfig.getInstance().getVersionFlag() == 1) {// 正式代码时必须启用
-//					try {
-//						DeviceEventListener.getInstance().resetTicketAndIDCard();
-//						log.debug("等待结束，clean 已刷的ticket and idCard!");
-//					} catch (Exception ex) {
-//						log.error("TicketVerifyFrame showDefaultContent:", ex);
-//					}
-//				}
-				showDefaultContent();
+				log.info("等待结束，回到TicketFrame初始界面.. " + timeIntevel);
+				// if (DeviceConfig.getInstance().getVersionFlag() == 1) {//
+				// 正式代码时必须启用
+				// try {
+				// DeviceEventListener.getInstance().resetTicketAndIDCard();
+				// log.debug("等待结束，clean 已刷的ticket and idCard!");
+				// } catch (Exception ex) {
+				// log.error("TicketVerifyFrame showDefaultContent:", ex);
+				// }
+				// }
+				if (Config.getInstance().getIsOutGateForCSQ() == 1) {
+					this.showSuccWait("票面朝下", "扫描车票二维码");
+				} else {
+					showDefaultContent();
+				}
 			} else if (this.backPanelType == 1) {
 				showDefaultContent();
 			} else {

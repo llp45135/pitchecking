@@ -109,16 +109,17 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					frame.showDefaultContent();
 					// CommUtil.sleep(3 * 1000);
 					// frame.setVisible(true);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
-							.setFaceScreenDisplayTimeout(5);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
-							.setFaceScreenDisplay("人证核验失败#请从侧门离开");
+					// MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT
+					// + Config.getInstance().getCameraNum())
+					// .setFaceScreenDisplayTimeout(5);
+					// MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT
+					// + Config.getInstance().getCameraNum())
+					// .setFaceScreenDisplay("人证核验失败#请从侧门离开");
 					// MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
 					frame.showFaceDisplayFromTK();
 					// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
-					GatCtrlSenderBroker
-							.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
-							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag, "FaceAudio"));
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
+							.sendDoorCmd(ProcessUtil.createTkEventJson(DeviceConfig.AudioTakeTicketFlag, "FaceAudio"));
 					// frame.showBeginCheckFaceContent();
 					// frame.showFaceCheckPassContent();
 					// frame.showCheckFailedContent();
@@ -190,8 +191,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 					// 建立透明画布
 					Graphics2D g = (Graphics2D) bgImage.getGraphics(); // 在画布上创建画笔
 
-					Composite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-							Config.getInstance().getFaceFrameTransparency()); // 指定透明度为半透明90%
+					Composite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Config.getInstance().getFaceFrameTransparency()); // 指定透明度为半透明90%
 					g.setComposite(alpha);
 					g.drawImage(localImg, 0, 0, this); // 注意是,将image画到g画笔所在的画布上
 					g.setColor(Color.black);// 设置颜色为黑色
@@ -208,8 +208,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		contentPane.add(msgPanel, "name_1726792116426379");
 		msgPanel.setLayout(null);
 
-		msgTopLabel = new JLabel(
-				"<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>10</div></html>");
+		msgTopLabel = new JLabel("<html><div align='center'>人脸识别系统</div><div align='center'>启动中</div></html>");
 		msgTopLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		msgTopLabel.setForeground(Color.YELLOW);
 		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
@@ -327,9 +326,18 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 	public void showFaceDisplayFromTK() {
 		timeIntevel = 0;
 
-		String displayStr = MqttSenderBroker
-				.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
-				.getFaceScreenDisplay();
+		// String pidName = "";
+		// if (Config.getInstance().getFaceControlMode() == 1) {
+		// pidName = DeviceConfig.GAT_MQ_Track_CLIENT +
+		// Config.getInstance().getCameraNum();
+		// } else {
+		// pidName = DeviceConfig.GAT_MQ_Standalone_CLIENT;
+		// }
+
+		// String displayStr =
+		// MqttSenderBroker.getInstance(pidName).getFaceScreenDisplay();
+		String displayStr = DeviceConfig.getInstance().getFaceScreenDisplay();
+		log.info("displayStr=="+displayStr);
 
 		// this.displayMsg = displayStr.replace("#", "！");
 		//
@@ -355,36 +363,51 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		msgTopLabel.setBorder(null);
 		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
 
-		if (displayStr.indexOf("成功") != -1) {
-			timeIntevel = MqttSenderBroker
-					.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
-					.getFaceScreenDisplayTimeout();// 5;
+		if (displayStr.indexOf("成功") != -1 || displayStr.indexOf("请到") != -1) {
+			// timeIntevel =
+			// MqttSenderBroker.getInstance(pidName).getFaceScreenDisplayTimeout();//
+			// 5;
+			timeIntevel = DeviceConfig.getInstance().getFaceScreenDisplayTimeout();
 			// //
 			// 成功时的提示信息存在时间
 			timeIntevel = 5;// 暂时设置为5s
 		} else {
 			// ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
 			// this.showPassStatusImage(icon);
-			timeIntevel = MqttSenderBroker
-					.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
-					.getFaceScreenDisplayTimeout();
+			// timeIntevel =
+			// MqttSenderBroker.getInstance(pidName).getFaceScreenDisplayTimeout();
+			timeIntevel = DeviceConfig.getInstance().getFaceScreenDisplayTimeout();
 		}
 		titleStrType = 4; // 4:覆盖一层panel 5：不覆盖
 
 		if (displayStr.indexOf("成功") != -1) {
-			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, Config.getInstance().getSuccessFontSize()));
+			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 225));
 			displayStr = "请通过";
+		} else if (displayStr.indexOf("一候") != -1) {
+			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, Config.getInstance().getSuccessFontSize()));
+			displayStr = "请到 1 候车室#候车";
+		} else if (displayStr.indexOf("二候") != -1) {
+			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, Config.getInstance().getSuccessFontSize()));
+			displayStr = "请到 2 候车室#候车";
+		} else if (displayStr.indexOf("三候") != -1) {
+			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, Config.getInstance().getSuccessFontSize()));
+			displayStr = "请到 3 候车室#候车";
+		} else if (displayStr.indexOf("四候") != -1) {
+			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, Config.getInstance().getSuccessFontSize()));
+			displayStr = "请到 4 候车室#候车";
+		} else if (displayStr.indexOf("高速候车室") != -1) {   //普速场高速候车室
+			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, Config.getInstance().getSuccessFontSize()));
+			displayStr = "请从 3 候车室#进入城际通道";
 		}
 		if (displayStr.indexOf("#") != -1) { // 由#号，分两行
 			int kk = displayStr.indexOf("#");
 			String displayMsg1 = displayStr.substring(0, kk);
 			String displayMsg2 = displayStr.substring(kk + 1);
-			this.displayMsg = "<html><div align='center'>" + displayMsg1 + "</div>" + "<div align='center'>"
-					+ displayMsg2 + "</div>";
-			this.msgTopLabel.setText(displayMsg + "<div align='center'>" + timeIntevel + "</div>" + "</html>");
+			this.displayMsg = "<html><div align='center'>" + displayMsg1 + "</div>" + "<div align='center'>" + displayMsg2 + "</div>";
+			this.msgTopLabel.setText(displayMsg + "</html>");
 		} else {
 			this.displayMsg = "<html><div align='center'>" + displayStr + "</div>";
-			this.msgTopLabel.setText(displayMsg + "<div align='center'>" + timeIntevel + "</div>" + "</html>");
+			this.msgTopLabel.setText(displayMsg + "</html>");
 		}
 	}
 
@@ -412,9 +435,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 
 		timeIntevel = 3;
 		titleStrType = 0;
-		this.msgTopLabel
-				.setText("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>"
-						+ timeIntevel + "</div></html>");
+		this.msgTopLabel.setText("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>" + timeIntevel + "</div></html>");
 	}
 
 	/**
@@ -443,9 +464,7 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 
 		timeIntevel = 5;
 		titleStrType = 1;
-		this.msgTopLabel
-				.setText("<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>"
-						+ timeIntevel + "</div></html>");
+		this.msgTopLabel.setText("<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>" + timeIntevel + "</div></html>");
 	}
 
 	/**
@@ -465,9 +484,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 			if (CalUtils.isDateAfter(startPlayTime) && CalUtils.isDateBefore(endPlayTime)) {
 				if (Config.getInstance().getIsPlayHelpAudio() == 1) {
 					// 循环播放引导使用语音
-					GatCtrlSenderBroker
-							.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
-							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioUseHelpFlag, "FaceAudio"));
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
+							.sendDoorCmd(ProcessUtil.createTkEventJson(DeviceConfig.AudioUseHelpFlag, "FaceAudio"));
 				}
 			} else {
 				log.debug("当前时间段不在" + startPlayTime + "--" + endPlayTime + "之间,不可以播放引导语音");
@@ -478,7 +496,8 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 		this.cameraPanel.setVisible(true);
 		this.videoPanel.setVisible(true);
 
-		Color bgColor = new Color(0, 142, 240);
+//		Color bgColor = new Color(0, 142, 240);
+		Color bgColor = new Color(2, 99, 154);
 		panel_title.setBackground(bgColor);
 		panel_bottom.setBackground(bgColor);
 		label_title.setBackground(bgColor);
@@ -533,19 +552,15 @@ public class FaceCheckFrame extends JFrame implements ActionListener {
 				// label_title.setText("人脸识别成功！请通过" + " " + (timeIntevel - 1));
 
 				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
-				msgTopLabel.setText(
-						"<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>"
-								+ (timeIntevel - 1) + "</di></html>");
+				msgTopLabel.setText("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>" + (timeIntevel - 1) + "</di></html>");
 			} else if (this.titleStrType == 1) {
 				// label_title.setText("人脸识别失败！请从侧门离开" + " " + (timeIntevel -
 				// 1));
 
 				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
-				msgTopLabel.setText(
-						"<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>"
-								+ (timeIntevel - 1) + "</di></html>");
+				msgTopLabel.setText("<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>" + (timeIntevel - 1) + "</di></html>");
 			} else if (this.titleStrType == 4) {
-				msgTopLabel.setText(displayMsg + "<div align='center'>" + (timeIntevel - 1) + "</div>" + "</html>");
+				msgTopLabel.setText(displayMsg + "</html>");
 			} else if (this.titleStrType == 5) {
 				label_title.setText(displayMsg + "  " + (timeIntevel - 1));
 				// label_title.setBackground(null);

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.net.event.wharf.PhotoReceiptBean;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 
 public class PitRecordSqlDao {
@@ -84,9 +85,101 @@ public class PitRecordSqlDao {
 		return rs;
 	}
 
-	public String createInsertSqlstr(PitFaceRecord rec) {
+	
+	/**
+	 * 按桂林码头格式入库
+	 * @param rec
+	 * @param idcardImgPath
+	 * @param faceImgPath
+	 * @param frameImgPath
+	 * @return
+	 */
+	public String createInsertPhotoReceiptSqlstr(PhotoReceiptBean rec, String idcardImgPath, String faceImgPath, String frameImgPath) {
 		String sqlstr = "";
-		sqlstr = "insert into pit_face_verify(idNo,personName,gender,age,verifyResult,pitDate,pitStation,pitTime,gateNo,faceId,faceDistance,useTime,idCardImgPath,faceImgPath,frameImgPath,facePosePitch,facePoseRoll,facePoseYaw)";
+		sqlstr = "insert into pit_phototable(msgType,idCardNo,ticketNo,ipAddress,pitDate,pitTime,verifyResult,isVerifyPassed,citizenName,gender,age,ideffice,idefficb,idissue,iddwelling,idbirth,idnation,idPicImagePath,faceImagePath,frameImagePath)";
+		sqlstr += " values (";
+		sqlstr += rec.getMsgType() + "";
+		if (rec.getIdCardNo() != null)
+			sqlstr += ",'" + rec.getIdCardNo() + "'";
+		else
+			sqlstr += ",''";
+		if (rec.getTicketNo() != null)
+			sqlstr += ",'" + rec.getTicketNo() + "'";
+		else
+			sqlstr += ",''";
+		if (rec.getIpAddress() != null)
+			sqlstr += ",'" + rec.getIpAddress() + "'";
+		else
+			sqlstr += ",''";
+		if (rec.getPitDate() != null)
+			sqlstr += ",'" + rec.getPitDate() + "'";
+		else
+			sqlstr += ",''";
+		if (rec.getPitTime() != null)
+			sqlstr += ",'" + rec.getPitTime() + "'";
+		else
+			sqlstr += ",''";
+		sqlstr += "," + rec.getVerifyResult() + "";
+		sqlstr += "," + rec.getIsVerifyPassed() + "";
+		if (rec.getCitizenName() != null)
+			sqlstr += ",'" + rec.getCitizenName() + "'";
+		else
+			sqlstr += ",''";
+		sqlstr += "," + rec.getGender() + "";
+		sqlstr += "," + rec.getAge() + "";
+		if (rec.getIdeffice() != null)
+			sqlstr += ",'" + rec.getIdeffice() + "'";
+		else
+			sqlstr += ",''";
+		if (rec.getIdefficb() != null)
+			sqlstr += ",'" + rec.getIdefficb() + "'";
+		else
+			sqlstr += ",''";
+		if (rec.getIdissue() != null)
+			sqlstr += ",'" + rec.getIdissue() + "'";
+		else
+			sqlstr += ",''";
+		if (rec.getIddwelling() != null)
+			sqlstr += ",'" + rec.getIddwelling() + "'";
+		else
+			sqlstr += ",''";
+		if (rec.getIdbirth() != null)
+			sqlstr += ",'" + rec.getIdbirth() + "'";
+		else
+			sqlstr += ",''";
+		if (rec.getIdnation() != null)
+			sqlstr += ",'" + rec.getIdnation() + "'";
+		else
+			sqlstr += ",''";
+		if (idcardImgPath != null)
+			sqlstr += ",'" + idcardImgPath + "'";
+		else
+			sqlstr += ",''";
+		if (faceImgPath != null)
+			sqlstr += ",'" + faceImgPath + "'";
+		else
+			sqlstr += ",''";
+		if (frameImgPath != null)
+			sqlstr += ",'" + frameImgPath + "'";
+		else
+			sqlstr += ",''";
+
+		sqlstr += ")";
+		return sqlstr;
+	}
+
+	/**
+	 * 
+	 * @param rec
+	 * @param recordType
+	 * @return
+	 */
+	public String createInsertSqlstr(PitFaceRecord rec, int recordType) {
+		String sqlstr = "";
+		if (recordType == 1)
+			sqlstr = "insert into pit_face_verify(idNo,personName,gender,age,verifyResult,pitDate,pitStation,pitTime,gateNo,faceId,faceDistance,useTime,idCardImgPath,faceImgPath,frameImgPath,facePosePitch,facePoseRoll,facePoseYaw)";
+		if (recordType == 2)
+			sqlstr = "insert into pit_face_verify(idNo,personName,gender,age,verifyResult,pitDate,pitStation,pitTime,gateNo,faceId,faceDistance,useTime,idCardImgPath,faceImgPath,frameImgPath,facePosePitch,facePoseRoll,facePoseYaw,ticketNo,fromStationCode,endStationCode,trainCode,coachNo,seatCode,ticketType,seatNo,trainDate,cardNo,passengerName,saleOfficeNo,saleWindowNo,saleDate)";
 		sqlstr += " values (";
 		sqlstr += "'" + rec.getIdNo() + "'";
 		if (rec.getPersonName() != null)
@@ -133,6 +226,64 @@ public class PitRecordSqlDao {
 		sqlstr += "," + rec.getFacePosePitch() + "";
 		sqlstr += "," + rec.getFacePoseRoll() + "";
 		sqlstr += "," + rec.getFacePoseYaw() + "";
+		if (recordType == 2) {
+			if (rec.getTicketNo() != null)
+				sqlstr += ",'" + rec.getTicketNo() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getFromStationCode() != null)
+				sqlstr += ",'" + rec.getFromStationCode() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getEndStationCode() != null)
+				sqlstr += ",'" + rec.getEndStationCode() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getTrainCode() != null)
+				sqlstr += ",'" + rec.getTrainCode() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getCoachNo() != null)
+				sqlstr += ",'" + rec.getCoachNo() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getSeatCode() != null)
+				sqlstr += ",'" + rec.getSeatCode() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getTicketType() != null)
+				sqlstr += ",'" + rec.getTicketType() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getSeatNo() != null)
+				sqlstr += ",'" + rec.getSeatNo() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getTrainDate() != null)
+				sqlstr += ",'" + rec.getTrainDate() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getCardNo() != null)
+				sqlstr += ",'" + rec.getCardNo() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getPassengerName() != null)
+				sqlstr += ",'" + rec.getPassengerName() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getSaleOfficeNo() != null)
+				sqlstr += ",'" + rec.getSaleOfficeNo() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getSaleWindowNo() != null)
+				sqlstr += ",'" + rec.getSaleWindowNo() + "'";
+			else
+				sqlstr += ",NULL";
+			if (rec.getSaleDate() != null)
+				sqlstr += ",'" + rec.getSaleDate() + "'";
+			else
+				sqlstr += ",NULL";
+		}
 		sqlstr += ")";
 		return sqlstr;
 	}
@@ -204,8 +355,7 @@ public class PitRecordSqlDao {
 		System.out.println("-----------------");
 		try {
 			while (rs.next()) {
-				System.out.println(
-						rs.getInt("id") + "/t/t" + rs.getString("idcard_no") + "/t/t" + rs.getString("verify_result"));
+				System.out.println(rs.getInt("id") + "/t/t" + rs.getString("idcard_no") + "/t/t" + rs.getString("verify_result"));
 			}
 		} catch (SQLException e) {
 			System.out.println("显示时数据库出错。");

@@ -54,6 +54,7 @@ public class PITData implements Serializable {
 	private float facePoseYaw;
 	private int cameraPosition = 2;
 	private int cameraFaceMode = 1;   //1：检脸中采集的人脸  2：非检脸状态下采集的人脸  
+	private int faceQuality = 0;		//人臉檢測質量
 
 	public int getCameraFaceMode() {
 		return cameraFaceMode;
@@ -381,6 +382,14 @@ public class PITData implements Serializable {
 	@Override
 	public String toString() {
 		return "VerifyResult=" + this.faceCheckResult;
+	}
+
+	public int getFaceQuality() {
+		return faceQuality;
+	}
+
+	public void setFaceQuality(int faceQuality) {
+		this.faceQuality = faceQuality;
 	}
 
 }

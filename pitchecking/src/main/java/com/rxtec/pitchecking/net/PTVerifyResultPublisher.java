@@ -114,16 +114,38 @@ public class PTVerifyResultPublisher {
 
 	private byte[] serialObjToBytes(Object o) {
 		byte[] buf = null;
+		ByteArrayOutputStream bos = null;
+		ObjectOutputStream oos = null;
 		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream oo = new ObjectOutputStream(bos);
-			oo.writeObject(o);
+			bos = new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(o);
 			buf = bos.toByteArray();
-			oo.close();
-
+			if (oos != null) {
+				oos.close();
+				oos = null;
+			}
+			if (bos != null) {
+				bos.close();
+				bos = null;
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("serialObjToBytes", e);
+		} finally {
+			try {
+				if (oos != null) {
+					oos.close();
+					oos = null;
+				}
+				if (bos != null) {
+					bos.close();
+					bos = null;
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				log.error("serialObjToBytes", e);
+			}
 		}
 
 		return buf;

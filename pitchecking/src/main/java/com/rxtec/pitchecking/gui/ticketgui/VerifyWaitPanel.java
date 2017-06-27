@@ -12,6 +12,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.border.LineBorder;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
 
 public class VerifyWaitPanel extends JPanel {
@@ -20,11 +21,11 @@ public class VerifyWaitPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public VerifyWaitPanel() {
-		setSize(new Dimension(1024, 608));
+	public VerifyWaitPanel(int screenWidth,int screenHeight) {
+		setSize(new Dimension(screenWidth, 608));
 		setBackground(Color.WHITE);
-		setMinimumSize(new Dimension(1024, 608));
-		setMaximumSize(new Dimension(1024, 608));
+		setMinimumSize(new Dimension(screenWidth, 608));
+		setMaximumSize(new Dimension(screenWidth, 608));
 		setLayout(null);
 		
 		waitmsgLabelUp = new JLabel("无电子票或二维码不清晰");
@@ -47,6 +48,11 @@ public class VerifyWaitPanel extends JPanel {
 	}
 	
 	public void showWaitMsg(String msg1,String msg2){
+		if(Config.getInstance().getIsOutGateForCSQ()==1){
+			waitmsgLabelUp.setFont(new Font("微软雅黑", Font.PLAIN, 135));
+			waitmsgLabelDown.setFont(new Font("微软雅黑", Font.PLAIN, 135));
+		}
+		
 		this.waitmsgLabelUp.setText(msg1);
 		this.waitmsgLabelUp.setBorder(null);
 		this.waitmsgLabelDown.setText(msg2);

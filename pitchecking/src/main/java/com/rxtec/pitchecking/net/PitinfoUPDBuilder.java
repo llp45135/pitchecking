@@ -3,7 +3,7 @@ package com.rxtec.pitchecking.net;
 
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.picheckingservice.PITData;
-import com.rxtec.pitchecking.utils.BASE64;
+import com.rxtec.pitchecking.utils.BASE64Util;
 import com.rxtec.pitchecking.utils.ImageToolkit;
 import com.rxtec.pitchecking.utils.JsonUtils;
 
@@ -23,13 +23,13 @@ public class PitinfoUPDBuilder {
 				jsonObj.setIdHashCode(idCard.getIdNo().hashCode());
 				String s1;
 				try {
-					jsonObj.setFrameImageBase64(BASE64.encryptBASE64(ImageToolkit.getImageBytes(pitData.getFrame(),"jpeg")));
+					jsonObj.setFrameImageBase64(BASE64Util.encryptBASE64(ImageToolkit.getImageBytes(pitData.getFrame(),"jpeg")));
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				try {
-					jsonObj.setIdPicImageBase64(BASE64.encryptBASE64(ImageToolkit.getImageBytes(idCard.getCardImage(),"jpeg")));
+					jsonObj.setIdPicImageBase64(BASE64Util.encryptBASE64(ImageToolkit.getImageBytes(idCard.getCardImage(),"jpeg")));
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

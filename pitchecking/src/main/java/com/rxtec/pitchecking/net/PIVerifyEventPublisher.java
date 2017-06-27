@@ -23,7 +23,7 @@ import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.domain.FailedFace;
 import com.rxtec.pitchecking.net.event.EventHandler;
-import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
+import com.rxtec.pitchecking.net.event.CAMNotifyBean;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.CommUtil;
@@ -75,7 +75,7 @@ public class PIVerifyEventPublisher {
 
 	}
 
-	public void publish(PIVerifyEventBean b) {
+	public void publish(CAMNotifyBean b) {
 		CommUtil.sleep(50);
 		try {
 			String json = eventHandler.OutputEventToJson(b);
@@ -113,7 +113,7 @@ public class PIVerifyEventPublisher {
 		PIVerifyEventPublisher p = PIVerifyEventPublisher.getInstance();
 		for (int i = 0; i < 1000; i++) {
 			CommUtil.sleep(1000);
-			PIVerifyEventBean b = buildPIVerifyEventBean();
+			CAMNotifyBean b = buildPIVerifyEventBean();
 			p.publish(b);
 		}
 
@@ -121,8 +121,8 @@ public class PIVerifyEventPublisher {
 	
 	ObjectMapper mapper = new ObjectMapper(); 
 	
-	private static PIVerifyEventBean buildPIVerifyEventBean() throws IOException{
-		PIVerifyEventBean b = new PIVerifyEventBean();
+	private static CAMNotifyBean buildPIVerifyEventBean() throws IOException{
+		CAMNotifyBean b = new CAMNotifyBean();
 		b.setAge(1);
 		b.setEventDirection(1);
 		b.setEventName("CAM_Notify");

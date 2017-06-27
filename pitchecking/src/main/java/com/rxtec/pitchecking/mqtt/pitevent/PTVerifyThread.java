@@ -26,38 +26,64 @@ public class PTVerifyThread implements Runnable {
 		// TODO Auto-generated method stub
 
 	}
-	
-	
+
+	/**
+	 * 
+	 * @param o
+	 * @return
+	 */
 	private byte[] serialObjToBytes(Object o) {
 		byte[] buf = null;
+		ByteArrayOutputStream bos = null;
+		ObjectOutputStream oos = null;
 		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream oo = new ObjectOutputStream(bos);
-			oo.writeObject(o);
+			bos = new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(o);
 			buf = bos.toByteArray();
-			oo.close();
-			bos.close();
-
+			if (oos != null) {
+				oos.close();
+				oos = null;
+			}
+			if (bos != null) {
+				bos.close();
+				bos = null;
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			log.error("serialObjToBytes",e);
+			log.error("serialObjToBytes", e);
+		} finally {
+			try {
+				if (oos != null) {
+					oos.close();
+					oos = null;
+				}
+				if (bos != null) {
+					bos.close();
+					bos = null;
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				log.error("serialObjToBytes", e);
+			}
 		}
 
 		return buf;
 	}
-	
+
 	/**
 	 * 每次将待验证的人脸放入FailedFace
+	 * 
 	 * @param fd
 	 */
-	private void putFailedFace(PITVerifyData fd){
-		FailedFace failedFace = new FailedFace();
-		failedFace.setIdNo(fd.getIdNo());
-		failedFace.setIpAddress(DeviceConfig.getInstance().getIpAddress());
-		failedFace.setGateNo(DeviceConfig.getInstance().getGateNo());
-		failedFace.setCardImage(fd.getIdCardImg());
-		failedFace.setFaceImage(fd.getFaceImg());
-		FaceCheckingService.getInstance().setFailedFace(failedFace);
+	private void putFailedFace(PITVerifyData fd) {
+//		FailedFace failedFace = new FailedFace();
+//		failedFace.setIdNo(fd.getIdNo());
+//		failedFace.setIpAddress(DeviceConfig.getInstance().getIpAddress());
+//		failedFace.setGateNo(DeviceConfig.getInstance().getGateNo());
+//		failedFace.setCardImage(fd.getIdCardImg());
+//		failedFace.setFaceImage(fd.getFaceImg());
+		FaceCheckingService.getInstance().setFailedFace(fd);
 	}
 
 	@Override
@@ -66,19 +92,23 @@ public class PTVerifyThread implements Runnable {
 		while (true) {
 			CommUtil.sleep(50);
 			try {
-				PITVerifyData data = FaceCheckingService.getInstance().takeFaceVerifyData();
-				if (data == null)
-					continue;
-				byte[] buf = serialObjToBytes(data);
-				if (buf == null)
-					continue;
-				this.putFailedFace(data);  //每次将待验证的人脸放入FailedFace 供active mq调用
-				
-				ptVerifySender.sendMessage(buf);
-
+				// log.info("getIdcard=="+FaceCheckingService.getInstance().getIdcard()+",getIdCardPhotoRet=="+FaceCheckingService.getInstance().getIdCardPhotoRet());
+				if (FaceCheckingService.getInstance().getIdcard() != null) {
+					// log.info("takeFaceVerifyData 送进比对进程!!!!!!!!!!");
+					PITVerifyData data = FaceCheckingService.getInstance().takeFaceVerifyData();
+					if (data == null)
+						continue;
+					byte[] buf = serialObjToBytes(data);
+					if (buf == null)
+						continue;
+					this.putFailedFace(data); // 每次将待验证的人脸放入FailedFace 供active
+												// mq调用
+					// log.info("data.getIdcard=="+data.getIdCard());
+					ptVerifySender.sendMessage(buf);
+				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				log.error("PTVerifyThread running loop failed",e);
+				log.error("PTVerifyThread running loop failed", e);
 			}
 		}
 	}

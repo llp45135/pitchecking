@@ -20,16 +20,6 @@ public class PITInfoPolicePublisher {
 	private LinkedBlockingQueue<PITInfoJson> verifyDataQueue = new LinkedBlockingQueue<PITInfoJson>(3);
 
 	private Log log = LogFactory.getLog("PITInfoPolicePublisher");
-	
-	private String qrCode="";
-
-	public String getQrCode() {
-		return qrCode;
-	}
-
-	public void setQrCode(String qrCode) {
-		this.qrCode = qrCode;
-	}
 
 	private static PITInfoPolicePublisher _instance = new PITInfoPolicePublisher();
 
@@ -65,11 +55,30 @@ public class PITInfoPolicePublisher {
 	 * 将人脸数据转成广铁公安局网安处所需要的json并offer进verifyDataQueue
 	 * @param d
 	 */
-	public void offerVerifyData(PITVerifyData d) {
+	public void offerVerifyData(PITVerifyData data) {
 		PITInfoJson info = null;
 		try {
-			d.setQrCode(this.qrCode);
-			info = new PITInfoJson(d);
+//			data.setQrCode(DeviceConfig.getInstance().getQrCode());
+			info = new PITInfoJson(data);
+		} catch (Exception e) {
+			log.error(e);
+		}
+		if (info == null)
+			return;
+		if (!verifyDataQueue.offer(info)) {
+			verifyDataQueue.poll();
+			verifyDataQueue.offer(info);
+		}
+	}
+	
+	/**
+	 * 3张照片单独作为参数
+	 * @param data
+	 */
+	public void offerVerifyData(PITVerifyData data, byte[] idCardImg, byte[] faceImg, byte[] frameImg) {
+		PITInfoJson info = null;
+		try {
+			info = new PITInfoJson(data,idCardImg,faceImg,frameImg);
 		} catch (Exception e) {
 			log.error(e);
 		}

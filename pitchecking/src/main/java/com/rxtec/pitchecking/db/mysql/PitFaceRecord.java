@@ -30,6 +30,136 @@ public class PitFaceRecord {
 	private float facePoseRoll;
 	private float facePoseYaw;
 
+	/**
+	 * 票面信息
+	 */
+	private String ticketNo = "";
+	private String fromStationCode = "";
+	private String endStationCode = "";
+	private String trainCode = "";
+	private String coachNo = "";
+	private String seatCode = "";
+	private String ticketType = "";
+	private String seatNo = "";
+	private String trainDate = "";
+	private String cardNo = "";
+	private String passengerName = "";
+	private String saleOfficeNo = "";// 售票处
+	private String saleWindowNo = "";
+	private String saleDate = "";
+
+	public String getTicketNo() {
+		return ticketNo;
+	}
+
+	public void setTicketNo(String ticketNo) {
+		this.ticketNo = ticketNo;
+	}
+
+	public String getFromStationCode() {
+		return fromStationCode;
+	}
+
+	public void setFromStationCode(String fromStationCode) {
+		this.fromStationCode = fromStationCode;
+	}
+
+	public String getEndStationCode() {
+		return endStationCode;
+	}
+
+	public void setEndStationCode(String endStationCode) {
+		this.endStationCode = endStationCode;
+	}
+
+	public String getTrainCode() {
+		return trainCode;
+	}
+
+	public void setTrainCode(String trainCode) {
+		this.trainCode = trainCode;
+	}
+
+	public String getCoachNo() {
+		return coachNo;
+	}
+
+	public void setCoachNo(String coachNo) {
+		this.coachNo = coachNo;
+	}
+
+	public String getSeatCode() {
+		return seatCode;
+	}
+
+	public void setSeatCode(String seatCode) {
+		this.seatCode = seatCode;
+	}
+
+	public String getTicketType() {
+		return ticketType;
+	}
+
+	public void setTicketType(String ticketType) {
+		this.ticketType = ticketType;
+	}
+
+	public String getSeatNo() {
+		return seatNo;
+	}
+
+	public void setSeatNo(String seatNo) {
+		this.seatNo = seatNo;
+	}
+
+	public String getTrainDate() {
+		return trainDate;
+	}
+
+	public void setTrainDate(String trainDate) {
+		this.trainDate = trainDate;
+	}
+
+	public String getCardNo() {
+		return cardNo;
+	}
+
+	public void setCardNo(String cardNo) {
+		this.cardNo = cardNo;
+	}
+
+	public String getPassengerName() {
+		return passengerName;
+	}
+
+	public void setPassengerName(String passengerName) {
+		this.passengerName = passengerName;
+	}
+
+	public String getSaleOfficeNo() {
+		return saleOfficeNo;
+	}
+
+	public void setSaleOfficeNo(String saleOfficeNo) {
+		this.saleOfficeNo = saleOfficeNo;
+	}
+
+	public String getSaleWindowNo() {
+		return saleWindowNo;
+	}
+
+	public void setSaleWindowNo(String saleWindowNo) {
+		this.saleWindowNo = saleWindowNo;
+	}
+
+	public String getSaleDate() {
+		return saleDate;
+	}
+
+	public void setSaleDate(String saleDate) {
+		this.saleDate = saleDate;
+	}
+
 	public float getFacePosePitch() {
 		return facePosePitch;
 	}

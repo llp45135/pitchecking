@@ -201,7 +201,7 @@ public class IDCardUtil {
 	 * @return
 	 */
 	public static IDCard createIDCard(String fn) {
-		IDCard card = null;		
+		IDCard idCard = null;		
 		File idcardFile = new File(fn);
 
 		BufferedImage idCardImage = null;
@@ -212,15 +212,23 @@ public class IDCardUtil {
 			e.printStackTrace();
 		}
 		if (idCardImage != null) {
-			card = new IDCard();
-			card.setIdNo("520203197912141118");
+			idCard = new IDCard();
+			idCard.setIdNo("520203197912141118");
+			idCard.setPersonName("赵林");
+			idCard.setAge(37);
+			idCard.setIDBirth("19791214");
+			idCard.setGender(1);
+			idCard.setIDNation("01");
+			idCard.setIDDwelling("广州市白云路28号");
+			idCard.setIDEfficb("20121001");
+			idCard.setIDEffice("20221001");
+			idCard.setIDIssue("广州市公安局");
 			byte[] idCardImageBytes = null;
 			idCardImageBytes = CommUtil.getImageBytesFromImageBuffer(idCardImage);
 			if (idCardImageBytes != null)
-				card.setCardImageBytes(idCardImageBytes);
-			card.setAge(44);
+				idCard.setCardImageBytes(idCardImageBytes);
 		}
-		return card;
+		return idCard;
 	}
 
 	public static void main(String[] args) {

@@ -57,9 +57,9 @@ public class EventHandler {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	private PIVerifyEventBean buildPIVerifyEventBean(String jsonString)
+	private CAMNotifyBean buildPIVerifyEventBean(String jsonString)
 			throws JsonParseException, JsonMappingException, IOException {
-		PIVerifyEventBean b = mapper.readValue(jsonString, PIVerifyEventBean.class);
+		CAMNotifyBean b = mapper.readValue(jsonString, CAMNotifyBean.class);
 		return b;
 	}
 
@@ -84,21 +84,31 @@ public class EventHandler {
 	 * @throws JsonParseException
 	 * @throws IOException
 	 */
-	public void InComeEventHandler(String jsonString) throws JsonParseException, IOException {
-		String eventName = getEventName(jsonString);
+	public void beginCheckFaceEventHandler(String notifyJson) throws JsonParseException, IOException {
+		String eventName = getEventName(notifyJson);
 		if (Config.BeginVerifyFaceEvent.equals(eventName)) {
 			log.debug("收到调用CAM_GetPhotoInfo方式的请求开始人脸检测的event");
-			PIVerifyEventBean b = buildPIVerifyEventBean(jsonString);
+			CAMNotifyBean notifyBean = buildPIVerifyEventBean(notifyJson);
 			Ticket ticket = new Ticket();
+			
 			IDCard idCard = new IDCard();
-			idCard.setIdNo(b.getUuid());
-			idCard.setAge(b.getAge());
-			idCard.setCardImageBytes(b.getIdPhoto());
+			
+			idCard.setIdNo(notifyBean.getUuid());
+			idCard.setPersonName(notifyBean.getPersonName());
+			idCard.setGender(notifyBean.getGender());
+			idCard.setAge(notifyBean.getAge());
+			idCard.setIDBirth(notifyBean.getIdBirth());
+			idCard.setIDNation(notifyBean.getIdNation());
+			idCard.setIDDwelling(notifyBean.getIdDwelling());
+			idCard.setIDEfficb(notifyBean.getIdEfficb());
+			idCard.setIDEffice(notifyBean.getIdEffice());
+			idCard.setIDIssue(notifyBean.getIdIssue());
+			idCard.setCardImageBytes(notifyBean.getIdPhoto());
 			
 			verifyFaceTask.beginCheckFace(idCard, ticket, 0);
 		}else if(Config.GetVerifyFaceResultInnerEvent.equals(eventName)) {
 //			log.debug("fd json=="+jsonString);
-			PITVerifyData fd = buildPITVerifyData(jsonString);
+			PITVerifyData fd = buildPITVerifyData(notifyJson);
 			FaceCheckingService.getInstance().offerPassFaceData(fd);
 		}
 	}

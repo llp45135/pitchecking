@@ -201,7 +201,7 @@ public class IDCDeviceTest extends JFrame {
 				endTextField.setText("");
 				idimgLabel.setIcon(null);
 
-				String findval = tkIDCDevice.IDC_FetchCard(1000);
+				String findval = tkIDCDevice.IDC_FetchCard(3000);
 				if (findval.equals("0")) {
 					IDCard idCard = tkIDCDevice.IDC_ReadIDCardInfo(2);
 					if (idCard != null && idCard.getIdNo() != null && idCard.getCardImage() != null

@@ -34,6 +34,108 @@ public class IDCard implements Serializable {
 	private static Logger log = LoggerFactory.getLogger("IDCard");
 	private byte[] cardImageBytes = null;
 	private BufferedImage cardImage;
+	
+	
+	//
+	private byte[] IDNameArray;
+	private byte[] IDSexArray;
+	private byte[] IDNationArray;
+	private byte[] IDBirthArray;
+	private byte[] IDDwellingArray;
+	private byte[] IDCodeArray;
+	private byte[] IDIssueArray;
+	private byte[] IDEfficbArray;
+	private byte[] IDEfficeArray;
+	private byte[] IDNewAddrArray;
+	private byte[] IDPhotoArray;
+
+	public byte[] getIDNameArray() {
+		return IDNameArray;
+	}
+
+	public void setIDNameArray(byte[] iDNameArray) {
+		IDNameArray = iDNameArray;
+	}
+
+	public byte[] getIDSexArray() {
+		return IDSexArray;
+	}
+
+	public void setIDSexArray(byte[] iDSexArray) {
+		IDSexArray = iDSexArray;
+	}
+
+	public byte[] getIDNationArray() {
+		return IDNationArray;
+	}
+
+	public void setIDNationArray(byte[] iDNationArray) {
+		IDNationArray = iDNationArray;
+	}
+
+	public byte[] getIDBirthArray() {
+		return IDBirthArray;
+	}
+
+	public void setIDBirthArray(byte[] iDBirthArray) {
+		IDBirthArray = iDBirthArray;
+	}
+
+	public byte[] getIDDwellingArray() {
+		return IDDwellingArray;
+	}
+
+	public void setIDDwellingArray(byte[] iDDwellingArray) {
+		IDDwellingArray = iDDwellingArray;
+	}
+
+	public byte[] getIDCodeArray() {
+		return IDCodeArray;
+	}
+
+	public void setIDCodeArray(byte[] iDCodeArray) {
+		IDCodeArray = iDCodeArray;
+	}
+
+	public byte[] getIDIssueArray() {
+		return IDIssueArray;
+	}
+
+	public void setIDIssueArray(byte[] iDIssueArray) {
+		IDIssueArray = iDIssueArray;
+	}
+
+	public byte[] getIDEfficbArray() {
+		return IDEfficbArray;
+	}
+
+	public void setIDEfficbArray(byte[] iDEfficbArray) {
+		IDEfficbArray = iDEfficbArray;
+	}
+
+	public byte[] getIDEfficeArray() {
+		return IDEfficeArray;
+	}
+
+	public void setIDEfficeArray(byte[] iDEfficeArray) {
+		IDEfficeArray = iDEfficeArray;
+	}
+
+	public byte[] getIDNewAddrArray() {
+		return IDNewAddrArray;
+	}
+
+	public void setIDNewAddrArray(byte[] iDNewAddrArray) {
+		IDNewAddrArray = iDNewAddrArray;
+	}
+
+	public byte[] getIDPhotoArray() {
+		return IDPhotoArray;
+	}
+
+	public void setIDPhotoArray(byte[] iDPhotoArray) {
+		IDPhotoArray = iDPhotoArray;
+	}
 
 	public String getIDNationCH() {
 		return IDNationCH;

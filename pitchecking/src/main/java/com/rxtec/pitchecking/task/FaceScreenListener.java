@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.jacob.com.Variant;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.FaceTrackingScreen;
+import com.rxtec.pitchecking.HighFaceTrackingScreen;
 import com.rxtec.pitchecking.SingleFaceTrackingScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.device.LightLevelControl;
@@ -67,16 +68,14 @@ public class FaceScreenListener implements Runnable {
 					// ProcessUtil.writeHeartbeat(pidStr,
 					// Config.getInstance().getHeartBeatLogFile()); //
 					// 后置摄像头写心跳日志
-					GatCtrlSenderBroker
-							.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
-							.sendMessage(DeviceConfig.EventTopic, DeviceConfig.getInstance().getHeartStr(pidStr, "B"));
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum()).sendMessage(DeviceConfig.EventTopic,
+							DeviceConfig.getInstance().getHeartStr(pidStr, "B"));
 				} else {
 					// ProcessUtil.writeHeartbeat(pidStr,
 					// Config.getInstance().getFrontHeartBeatLogFile()); //
 					// 前置摄像头写心跳日志
-					GatCtrlSenderBroker
-							.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
-							.sendMessage(DeviceConfig.EventTopic, DeviceConfig.getInstance().getHeartStr(pidStr, "F"));
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum()).sendMessage(DeviceConfig.EventTopic,
+							DeviceConfig.getInstance().getHeartStr(pidStr, "F"));
 				}
 				this.setPidStr("");
 				// log.debug("写检脸心跳日志,pidStr==" + pidStr);
@@ -110,7 +109,10 @@ public class FaceScreenListener implements Runnable {
 
 		int frameX = 0;
 		if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
-			frameX = FaceTrackingScreen.getInstance().getFaceFrame().getX();
+			if (Config.getInstance().getBackScreenMode() == 1)
+				frameX = FaceTrackingScreen.getInstance().getFaceFrame().getX();
+			if (Config.getInstance().getBackScreenMode() == 2)
+				frameX = HighFaceTrackingScreen.getInstance().getFaceFrame().getX();
 		} else {
 			frameX = SingleFaceTrackingScreen.getInstance().getFaceFrame().getX();
 		}
@@ -124,8 +126,14 @@ public class FaceScreenListener implements Runnable {
 				try {
 					// log.debug("Start 重置人脸检测屏的位置，恢复至第二块屏");
 					if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
-						FaceTrackingScreen.getInstance().initUI(screenNo);
-						FaceTrackingScreen.getInstance().repainFaceFrame();
+						if (Config.getInstance().getBackScreenMode() == 1) {
+							FaceTrackingScreen.getInstance().initUI(screenNo);
+							FaceTrackingScreen.getInstance().repainFaceFrame();
+						}
+						if (Config.getInstance().getBackScreenMode() == 2) {
+							HighFaceTrackingScreen.getInstance().initUI(screenNo);
+							HighFaceTrackingScreen.getInstance().repainFaceFrame();
+						}
 					} else {
 						SingleFaceTrackingScreen.getInstance().initUI(screenNo);
 						SingleFaceTrackingScreen.getInstance().repainSingleVerifyFrame();

@@ -24,6 +24,7 @@ import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.device.smartmonitor.MonitorXMLUtil;
 import com.rxtec.pitchecking.gui.VideoPanel;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mq.RemoteMonitorPublisher;
@@ -310,29 +311,6 @@ public class RSFaceFrontTrackTask implements Runnable {
 
 	/**
 	 * 
-	 * @param sf
-	 * @return
-	 */
-	private boolean checkRealFace(FrontSortFace sf) {
-
-		boolean isRealFace = false;
-		PXCMFaceData.Face face = sf.face;
-		if (face == null) {
-			isRealFace = false;
-			return isRealFace;
-		}
-		PXCMFaceData.LandmarksData landmarks = face.QueryLandmarks();
-		if (landmarks == null) {
-			isRealFace = false;
-			// log.debug(sf.distance + " face landmarks == null");
-			return isRealFace;
-		}
-
-		return checkFaceDepth(landmarks) & checkFaceWidth(landmarks);
-	}
-
-	/**
-	 * 
 	 * @param landmarks
 	 */
 	private void printFaceLandmarkZ(LandmarksData landmarks) {
@@ -436,111 +414,6 @@ public class RSFaceFrontTrackTask implements Runnable {
 
 	}
 
-	/**
-	 * 
-	 * @param landmarks
-	 * @return
-	 */
-	private boolean checkFaceDepth(LandmarksData landmarks) {
-
-		int nJawPoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_JAW);
-		PXCMFaceData.LandmarkPoint[] jawPoints = new PXCMFaceData.LandmarkPoint[nJawPoints];
-
-		// printFaceLandmarkZ(landmarks);
-
-		for (int i = 0; i < nJawPoints; i++) {
-			jawPoints[i] = new LandmarkPoint();
-		}
-
-		int nLeftEyePoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_LEFT_EYE);
-		PXCMFaceData.LandmarkPoint[] leftEyePoints = new PXCMFaceData.LandmarkPoint[nLeftEyePoints];
-
-		int nRightEyePoints = landmarks.QueryNumPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_RIGHT_EYE);
-		PXCMFaceData.LandmarkPoint[] rightEyePoints = new PXCMFaceData.LandmarkPoint[nRightEyePoints];
-
-		for (int i = 0; i < nRightEyePoints; i++) {
-			rightEyePoints[i] = new LandmarkPoint();
-		}
-
-		for (int i = 0; i < nLeftEyePoints; i++) {
-			leftEyePoints[i] = new LandmarkPoint();
-		}
-
-		landmarks.QueryPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_JAW, jawPoints);
-		landmarks.QueryPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_LEFT_EYE, leftEyePoints);
-		landmarks.QueryPointsByGroup(LandmarksGroupType.LANDMARK_GROUP_RIGHT_EYE, rightEyePoints);
-
-		float d1 = 0, d2 = 0;
-
-		for (LandmarkPoint p : jawPoints) {
-			if (p.confidenceWorld == 0) {
-				return false;
-			}
-			d1 += p.world.z;
-		}
-
-		d1 = d1 / nJawPoints;
-
-		for (LandmarkPoint p : leftEyePoints) {
-			if (p.confidenceWorld == 0) {
-				return false;
-			}
-			d2 += p.world.z;
-		}
-
-		for (LandmarkPoint p : rightEyePoints) {
-			if (p.confidenceWorld == 0) {
-				return false;
-			}
-			d2 += p.world.z;
-		}
-
-		d2 = d2 / (nLeftEyePoints + nRightEyePoints);
-
-		float zDIF = Math.abs(d1 - d2) * 1000;
-
-		if (Config.DValueMinDepth < zDIF && zDIF < Config.DValueMaxDepth) {
-			log.debug("zDIF=" + zDIF + "  checkFaceDepth = true");
-			return true;
-		} else {
-			log.debug("zDIF=" + zDIF + "  checkFaceDepth = false");
-			return false;
-		}
-	}
-
-	/**
-	 * 
-	 * @param landmarks
-	 * @return
-	 */
-	private boolean checkFaceWidth(LandmarksData landmarks) {
-		int faceBorderLeftIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_FACE_BORDER_TOP_LEFT);
-		int faceBorderRightIdx = landmarks.QueryPointIndex(LandmarkType.LANDMARK_FACE_BORDER_TOP_RIGHT);
-		LandmarkPoint pLeftBorder = new LandmarkPoint();
-		LandmarkPoint pRightBorder = new LandmarkPoint();
-
-		landmarks.QueryPoint(faceBorderLeftIdx, pLeftBorder);
-		landmarks.QueryPoint(faceBorderRightIdx, pRightBorder);
-		if (pLeftBorder.confidenceWorld == 0 || pRightBorder.confidenceWorld == 0) {
-			return false;
-		}
-
-		float wDIF = Math.abs(pLeftBorder.world.x - pRightBorder.world.x) * 1000;
-
-		if (Config.DValueMinWidth < wDIF && wDIF < Config.DValueMaxWidth) {
-			log.debug("wDIF=" + wDIF + "  checkFaceWidth = true");
-			return true;
-		} else {
-			log.debug("wDIF=" + wDIF + "  checkFaceWidth = false");
-			return false;
-		}
-	}
-
-	/**
-	 * 
-	 * @param sample
-	 * @return
-	 */
 	private BufferedImage drawFrameImage(PXCMCapture.Sample sample) {
 
 		PXCMImage.ImageData cData = new PXCMImage.ImageData();
@@ -778,7 +651,7 @@ public class RSFaceFrontTrackTask implements Runnable {
 		desc.group = EnumSet.of(PXCMSession.ImplGroup.IMPL_GROUP_SENSOR);
 		desc.subgroup = EnumSet.of(PXCMSession.ImplSubgroup.IMPL_SUBGROUP_VIDEO_CAPTURE);
 
-		Map<Integer, PXCMCapture.DeviceInfo> map = new HashMap<Integer, PXCMCapture.DeviceInfo>();
+		Map<String, PXCMCapture.DeviceInfo> map = new HashMap<String, PXCMCapture.DeviceInfo>();
 
 		int numDevices = 0;
 		for (int i = 0;; i++) {
@@ -797,25 +670,37 @@ public class RSFaceFrontTrackTask implements Runnable {
 					break;
 				log.info(info.name);
 				if (info.name.startsWith("Intel(R)")) {
-					map.put(numDevices, info);
+					log.info("序列号==" + info.serial);
+					map.put(info.serial, info);
 					numDevices++;
 				}
 			}
 		}
+
 		log.info("Found " + numDevices + " RealSense Devices");
 
-		if (numDevices < Config.getInstance().getCameraNum()) {
-			log.error("A sufficient number of camera not detected!!");
+		if (numDevices < Config.getInstance().getCameraCount()) {
+			log.error("系统识别到的摄像头数小于配置文件中的数量!!");
+			MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "002", 1);
+			MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "002", "001");
+			MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
 			return;
 		}
 
 		PXCMCapture.DeviceInfo devInfo = null;
-		log.info("getCameraNum==" + Config.getInstance().getCameraNum());
-		if (Config.getInstance().getCameraNum() == 1) {
-			devInfo = map.get(0);
-		}
-		if (Config.getInstance().getCameraNum() == 2) {
-			devInfo = map.get(1);
+
+		String devSerial = Config.getInstance().getFrontCameraNo();
+		log.info("conf.devSerial = " + devSerial);
+		devInfo = map.get(devSerial);
+
+		if (devInfo == null) {
+			log.error("Failed to create a devInfo instance from devMaps.");
+			MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "002", 1);
+			MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "002", "001");
+			MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
+			return;
+		} else {
+			log.info("当前摄像头:" + devInfo.name + ",序列号 = " + devInfo.serial);
 		}
 
 		PXCMPowerState ps = session.CreatePowerManager();
@@ -827,6 +712,10 @@ public class RSFaceFrontTrackTask implements Runnable {
 
 		if (senseMgr == null) {
 			log.error("Failed to create a sense manager instance.");
+			
+			MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "002", 1);
+			MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "002", "004");
+			MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
 			return;
 		}
 
@@ -836,6 +725,10 @@ public class RSFaceFrontTrackTask implements Runnable {
 		PXCMFaceModule faceModule = senseMgr.QueryFace();
 		if (sts.isError() || faceModule == null) {
 			log.error("Failed to initialize face module.");
+			
+			MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "002", 1);
+			MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "002", "004");
+			MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
 			return;
 		}
 
@@ -881,6 +774,10 @@ public class RSFaceFrontTrackTask implements Runnable {
 
 		if (sts.isError()) {
 			log.error("Init failed: " + sts);
+			
+			MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "002", 1);
+			MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "002", "004");
+			MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
 			return;
 		}
 
@@ -899,32 +796,55 @@ public class RSFaceFrontTrackTask implements Runnable {
 		int dayCameraTime = Integer.parseInt(Config.getInstance().getDayCameraTime());
 		int nightCameraTime = Integer.parseInt(Config.getInstance().getNightCameraTime());
 		int nowTime = Integer.parseInt(CalUtils.getStringTime()); // HHmm
-		if (nowTime >= dayCameraTime && nowTime < nightCameraTime) { // 08:00<=now<18:00
-			log.info("当前设置为白天模式,前置摄像头暂时不调整摄像头参数");
-		} else {
-			log.info("当前设置为夜晚模式");
-			RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
+		
+		if (Config.getInstance().getIsSetFrontCameraConfigByInit() == 1) {
+			if (nowTime >= dayCameraTime && nowTime < nightCameraTime) { // 08:00<=now<18:00
+				log.info("当前设置为白天模式");
+				RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
 
-			realsenseProp.setColorBrightness(Config.getInstance().getNightColorBrightness());
-			realsenseProp.setColorExposure(Config.getInstance().getNightColorExposure());
-			realsenseProp.setContrast(Config.getInstance().getNightContrast());
-			// realsenseProp.setGamma(cameraColorBean.getGamma());
-			realsenseProp.setGain(Config.getInstance().getNightGain());
+				realsenseProp.setColorAutoExposure(true);
+				realsenseProp.setColorAutoWhiteBalance(true);
+				realsenseProp.setColorBackLightCompensation(true);
+				realsenseProp.setColorBrightness(Config.getInstance().getFrontInitColorBrightness());
+				realsenseProp.setColorExposure(Config.getInstance().getFrontInitColorExposure());
+				realsenseProp.setContrast(Config.getInstance().getFrontInitContrast());
+				realsenseProp.setGamma(Config.getInstance().getFrontInitGamma());
+				realsenseProp.setGain(Config.getInstance().getFrontInitGain());
 
-			setupColorCameraDevice(realsenseProp);
-			log.info("NightColorExposure==" + Config.getInstance().getNightColorExposure() + ",NightColorBrightness=="
-					+ Config.getInstance().getNightColorBrightness());
-			log.info("NightContrast==" + Config.getInstance().getNightContrast() + ",NightGain=="
-					+ Config.getInstance().getNightGain());
+				setupColorCameraDevice(realsenseProp); // 设置摄像头参数
+				log.info("InitColorExposure==" + Config.getInstance().getFrontInitColorExposure()
+						+ ",InitColorBrightness==" + Config.getInstance().getFrontInitColorBrightness());
+				log.info("InitContrast==" + Config.getInstance().getFrontInitContrast() + ",InitGain=="
+						+ Config.getInstance().getFrontInitGain());
+			} else {
+				log.info("当前设置为夜晚模式");
+				RealsenseDeviceProperties realsenseProp = new RealsenseDeviceProperties();
+
+				realsenseProp.setColorBrightness(Config.getInstance().getNightColorBrightness());
+				realsenseProp.setColorExposure(Config.getInstance().getNightColorExposure());
+				realsenseProp.setContrast(Config.getInstance().getNightContrast());
+				// realsenseProp.setGamma(cameraColorBean.getGamma());
+				realsenseProp.setGain(Config.getInstance().getNightGain());
+
+				setupColorCameraDevice(realsenseProp);
+				log.info("NightColorExposure==" + Config.getInstance().getNightColorExposure()
+						+ ",NightColorBrightness==" + Config.getInstance().getNightColorBrightness());
+				log.info("NightContrast==" + Config.getInstance().getNightContrast() + ",NightGain=="
+						+ Config.getInstance().getNightGain());
+			}
 		}
 
 		FaceScreenListener.getInstance().setPidStr(pid); // 设为允许写心跳
+		
+		MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "002", 0);
+		MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "002", "000");
+		MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 0);
 
 		/**
 		 * 
 		 */
 		while (startCapture) {
-			CommUtil.sleep(50);
+			CommUtil.sleep(100);
 			try {
 				sts = senseMgr.AcquireFrame(true);
 				if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) == 0) {
@@ -932,14 +852,14 @@ public class RSFaceFrontTrackTask implements Runnable {
 					FaceScreenListener.getInstance().setPidStr(pid); // 设为允许写心跳
 				} else {
 					FaceScreenListener.getInstance().setPidStr("");// 设为停止写心跳
-					log.debug("senseMgr failed! sts=" + sts);
+					log.error("senseMgr failed! sts=" + sts);
 				}
 
 				BufferedImage frameImage = null;
 				PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
 				if (sample == null || sample.color == null) {
 					FaceScreenListener.getInstance().setPidStr("");// 设为停止写心跳
-					log.debug("QueryFaceSample failed! sample=" + sample);
+					log.error("QueryFaceSample failed! sample=" + sample);
 					senseMgr.ReleaseFrame();
 					continue;
 				} else {
@@ -950,14 +870,14 @@ public class RSFaceFrontTrackTask implements Runnable {
 
 				sts = faceData.Update();
 				if (sts.compareTo(pxcmStatus.PXCM_STATUS_NO_ERROR) != 0) {
-					log.debug("faceData.Update() failed! sts=" + sts);
+					log.error("faceData.Update() failed! sts=" + sts);
 					senseMgr.ReleaseFrame();
 					continue;
 				}
 
-				List<FrontSortFace> sortFaces = sortFaceByDistence(faceData);
-
-				for (FrontSortFace sf : sortFaces) {
+				List<SortedFace> sortFaces = FaceQualityDetectForRealSense.detectFaceQuality(faceData);
+				List<PITData> faceDatas = new ArrayList<PITData>();
+				for (SortedFace sf : sortFaces) {
 					PXCMFaceData.Face face = sf.face;// faceData.QueryFaceByIndex(0);
 
 					// if (face == null) {
@@ -981,51 +901,38 @@ public class RSFaceFrontTrackTask implements Runnable {
 
 					drawLocation(detection);// 画脸部框
 
-					PXCMFaceData.PoseEulerAngles pae = checkFacePose(face.QueryPose());
-
 					boolean isRealFace = true;
 					// 如果只是RGB检测人脸，则不需检测是否活脸和深度
 					if (Config.FACE_TRACK_COLOR != Config.getInstance().getFrontFaceTrackMode()) {
 						if (Config.getInstance().getIsCheckRealFace() == Config.Is_Check_RealFace) {
-							isRealFace = checkRealFace(sf);
+							isRealFace = FaceQualityDetectForRealSense.checkRealFace(sf);
 						}
-						isRealFace &= (pae != null);
 					}
 
 					if (detection != null && isRealFace) {
 						drawLandmark(face);
 						PITData fd = createFaceData(frameImage, detection);
 
-						fd.setFaceDistance(sf.distance);
+						fd.setFaceQuality(sf.getQuality());
 
 						if (fd != null) {
 							// log.debug("是否允许前置摄像头送脸==" +
 							// FaceCheckingService.getInstance().isSendFrontCameraFace());
-							if (fd.isDetectedFace() && FaceCheckingService.getInstance().isSendFrontCameraFace()) { // 双摄像头版本增加
+							if (fd.isDetectedFace()) { // 双摄像头版本增加
 								currentIDCard = FaceCheckingService.getInstance().getIdcard();
-								// if (currentIDCard != null) {
-								// log.debug("idNo==" + currentIDCard.getIdNo()
-								// + ",age==" + currentIDCard.getAge()
-								// + ",gender==" + currentIDCard.getGender() +
-								// ",name=="
-								// + currentIDCard.getPersonName());
-								// }
 								// 双摄像头版本增加
 								currentTicket = new Ticket();
 								fd.setIdCard(currentIDCard);
 								fd.setTicket(currentTicket);
 								fd.setCameraPosition(1); // 前置摄像头人脸
-								if (pae != null) {
-									fd.setFacePosePitch(pae.pitch);
-									fd.setFacePoseRoll(pae.roll);
-									fd.setFacePoseYaw(pae.yaw);
-								}
-								// log.debug("Begin to verify face........." +
-								// fd);
-								FaceCheckingService.getInstance().offerDetectedFaceData(fd); // 将人脸插入待检队列
+								faceDatas.add(fd);
 							}
 						}
 					}
+				}
+				// log.info("FaceCheckingService.getInstance().isSendFrontCameraFace()=="+FaceCheckingService.getInstance().isSendFrontCameraFace());
+				if (FaceCheckingService.getInstance().isSendFrontCameraFace()) {
+					FaceCheckingService.getInstance().offerDetectedFaceData(faceDatas); // 将人脸插入待检队列
 				}
 				senseMgr.ReleaseFrame();
 			} catch (Exception ex) {
@@ -1035,65 +942,6 @@ public class RSFaceFrontTrackTask implements Runnable {
 				continue;
 			}
 		}
-	}
-
-	/**
-	 * 
-	 * @param faceData
-	 * @return
-	 */
-	private List<FrontSortFace> sortFaceByDistence(PXCMFaceData faceData) {
-		List<FrontSortFace> sortFaces = new ArrayList<FrontSortFace>();
-		int faceCount = faceData.QueryNumberOfDetectedFaces();
-		if (Config.FACE_TRACK_COLOR == Config.getInstance().getFrontFaceTrackMode()) {
-			for (int i = 0; i < faceCount; i++) {
-				PXCMFaceData.Face face = faceData.QueryFaceByIndex(i);
-				FrontSortFace sf = new FrontSortFace(face, 0);
-				sortFaces.add(sf);
-			}
-		} else {
-			for (int i = 0; i < faceCount; i++) {
-				PXCMFaceData.Face face = faceData.QueryFaceByIndex(i);
-				PXCMRectI32 rect = new PXCMRectI32();
-				PXCMFaceData.DetectionData detection = face.QueryDetection();
-				boolean ret = detection.QueryBoundingRect(rect);
-				if (ret) {
-					int w = rect.w;
-					// log.debug("face width = " + w);
-					float[] averageDepth = new float[1];
-					detection.QueryFaceAverageDepth(averageDepth);
-					float distance = averageDepth[0];
-					if (distance > Config.getInstance().getMinAverageDepth()
-							&& distance < Config.getInstance().getMaxAverageDepth()) {
-						FrontSortFace sf = new FrontSortFace(face, distance);
-						sortFaces.add(sf);
-					}
-				}
-			}
-		}
-
-		Collections.sort(sortFaces);
-		return sortFaces;
-	}
-
-}
-
-class FrontSortFace implements Comparable<FrontSortFace> {
-	public PXCMFaceData.Face face;
-	public float distance = 0;
-
-	public FrontSortFace(PXCMFaceData.Face face, float distance) {
-		this.face = face;
-		this.distance = distance;
-
-	}
-
-	@Override
-	public int compareTo(FrontSortFace o) {
-		if (distance < o.distance)
-			return 0;
-		else
-			return 1;
 	}
 
 }

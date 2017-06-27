@@ -11,16 +11,14 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.easen.EasenVerifyResult;
-import com.rxtec.pitchecking.device.easen.Main.SDKMethod;
-import com.rxtec.pitchecking.utils.CalUtils;
 import com.rxtec.pitchecking.utils.CommUtil;
+import com.rxtec.pitchecking.utils.ImageToolkit;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -61,11 +59,10 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 
 		int setIDCardPhoto(byte[] idImgPtr, int width, int height);
 
-		int match(byte[] idImgPtr, int width, int height, float[] matchinfgScore, int[] yesNo, float[] matchingTime,
-				int[] faceX, int[] faceY, int[] faceWidth, int[] faceHeight);
-
-		int detectFace(byte[] imgData, int width, int height, int[] faceX, int[] faceY, int[] faceWidth,
+		int match(byte[] idImgPtr, int width, int height, float[] matchinfgScore, int[] yesNo, float[] matchingTime, int[] faceX, int[] faceY, int[] faceWidth,
 				int[] faceHeight);
+
+		int detectFace(byte[] imgData, int width, int height, int[] faceX, int[] faceY, int[] faceWidth, int[] faceHeight);
 
 		public final int SDK_NO_ERROR = 0;
 		public final int SDK_ACTIVATION_SERIAL_UNKNOW = 1;
@@ -195,8 +192,7 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 		int[] faceY = new int[1];
 		int[] faceWidth = new int[1];
 		int[] faceHeight = new int[1];
-		ret = SDKMethod.INSTANCE.match(rgbPixels, faceImg.getWidth(), faceImg.getHeight(), matchingScore, yesNo,
-				matchingTime, faceX, faceY, faceWidth, faceHeight);
+		ret = SDKMethod.INSTANCE.match(rgbPixels, faceImg.getWidth(), faceImg.getHeight(), matchingScore, yesNo, matchingTime, faceX, faceY, faceWidth, faceHeight);
 		log.debug("retval==" + ret);
 		if (ret == SDKMethod.SDK_NO_ERROR) {
 			log.debug("match succfully!");
@@ -212,8 +208,9 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 
 		} else if (ret == SDKMethod.SDK_NOT_FACE_DETECTED) {
 			log.debug("Face Detection Failed!");
-//			saveFaceImage(Config.getInstance().getImagesLogDir() + "FailedDetection/",
-//					CalUtils.getStringFullTimeHaomiao() + ".jpg", faceImgBytes);
+			// saveFaceImage(Config.getInstance().getImagesLogDir() +
+			// "FailedDetection/",
+			// CalUtils.getStringFullTimeHaomiao() + ".jpg", faceImgBytes);
 		} else if (ret == SDKMethod.SDK_NONE_IDCARD_SET) {
 			log.debug("None ID Photo Set!");
 		}
@@ -314,64 +311,67 @@ public class EASENFaceVerifyJNAEntry implements FaceVerifyInterface {
 
 	public static void main(String[] args) {
 
-		// EASENFaceVerifyJNAEntry easenVerify = new EASENFaceVerifyJNAEntry();
-		// System.out.println("getInitStatus==" + easenVerify.getInitStatus());
-		// System.out.println("" + easenVerify.getCurrentHWID(256));
-		//
-		// try {
-		// File file1 = new File("zp.jpg");// new
-		// // File("D:/pitchecking/images/ID230103198206231618.jpg");
-		// BufferedImage srcImg1 = ImageIO.read(file1);
-		// easenVerify.setIDCardPhoto(srcImg1);
-		//
-		// File faceFile1 = new
-		// File("D:/pitchecking/images/FA230103198206231618@2016-11-21
-		// 04-08-05-700$0.83.jpg");
-		// BufferedImage faceImg1 = ImageIO.read(faceFile1);
-		// EasenVerifyResult verifyResult1 = new EasenVerifyResult();
-		// float result = 0;
-		// result = easenVerify.verify(faceImg1);
-		// System.out.println("result==" + result);
-		// // System.out.println("getMatchingScore==" +
-		// // verifyResult1.getMatchingScore()[0]);
-		// // System.out.println("getYesNo==" + verifyResult1.getYesNo()[0]);
-		// // System.out.println("getMatchingTime==" +
-		// // verifyResult1.getMatchingTime()[0]);
-		// // System.out.println("getFaceX==" + verifyResult1.getFaceX()[0]);
-		// // System.out.println("getFaceY==" + verifyResult1.getFaceY()[0]);
-		// // System.out.println("getFaceWidth==" +
-		// // verifyResult1.getFaceWidth()[0]);
-		// // System.out.println("getFaceHeight==" +
-		// // verifyResult1.getFaceHeight()[0]);
-		// //
-		// System.out.println("---------------------------------------------");
-		// File file2 = new
-		// File("D:/pitchecking/images/ID430404197202242067.jpg");
-		// BufferedImage srcImg2 = ImageIO.read(file2);
-		// easenVerify.setIDCardPhoto(srcImg2);
-		//
-		// File faceFile2 = new
-		// File("D:/pitchecking/images/VF430404197202242067@2016-11-21
-		// 04-08-23-846.jpg");
-		// BufferedImage faceImg2 = ImageIO.read(faceFile2);
-		// EasenVerifyResult verifyResult2 = new EasenVerifyResult();
-		// result = easenVerify.verify(faceImg2);
-		// System.out.println("result==" + result);
-		// // System.out.println("getMatchingScore==" +
-		// // verifyResult2.getMatchingScore()[0]);
-		// // System.out.println("getYesNo==" + verifyResult2.getYesNo()[0]);
-		// // System.out.println("getMatchingTime==" +
-		// // verifyResult2.getMatchingTime()[0]);
-		// // System.out.println("getFaceX==" + verifyResult2.getFaceX()[0]);
-		// // System.out.println("getFaceY==" + verifyResult2.getFaceY()[0]);
-		// // System.out.println("getFaceWidth==" +
-		// // verifyResult2.getFaceWidth()[0]);
-		// // System.out.println("getFaceHeight==" +
-		// // verifyResult2.getFaceHeight()[0]);
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+		EASENFaceVerifyJNAEntry easenVerify = new EASENFaceVerifyJNAEntry();
+		System.out.println("getInitStatus==" + easenVerify.getInitStatus());
+		System.out.println("" + easenVerify.getCurrentHWID(256));
+
+		try {
+			File file1 = new File("D:/maven/git/pitchecking/zhao.jpg");// new
+			// File("D:/pitchecking/images/ID230103198206231618.jpg");
+			BufferedImage srcImg1 = ImageIO.read(file1);
+			easenVerify.setIDCardPhoto(srcImg1);
+
+			File faceFile1 = new File("D:/pitchecking/tmp/img/10_34_38_784.png");
+			BufferedImage faceImg1 = ImageIO.read(faceFile1);
+			EasenVerifyResult verifyResult1 = new EasenVerifyResult();
+			float result = 0;
+			result = easenVerify.verify(ImageToolkit.getImageBytes(faceImg1, "jpeg"));
+			System.out.println("result==" + result);
+			// System.out.println("getMatchingScore==" +
+			// verifyResult1.getMatchingScore()[0]);
+			// System.out.println("getYesNo==" + verifyResult1.getYesNo()[0]);
+			// System.out.println("getMatchingTime==" +
+			// verifyResult1.getMatchingTime()[0]);
+			// System.out.println("getFaceX==" + verifyResult1.getFaceX()[0]);
+			// System.out.println("getFaceY==" + verifyResult1.getFaceY()[0]);
+			// System.out.println("getFaceWidth==" +
+			// verifyResult1.getFaceWidth()[0]);
+			// System.out.println("getFaceHeight==" +
+			// verifyResult1.getFaceHeight()[0]);
+			//
+
+			/**
+			 * 
+			 */
+			// System.out.println("---------------------------------------------");
+			// File file2 = new
+			// File("D:/pitchecking/images/ID430404197202242067.jpg");
+			// BufferedImage srcImg2 = ImageIO.read(file2);
+			// easenVerify.setIDCardPhoto(srcImg2);
+			//
+			// File faceFile2 = new
+			// File("D:/pitchecking/images/VF430404197202242067@2016-11-21
+			// 04-08-23-846.jpg");
+			// BufferedImage faceImg2 = ImageIO.read(faceFile2);
+			// EasenVerifyResult verifyResult2 = new EasenVerifyResult();
+			// result = easenVerify.verify(faceImg2);
+			// System.out.println("result==" + result);
+
+			// System.out.println("getMatchingScore==" +
+			// verifyResult2.getMatchingScore()[0]);
+			// System.out.println("getYesNo==" + verifyResult2.getYesNo()[0]);
+			// System.out.println("getMatchingTime==" +
+			// verifyResult2.getMatchingTime()[0]);
+			// System.out.println("getFaceX==" + verifyResult2.getFaceX()[0]);
+			// System.out.println("getFaceY==" + verifyResult2.getFaceY()[0]);
+			// System.out.println("getFaceWidth==" +
+			// verifyResult2.getFaceWidth()[0]);
+			// System.out.println("getFaceHeight==" +
+			// verifyResult2.getFaceHeight()[0]);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -34,6 +34,17 @@ public class Ticket implements Serializable {
 	private String inGateNo = "";			//进闸机编号
 	private String fromStationName = "";
 	private String toStationName = "";
+	private String barCode = "";
+
+
+
+	public String getBarCode() {
+		return barCode;
+	}
+
+	public void setBarCode(String barCode) {
+		this.barCode = barCode;
+	}
 
 	public String getFromStationName() {
 		return fromStationName;

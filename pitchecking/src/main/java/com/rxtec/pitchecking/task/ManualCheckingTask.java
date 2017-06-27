@@ -21,15 +21,18 @@ public class ManualCheckingTask implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 		if (Config.getInstance().getIsUseManualMQ() == 1) {// 是否连人工控制台MQ
-			if (taskType.equals(DeviceConfig.GAT_MQ_Standalone_CLIENT)) { //人脸比对进程
+			if (taskType.equals(DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 人脸比对进程
+				if (Config.getInstance().getSendFaceSourceBySocket() == 2) {
+					RemoteMonitorPublisher.getInstance().startService(1); // 启动整帧图片转发线程
+				}
 				RemoteMonitorPublisher.getInstance().startService(2);
 				RemoteMonitorPublisher.getInstance().startService(3);// 启动Event转发线程
 				RemoteMonitorPublisher.getInstance().startService(4);// 启动Event转发线程
 				ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT);
 			}
-			if (taskType.equals(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())) {  //人脸检测进程
+			if (taskType.equals(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())) { // 人脸检测进程
 				RemoteMonitorPublisher.getInstance().startService(1); // 启动整帧图片转发线程
-				ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum());
+				ManualEventReceiverBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum());
 			}
 		}
 	}

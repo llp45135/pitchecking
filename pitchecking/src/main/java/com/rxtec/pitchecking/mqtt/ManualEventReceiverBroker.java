@@ -8,26 +8,14 @@ import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.ScreenCmdEnum;
-import com.rxtec.pitchecking.device.AudioDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.device.SecondGateDevice;
-import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
-import com.rxtec.pitchecking.mbean.ProcessUtil;
-import com.rxtec.pitchecking.net.event.CAMOpenBean;
 import com.rxtec.pitchecking.net.event.CameraColorBean;
-import com.rxtec.pitchecking.net.event.EventHandler;
 import com.rxtec.pitchecking.net.event.GatCrtlBean;
-import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
-import com.rxtec.pitchecking.net.event.PIVerifyRequestBean;
-import com.rxtec.pitchecking.net.event.ScreenDisplayBean;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.picheckingservice.realsense.RSFaceDetectionService;
 import com.rxtec.pitchecking.picheckingservice.realsense.RealsenseDeviceProperties;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.JsonUtils;
-import com.rxtec.pitchecking.utils.CalUtils;
 
 /**
  * 本类监听人工处置窗的PITEventTopic，收到人工窗指令做相应逻辑处理 主要由比对进程调用
@@ -99,8 +87,7 @@ public class ManualEventReceiverBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.debug("start connect to " + DeviceConfig.getInstance().getManualCheck_MQTTURL() + "# MyClientID=="
-				+ this.CLIENT_ID);
+		log.debug("start connect to " + DeviceConfig.getInstance().getManualCheck_MQTTURL() + "# MyClientID==" + this.CLIENT_ID);
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getManualCheck_MQTTURL());
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
@@ -184,11 +171,10 @@ public class ManualEventReceiverBroker {
 
 						if (mqttMessage.toLowerCase().indexOf("123321") != -1) { // 设置摄像头曝光度等模式
 							ObjectMapper mapper = new ObjectMapper();
-							CameraColorBean cameraColorBean = mapper.readValue(mqttMessage.toLowerCase(),
-									CameraColorBean.class);
+							CameraColorBean cameraColorBean = mapper.readValue(mqttMessage.toLowerCase(), CameraColorBean.class);
 							log.debug("Receive msg = " + mqttMessage.toString());
-							if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-									+ DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())) { // 由检脸进程处理
+							if (CLIENT_ID
+									.equals("MER" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())) { // 由检脸进程处理
 								log.debug("getEvent==" + cameraColorBean.getEvent());
 								log.debug("getEventsource==" + cameraColorBean.getEventsource());
 								log.debug("getTarget==" + cameraColorBean.getTarget());
@@ -196,15 +182,13 @@ public class ManualEventReceiverBroker {
 								log.debug("getColorexposure==" + cameraColorBean.getColorexposure());
 								log.debug("getColorautoexposure==" + cameraColorBean.getColorautoexposure());
 								log.debug("getColorautowhitebalance==" + cameraColorBean.getColorautowhitebalance());
-								log.debug("getColorbacklightcompensation=="
-										+ cameraColorBean.getColorbacklightcompensation());
+								log.debug("getColorbacklightcompensation==" + cameraColorBean.getColorbacklightcompensation());
 								log.debug("getHdr==" + cameraColorBean.getHdr());
 								log.debug("getContrast==" + cameraColorBean.getContrast());
 								log.debug("getGamma==" + cameraColorBean.getGamma());
 								log.debug("getGain==" + cameraColorBean.getGain());
 
-								if (cameraColorBean.getEventsource().equals("manual") && cameraColorBean.getTarget()
-										.equals(DeviceConfig.getInstance().getIpAddress())) {
+								if (cameraColorBean.getEventsource().equals("manual") && cameraColorBean.getTarget().equals(DeviceConfig.getInstance().getIpAddress())) {
 									RealsenseDeviceProperties rdp = new RealsenseDeviceProperties();
 									rdp.setColorAutoExposure(cameraColorBean.getColorautoexposure());
 									rdp.setColorAutoWhiteBalance(cameraColorBean.getColorautowhitebalance());
@@ -226,89 +210,124 @@ public class ManualEventReceiverBroker {
 							ObjectMapper mapper = new ObjectMapper();
 							GatCrtlBean gatCrtlBean = mapper.readValue(mqttMessage.toLowerCase(), GatCrtlBean.class);
 
-							if (gatCrtlBean.getEventsource().equals("manual")
-									&& gatCrtlBean.getTarget().equals(DeviceConfig.getInstance().getIpAddress())) {
+							if (gatCrtlBean.getEventsource().equals("manual") && gatCrtlBean.getTarget().equals(DeviceConfig.getInstance().getIpAddress())) {
 								log.debug("来自人工窗消息：" + mqttMessage);
 
-								if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenFirstDoor
-										|| gatCrtlBean.getEvent() == DeviceConfig.Event_OpenThirdDoor) { // 开1门或开3门指令
-									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
+								if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenFirstDoor || gatCrtlBean.getEvent() == DeviceConfig.Event_OpenThirdDoor) { // 开1门或开3门指令
+									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 										log.debug("是否允许开1门==" + DeviceConfig.getInstance().isAllowOpenFirstDoor());
 										if (DeviceConfig.getInstance().isAllowOpenFirstDoor()) {
 											DeviceConfig.getInstance().setAllowOpenFirstDoor(false);
 
 											log.debug("转发前门或者边门的开门指令==" + gatCrtlBean.getEvent());
-											String sndmsg = mqttMessage
-													.replaceAll(DeviceConfig.getInstance().getIpAddress(), "127.0.0.1");
+											String sndmsg = mqttMessage.replaceAll(DeviceConfig.getInstance().getIpAddress(), "127.0.0.1");
 											log.debug("替换真实IP后,sndmsg==" + sndmsg);
-											GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
-													.sendDoorCmd("PITEventTopic", sndmsg);
+											GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT).sendDoorCmd("PITEventTopic", sndmsg);
 											CommUtil.sleep(1000);
 											DeviceConfig.getInstance().setAllowOpenFirstDoor(true);
 										}
 									}
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_OpenSecondDoor) { // 收到开后门指令，即“放行”指令
-									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-											+ DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())) { // 由检脸进程处理
-										log.debug("isAllowOpenSecondDoor=="
-												+ DeviceConfig.getInstance().isAllowOpenSecondDoor());
+									if (Config.getInstance().getFaceControlMode() == 1) {
+										if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Track_CLIENT
+												+ Config.getInstance().getCameraNum())) { // 由检脸进程处理
+											log.debug("isAllowOpenSecondDoor==" + DeviceConfig.getInstance().isAllowOpenSecondDoor());
 
-										if (DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
-											DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
+											if (DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+												DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
 
-											log.debug("isInTracking==" + DeviceConfig.getInstance().isInTracking());
+												log.debug("isInTracking==" + DeviceConfig.getInstance().isInTracking());
 
-											if (DeviceConfig.getInstance().isInTracking()) { // 如果处于人脸核验中，那么必须立即结束本次核验，视为核验成功
-												PITVerifyData failedFd = FaceCheckingService.getInstance()
-														.pollFailedFaceData();
-												if (failedFd != null) {
-													log.debug("控制台人工判断该次核验成功，人工放行，本次核验中最好的一次比对结果=="
-															+ failedFd.getVerifyResult());
-													// failedFd.setVerifyResult((float)
-													// 0.63);
-													FaceCheckingService.getInstance().offerPassFaceData(failedFd);
-												} else {
-													log.debug("还没有检测到任何一张脸，手动生成一张脸返回，目的是快速结束本次检脸..=="
-															+ gatCrtlBean.getEvent());
-													PITVerifyData manualFd = new PITVerifyData();
+												if (DeviceConfig.getInstance().isInTracking()) { // 如果处于人脸核验中，那么必须立即结束本次核验，视为核验成功
+													PITVerifyData failedFd = FaceCheckingService.getInstance().pollFailedFaceData();
+													if (failedFd != null) {
+														log.debug("控制台人工判断该次核验成功，人工放行，本次核验中最好的一次比对结果==" + failedFd.getVerifyResult());
+														// failedFd.setVerifyResult((float)
+														// 0.63);
+														FaceCheckingService.getInstance().offerPassFaceData(failedFd);
+													} else {
+														log.info("还没有检测到任何一张脸，手动生成一张脸返回，目的是快速结束本次检脸..==" + gatCrtlBean.getEvent());
+														PITVerifyData manualFd = new PITVerifyData();
 
-													manualFd.setVerifyResult(-1);
-													manualFd.setIdNo(MqttSenderBroker
-															.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getUuid());
-													manualFd.setIdCardImg(MqttSenderBroker
-															.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
-															.getIdcardBytes());
-													manualFd.setFaceImg(MqttSenderBroker
-															.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
-															.getIdcardBytes());
-													manualFd.setFrameImg(MqttSenderBroker
-															.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT)
-															.getIdcardBytes());
+														manualFd.setVerifyResult(-1);
+														manualFd.setIdNo(MqttSenderBroker
+																.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum()).getUuid());
+														manualFd.setIdCardImg(MqttSenderBroker
+																.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum()).getIdcardBytes());
+														manualFd.setFaceImg(MqttSenderBroker
+																.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum()).getIdcardBytes());
+														manualFd.setFrameImg(MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getIdcardBytes());
 
-													FaceCheckingService.getInstance().offerPassFaceData(manualFd);
+														FaceCheckingService.getInstance().offerPassFaceData(manualFd);
 
-													// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
-													// .sendDoorCmd("PITEventTopic",
-													// mqttMessage);
+														// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
+														// .sendDoorCmd("PITEventTopic",
+														// mqttMessage);
+													}
+
+												} else { // 不处于人脸核验中,直接开门
+													log.debug("不处于人脸核验中,转发后门的开门指令==" + gatCrtlBean.getEvent());
+													String sndmsg = mqttMessage.replaceAll(DeviceConfig.getInstance().getIpAddress(), "127.0.0.1");
+													log.debug("替换真实IP后,sndmsg==" + sndmsg);
+													GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
+															.sendDoorCmd("PITEventTopic", sndmsg);
 												}
-
-											} else { // 不处于人脸核验中,直接开门
-												log.debug("不处于人脸核验中,转发后门的开门指令==" + gatCrtlBean.getEvent());
-												String sndmsg = mqttMessage.replaceAll(
-														DeviceConfig.getInstance().getIpAddress(), "127.0.0.1");
-												log.debug("替换真实IP后,sndmsg==" + sndmsg);
-												GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
-														.sendDoorCmd("PITEventTopic", sndmsg);
+											} else {
+												log.debug("前次后门指令转发后还未收到关门回执");
 											}
-										} else {
-											log.debug("前次后门指令转发后还未收到关门回执");
+										}
+									} else {
+										if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
+
+											log.debug("isAllowOpenSecondDoor==" + DeviceConfig.getInstance().isAllowOpenSecondDoor());
+
+											if (DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+												DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
+
+												log.debug("isInTracking==" + DeviceConfig.getInstance().isInTracking());
+
+												if (DeviceConfig.getInstance().isInTracking()) { // 如果处于人脸核验中，那么必须立即结束本次核验，视为核验成功
+													PITVerifyData failedFd = FaceCheckingService.getInstance().pollFailedFaceData();
+													if (failedFd != null) {
+														log.debug("控制台人工判断该次核验成功，人工放行，本次核验中最好的一次比对结果==" + failedFd.getVerifyResult());
+														// failedFd.setVerifyResult((float)
+														// 0.63);
+														FaceCheckingService.getInstance().offerPassFaceData(failedFd);
+													} else {
+														log.info("还没有检测到任何一张脸，手动生成一张脸返回，目的是快速结束本次检脸..==" + gatCrtlBean.getEvent());
+														PITVerifyData manualFd = new PITVerifyData();
+
+														manualFd.setVerifyResult(-1);
+														manualFd.setIdNo(MqttSenderBroker
+																.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum()).getUuid());
+														manualFd.setIdCardImg(MqttSenderBroker
+																.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum()).getIdcardBytes());
+														manualFd.setFaceImg(MqttSenderBroker
+																.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum()).getIdcardBytes());
+														manualFd.setFrameImg(MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT).getIdcardBytes());
+
+														FaceCheckingService.getInstance().offerPassFaceData(manualFd);
+
+														// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
+														// .sendDoorCmd("PITEventTopic",
+														// mqttMessage);
+													}
+
+												} else { // 不处于人脸核验中,直接开门
+													log.debug("不处于人脸核验中,转发后门的开门指令==" + gatCrtlBean.getEvent());
+													String sndmsg = mqttMessage.replaceAll(DeviceConfig.getInstance().getIpAddress(), "127.0.0.1");
+													log.debug("替换真实IP后,sndmsg==" + sndmsg);
+													GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
+															.sendDoorCmd("PITEventTopic", sndmsg);
+												}
+											} else {
+												log.debug("前次后门指令转发后还未收到关门回执");
+											}
 										}
 									}
 
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_PauseService) { // 暂停服务
-									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
+									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 
 										if (DeviceConfig.getInstance().isInService()) {
 											log.debug("准备执行暂停服务指令");
@@ -323,17 +342,14 @@ public class ManualEventReceiverBroker {
 											// ProcessUtil.writePauseLog("kill");
 											// Runtime.getRuntime().exec(Config.getInstance().getStartPITVerifyCmd());
 
-											mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(),
-													"127.0.0.1");
-											GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
-													.sendDoorCmd("PITEventTopic", mqttMessage);
+											mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(), "127.0.0.1");
+											GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT).sendDoorCmd("PITEventTopic", mqttMessage);
 										} else {
 											log.debug("服务已经处于暂停中!");
 										}
 									}
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_ContinueService) { // 恢复服务
-									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
+									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 
 										if (!DeviceConfig.getInstance().isInService()) {
 											log.debug("准备执行恢复服务指令");
@@ -352,34 +368,28 @@ public class ManualEventReceiverBroker {
 											if (Config.getInstance().getIsUseGatDll() == 1) {
 												Runtime.getRuntime().exec(Config.getInstance().getStartTKExeCmd()); // 启动gui.exe
 												CommUtil.sleep(3000);
-												log.debug("已经执行恢复服务指令StartTKExeCmd=="
-														+ Config.getInstance().getStartTKExeCmd());
+												log.debug("已经执行恢复服务指令StartTKExeCmd==" + Config.getInstance().getStartTKExeCmd());
 											}
 
 											CommUtil.sleep(10 * 1000);
 
 											DeviceConfig.getInstance().setInService(true);
 
-											mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(),
-													"127.0.0.1");
-											GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
-													.sendDoorCmd("PITEventTopic", mqttMessage);
+											mqttMessage = mqttMessage.replace(DeviceConfig.getInstance().getIpAddress(), "127.0.0.1");
+											GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT).sendDoorCmd("PITEventTopic", mqttMessage);
 										} else {
 											log.debug("已经处于正常服务状态!!");
 										}
 									}
 								} else if (gatCrtlBean.getEvent() == DeviceConfig.Event_ResetService) { // 重启闸机
-									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
+									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 										log.debug("准备执行重启闸机指令");
 										Runtime.getRuntime().exec("shutdown -l");
 									}
 								} else { // 人工窗其他指令
-									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress()
-											+ DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
+									if (CLIENT_ID.equals("MER" + DeviceConfig.getInstance().getIpAddress() + DeviceConfig.GAT_MQ_Standalone_CLIENT)) { // 由比对进程处理
 										log.debug("转发人工窗其他指令==" + gatCrtlBean.getEvent());
-										GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT)
-												.sendDoorCmd("PITEventTopic", mqttMessage);
+										GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Standalone_CLIENT).sendDoorCmd("PITEventTopic", mqttMessage);
 									}
 								}
 							}

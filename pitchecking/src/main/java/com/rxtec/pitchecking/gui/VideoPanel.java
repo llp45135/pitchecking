@@ -41,7 +41,7 @@ public class VideoPanel extends JPanel {
 			}
 		}
 
-		FaceScreenListener.getInstance().setFrameImage(image);   //此帧图片是给光亮度分析任务使用
+		FaceScreenListener.getInstance().setFrameImage(image); // 此帧图片是给光亮度分析任务使用
 
 		Graphics2D g = (Graphics2D) this.getGraphics();
 		g.drawImage(image, 0, 0, null);

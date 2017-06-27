@@ -171,6 +171,9 @@ public class SingleFaceTrackingScreen {
 		} else if (cmdType == ScreenCmdEnum.showWrongStation.getValue()) {
 			String exMsg = "非本站乘车";
 			singleVerifyFrame.showTKInfo(exMsg, "请核对车票", 1);
+		} else if (cmdType == ScreenCmdEnum.showRepeatCheck.getValue()) {
+			String exMsg = "重复验票";
+			singleVerifyFrame.showTKInfo(exMsg, "请换他人验票", 1);
 		}
 	}
 

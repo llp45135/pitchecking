@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.db.mysql.PitRecordSqlLoger;
 import com.rxtec.pitchecking.utils.CalUtils;
 import com.rxtec.pitchecking.utils.CommUtil;
 
@@ -25,6 +26,8 @@ public class ClearPITFaceFileJob implements Job {
 		try {
 			log.debug("闸机定时清理PITFace文件,开始执行！ By " + jobContext.getJobDetail().getJobClass());
 			this.deleteImageFile();
+			//清理mysql
+			PitRecordSqlLoger.getInstance().clearMysqlDatas(90);
 		} catch (Exception ex) {
 			log.error("AutoLogonJob:", ex);
 		}

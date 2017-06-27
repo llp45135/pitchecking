@@ -1,5 +1,6 @@
 package com.rxtec.pitchecking.db.mysql;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
@@ -18,10 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.Ticket;
 import com.rxtec.pitchecking.db.PitRecord;
+import com.rxtec.pitchecking.device.BarUnsecurity;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.task.ClearPITFaceFileJob;
+import com.rxtec.pitchecking.utils.CalUtils;
 
 public class PitRecordSqlLoger implements Runnable {
 	private Logger log = LoggerFactory.getLogger("PitRecordLoger");
@@ -48,7 +52,25 @@ public class PitRecordSqlLoger implements Runnable {
 	}
 
 	/**
+	 * 
+	 * @param monthCount
+	 */
+	public void clearMysqlDatas(int monthCount) {
+		String preDate = "";
+		try {
+			preDate = CalUtils.getPreSerivalDaysShort2(CalUtils.getStringDateShort2(), monthCount);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			log.error("clearMysqlDatas:", e);
+		}
+		String sqls = "delete from pit_face_verify where pitDate<'" + preDate + "'";
+		log.info("clearMysqlDatas:sqls = " + sqls);
+		pitRecordSqlDao.deleteSQL(sqls);
+	}
+
+	/**
 	 * 添加定时扫描人脸本地数据，定期删除，保留10天数据
+	 * 
 	 * @return
 	 */
 	private int addQuartzJobs() {
@@ -57,14 +79,11 @@ public class PitRecordSqlLoger implements Runnable {
 			String cronStr = "0 0 23 * * ?";
 			SchedulerFactory sf = new StdSchedulerFactory();
 			Scheduler sched = sf.getScheduler(); // 初始化调度器
-			JobDetail job = JobBuilder.newJob(ClearPITFaceFileJob.class)
-					.withIdentity("ClearPITFaceFileJob", "pitcheckGroup").build();
-			CronTrigger trigger = (CronTrigger) TriggerBuilder.newTrigger()
-					.withIdentity("ClearPITFaceFileTrigger", "pitcheckGroup")
+			JobDetail job = JobBuilder.newJob(ClearPITFaceFileJob.class).withIdentity("ClearPITFaceFileJob", "pitcheckGroup").build();
+			CronTrigger trigger = (CronTrigger) TriggerBuilder.newTrigger().withIdentity("ClearPITFaceFileTrigger", "pitcheckGroup")
 					.withSchedule(CronScheduleBuilder.cronSchedule(cronStr)).build(); // 设置触发器
 			Date ft = sched.scheduleJob(job, trigger); // 设置调度作业
-			log.debug(job.getKey() + " has been scheduled to run at: " + ft + " and repeat based on expression: "
-					+ trigger.getCronExpression());
+			log.debug(job.getKey() + " has been scheduled to run at: " + ft + " and repeat based on expression: " + trigger.getCronExpression());
 			sched.start(); // 开启调度任务，执行作业
 
 		} catch (Exception ex) {
@@ -97,8 +116,35 @@ public class PitRecordSqlLoger implements Runnable {
 		while (true) {
 			try {
 				PITVerifyData pvd = faceVerifyDataQueue.take();
-				PitFaceRecord rec = new PitFaceRecord(pvd);
-				String sqls = pitRecordSqlDao.createInsertSqlstr(rec);
+				PitFaceRecord pitFaceRecord = new PitFaceRecord(pvd);
+				pitFaceRecord.setPitStation(DeviceConfig.getInstance().getBelongStationCode());
+
+				Ticket ticket = null;
+				if (pvd.getQrCode() != null && pvd.getQrCode().trim().length() == 144) {
+					ticket = BarUnsecurity.getInstance()
+							.buildTicket(BarUnsecurity.getInstance().uncompress(pvd.getQrCode(), CalUtils.getStringDateShort2().substring(0, 4)));
+					log.debug("ticket.TrainCode==" + ticket.getTrainCode());
+					log.debug("ticket.CardNo==" + ticket.getCardNo());
+					log.debug("ticket.PassengerName==" + ticket.getPassengerName());
+
+					pitFaceRecord.setFromStationCode(ticket.getFromStationCode());
+					pitFaceRecord.setEndStationCode(ticket.getEndStationCode());
+					pitFaceRecord.setTicketNo(ticket.getTicketNo());
+					pitFaceRecord.setTrainCode(ticket.getTrainCode());
+					pitFaceRecord.setCoachNo(ticket.getCoachNo());
+					pitFaceRecord.setSeatCode(ticket.getSeatCode());
+					pitFaceRecord.setTicketType(ticket.getTicketType());
+					pitFaceRecord.setSeatNo(ticket.getSeatNo());
+					pitFaceRecord.setTrainDate(ticket.getTrainDate());
+					pitFaceRecord.setCardNo(ticket.getCardNo());
+					pitFaceRecord.setPassengerName(ticket.getPassengerName());
+					pitFaceRecord.setSaleOfficeNo(ticket.getSaleOfficeNo());
+					pitFaceRecord.setSaleWindowNo(ticket.getSaleWindowNo());
+					pitFaceRecord.setSaleDate(ticket.getSaleDate());
+				}
+
+				String sqls = pitRecordSqlDao.createInsertSqlstr(pitFaceRecord, Config.getInstance().getMysqlRecordType());
+				log.debug("createInsertSqlstr: sqls = " + sqls);
 				if (sqls != null && !sqls.equals("")) {
 					pitRecordSqlDao.insertSQL(sqls);
 				}

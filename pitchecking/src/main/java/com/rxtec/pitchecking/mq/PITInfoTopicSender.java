@@ -34,7 +34,7 @@ public class PITInfoTopicSender implements Runnable {
 	}
 
 	private void connectMQ() {
-		log.debug("Sender准备连接人工控制台MQ..." + DeviceConfig.getInstance().getManualCheck_MQURL());
+		log.info("Sender准备连接人工控制台MQ..." + DeviceConfig.getInstance().getManualCheck_MQURL());
 		try {
 			initialize();
 			isInitOK = true;
@@ -66,7 +66,7 @@ public class PITInfoTopicSender implements Runnable {
 		producer = session.createProducer(destination);
 		// 不持久化消息
 		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-		log.debug("Sender连接人工控制台MQ成功!");
+		log.info("Sender连接人工控制台MQ成功!");
 	}
 
 	public void sendMessage(String strMsg) throws JMSException, Exception {
@@ -100,8 +100,10 @@ public class PITInfoTopicSender implements Runnable {
 
 		if (info != null) {
 			try {
+				if (info.getMsgType() == PITInfoJson.MSG_TYPE_FRAME)
+					log.debug("现场照片准备发送至人工处置口");
 				if (info.getMsgType() == PITInfoJson.MSG_TYPE_VERIFY)
-					log.debug("人脸图片准备发送至人工处置口");
+					log.debug("人脸照片准备发送至人工处置口");
 				String msg = info.getJsonStr();
 				if (msg != null && isInitOK)
 					sendMessage(msg);

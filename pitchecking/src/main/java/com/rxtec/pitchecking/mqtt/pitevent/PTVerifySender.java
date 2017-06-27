@@ -1,29 +1,14 @@
 package com.rxtec.pitchecking.mqtt.pitevent;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Random;
-
-import javax.imageio.ImageIO;
-
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.net.event.CAMOpenBean;
-import com.rxtec.pitchecking.net.event.EventHandler;
-import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
-import com.rxtec.pitchecking.net.event.PIVerifyResultBean;
-import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.ImageToolkit;
 
 /**
  * 本类由人脸检测进程使用 ,发送待验证人脸至PTVerify主题

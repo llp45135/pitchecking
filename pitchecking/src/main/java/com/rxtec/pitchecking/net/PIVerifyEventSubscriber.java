@@ -162,7 +162,7 @@ class PIVerifyEventSubscriberUtils {
 		return (buffer, offset, length, header) -> {
 			final String jsonStr = buffer.getStringWithoutLengthUtf8(offset, length);
 			try {
-				eventHandler.InComeEventHandler(jsonStr);
+				eventHandler.beginCheckFaceEventHandler(jsonStr);
 			} catch (IOException e) {
 				Log.error("EventHandler.InComeEventHandler", e);
 			}

@@ -1,35 +1,16 @@
 package com.rxtec.pitchecking.gui.singledoor;
 
 import java.awt.AlphaComposite;
-import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Composite;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.Timer;
-import javax.swing.border.EmptyBorder;
-
-import com.rxtec.pitchecking.AudioPlayTask;
-import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.DeviceEventListener;
-import com.rxtec.pitchecking.IDCard;
-import com.rxtec.pitchecking.SingleFaceTrackingScreen;
-import com.rxtec.pitchecking.Ticket;
-import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.gui.VideoPanel;
-import com.rxtec.pitchecking.mbean.ProcessUtil;
-import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
-import com.rxtec.pitchecking.mqtt.MqttSenderBroker;
-import com.rxtec.pitchecking.utils.CalUtils;
-import com.rxtec.pitchecking.utils.CommUtil;
-
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Transparency;
@@ -42,18 +23,29 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-
-import java.awt.Dimension;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.Timer;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Composite;
-import java.awt.CardLayout;
+import com.rxtec.pitchecking.AudioPlayTask;
+import com.rxtec.pitchecking.Config;
+import com.rxtec.pitchecking.IDCard;
+import com.rxtec.pitchecking.SingleFaceTrackingScreen;
+import com.rxtec.pitchecking.Ticket;
+import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.gui.VideoPanel;
+import com.rxtec.pitchecking.mbean.ProcessUtil;
+import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
+import com.rxtec.pitchecking.utils.CalUtils;
+import com.rxtec.pitchecking.utils.CommUtil;
 
 public class SingleVerifyFrame extends JFrame implements ActionListener {
 	private Logger log = LoggerFactory.getLogger("SingleVerifyFrame");
@@ -125,13 +117,13 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 					frame.showTicketDefaultContent();
 					CommUtil.sleep(3 * 1000);
 					// frame.setVisible(true);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).setFaceScreenDisplayTimeout(10);
-					MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).setFaceScreenDisplay("人脸识别成功#请通过");
+					// MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).setFaceScreenDisplayTimeout(10);
+					// MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).setFaceScreenDisplay("人脸识别成功#请通过");
 					// MqttSenderBroker.getInstance().setFaceScreenDisplay("人脸识别失败#请从侧门离开");
 					frame.showFaceDisplayFromTK();
 					// AudioPlayTask.getInstance().start(DeviceConfig.takeTicketFlag);
-					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum())
-							.sendDoorCmd(ProcessUtil.createAudioJson(DeviceConfig.AudioTakeTicketFlag, "FaceAudio"));
+					GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum())
+							.sendDoorCmd(ProcessUtil.createTkEventJson(DeviceConfig.AudioTakeTicketFlag, "FaceAudio"));
 					// frame.showBeginCheckFaceContent();
 					// frame.showFaceCheckPassContent();
 					// frame.showCheckFailedContent();
@@ -158,14 +150,14 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 		setMinimumSize(new Dimension(1080, 1920));
 		setMaximumSize(new Dimension(1080, 1920));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1080, 1920);
+		setBounds(0, 0, 1080, 1920);
 		contentPane = new JPanel();
 		contentPane.setMinimumSize(new Dimension(1080, 1920));
 		contentPane.setMaximumSize(new Dimension(1080, 1920));
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		/**
 		 * 车票界面
 		 */
@@ -173,7 +165,7 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 		ticketPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		ticketPanel.setBounds(10, 10, 1060, 925);
 		ticketPanel.setLayout(new BoxLayout(ticketPanel, BoxLayout.Y_AXIS));
-		contentPane.add(ticketPanel);		
+		contentPane.add(ticketPanel);
 
 		Color bgcolor = new Color(0, 113, 205);
 
@@ -190,7 +182,7 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 		ticketLabelTitle.setFont(new Font("微软雅黑", Font.PLAIN, 50));
 		ticketLabelTitle.setBounds(225, 20, 551, 62);
 		ticketTopPanel.add(ticketLabelTitle);
-		
+
 		timelabel = new JLabel("yyyyMMdd hh:mm:ss");
 		timelabel.setForeground(Color.YELLOW);
 		timelabel.setFont(new Font("微软雅黑", Font.PLAIN, 20));
@@ -319,7 +311,7 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 		 */
 		facePanel = new JPanel();
 		facePanel.setBorder(new LineBorder(new Color(0, 0, 0)));
-		facePanel.setBounds(10, 946, 1060, 925);		
+		facePanel.setBounds(10, 946, 1060, 925);
 		facePanel.setLayout(new CardLayout(0, 0));
 		contentPane.add(facePanel);
 
@@ -362,8 +354,7 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 					// 建立透明画布
 					Graphics2D g = (Graphics2D) bgImage.getGraphics(); // 在画布上创建画笔
 
-					Composite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-							Config.getInstance().getFaceFrameTransparency()); // 指定透明度为半透明90%
+					Composite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Config.getInstance().getFaceFrameTransparency()); // 指定透明度为半透明90%
 					g.setComposite(alpha);
 					g.drawImage(localImg, 0, 0, this); // 注意是,将image画到g画笔所在的画布上
 					g.setColor(Color.black);// 设置颜色为黑色
@@ -380,8 +371,7 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 		facePanel.add(msgPanel, "name_1726792116426379");
 		msgPanel.setLayout(null);
 
-		msgTopLabel = new JLabel(
-				"<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>10</div></html>");
+		msgTopLabel = new JLabel("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>10</div></html>");
 		msgTopLabel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		msgTopLabel.setForeground(Color.YELLOW);
 		msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
@@ -430,13 +420,11 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 		cameraPanel.add(panel_center);
 		cameraPanel.add(panel_bottom);
 
-		
-
-//		setUndecorated(true);
+		// setUndecorated(true);
 		setAlwaysOnTop(true);
 
 		this.showFaceDefaultContent();
-//		this.showTicketDefaultContent();
+		// this.showTicketDefaultContent();
 		this.showSuccWait("", "系统启动中...");
 
 		faceTimeIntevel = -1;
@@ -508,7 +496,9 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 	public void showFaceDisplayFromTK() {
 		faceTimeIntevel = 0;
 
-		String displayStr = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplay();
+		// String displayStr =
+		// MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplay();
+		String displayStr = DeviceConfig.getInstance().getFaceScreenDisplay();
 
 		// this.displayMsg = displayStr.replace("#", "！");
 		//
@@ -537,23 +527,32 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 		if (displayStr.indexOf("成功") != -1) {
 			// ImageIcon icon = new ImageIcon(DeviceConfig.allowImgPath);
 			// this.showPassStatusImage(icon);
-			faceTimeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplayTimeout();// 5;
-																							// //
-																							// 成功时的提示信息存在时间
-																							// 暂时设置为5s
+			faceTimeIntevel = DeviceConfig.getInstance().getFaceScreenDisplayTimeout();
+			// faceTimeIntevel =
+			// MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplayTimeout();//
+			// 5;
+			// //
+			// 成功时的提示信息存在时间
+			// 暂时设置为5s
 		} else {
 			// ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
 			// this.showPassStatusImage(icon);
-			faceTimeIntevel = MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplayTimeout();
+			faceTimeIntevel = DeviceConfig.getInstance().getFaceScreenDisplayTimeout();
+			// faceTimeIntevel =
+			// MqttSenderBroker.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT+Config.getInstance().getCameraNum()).getFaceScreenDisplayTimeout();
 		}
 		faceTitleStrType = 4; // 4:覆盖一层panel 5：不覆盖
+
+		if (displayStr.indexOf("成功") != -1) {
+			msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, Config.getInstance().getSuccessFontSize()));
+			displayStr = "请通过";
+		}
 
 		if (displayStr.indexOf("#") != -1) { // 由#号，分两行
 			int kk = displayStr.indexOf("#");
 			String displayMsg1 = displayStr.substring(0, kk);
 			String displayMsg2 = displayStr.substring(kk + 1);
-			this.displayMsg = "<html><div align='center'>" + displayMsg1 + "</div>" + "<div align='center'>"
-					+ displayMsg2 + "</div>";
+			this.displayMsg = "<html><div align='center'>" + displayMsg1 + "</div>" + "<div align='center'>" + displayMsg2 + "</div>";
 			this.msgTopLabel.setText(displayMsg + "<div align='center'>" + faceTimeIntevel + "</div>" + "</html>");
 		} else {
 			this.displayMsg = "<html><div align='center'>" + displayStr + "</div>";
@@ -585,9 +584,7 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 
 		faceTimeIntevel = 3;
 		faceTitleStrType = 0;
-		this.msgTopLabel
-				.setText("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>"
-						+ faceTimeIntevel + "</div></html>");
+		this.msgTopLabel.setText("<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>" + faceTimeIntevel + "</div></html>");
 	}
 
 	/**
@@ -616,9 +613,7 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 
 		faceTimeIntevel = 5;
 		faceTitleStrType = 1;
-		this.msgTopLabel
-				.setText("<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>"
-						+ faceTimeIntevel + "</div></html>");
+		this.msgTopLabel.setText("<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>" + faceTimeIntevel + "</div></html>");
 	}
 
 	/**
@@ -822,8 +817,7 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 	/**
 	 * 核验失败信息界面
 	 */
-	public void showFailedContent(DeviceConfig deviceConfig, Ticket ticket, int titleStrType, int backPanelType,
-			String failedMsg) {
+	public void showFailedContent(DeviceConfig deviceConfig, Ticket ticket, int titleStrType, int backPanelType, String failedMsg) {
 		this.ticketTitleStrType = titleStrType;
 		this.ticketBackPanelType = backPanelType;
 		try {
@@ -834,11 +828,9 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 			this.labelDz.setText(deviceConfig.getStationName(ticket.getEndStationCode()));
 			this.labelTrainCode.setText(ticket.getTrainCode());
 			this.label_rq.setText("乘车日期:");
-			String strTrainDate = ticket.getTrainDate().substring(0, 4) + "年" + ticket.getTrainDate().substring(4, 6)
-					+ "月" + ticket.getTrainDate().substring(6, 8) + "日";
+			String strTrainDate = ticket.getTrainDate().substring(0, 4) + "年" + ticket.getTrainDate().substring(4, 6) + "月" + ticket.getTrainDate().substring(6, 8) + "日";
 			this.labelTrainDate.setText(strTrainDate);
-			this.labelTicketType
-					.setText(deviceConfig.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
+			this.labelTicketType.setText(deviceConfig.getTicketTypesMap().get(Integer.parseInt(ticket.getTicketType())) + "票");
 			this.labelSeatType.setText(deviceConfig.getSeatTypesMap().get(ticket.getSeatCode()));
 			ImageIcon icon = new ImageIcon(DeviceConfig.forbidenImgPath);
 			lableWarnmsg.setForeground(Color.RED);
@@ -916,7 +908,7 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 		lableImg.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
 		lableImg.setIcon(icon);
 	}
-	
+
 	private void timeRefresh() {
 		String now = CalUtils.getStringDate();
 		timelabel.setText(now);
@@ -926,27 +918,23 @@ public class SingleVerifyFrame extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		this.timeRefresh();
-		
-		
+
 		if (faceTimeIntevel > 0) {
 			if (this.faceTitleStrType == 0) {
 				// label_title.setText("人脸识别成功！请通过" + " " + (timeIntevel - 1));
 
-				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
-				msgTopLabel.setText(
-						"<html><div align='center'>人脸识别成功</div><div align='center'>请通过</div><div align='center'>"
-								+ (faceTimeIntevel - 1) + "</di></html>");
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, Config.getInstance().getSuccessFontSize()));
+				msgTopLabel.setText("<html><div align='center'>请通过</div><div align='center'>" + (faceTimeIntevel - 1) + "</di></html>");
 			} else if (this.faceTitleStrType == 1) {
 				// label_title.setText("人脸识别失败！请从侧门离开" + " " + (timeIntevel -
 				// 1));
 
 				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
-				msgTopLabel.setText(
-						"<html><div align='center'>人脸识别失败</div><div align='center'>请从侧门离开</div><div align='center'>"
-								+ (faceTimeIntevel - 1) + "</di></html>");
+				msgTopLabel
+						.setText("<html><div align='center'>人证核验失败</div><div align='center'>请走人工通道</div><div align='center'>" + (faceTimeIntevel - 1) + "</di></html>");
 			} else if (this.faceTitleStrType == 4) {
-				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, 150));
-				msgTopLabel.setText(displayMsg + "<div align='center'>" + (faceTimeIntevel - 1) + "</div>" + "</html>");
+				msgTopLabel.setFont(new Font("微软雅黑", Font.PLAIN, Config.getInstance().getSuccessFontSize()));
+				msgTopLabel.setText(displayMsg + "</html>");
 			} else if (this.faceTitleStrType == 5) {
 				face_label_title.setText(displayMsg + "  " + (faceTimeIntevel - 1));
 				// label_title.setBackground(null);

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.device.DeviceConfig;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
-import com.rxtec.pitchecking.utils.BASE64;
+import com.rxtec.pitchecking.utils.BASE64Util;
 import com.rxtec.pitchecking.utils.JsonUtils;
 
 /**
@@ -253,20 +253,79 @@ public class PITInfoJson implements Serializable {
 	public PITInfoJson(PITVerifyData pitData) throws Exception {
 		if (pitData == null)
 			return;
-		if (pitData.getFrameImg() != null)
-			this.setFrameImageBase64(BASE64.encryptBASE64(pitData.getFrameImg()));
 
-		this.setIdCardNo(BASE64.encryptBASE64(pitData.getIdNo().getBytes()));
+		this.setIdCardNo(BASE64Util.encryptBASE64(pitData.getIdNo().getBytes()));
+		this.setGender(pitData.getGender());
+		this.setAge(pitData.getAge());
+		this.setIdHashCode(pitData.getIdNo().hashCode());
+
+		this.setSimilarity(pitData.getVerifyResult());
+
+		if (pitData.getIdCardImg() != null)
+			this.setIdPicImageBase64(pitData.getIdCardImgByBase64());
+
+		if (pitData.getFaceImg() != null)
+			this.setFaceImageBase64(pitData.getFaceImgByBase64());
+
+		if (pitData.getFrameImg() != null)
+			this.setFrameImageBase64(pitData.getFrameImgByBase64());
+
+		this.ipAddress = DeviceConfig.getInstance().getIpAddress();
+		this.dbCode = DeviceConfig.getInstance().getBelongStationCode();
+		this.gateNo = DeviceConfig.getInstance().getGateNo();
+
+		if (pitData.getIdCard() != null) {
+			this.citizenName = pitData.getIdCard().getPersonName();
+			this.IDBirth = pitData.getIdCard().getIDBirth();
+			this.IDNation = pitData.getIdCard().getIDNation();
+			this.IDDwelling = pitData.getIdCard().getIDDwelling();
+			this.IDIssue = pitData.getIdCard().getIDIssue();
+			this.IDEfficb = pitData.getIdCard().getIDEfficb();
+			this.IDEffice = pitData.getIdCard().getIDEffice();
+		} else {
+			this.citizenName = pitData.getPersonName();
+			this.IDBirth = pitData.getIdBirth();
+			this.IDNation = pitData.getIdNation();
+			this.IDDwelling = pitData.getIdDwelling();
+			this.IDIssue = pitData.getIdIssue();
+			this.IDEfficb = pitData.getIdEfficb();
+			this.IDEffice = pitData.getIdEffice();
+		}
+
+		this.setQrCode(pitData.getQrCode());
+
+		this.msgType = PITInfoJson.MSG_TYPE_VERIFY;
+		jsonStr = JsonUtils.serialize(this);
+	}
+
+	/**
+	 * 3张照片单独作为入参
+	 * 
+	 * @param pitData
+	 * @param idCardImg
+	 * @param faceImg
+	 * @param frameImg
+	 * @throws Exception
+	 */
+	public PITInfoJson(PITVerifyData pitData, byte[] idCardImg, byte[] faceImg, byte[] frameImg) throws Exception {
+		if (pitData == null)
+			return;
+
+		this.setIdCardNo(BASE64Util.encryptBASE64(pitData.getIdNo().getBytes()));
 		this.setQrCode(pitData.getQrCode());
 		this.setGender(pitData.getGender());
 		this.setAge(pitData.getAge());
 		this.setIdHashCode(pitData.getIdNo().hashCode());
-		if (pitData.getIdCardImg() != null)
-			this.setIdPicImageBase64(BASE64.encryptBASE64(pitData.getIdCardImg()));
 		this.setSimilarity(pitData.getVerifyResult());
 
-		if (pitData.getFaceImg() != null)
-			this.setFaceImageBase64(BASE64.encryptBASE64(pitData.getFaceImg()));
+		if (idCardImg != null)
+			this.setIdPicImageBase64(BASE64Util.encryptBASE64(idCardImg));
+
+		if (faceImg != null)
+			this.setFaceImageBase64(BASE64Util.encryptBASE64(faceImg));
+
+		if (frameImg != null)
+			this.setFrameImageBase64(BASE64Util.encryptBASE64(frameImg));
 
 		this.ipAddress = DeviceConfig.getInstance().getIpAddress();
 		this.dbCode = DeviceConfig.getInstance().getBelongStationCode();
@@ -289,7 +348,7 @@ public class PITInfoJson implements Serializable {
 	public PITInfoJson(byte[] frameImgBytes) throws Exception {
 		if (frameImgBytes == null)
 			return;
-		this.frameImageBase64 = BASE64.encryptBASE64(frameImgBytes);
+		this.frameImageBase64 = BASE64Util.encryptBASE64(frameImgBytes);
 		this.ipAddress = DeviceConfig.getInstance().getIpAddress();
 		this.msgType = PITInfoJson.MSG_TYPE_FRAME;
 		jsonStr = JsonUtils.serialize(this);

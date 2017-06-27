@@ -301,7 +301,7 @@ public class JsonUtils {
 			
 			ObjectMapper mapper = new ObjectMapper();
 			PITInfoJmsObj pitInfoJsonBean = mapper.readValue(jsonstr, PITInfoJmsObj.class);
-			String idNo = new String(BASE64.decryptBASE64(pitInfoJsonBean.getIdCardNo()));
+			String idNo = new String(BASE64Util.decryptBASE64(pitInfoJsonBean.getIdCardNo()));
 			System.out.println("idNo=="+idNo);
 			System.out.println("getMsgType==" + pitInfoJsonBean.getMsgType());
 			System.out.println("getCitizenName==" + pitInfoJsonBean.getCitizenName());

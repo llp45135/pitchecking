@@ -9,9 +9,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
@@ -62,6 +66,15 @@ public class CommUtil {
 		System.out.println("idcardNo==" + CommUtil.getIdCardNoFromInfo(aa));
 		try {
 			System.out.println("" + CommUtil.round(2, (float) 0.685325));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		System.out.println(hexstringToInt("f007"));
+		
+		try {
+			System.out.println("intToBytes: 0 = "+CommUtil.bytesToHexString(intToBytes(6837)));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -202,6 +215,34 @@ public class CommUtil {
 			}
 		}
 	}
+	
+	
+	/**
+	 * 将字符串写成文件
+	 * 
+	 * @param fileName
+	 * @param fileContent
+	 * @return
+	 */
+	public static boolean writeFileContent(String fileName, String fileContent) {
+		try {
+			File logFile = new File(fileName);
+			if (!logFile.exists()) {
+				logFile.createNewFile();
+			}
+			FileWriter fw = new FileWriter(logFile);
+			// log.debug("pidStr==" + pidStr);
+			fw.write(fileContent);
+			fw.flush();
+			fw.close();
+			return true;
+
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return false;
+		}
+	}
 
 	/**
 	 * 判断字符串中是否含有身份证号的前面17个连续数字
@@ -294,8 +335,7 @@ public class CommUtil {
 	}
 
 	static class BitmapHeader {
-		public int iSize, ibiSize, iWidth, iHeight, iPlanes, iBitcount, iCompression, iSizeimage, iXpm, iYpm, iClrused,
-				iClrimp;
+		public int iSize, ibiSize, iWidth, iHeight, iPlanes, iBitcount, iCompression, iSizeimage, iXpm, iYpm, iClrused, iClrimp;
 
 		// 读取bmp文件头信息
 		public void read(FileInputStream fs) throws IOException {
@@ -358,8 +398,7 @@ public class CommUtil {
 			}
 			nindex += npad;
 		}
-		image = Toolkit.getDefaultToolkit()
-				.createImage(new MemoryImageSource(bh.iWidth, bh.iHeight, ndata, 0, bh.iWidth));
+		image = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(bh.iWidth, bh.iHeight, ndata, 0, bh.iWidth));
 		fs.close();
 		return (image);
 	}
@@ -377,8 +416,7 @@ public class CommUtil {
 				nindex += 4;
 			}
 		}
-		image = Toolkit.getDefaultToolkit()
-				.createImage(new MemoryImageSource(bh.iWidth, bh.iHeight, ndata, 0, bh.iWidth));
+		image = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(bh.iWidth, bh.iHeight, ndata, 0, bh.iWidth));
 		fs.close();
 		return (image);
 	}
@@ -419,8 +457,7 @@ public class CommUtil {
 	 */
 	public static int bytesToInt(byte[] src, int offset) {
 		int value;
-		value = (int) ((src[offset] & 0xFF) | ((src[offset + 1] & 0xFF) << 8) | ((src[offset + 2] & 0xFF) << 16)
-				| ((src[offset + 3] & 0xFF) << 24));
+		value = (int) ((src[offset] & 0xFF) | ((src[offset + 1] & 0xFF) << 8) | ((src[offset + 2] & 0xFF) << 16) | ((src[offset + 3] & 0xFF) << 24));
 		return value;
 	}
 
@@ -662,21 +699,41 @@ public class CommUtil {
 	public static byte[] image2byte(String path) {
 		byte[] data = null;
 		FileImageInputStream input = null;
+		ByteArrayOutputStream output = null;
 		try {
 			input = new FileImageInputStream(new File(path));
-			ByteArrayOutputStream output = new ByteArrayOutputStream();
+			output = new ByteArrayOutputStream();
 			byte[] buf = new byte[1024];
 			int numBytesRead = 0;
 			while ((numBytesRead = input.read(buf)) != -1) {
 				output.write(buf, 0, numBytesRead);
 			}
 			data = output.toByteArray();
-			output.close();
-			input.close();
+			if (output != null) {
+				output.close();
+				output = null;
+			}
+			if (input != null) {
+				input.close();
+				input = null;
+			}
 		} catch (FileNotFoundException ex1) {
 			ex1.printStackTrace();
 		} catch (IOException ex1) {
 			ex1.printStackTrace();
+		} finally {
+			try {
+				if (output != null) {
+					output.close();
+					output = null;
+				}
+				if (input != null) {
+					input.close();
+					input = null;
+				}
+			} catch (IOException ex1) {
+				ex1.printStackTrace();
+			}
 		}
 		return data;
 	}
@@ -690,14 +747,28 @@ public class CommUtil {
 	public static void byte2image(byte[] data, String path) {
 		if (data.length < 3 || path.equals(""))
 			return;
+		FileImageOutputStream imageOutput = null;
 		try {
-			FileImageOutputStream imageOutput = new FileImageOutputStream(new File(path));
+			imageOutput = new FileImageOutputStream(new File(path));
 			imageOutput.write(data, 0, data.length);
-			imageOutput.close();
+			if (imageOutput != null) {
+				imageOutput.close();
+				imageOutput = null;
+			}
 			log.debug("Make Picture success,Please find image in " + path);
 		} catch (Exception ex) {
 			log.error("Exception: " + ex);
 			ex.printStackTrace();
+		} finally {
+			try {
+				if (imageOutput != null) {
+					imageOutput.close();
+					imageOutput = null;
+				}
+			} catch (Exception ex) {
+				log.error("Exception: " + ex);
+				ex.printStackTrace();
+			}
 		}
 	}
 
@@ -732,13 +803,27 @@ public class CommUtil {
 	 * @return
 	 */
 	public static byte[] getImageBytesFromImageBuffer(BufferedImage cardImage) {
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		ByteArrayOutputStream output = null;
 		byte[] buff = null;
 		try {
+			output = new ByteArrayOutputStream();
 			ImageIO.write(cardImage, "JPEG", ImageIO.createImageOutputStream(output));
 			buff = output.toByteArray();
+			if (output != null) {
+				output.close();
+				output = null;
+			}
 		} catch (Exception e) {
 			log.error("CommUtil ImageIO.write error!", e);
+		} finally {
+			try {
+				if (output != null) {
+					output.close();
+					output = null;
+				}
+			} catch (Exception e) {
+				log.error("CommUtil ImageIO.write error!", e);
+			}
 		}
 
 		return buff;
@@ -787,8 +872,7 @@ public class CommUtil {
 		src[0] = (byte) (value & 0xFF);
 		return src;
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param o
@@ -796,20 +880,82 @@ public class CommUtil {
 	 */
 	public static byte[] serialObjToBytes(Object o) {
 		byte[] buf = null;
+		ByteArrayOutputStream bos = null;
+		ObjectOutputStream oos = null;
 		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream oo = new ObjectOutputStream(bos);
-			oo.writeObject(o);
+			bos = new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(o);
 			buf = bos.toByteArray();
-			oo.close();
-			bos.close();
-
+			if (oos != null) {
+				oos.close();
+				oos = null;
+			}
+			if (bos != null) {
+				bos.close();
+				bos = null;
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			log.error("serialObjToBytes",e);
+			log.error("serialObjToBytes", e);
+		} finally {
+			try {
+				if (oos != null) {
+					oos.close();
+					oos = null;
+				}
+				if (bos != null) {
+					bos.close();
+					bos = null;
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				log.error("serialObjToBytes", e);
+			}
 		}
 
 		return buf;
 	}
 
+	/*
+	 * Convert byte[] to hex
+	 * string.这里我们可以将byte转换成int，然后利用Integer.toHexString(int)来转换成16进制字符串。
+	 * 
+	 * @param src byte[] data
+	 * 
+	 * @return hex string
+	 */
+	public static String bytesToHexString(byte[] src) {
+		StringBuilder stringBuilder = new StringBuilder("");
+		if (src == null || src.length <= 0) {
+			return null;
+		}
+		for (int i = 0; i < src.length; i++) {
+			int v = src[i] & 0xFF;
+			String hv = Integer.toHexString(v);
+			if (hv.length() < 2) {
+				stringBuilder.append(0);
+			}
+			stringBuilder.append(hv);
+		}
+		return stringBuilder.toString();
+	}
+
+	/**
+	 * 
+	 */
+	public static int hexstringToInt(String hexstr) {
+		int value = 0;
+		if (hexstr == null || hexstr.length() <= 0) {
+			return 0;
+		}
+
+		String ss = "";
+		for (int i = 0; i < hexstr.length(); i = i + 2) {
+			ss = hexstr.substring(i, i + 2) + ss;
+		}
+		// System.out.println("ss = " + ss);
+		value = Integer.parseInt(ss, 16);
+		return value;
+	}
 }

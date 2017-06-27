@@ -20,6 +20,7 @@ public class CalUtils {
 
 	/**
 	 * yyyy-MM-dd HH:mm:ss
+	 * 
 	 * @return
 	 */
 	public static Date getNowDate() {
@@ -35,6 +36,7 @@ public class CalUtils {
 
 	/**
 	 * yyyy-MM-dd
+	 * 
 	 * @return
 	 */
 	public static Date getNowDateShort() {
@@ -50,6 +52,7 @@ public class CalUtils {
 
 	/**
 	 * yyyy-MM-dd HH:mm:ss
+	 * 
 	 * @return
 	 */
 	public static String getStringDate() {
@@ -63,6 +66,7 @@ public class CalUtils {
 
 	/**
 	 * yyyy-MM-dd HH:mm:ss.SSS
+	 * 
 	 * @return
 	 */
 	public static String getStringDateHaomiao() {
@@ -76,6 +80,7 @@ public class CalUtils {
 
 	/**
 	 * HHmm
+	 * 
 	 * @return
 	 */
 	public static String getStringTime() {
@@ -89,6 +94,7 @@ public class CalUtils {
 
 	/**
 	 * HHmmss
+	 * 
 	 * @return
 	 */
 	public static String getStringFullTime() {
@@ -99,9 +105,10 @@ public class CalUtils {
 		String dateString = formatter.format(currentTime);
 		return dateString;
 	}
-	
+
 	/**
 	 * HHmmss.SSS
+	 * 
 	 * @return
 	 */
 	public static String getStringFullTimeHaomiao() {
@@ -115,6 +122,7 @@ public class CalUtils {
 
 	/**
 	 * yyyy-MM-dd
+	 * 
 	 * @return
 	 */
 	public static String getStringDateShort() {
@@ -128,6 +136,7 @@ public class CalUtils {
 
 	/**
 	 * yyyyMMdd
+	 * 
 	 * @return
 	 */
 	public static String getStringDateShort2() {
@@ -141,6 +150,7 @@ public class CalUtils {
 
 	/**
 	 * yyyy-MM-dd EEEE
+	 * 
 	 * @return
 	 */
 	public static String getStringDateShort3() {
@@ -154,6 +164,7 @@ public class CalUtils {
 
 	/**
 	 * yyyyMMddHHmmss
+	 * 
 	 * @return
 	 */
 	public static String getStringDateLong() {
@@ -168,6 +179,7 @@ public class CalUtils {
 
 	/**
 	 * yyyy-MM-dd HH:mm:ss
+	 * 
 	 * @param strDate
 	 * @return
 	 */
@@ -182,6 +194,7 @@ public class CalUtils {
 
 	/**
 	 * yyyy-MM-dd HH:mm:ss
+	 * 
 	 * @param dateDate
 	 * @return
 	 */
@@ -278,7 +291,7 @@ public class CalUtils {
 	}
 
 	/**
-	 * 返回5天前的日期
+	 * 返回5天前的日期 yyyy-MM-dd
 	 * 
 	 * @param dateString
 	 *            String
@@ -288,6 +301,29 @@ public class CalUtils {
 	public static String getPreSerivalDaysShort(String dateString, int k) throws ParseException {
 		Date currentTime = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		TimeZone timeZoneChina = TimeZone.getTimeZone("Asia/Shanghai"); // 获取时区
+		formatter.setTimeZone(timeZoneChina); // 设置系统时区
+		Date today = formatter.parse(dateString);
+
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(today);
+		cal.add(Calendar.DAY_OF_YEAR, -k);
+		String preFiveDay = String.valueOf(formatter.format(cal.getTime()));
+		cal.roll(Calendar.DAY_OF_YEAR, k);
+		return preFiveDay;
+	}
+
+	/**
+	 * 返回5天前的日期 yyyyMMdd
+	 * 
+	 * @param dateString
+	 *            String
+	 * @throws ParseException
+	 * @return String
+	 */
+	public static String getPreSerivalDaysShort2(String dateString, int k) throws ParseException {
+		Date currentTime = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 		TimeZone timeZoneChina = TimeZone.getTimeZone("Asia/Shanghai"); // 获取时区
 		formatter.setTimeZone(timeZoneChina); // 设置系统时区
 		Date today = formatter.parse(dateString);
@@ -499,10 +535,10 @@ public class CalUtils {
 		int days = rightNow.getActualMaximum(Calendar.DAY_OF_YEAR);
 		return days;
 	}
-	
-	
+
 	/**
-	 * 时间之间的天数  yyyyMMdd
+	 * 时间之间的天数 yyyyMMdd
+	 * 
 	 * @param dateBegin
 	 * @param dateEnd
 	 * @return
@@ -539,7 +575,8 @@ public class CalUtils {
 	}
 
 	/**
-	 * 时间之间的天数  yyyy-MM-dd
+	 * 时间之间的天数 yyyy-MM-dd
+	 * 
 	 * @param dateBegin
 	 * @param dateEnd
 	 * @return
@@ -577,6 +614,7 @@ public class CalUtils {
 
 	/**
 	 * 计算年龄，时间之间的年数 yyyy-MM-dd
+	 * 
 	 * @param dateBegin
 	 * @param dateEnd
 	 * @return
@@ -621,8 +659,7 @@ public class CalUtils {
 		// 时间单位(如：不足1天(24小时) 则返回0)，开始时间，结束时间
 		Date date1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(time1);
 		Date date2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").parse(time2);
-		long ltime = date1.getTime() - date2.getTime() < 0 ? date2.getTime() - date1.getTime()
-				: date1.getTime() - date2.getTime();
+		long ltime = date1.getTime() - date2.getTime() < 0 ? date2.getTime() - date1.getTime() : date1.getTime() - date2.getTime();
 		if (unit.equals("ms")) {
 			return ltime;
 		} else if (unit.equals("s")) {
@@ -646,10 +683,11 @@ public class CalUtils {
 		System.out.println("nowMonthDays==" + getNowMonthDays("2008-02"));
 		System.out.println("nowYearDays==" + getNowYearDays("2009"));
 		System.out.println("getAge==" + getCalcDate("2016-07-19", "2016-12-07"));
-		System.out.println(getPreSerivalDaysShort(getStringDateShort(), 1));
+		System.out.println("getPreSerivalDaysShort==" + getPreSerivalDaysShort2(getStringDateShort2(), 90));
 		System.out.println("hhmm==" + getStringFullTimeHaomiao());
-		System.out.println(""+howLong("ms", "2016-10-12 14:00:00.100", "2016-10-12 14:00:09.300"));
-		System.out.println("getCalcDateShort=="+getCalcDateShort("20170316", "20160315"));
+		System.out.println("howlong:" + howLong("m", "2017-06-16 13:56:09.100", "2017-06-16 12:24:09.300"));
+		System.out.println("getCalcDateShort==" + getCalcDateShort("20170624", "20170623"));
+
 	}
 
 }

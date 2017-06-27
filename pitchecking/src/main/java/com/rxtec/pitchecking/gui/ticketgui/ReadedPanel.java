@@ -20,11 +20,11 @@ public class ReadedPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public ReadedPanel() {
+	public ReadedPanel(int panelWidth,int panelHeight) {
 		setSize(new Dimension(1024, 608));
 		setBackground(Color.WHITE);
-		setMinimumSize(new Dimension(1024, 608));
-		setMaximumSize(new Dimension(1024, 608));
+		setMinimumSize(new Dimension(panelWidth, 608));
+		setMaximumSize(new Dimension(panelWidth, 608));
 		setLayout(null);
 		
 		holdTicketImg = new JButton("");

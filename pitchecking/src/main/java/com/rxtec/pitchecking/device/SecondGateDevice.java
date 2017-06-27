@@ -13,6 +13,7 @@ import com.rxtec.pitchecking.EmerButtonTask;
 import com.rxtec.pitchecking.ScreenCmdEnum;
 import com.rxtec.pitchecking.TicketCheckScreen;
 import com.rxtec.pitchecking.TicketVerifyScreen;
+import com.rxtec.pitchecking.device.smartmonitor.MonitorXMLUtil;
 import com.rxtec.pitchecking.domain.EmerButtonEvent;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
@@ -39,9 +40,19 @@ public class SecondGateDevice implements SerialPortEventListener {
 	private OutputStream out;
 	private byte[] buffer = new byte[1024];
 	private StringBuffer readBuffer = new StringBuffer();
-	private static int retryTimes = 3;
-	private static int delayTime = 30;
+	private static int retryTimes = 20;
+	private static int delayTime = 5;
 	private static int delayCount = 1000;
+
+	private String errcode = "00";
+
+	public String getErrcode() {
+		return errcode;
+	}
+
+	public void setErrcode(String errcode) {
+		this.errcode = errcode;
+	}
 
 	public static synchronized SecondGateDevice getInstance() {
 		if (instance == null) {
@@ -68,8 +79,7 @@ public class SecondGateDevice implements SerialPortEventListener {
 
 			if (commPort instanceof SerialPort) {
 				serialPort = (SerialPort) commPort;
-				serialPort.setSerialPortParams(DeviceConfig.getInstance().getGateCrtlRate(), SerialPort.DATABITS_8,
-						SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+				serialPort.setSerialPortParams(DeviceConfig.getInstance().getGateCrtlRate(), SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 				serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
 
 				this.in = serialPort.getInputStream();
@@ -94,6 +104,27 @@ public class SecondGateDevice implements SerialPortEventListener {
 	}
 
 	/**
+	 * 闸门自检
+	 * 
+	 * @return
+	 */
+	public int selfCheck() {
+		try {
+			String cmd = "2A600023";
+			log.info("selfCheck cmd==" + cmd);
+			readBuffer.delete(0, readBuffer.length());
+			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
+			for (int i = 0; i < cmdData.length; i++) {
+				this.out.write(cmdData[i]);
+			}
+			this.out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	/**
 	 * 电磁开关侧门
 	 * 
 	 * @return
@@ -101,7 +132,7 @@ public class SecondGateDevice implements SerialPortEventListener {
 	public int openEmerDoor() {
 		try {
 			String cmd = "2A500123";
-			log.info("openSecondDoor cmd==" + cmd);
+			log.info("openEmerDoor cmd==" + cmd);
 			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
 			for (int i = 0; i < cmdData.length; i++) {
 				this.out.write(cmdData[i]);
@@ -121,7 +152,7 @@ public class SecondGateDevice implements SerialPortEventListener {
 	public int openTheSecondDoor() {
 		try {
 			String cmd = "2A040123";
-			log.info("openThirdDoor cmd==" + cmd);
+			log.info("openTheSecondDoor cmd==" + cmd);
 			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
 			for (int i = 0; i < cmdData.length; i++) {
 				this.out.write(cmdData[i]);
@@ -314,123 +345,241 @@ public class SecondGateDevice implements SerialPortEventListener {
 					readBuffer.append(data);
 				}
 
+				String ss = "";
 				for (int i = 1; i < retryTimes; i++) {
 					CommUtil.sleep(delayTime);
-					if (readBuffer.length() == 8) {
+					ss = readBuffer.toString();
+					if (ss.length() >= 8) {
 						break;
 					}
 				}
 
-				String ss = readBuffer.toString();
-				log.info("retData==" + ss);
+				log.info("Second Gate retData==" + ss);
+
+				readBuffer.delete(0, ss.length());
 
 				if (ss.length() >= 8) {
 					if (ss.indexOf("2A040123") != -1) {
 						DeviceEventListener.getInstance().setReceiveOpenSecondDoorCmd(true);
 						log.info("控制板已收到开二门指令");
-						DeviceConfig.getInstance().setSecondGateOpenCount(1);
-						DeviceConfig.getInstance().setSecondGateOpened(true); // 第2门打开
 
+						if (Config.getInstance().getRebackReadCardMode() == 3) { // 旧板
+							DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
+							DeviceConfig.getInstance().setSecondGateOpenCount(1);
+							DeviceConfig.getInstance().setSecondGateOpened(true); // 第2门打开
+
+							log.info("isFirstGateClosed==" + DeviceConfig.getInstance().isFirstGateClosed());
+							log.info("isSecondGateOpened==" + DeviceConfig.getInstance().isSecondGateOpened());
+							log.info("getSecondGateOpenCount==" + DeviceConfig.getInstance().getSecondGateOpenCount());
+
+							if (DeviceEventListener.getInstance().isStartThread()) {
+								if (DeviceConfig.getInstance().isFirstGateClosed() && DeviceConfig.getInstance().isSecondGateOpened()) {
+									if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR || Config.getInstance().getIsOutGateForCSQ() == 1) {
+										TicketVerifyScreen.getInstance()
+												.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+									}
+									DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+									DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+									log.info("人证比对完成，第1门已关闭、第2门已打开，可以重新寻卡");
+								}
+							}
+						} else if (Config.getInstance().getRebackReadCardMode() == 4) { // 旧板
+							DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
+							DeviceConfig.getInstance().setSecondGateOpenCount(1);
+							DeviceConfig.getInstance().setSecondGateOpened(true); // 第2门打开
+
+							log.info("isFirstGateClosed==" + DeviceConfig.getInstance().isFirstGateClosed());
+							log.info("isSecondGateOpened==" + DeviceConfig.getInstance().isSecondGateOpened());
+							log.info("getSecondGateOpenCount==" + DeviceConfig.getInstance().getSecondGateOpenCount());
+						}
+					}
+					if (ss.indexOf("2A040023") != -1) {
+						if (Config.getInstance().getRebackReadCardMode() == 3) { // 旧板
+							log.info("第二道门正常关闭");
+							DeviceConfig.getInstance().setSecondGateOpenCount(2);
+							DeviceConfig.getInstance().setSecondGateOpened(false); // 2门关闭
+							log.info("isFirstGateClosed==" + DeviceConfig.getInstance().isFirstGateClosed());
+							log.info("isSecondGateOpened==" + DeviceConfig.getInstance().isSecondGateOpened());
+							log.info("getSecondGateOpenCount==" + DeviceConfig.getInstance().getSecondGateOpenCount());
+
+							if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+								GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic",
+										DeviceConfig.Event_SecondDoor_NormalClosed);
+								DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+							}
+						} else if (Config.getInstance().getRebackReadCardMode() == 4) { // 旧板
+							if (DeviceEventListener.getInstance().isStartThread()) {
+								if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR || Config.getInstance().getIsOutGateForCSQ() == 1) {
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+								}
+								DeviceEventListener.getInstance().setDeviceReader(true);
+								// 允许寻卡
+								DeviceEventListener.getInstance().setDealDeviceEvent(true);
+								// 允许处理新的事件
+								if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+									GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic",
+											DeviceConfig.Event_SecondDoor_NormalClosed);
+									DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+								}
+
+								log.debug("人证比对完成，第二道闸门已经关闭，重新寻卡");
+							}
+						} else { // 新板
+							log.info("第二道门已经打开");
+							DeviceConfig.getInstance().setAllowOpenSecondDoor(false);
+							DeviceConfig.getInstance().setSecondGateOpenCount(1);
+							DeviceConfig.getInstance().setSecondGateOpened(true); // 第2门打开
+
+							log.info("isFirstGateClosed==" + DeviceConfig.getInstance().isFirstGateClosed());
+							log.info("isSecondGateOpened==" + DeviceConfig.getInstance().isSecondGateOpened());
+							log.info("getSecondGateOpenCount==" + DeviceConfig.getInstance().getSecondGateOpenCount());
+							/**
+							 * 通行逻辑改为 1门关同时2门已开,随即返回重新寻卡
+							 */
+							if (Config.getInstance().getRebackReadCardMode() == 1) {
+								if (DeviceEventListener.getInstance().isStartThread()) {
+									if (DeviceConfig.getInstance().isFirstGateClosed() && DeviceConfig.getInstance().isSecondGateOpened()) {
+										if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR || Config.getInstance().getIsOutGateForCSQ() == 1) {
+											TicketVerifyScreen.getInstance()
+													.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+										}
+										DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+										DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+										log.info("人证比对完成，第1门已关闭、第2门已打开，可以重新寻卡");
+									}
+								}
+							}
+						}
+					}
+					if (ss.indexOf("2A040223") != -1) {
+						log.info("第二道门正常关闭");
+						DeviceConfig.getInstance().setSecondGateOpenCount(2);
+						DeviceConfig.getInstance().setSecondGateOpened(false); // 2门关闭
 						log.info("isFirstGateClosed==" + DeviceConfig.getInstance().isFirstGateClosed());
 						log.info("isSecondGateOpened==" + DeviceConfig.getInstance().isSecondGateOpened());
 						log.info("getSecondGateOpenCount==" + DeviceConfig.getInstance().getSecondGateOpenCount());
-						/**
-						 * 通行逻辑改为 1门关同时2门已开,随即返回重新寻卡
-						 */
-						if (DeviceEventListener.getInstance().isStartThread()) {
-							if (DeviceConfig.getInstance().isFirstGateClosed()
-									&& DeviceConfig.getInstance().isSecondGateOpened()) {
-								TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-										ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
-								DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
-								DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
-								log.info("人证比对完成，第1门已关闭、第2门已打开，可以重新寻卡");
+
+						if (Config.getInstance().getRebackReadCardMode() == 1) {
+							if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+								GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic",
+										DeviceConfig.Event_SecondDoor_NormalClosed);
+								DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
 							}
 						}
 
-					} else if (ss.indexOf("2A040023") != -1) {
-						log.info("第二道门正常关闭");
-						if (DeviceConfig.getInstance().getSecondGateOpenCount() != 0) {
-							DeviceConfig.getInstance().setSecondGateOpenCount(2);
-						}
-						DeviceConfig.getInstance().setSecondGateOpened(false); // 2门关闭
-						log.info("isFirstGateClosed==" + DeviceConfig.getInstance().isFirstGateClosed());
-						log.info("isSecondGateOpened==" + DeviceConfig.getInstance().isSecondGateOpened());
-						log.info("getSecondGateOpenCount==" + DeviceConfig.getInstance().getSecondGateOpenCount());
+						/**
+						 * 
+						 */
+						if (Config.getInstance().getRebackReadCardMode() == 2) {
+							if (DeviceEventListener.getInstance().isStartThread()) {
+								if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+								}
+								if (Config.getInstance().getIsOutGateForCSQ()==1) {
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefaultCSQ.getValue(), null, null, null)); // 恢复初始界面
+								}
+								DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+								DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+								if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+									GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic",
+											DeviceConfig.Event_SecondDoor_NormalClosed);
+									DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+								}
 
-						if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
-							GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-									.sendDoorCmd("PITEventTopic", DeviceConfig.Event_SecondDoor_NormalClosed);
-							DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+								log.info("人证比对完成，第二道闸门已经关闭，重新寻卡");
+							}
 						}
-
-						// if (!DeviceConfig.getInstance().isFirstGateClosed())
-						// {
-						// log.debug("1门未关，第二道闸门已经关闭");
-						// if
-						// (DeviceEventListener.getInstance().isStartThread()) {
-						// TicketVerifyScreen.getInstance().offerEvent(new
-						// ScreenElementModifyEvent(0,
-						// ScreenCmdEnum.ShowTicketDefault.getValue(), null,
-						// null, null)); // 恢复初始界面
-						// DeviceEventListener.getInstance().setDeviceReader(true);
-						// // 允许寻卡
-						// DeviceEventListener.getInstance().setDealDeviceEvent(true);
-						// // 允许处理新的事件
-						//
-						// if
-						// (!DeviceConfig.getInstance().isAllowOpenSecondDoor())
-						// {
-						// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-						// .sendDoorCmd("PITEventTopic",
-						// DeviceConfig.Close_SECONDDOOR_Jms);
-						// DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
-						// }
-						//
-						// log.debug("人证比对完成，第二道闸门已经关闭，重新寻卡");
-						// }
-						// }
-					} else if (ss.indexOf("2A040F23") != -1) {
-						log.info("第二道门超时关闭");
-						if (DeviceConfig.getInstance().getSecondGateOpenCount() != 0) {
-							DeviceConfig.getInstance().setSecondGateOpenCount(3);
-						}
+					}
+					if (ss.indexOf("2A040F23") != -1) {
+						log.info("第二道门超时关闭,getRebackReadCardMode = " + Config.getInstance().getRebackReadCardMode());
+						DeviceConfig.getInstance().setSecondGateOpenCount(3);
 						DeviceConfig.getInstance().setSecondGateOpened(false); // 2门关闭
 
-						if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
-							GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-									.sendDoorCmd("PITEventTopic", DeviceConfig.Event_SecondDoor_OvertimeClosed);
-							DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+						if (Config.getInstance().getRebackReadCardMode() == 1) {
+							if (DeviceEventListener.getInstance().isStartThread()) {
+								if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+								}
+								if (Config.getInstance().getIsOutGateForCSQ()==1) {
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefaultCSQ.getValue(), null, null, null)); // 恢复初始界面
+								}
+								DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+								DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+
+								if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+									GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic",
+											DeviceConfig.Event_SecondDoor_OvertimeClosed);
+									DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+								}
+								log.info("人证比对完成，第二道闸门超时关闭，重新寻卡");
+							}
 						}
 
-						// if
-						// (DeviceEventListener.getInstance().isStartThread()) {
-						// // log.debug("第二道闸门超时关闭");
-						//
-						// TicketVerifyScreen.getInstance().offerEvent(new
-						// ScreenElementModifyEvent(0,
-						// ScreenCmdEnum.ShowTicketDefault.getValue(), null,
-						// null, null)); // 恢复初始界面
-						// DeviceEventListener.getInstance().setDeviceReader(true);
-						// // 允许寻卡
-						// DeviceEventListener.getInstance().setDealDeviceEvent(true);
-						// // 允许处理新的事件
-						//
-						// if
-						// (!DeviceConfig.getInstance().isAllowOpenSecondDoor())
-						// {
-						// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-						// .sendDoorCmd("PITEventTopic",
-						// DeviceConfig.Close_SECONDDOOR_Jms);
-						// DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
-						// }
-						// log.debug("人证比对完成，第二道闸门超时关闭，重新寻卡");
-						// }
-					} else if (ss.indexOf("2A510123") != -1) {
+						/**
+						 * 
+						 */
+						if (Config.getInstance().getRebackReadCardMode() == 2) {
+							if (DeviceEventListener.getInstance().isStartThread()) {
+								// log.debug("第二道闸门超时关闭");
+								if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+								}
+								if (Config.getInstance().getIsOutGateForCSQ()==1) {
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefaultCSQ.getValue(), null, null, null)); // 恢复初始界面
+								}
+								DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+								DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+
+								if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+									GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic",
+											DeviceConfig.Event_SecondDoor_OvertimeClosed);
+									DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+								}
+								log.info("人证比对完成，第二道闸门超时关闭，重新寻卡");
+							}
+						}
+
+						if (Config.getInstance().getRebackReadCardMode() == 3) { // 旧板
+							if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+								GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic",
+										DeviceConfig.Event_SecondDoor_OvertimeClosed);
+								DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+							}
+						}
+
+						if (Config.getInstance().getRebackReadCardMode() == 4) { // 旧板，后门关才寻卡
+							if (DeviceEventListener.getInstance().isStartThread()) {
+								// log.debug("第二道闸门超时关闭");
+								if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR || Config.getInstance().getIsOutGateForCSQ() == 1) {
+									TicketVerifyScreen.getInstance()
+											.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+								}
+								DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+								DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+
+								if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
+									GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic",
+											DeviceConfig.Event_SecondDoor_OvertimeClosed);
+									DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+								}
+								log.debug("人证比对完成，第二道闸门超时关闭，重新寻卡");
+							}
+						}
+					}
+					if (ss.indexOf("2A510123") != -1) {
 						log.info("点亮入口绿色箭头");
-					} else if (ss.indexOf("2A510023") != -1) {
+					}
+					if (ss.indexOf("2A510023") != -1) {
 						log.info("点亮入口红色叉叉");
-					} else if (ss.indexOf("2A550123") != -1) {
+					}
+					if (ss.indexOf("2A550123") != -1) {
 						if (DeviceEventListener.getInstance().isStartThread()) {
 							log.info("开侧门按钮被按下");
 							// EmerButtonEvent embEvent = new EmerButtonEvent();
@@ -439,7 +588,8 @@ public class SecondGateDevice implements SerialPortEventListener {
 							// EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
 
 						}
-					} else if (ss.indexOf("2A720123") != -1) {
+					}
+					if (ss.indexOf("2A720123") != -1) {
 						if (DeviceEventListener.getInstance().isStartThread()) {
 							log.info("开后门按钮被按下");
 							// EmerButtonEvent embEvent = new EmerButtonEvent();
@@ -447,31 +597,160 @@ public class SecondGateDevice implements SerialPortEventListener {
 							// embEvent.setEventTime(CalUtils.getStringDateHaomiao());
 							// EmerButtonTask.getInstance().offerEmerButtonEvent(embEvent);
 
-							GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-									.sendDoorCmd("PITEventTopic", DeviceConfig.Event_PressOpenSecondDoorButton);
+							GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic", DeviceConfig.Event_PressOpenSecondDoorButton);
 
 							if (DeviceEventListener.getInstance().isStartThread()) {
-								// log.debug("第二道闸门超时关闭");
 
-								TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-										ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+								TicketVerifyScreen.getInstance()
+										.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
 								DeviceEventListener.getInstance().setDeviceReader(true);
 								// 允许寻卡
 								DeviceEventListener.getInstance().setDealDeviceEvent(true);
 								// 允许处理新的事件
 
-								if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
-									GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-											.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
-									DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
-								}
+								// if
+								// (!DeviceConfig.getInstance().isAllowOpenSecondDoor())
+								// {
+								// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+								// .sendDoorCmd("PITEventTopic",
+								// DeviceConfig.Close_SECONDDOOR_Jms);
+								// DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+								// }
 								log.debug("开后门按钮被按下，重新寻卡");
 							}
 						}
-					} else if (ss.indexOf("2A58") != -1) {
-						log.info("通道当前状态为：" + ss);
 					}
-					readBuffer.delete(0, readBuffer.length());
+					if (ss.indexOf("2A750023") != -1) { // 中央区域两人尾随
+						log.info("中间区域全部无遮挡:" + ss);
+						DeviceEventListener.getInstance().setTrailingStatus(0);
+					}
+					if (ss.indexOf("2A750123") != -1) { // 中央区域两人尾随
+						log.info("中央区域两人尾随:" + ss);
+						DeviceEventListener.getInstance().setTrailingStatus(1);
+						GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic", DeviceConfig.Event_Trailling);
+					}
+					if (ss.indexOf("2A750223") != -1) { // 中间区域四组对射全部遮挡
+						log.info("中间区域四组对射全部遮挡:" + ss);
+						DeviceEventListener.getInstance().setTrailingStatus(2);
+						GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic", DeviceConfig.Event_Trailling);
+					}
+					if (ss.indexOf("2A750323") != -1) { // 第一个人在后门正通过、第二个人已经走到中间位置
+						log.info("第一个人在后门正通过、第二个人已经走到中间位置:" + ss);
+						DeviceEventListener.getInstance().setTrailingStatus(3);
+					}
+					if (ss.indexOf("2A750423") != -1) { // 第一个人在后门正通过、第二个人已经走到中间位置
+						log.info("有1个人在通道里:" + ss);
+						DeviceEventListener.getInstance().setTrailingStatus(4);
+					}
+					if (ss.indexOf("2A750523") != -1) { // 挡住了3、4、5
+						log.info("挡住了3、4、5对射:" + ss);
+						DeviceEventListener.getInstance().setTrailingStatus(5);
+						GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd("PITEventTopic", DeviceConfig.Event_Trailling);
+					}
+					if (ss.indexOf("2A910123") != -1) {
+						log.debug("UPS已被断电!");
+						if (Config.getInstance().getShutdownPCMode() == 3) {
+							Runtime.getRuntime().exec("shutdown -s -t " + String.valueOf(Config.getInstance().getClosePCDelay()));
+							log.debug("已发出" + Config.getInstance().getClosePCDelay() + "秒后关机命令!");
+						}
+						if (Config.getInstance().getShutdownPCMode() == 2) {
+							Runtime.getRuntime().exec("shutdown -r -t " + String.valueOf(Config.getInstance().getClosePCDelay()));
+							log.debug("已发出" + Config.getInstance().getClosePCDelay() + "秒后重启命令!");
+						}
+						if (Config.getInstance().getShutdownPCMode() == 1) {
+							Runtime.getRuntime().exec("shutdown -l");
+							log.debug("已发出注销命令!");
+						}
+					}
+					// if (ss.indexOf("2A930123") != -1) { // 主机电机通信失败
+					// MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(),
+					// "001", 1);
+					// MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// "001", "001", "001", "006");
+					// MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// 1);
+					// }
+					// if (ss.indexOf("2A930023") != -1) { // 主机电机通信恢复
+					// MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(),
+					// "001", 0);
+					// MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// "001", "001", "001", "000");
+					// MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// 0);
+					// }
+					// if (ss.indexOf("2A940123") != -1) { // 副机电机通信失败
+					// MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(),
+					// "001", 1);
+					// MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// "001", "001", "001", "006");
+					// MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// 1);
+					// }
+					// if (ss.indexOf("2A940023") != -1) { // 副机电机通信恢复
+					// MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(),
+					// "001", 0);
+					// MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// "001", "001", "001", "000");
+					// MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// 0);
+					// }
+					// if (ss.indexOf("2A960123") != -1) { // 副机电机通信失败
+					// MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(),
+					// "001", 1);
+					// MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// "001", "001", "001", "006");
+					// MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// 1);
+					// }
+					// if (ss.indexOf("2A960023") != -1) { // 副机电机通信恢复
+					// MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(),
+					// "001", 0);
+					// MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// "001", "001", "001", "000");
+					// MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// 0);
+					// }
+					// if (ss.indexOf("2A970123") != -1) { // 副机电机通信失败
+					// MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(),
+					// "001", 1);
+					// MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// "001", "001", "001", "006");
+					// MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// 1);
+					// }
+					// if (ss.indexOf("2A970023") != -1) { // 副机电机通信恢复
+					// MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(),
+					// "001", 0);
+					// MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// "001", "001", "001", "000");
+					// MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(),
+					// 0);
+					// }
+					if (ss.indexOf("2A600123") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "01";
+					}
+					if (ss.indexOf("2A600223") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "02";
+					}
+					if (ss.indexOf("2A600323") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "03";
+					}
+					if (ss.indexOf("2A600423") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "04";
+					}
+					if (ss.indexOf("2A600523") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "05";
+					}
+					if (ss.indexOf("2A600623") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "06";
+					}
+
 				}
 
 			} catch (IOException ex) {

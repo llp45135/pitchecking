@@ -221,8 +221,8 @@ public class ImageToolkit {
 		try {
 			// 读取源图像
 			BufferedImage bi = ImageIO.read(new File(srcImageFile));
-			int srcWidth = bi.getHeight(); // 源图宽度
-			int srcHeight = bi.getWidth(); // 源图高度
+			int srcWidth = bi.getWidth(); // 源图宽度
+			int srcHeight = bi.getHeight(); // 源图高度
 			if (srcWidth > 0 && srcHeight > 0) {
 				// Image image = bi.getScaledInstance(srcWidth, srcHeight,
 				// Image.SCALE_DEFAULT);
@@ -266,8 +266,8 @@ public class ImageToolkit {
 				cols = 2; // 切片列数
 			// 读取源图像
 			BufferedImage bi = ImageIO.read(new File(srcImageFile));
-			int srcWidth = bi.getHeight(); // 源图宽度
-			int srcHeight = bi.getWidth(); // 源图高度
+			int srcWidth = bi.getWidth(); // 源图宽度
+			int srcHeight = bi.getHeight(); // 源图高度
 			if (srcWidth > 0 && srcHeight > 0) {
 				Image img;
 				ImageFilter cropFilter;
@@ -328,8 +328,8 @@ public class ImageToolkit {
 				destHeight = 150; // 切片高度
 			// 读取源图像
 			BufferedImage bi = ImageIO.read(new File(srcImageFile));
-			int srcWidth = bi.getHeight(); // 源图宽度
-			int srcHeight = bi.getWidth(); // 源图高度
+			int srcWidth = bi.getWidth(); // 源图宽度
+			int srcHeight = bi.getHeight(); // 源图高度
 			if (srcWidth > destWidth && srcHeight > destHeight) {
 				Image img;
 				ImageFilter cropFilter;
@@ -370,11 +370,25 @@ public class ImageToolkit {
 		}
 	}
 
+	/**
+	 * 
+	 * @param sourceImage
+	 *            内存中的图片 BufferedImage对象
+	 * @param x
+	 *            开始剪切的x坐标
+	 * @param y
+	 *            开始剪切的y坐标
+	 * @param width
+	 *            剪切的宽度
+	 * @param height
+	 *            剪切的高度
+	 * @return<br>
+	 */
 	public final static BufferedImage cut(BufferedImage sourceImage, int x, int y, int width, int height) {
 
 		BufferedImage resultImage = null;
-		int srcWidth = sourceImage.getHeight();
-		int srcHeight = sourceImage.getWidth();
+		int srcWidth = sourceImage.getWidth();
+		int srcHeight = sourceImage.getHeight();
 		if (srcWidth > 0 && srcHeight > 0) {
 			Image image = sourceImage.getScaledInstance(srcWidth, srcHeight, Image.SCALE_DEFAULT);
 			ImageFilter cropFilter = new CropImageFilter(x, y, width, height);
@@ -388,6 +402,52 @@ public class ImageToolkit {
 		return resultImage;
 	}
 
+	/**
+	 * 
+	 * @param sourceImage
+	 * @param k
+	 * @return
+	 */
+	public static BufferedImage getImageByNine(BufferedImage sourceImage, int k) {
+		BufferedImage resultImage = null;
+		switch (k) {
+		case 1:
+			resultImage = cut(sourceImage, 0, 0, 320, 180);
+			break;
+		case 2:
+			resultImage = cut(sourceImage, 320, 0, 320, 180);
+			break;
+		case 3:
+			resultImage = cut(sourceImage, 640, 0, 320, 180);
+			break;
+		case 4:
+			resultImage = cut(sourceImage, 0, 180, 320, 180);
+			break;
+		case 5:
+			resultImage = cut(sourceImage, 320, 180, 320, 180);
+			break;
+		case 6:
+			resultImage = cut(sourceImage, 640, 180, 320, 180);
+			break;
+		case 7:
+			resultImage = cut(sourceImage, 0, 360, 320, 180);
+			break;
+		case 8:
+			resultImage = cut(sourceImage, 320, 360, 320, 180);
+			break;
+		case 9:
+			resultImage = cut(sourceImage, 640, 360, 320, 180);
+			break;
+		}
+		return resultImage;
+	}
+
+	/**
+	 * 
+	 * @param img
+	 * @param type
+	 * @return
+	 */
 	public static byte[] getImageBytes(BufferedImage img, String type) {
 		byte[] buff = null;
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -577,33 +637,29 @@ public class ImageToolkit {
 	}
 
 	public static BufferedImage toGrayImage(BufferedImage image) {
-	    BufferedImage grayImage = 
-	            new BufferedImage(image.getWidth(), 
-	            		image.getHeight(), 
-	            		BufferedImage.TYPE_BYTE_GRAY);
-	            
-	        
-	        for (int i = 0; i < image.getWidth(); i++) {
-	            for (int j = 0; j < image.getHeight(); j++) {
-	                final int color = image.getRGB(i, j);
-	                final int r = (color >> 16) & 0xff;
-	                final int g = (color >> 8) & 0xff;
-	                final int b = color & 0xff;
-	                int gray = (int) (0.3 * r + 0.59 * g + 0.11 * b);
-	                int newPixel = colorToRGB(255, gray, gray, gray);
-	                grayImage.setRGB(i, j, newPixel);
-	            }
-	        }
+		BufferedImage grayImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
 
-//	        File newFile = new File("C:/Users/lenovo/Pictures/ok.bmp");
-//	        try {
-//				ImageIO.write(grayImage, "bmp", newFile);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+		for (int i = 0; i < image.getWidth(); i++) {
+			for (int j = 0; j < image.getHeight(); j++) {
+				final int color = image.getRGB(i, j);
+				final int r = (color >> 16) & 0xff;
+				final int g = (color >> 8) & 0xff;
+				final int b = color & 0xff;
+				int gray = (int) (0.3 * r + 0.59 * g + 0.11 * b);
+				int newPixel = colorToRGB(255, gray, gray, gray);
+				grayImage.setRGB(i, j, newPixel);
+			}
+		}
 
-	        return grayImage;
+		// File newFile = new File("C:/Users/lenovo/Pictures/ok.bmp");
+		// try {
+		// ImageIO.write(grayImage, "bmp", newFile);
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+
+		return grayImage;
 	}
 
 	private static int colorToRGB(int alpha, int red, int green, int blue) {

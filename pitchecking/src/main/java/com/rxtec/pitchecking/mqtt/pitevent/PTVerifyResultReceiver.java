@@ -1,7 +1,6 @@
 package com.rxtec.pitchecking.mqtt.pitevent;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
@@ -9,28 +8,14 @@ import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.FaceTrackingScreen;
-import com.rxtec.pitchecking.ScreenCmdEnum;
-import com.rxtec.pitchecking.SingleFaceTrackingScreen;
-import com.rxtec.pitchecking.device.AudioDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
-import com.rxtec.pitchecking.mbean.ProcessUtil;
-import com.rxtec.pitchecking.net.event.CAMOpenBean;
-import com.rxtec.pitchecking.net.event.EventHandler;
-import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
-import com.rxtec.pitchecking.net.event.PIVerifyRequestBean;
-import com.rxtec.pitchecking.net.event.ScreenDisplayBean;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.JsonUtils;
-import com.rxtec.pitchecking.utils.CalUtils;
 
 /**
  * 本类由人脸检测进程使用，目的是接收已经比对过的人脸

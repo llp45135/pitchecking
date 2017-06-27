@@ -3,23 +3,20 @@ package com.rxtec.pitchecking.mqtt;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 
 import javax.imageio.ImageIO;
 
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
+import com.rxtec.pitchecking.IDCard;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.net.event.CAMJsonUtil;
 import com.rxtec.pitchecking.net.event.CAMOpenBean;
-import com.rxtec.pitchecking.net.event.EventHandler;
-import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
 import com.rxtec.pitchecking.net.event.PIVerifyResultBean;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.CommUtil;
@@ -42,15 +39,14 @@ public class MqttSenderBroker {
 	private String[] UNSUB_TOPICS = { "sub_topic" };
 	private final static String SEND_TOPIC = "sub_topic";
 	private static MqttSenderBroker _instance;
-	private ObjectMapper mapper = new ObjectMapper();
 
 	private MqttClient mqttClient;
 	private String uuid = "";
 	private byte[] idcardBytes;
 	private String notifyJson;
-	private String faceScreenDisplay = "";
-	private int faceScreenDisplayTimeout = 0;
-	
+	// private String faceScreenDisplay = "";
+	// private int faceScreenDisplayTimeout = 0;
+
 	private int camOpenRetval = -1;
 
 	public String getUuid() {
@@ -77,21 +73,21 @@ public class MqttSenderBroker {
 		this.camOpenRetval = camOpenRetval;
 	}
 
-	public String getFaceScreenDisplay() {
-		return faceScreenDisplay;
-	}
-
-	public void setFaceScreenDisplay(String faceScreenDisplay) {
-		this.faceScreenDisplay = faceScreenDisplay;
-	}
-
-	public int getFaceScreenDisplayTimeout() {
-		return faceScreenDisplayTimeout;
-	}
-
-	public void setFaceScreenDisplayTimeout(int faceScreenDisplayTimeout) {
-		this.faceScreenDisplayTimeout = faceScreenDisplayTimeout;
-	}
+	// public String getFaceScreenDisplay() {
+	// return faceScreenDisplay;
+	// }
+	//
+	// public void setFaceScreenDisplay(String faceScreenDisplay) {
+	// this.faceScreenDisplay = faceScreenDisplay;
+	// }
+	//
+	// public int getFaceScreenDisplayTimeout() {
+	// return faceScreenDisplayTimeout;
+	// }
+	//
+	// public void setFaceScreenDisplayTimeout(int faceScreenDisplayTimeout) {
+	// this.faceScreenDisplayTimeout = faceScreenDisplayTimeout;
+	// }
 
 	public String getNotifyJson() {
 		return notifyJson;
@@ -146,12 +142,10 @@ public class MqttSenderBroker {
 	 * 重新连接服务
 	 */
 	private void connect() throws MqttException {
-		log.debug("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID=="
-				+ this.CLIENT_ID);
+		log.info("start connect to " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "# MyClientID==" + this.CLIENT_ID);
 		log.debug("connect to MqttSenderBroker.");
 		mqttClient = new MqttClient(DeviceConfig.getInstance().getMQTT_CONN_STR());
-		log.debug(
-				"***********register Simple Handler " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "***********");
+		log.debug("***********register Simple Handler " + DeviceConfig.getInstance().getMQTT_CONN_STR() + "***********");
 
 		SimpleCallbackHandler simpleCallbackHandler = new SimpleCallbackHandler();
 		mqttClient.registerSimpleHandler(simpleCallbackHandler);// 注册接收消息方法
@@ -202,6 +196,38 @@ public class MqttSenderBroker {
 	}
 
 	/**
+	 * 
+	 */
+	public void PublishIDCardByCameraDown(IDCard idCard) {
+		log.debug("########PublishIDCardByCameraDown########");
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			PIVerifyResultBean PIVBean = new PIVerifyResultBean();
+			PIVBean.setResult(99);
+			PIVBean.setUuid(idCard.getIdNo());
+
+			PIVBean.setEventDirection(2);
+			PIVBean.setEventName("CAM_GetPhotoInfo");
+
+			// String ww = "";
+			PIVBean.setPhoto1(idCard.getCardImageBytes());
+			PIVBean.setPhoto2(idCard.getCardImageBytes());
+			PIVBean.setPhoto3(idCard.getCardImageBytes());
+
+			PIVBean.setVerifyStatus(0); // 0:成功 1:失败
+
+			String jsonString = mapper.writeValueAsString(PIVBean);
+			log.debug("PublishIDCardByCameraDown json==" + jsonString);
+
+			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
+
+		} catch (IOException | MqttException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
 	 * 当主控端传入的uuid，即身份证号为空时，立即返回检脸失败
 	 */
 	public void PublishWrongIDNo() {
@@ -219,7 +245,7 @@ public class MqttSenderBroker {
 			PIVBean.setPhoto2(ww.getBytes());
 			PIVBean.setPhoto3(ww.getBytes());
 
-			PIVBean.setVerifyStatus(1);
+			PIVBean.setVerifyStatus(1); // 0:成功 1:失败
 
 			String jsonString = mapper.writeValueAsString(PIVBean);
 			log.debug("PublishWrongIDNo json==" + jsonString);
@@ -285,50 +311,53 @@ public class MqttSenderBroker {
 	 * 
 	 * @param data
 	 */
+	public boolean publishResult(PITVerifyData data, int verifyStatus, byte[] idCardImg, byte[] faceImg, byte[] frameImg) {
+		log.info("********准备发送人脸比对结果到DLL by MQ********verifyStatus==" + verifyStatus);
+		// log.debug("PITVerifyData==" + data);
+		if (data == null) {
+			return false;
+		} else {
+			log.info("publishResult:faceImg.length = " + faceImg.length + ",frameImg.length = " + frameImg.length);
+			byte[] idcardImgArray = idCardImg;
+			byte[] faceImgArray = faceImg;
+			byte[] frameImgArray = frameImg;
+			String jsonString = CAMJsonUtil.createCAM_GetPhotoInfoResult(data, verifyStatus, idcardImgArray, faceImgArray, frameImgArray);
+			try {
+				// log.debug("jsonString==" + jsonString);
+				mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
+				log.info("##########人脸比对结果发送结束##########");
+			} catch (MqttException e) {
+				log.error("publish json failed!", e);
+				return false;
+			}
+			return true;
+		}
+	}
+	
+	
+	/**
+	 * 人脸数据通过base64编码转换
+	 * @param data
+	 * @param verifyStatus
+	 * @return
+	 */
 	public boolean publishResult(PITVerifyData data, int verifyStatus) {
-		log.debug("********准备发送人脸比对结果到DLL by MQ********verifyStatus==" + verifyStatus);
-//		log.debug("PITVerifyData==" + data);
-		if (data == null)
+		log.info("********准备发送人脸比对结果到DLL by MQ********verifyStatus==" + verifyStatus);
+		// log.debug("PITVerifyData==" + data);
+		if (data == null) {
 			return false;
-		PIVerifyResultBean resultBean = new PIVerifyResultBean();
-		float faceResult = 1f;
-		try {
-			faceResult = CommUtil.round(2, data.getVerifyResult());
-			// log.debug("faceResult==" + (int) (faceResult * 100));
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			log.error("faceResult round:", e1);
+		} else {
+			String jsonString = CAMJsonUtil.createCAM_GetPhotoInfoResult(data, verifyStatus);
+			try {
+				// log.debug("jsonString==" + jsonString);
+				mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
+				log.info("##########人脸比对结果发送结束##########");
+			} catch (MqttException e) {
+				log.error("publish json failed!", e);
+				return false;
+			}
+			return true;
 		}
-		resultBean.setResult((int) (faceResult * 100));
-		resultBean.setUuid(data.getIdNo());
-		resultBean.setiDelay(com.rxtec.pitchecking.Config.getInstance().getCheckDelayPassTime());
-		resultBean.setEventDirection(2);
-		resultBean.setEventName("CAM_GetPhotoInfo");
-		resultBean.setPhoto1(data.getFaceImg()); // for debug
-		resultBean.setPhoto2(data.getFrameImg());
-		String photo3str = "";
-		resultBean.setPhoto3(photo3str.getBytes());
-		resultBean.setVerifyStatus(verifyStatus);
-
-		String jsonString;
-		try {
-			jsonString = mapper.writeValueAsString(resultBean);
-		} catch (JsonProcessingException e) {
-			log.error("PIVerifyResultBean to json failed!", e);
-			return false;
-		}
-
-		if (jsonString == null)
-			return false;
-		try {
-			// log.debug("jsonString==" + jsonString);
-			mqttClient.publish(SEND_TOPIC, jsonString.getBytes(), 0, false);
-			log.debug("##########人脸比对结果发送结束##########");
-		} catch (MqttException e) {
-			log.error("publish json failed!", e);
-			return false;
-		}
-		return true;
 	}
 
 	/**
@@ -345,7 +374,7 @@ public class MqttSenderBroker {
 		@Override
 		public void connectionLost() throws Exception {
 			// TODO Auto-generated method stub
-			log.debug("客户机和broker已经断开");
+			log.info("客户机和broker已经断开");
 
 			while (true) {
 				log.debug("3s后开始尝试重新连接...");
@@ -370,11 +399,12 @@ public class MqttSenderBroker {
 			// log.debug("是否是实时发送的消息(false=实时，true=服务器上保留的最后消息): " + retained);
 
 			String mqttMessage = new String(payload);
+			// log.info("mqttMessage==" + mqttMessage);
+
 			if (mqttMessage.indexOf("CAM_Open") != -1) {
-				log.debug("mqttMessage==" + mqttMessage);
 				ObjectMapper mapper = new ObjectMapper();
 				CAMOpenBean camOpenBean = mapper.readValue(mqttMessage, CAMOpenBean.class);
-				if(camOpenBean.getEventDirection()==2){
+				if (camOpenBean.getEventDirection() == 2) {
 					setCamOpenRetval(0);
 				}
 			} else if (mqttMessage.indexOf("CAM_Notify") != -1) {

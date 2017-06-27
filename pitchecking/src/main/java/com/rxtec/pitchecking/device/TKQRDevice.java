@@ -10,13 +10,26 @@ import org.xvolks.jnative.pointers.memory.MemoryBlockFactory;
 
 public class TKQRDevice {
 	private Logger log = LoggerFactory.getLogger("TKQRDevice");
-//	private String dllName = "Bar_QRCode.dll";
+	// private String dllName = "Bar_QRCode.dll";
 	private String dllName = "BAR_RXTa.dll";
 	JNative jnativeBAR_Init = null;
 	JNative jnativeBAR_Uninit = null;
 	JNative jnativeBAR_ReadData = null;
 	JNative jnativeBAR_GetStatus = null;
+	JNative jnativeBAR_GetErrMessage = null;
 	private static TKQRDevice _instance = new TKQRDevice();
+	
+	private int statusCode = -1;
+
+
+
+	public int getStatusCode() {
+		return statusCode;
+	}
+
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
+	}
 
 	public static TKQRDevice getInstance() {
 		return _instance;
@@ -35,6 +48,7 @@ public class TKQRDevice {
 			jnativeBAR_Uninit = new JNative(dllName, "BAR_Uninit");
 			jnativeBAR_ReadData = new JNative(dllName, "BAR_ReadData");
 			jnativeBAR_GetStatus = new JNative(dllName, "BAR_GetStatus");
+			jnativeBAR_GetErrMessage = new JNative(dllName, "BAR_GetErrMessage");
 
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
@@ -88,6 +102,11 @@ public class TKQRDevice {
 		return retval;
 	}
 
+	/**
+	 * 
+	 * @param pIn
+	 * @return
+	 */
 	public int BAR_Uninit(String pIn) {
 		int retval = -1;
 		Pointer pointerIn = null;
@@ -161,7 +180,7 @@ public class TKQRDevice {
 			jnativeBAR_ReadData.invoke();
 
 			retval = jnativeBAR_ReadData.getRetValAsInt();
-//			log.debug("BAR_ReadData retval==" + retval);
+			 log.debug("BAR_ReadData retval==" + retval);
 			if (retval == 0) {
 				int bar_len = pointerOutLen.getAsInt(0);
 
@@ -233,12 +252,58 @@ public class TKQRDevice {
 		return retval;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
+	public String BAR_GetErrMessage() {
+		String errcode = "";
+		String retval = "";
+
+		Pointer pointerOut = null;
+		try {
+
+			pointerOut = new Pointer(MemoryBlockFactory.createMemoryBlock(8));
+			int i = 0;
+
+			jnativeBAR_GetErrMessage.setRetVal(Type.INT);
+			jnativeBAR_GetErrMessage.setParameter(i++, pointerOut);
+			jnativeBAR_GetErrMessage.invoke();
+
+			retval = jnativeBAR_GetErrMessage.getRetVal();
+//			log.info("statusCode=="+this.statusCode);
+			log.debug("jnativeBAR_GetErrMessage retval==" + retval);
+//			if(retval!=this.statusCode){
+//				log.info("%%%%%%ERROR%%%%");
+//			}
+			
+			
+//			if (retval == 0) {
+				errcode = new String(pointerOut.getMemory());
+				log.debug("errcode==" + errcode);
+//			}
+				
+			pointerOut.dispose();
+		} catch (NativeException e) {
+			// TODO Auto-generated catch block
+			log.error("TKQRDevice BAR_GetErrMessage:", e);
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			log.error("TKQRDevice BAR_GetErrMessage:", e);
+		} catch (Exception e) {
+			log.error("TKQRDevice BAR_GetErrMessage:", e);
+		}
+		return retval;
+	}
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		TKQRDevice qrd = TKQRDevice.getInstance();
 		int initRet = qrd.BAR_Init("3000");
 		while (initRet == 0) {
 			qrd.BAR_ReadData("500");
+
+//			qrd.BAR_GetErrMessage();
 		}
 	}
 

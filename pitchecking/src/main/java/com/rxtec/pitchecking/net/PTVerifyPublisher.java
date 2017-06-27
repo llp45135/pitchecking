@@ -37,17 +37,15 @@ import io.aeron.Publication;
 import io.aeron.driver.MediaDriver;
 
 /**
- * 本类由人脸检测进程使用
- * 目的是向人脸比对进程发送需要比对的人脸数据
- * 人脸比对请求发布者线程
- * 由RSFaceTrackingTask 向FaceCheckingService中的《待比脸队列》中插入等待比对的对象
- * 本线程读取等待比对的对象，通过Aeron 向独立比脸进程发布比对的请求
+ * 本类由人脸检测进程使用 目的是向人脸比对进程发送需要比对的人脸数据 人脸比对请求发布者线程 由RSFaceTrackingTask
+ * 向FaceCheckingService中的《待比脸队列》中插入等待比对的对象 本线程读取等待比对的对象，通过Aeron 向独立比脸进程发布比对的请求
  *
  */
 public class PTVerifyPublisher implements Runnable {
 
 	private Logger log = LoggerFactory.getLogger("PTVerifyPublisher");
-	private static final int STREAM_ID = Config.PIVerify_Begin_STREAM_ID;  //10 通知独立人脸比对进程开始人脸比对
+	private static final int STREAM_ID = Config.PIVerify_Begin_STREAM_ID; // 10
+																			// 通知独立人脸比对进程开始人脸比对
 	private static final String CHANNEL = Config.PIVerify_CHANNEL;
 	private static final long LINGER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
 	private static final UnsafeBuffer BUFFER = new UnsafeBuffer(BufferUtil.allocateDirectAligned(1024 * 256, 32));
@@ -66,7 +64,6 @@ public class PTVerifyPublisher implements Runnable {
 		return _instance;
 	}
 
-
 	private void initAeronContext() {
 
 		final Aeron.Context ctx = new Aeron.Context();
@@ -83,10 +80,10 @@ public class PTVerifyPublisher implements Runnable {
 
 			ExecutorService executor = Executors.newSingleThreadExecutor();
 			executor.execute(this);
-			log.debug("PTVerifyPublisher connected! CHANNEL = " + CHANNEL +" STREAM_ID = "+STREAM_ID);
+			log.debug("PTVerifyPublisher connected! CHANNEL = " + CHANNEL + " STREAM_ID = " + STREAM_ID);
 
 		} catch (Exception ex) {
-			log.error("initAeronContext",ex);
+			log.error("initAeronContext", ex);
 		}
 
 	}
@@ -102,8 +99,9 @@ public class PTVerifyPublisher implements Runnable {
 				byte[] buf = serialObjToBytes(data);
 				if (buf == null)
 					continue;
-				this.putFailedFace(data);  //每次将待验证的人脸放入FailedFace 供active mq调用
-				log.debug("FaceVerifyData serial obj bytes = " + buf.length + " BUFFER.capacity = "+BUFFER.capacity());
+				this.putFailedFace(data); // 每次将待验证的人脸放入FailedFace 供active mq调用
+				log.debug(
+						"FaceVerifyData serial obj bytes = " + buf.length + " BUFFER.capacity = " + BUFFER.capacity());
 				BUFFER.putBytes(0, buf);
 				final long result = publication.offer(BUFFER, 0, buf.length);
 
@@ -120,43 +118,65 @@ public class PTVerifyPublisher implements Runnable {
 						log.error("  Offer failed due to unknown reason");
 					}
 				} else {
-//					log.debug("Send Face verify request message succ!");
+					// log.debug("Send Face verify request message succ!");
 				}
 
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				log.error("PTVerifyPublisher running loop failed",e);
+				log.error("PTVerifyPublisher running loop failed", e);
 			}
 		}
 	}
-	
+
 	/**
 	 * 每次将待验证的人脸放入FailedFace
+	 * 
 	 * @param fd
 	 */
-	private void putFailedFace(PITVerifyData fd){
-		FailedFace failedFace = new FailedFace();
-		failedFace.setIdNo(fd.getIdNo());
-		failedFace.setIpAddress(DeviceConfig.getInstance().getIpAddress());
-		failedFace.setGateNo(DeviceConfig.getInstance().getGateNo());
-		failedFace.setCardImage(fd.getIdCardImg());
-		failedFace.setFaceImage(fd.getFaceImg());
-		FaceCheckingService.getInstance().setFailedFace(failedFace);
+	private void putFailedFace(PITVerifyData fd) {
+//		FailedFace failedFace = new FailedFace();
+//		failedFace.setIdNo(fd.getIdNo());
+//		failedFace.setIpAddress(DeviceConfig.getInstance().getIpAddress());
+//		failedFace.setGateNo(DeviceConfig.getInstance().getGateNo());
+//		failedFace.setCardImage(fd.getIdCardImg());
+//		failedFace.setFaceImage(fd.getFaceImg());
+		FaceCheckingService.getInstance().setFailedFace(fd);
 	}
 
 	private byte[] serialObjToBytes(Object o) {
 		byte[] buf = null;
+		ByteArrayOutputStream bos = null;
+		ObjectOutputStream oos = null;
 		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream oo = new ObjectOutputStream(bos);
-			oo.writeObject(o);
+			bos = new ByteArrayOutputStream();
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(o);
 			buf = bos.toByteArray();
-			oo.close();
-			bos.close();
-
+			if (oos != null) {
+				oos.close();
+				oos = null;
+			}
+			if (bos != null) {
+				bos.close();
+				bos = null;
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			log.error("serialObjToBytes",e);
+			log.error("serialObjToBytes", e);
+		} finally {
+			try {
+				if (oos != null) {
+					oos.close();
+					oos = null;
+				}
+				if (bos != null) {
+					bos.close();
+					bos = null;
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				log.error("serialObjToBytes", e);
+			}
 		}
 
 		return buf;
@@ -175,7 +195,7 @@ public class PTVerifyPublisher implements Runnable {
 		}
 
 	}
-	
+
 	private static IDCard createIDCard(String fn) {
 		IDCard card = new IDCard();
 		BufferedImage bi = null;

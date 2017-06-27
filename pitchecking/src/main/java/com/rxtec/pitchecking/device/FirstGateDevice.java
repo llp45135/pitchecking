@@ -7,9 +7,11 @@ import java.io.OutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.DeviceEventListener;
 import com.rxtec.pitchecking.ScreenCmdEnum;
 import com.rxtec.pitchecking.TicketVerifyScreen;
+import com.rxtec.pitchecking.device.smartmonitor.MonitorXMLUtil;
 import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
 import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 import com.rxtec.pitchecking.utils.CommUtil;
@@ -34,9 +36,19 @@ public class FirstGateDevice implements SerialPortEventListener {
 	private OutputStream out;
 	private byte[] buffer = new byte[1024];
 	private StringBuffer readBuffer = new StringBuffer();
-	private static int retryTimes = 3;
-	private static int delayTime = 30;
+	private static int retryTimes = 20;
+	private static int delayTime = 5;
 	private static int delayCount = 1000;
+
+	private String errcode = "00";
+
+	public String getErrcode() {
+		return errcode;
+	}
+
+	public void setErrcode(String errcode) {
+		this.errcode = errcode;
+	}
 
 	public static FirstGateDevice getInstance() {
 		return _instance;
@@ -60,8 +72,7 @@ public class FirstGateDevice implements SerialPortEventListener {
 
 			if (commPort instanceof SerialPort) {
 				serialPort = (SerialPort) commPort;
-				serialPort.setSerialPortParams(DeviceConfig.getInstance().getGateCrtlRate(), SerialPort.DATABITS_8,
-						SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+				serialPort.setSerialPortParams(DeviceConfig.getInstance().getGateCrtlRate(), SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 				serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
 
 				this.in = serialPort.getInputStream();
@@ -70,7 +81,7 @@ public class FirstGateDevice implements SerialPortEventListener {
 				serialPort.addEventListener(this);
 				serialPort.notifyOnDataAvailable(true);
 				serialPort.notifyOnBreakInterrupt(true);
-				log.debug("串口已经打开:" + portName);
+				log.info("串口已经打开:" + portName);
 
 			} else {
 				System.err.println("Error: Only serial ports are handled by this example.");
@@ -83,6 +94,27 @@ public class FirstGateDevice implements SerialPortEventListener {
 	 */
 	public void close() {
 		this.serialPort.close();
+	}
+
+	/**
+	 * 闸门自检
+	 * 
+	 * @return
+	 */
+	public int selfCheck() {
+		try {
+			String cmd = "2A600023";
+			log.info("selfCheck cmd==" + cmd);
+			readBuffer.delete(0, readBuffer.length());
+			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
+			for (int i = 0; i < cmdData.length; i++) {
+				this.out.write(cmdData[i]);
+			}
+			this.out.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return 0;
 	}
 
 	/**
@@ -113,7 +145,7 @@ public class FirstGateDevice implements SerialPortEventListener {
 	 */
 	public int openSecondDoor() {
 		try {
-			String cmd = "2A500123";
+			String cmd = "2A040123";
 			log.debug("openSecondDoor cmd==" + cmd);
 			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
 			for (int i = 0; i < cmdData.length; i++) {
@@ -131,10 +163,10 @@ public class FirstGateDevice implements SerialPortEventListener {
 	 * 
 	 * @return
 	 */
-	public int openThirdDoor() {
+	public int openEmerDoor() {
 		try {
-			String cmd = "2A040123";
-			log.debug("openThirdDoor cmd==" + cmd);
+			String cmd = "2A500123";
+			log.debug("openEmerDoor cmd==" + cmd);
 			byte[] cmdData = CommUtil.hexStringToBytes(cmd);
 			for (int i = 0; i < cmdData.length; i++) {
 				this.out.write(cmdData[i]);
@@ -327,24 +359,27 @@ public class FirstGateDevice implements SerialPortEventListener {
 					readBuffer.append(data);
 				}
 
+				String ss = "";
 				for (int i = 1; i < retryTimes; i++) {
 					CommUtil.sleep(delayTime);
-					if (readBuffer.length() == 8) {
+					ss = readBuffer.toString();
+					if (ss.length() >= 8) {
 						break;
 					}
 				}
+				log.info("First Gate retData==" + ss);
 
-				String ss = readBuffer.toString();
-				log.info("retData==" + ss);
+				readBuffer.delete(0, readBuffer.length());
 
 				if (ss.length() >= 8) {
 					if (ss.indexOf("2A040123") != -1) {
-						DeviceConfig.getInstance().setSecondGateOpenCount(0);
-						
+						// DeviceConfig.getInstance().setSecondGateOpenCount(0);
+
 						log.info("控制板已收到开一门指令");
 						DeviceConfig.getInstance().setFirstGateClosed(false); // 第1门打开
 						DeviceEventListener.getInstance().setReceiveOpenFirstDoorCmd(true);
-					} else if (ss.indexOf("2A040023") != -1) {
+					}
+					if (ss.indexOf("2A040023") != -1) {
 						log.info("第一道闸门正常关闭");
 						DeviceConfig.getInstance().setFirstGateClosed(true); // 第1门关闭
 						log.info("isFirstGateClosed==" + DeviceConfig.getInstance().isFirstGateClosed());
@@ -353,24 +388,30 @@ public class FirstGateDevice implements SerialPortEventListener {
 						/**
 						 * 通行逻辑改为 1门关同时2门已开,随即返回重新寻卡
 						 */
-						if (DeviceEventListener.getInstance().isStartThread()) {
-							if (DeviceConfig.getInstance().isFirstGateClosed()
-									&& DeviceConfig.getInstance().getSecondGateOpenCount() > 0) {
-								TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-										ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
-								DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
-								DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+						if (Config.getInstance().getRebackReadCardMode() == 1 || Config.getInstance().getRebackReadCardMode() == 3) {
+							if (DeviceEventListener.getInstance().isStartThread()) {
+								if (DeviceConfig.getInstance().isFirstGateClosed() && DeviceConfig.getInstance().getSecondGateOpenCount() > 0) {
+									if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
+										TicketVerifyScreen.getInstance()
+												.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+									}
+									DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+									DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
 
-								if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
-									GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-											.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
-									DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+									// if
+									// (!DeviceConfig.getInstance().isAllowOpenSecondDoor())
+									// {
+									// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+									// .sendDoorCmd("PITEventTopic",
+									// DeviceConfig.Close_SECONDDOOR_Jms);
+									// DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+									// }
+									log.info("第1门正常关闭、第2门已打开，可以重新寻卡");
 								}
-								log.info("第1门正常关闭、第2门已打开，可以重新寻卡");
 							}
 						}
-
-					} else if (ss.indexOf("2A040F23") != -1) {
+					}
+					if (ss.indexOf("2A040F23") != -1) {
 						log.info("第一道闸门超时关闭");
 						DeviceConfig.getInstance().setFirstGateClosed(true); // 第1门关闭
 						log.info("isFirstGateClosed==" + DeviceConfig.getInstance().isFirstGateClosed());
@@ -379,31 +420,103 @@ public class FirstGateDevice implements SerialPortEventListener {
 						/**
 						 * 通行逻辑改为 1门关同时2门已开,随即返回重新寻卡
 						 */
-						if (DeviceEventListener.getInstance().isStartThread()) {
-							if (DeviceConfig.getInstance().isFirstGateClosed()
-									&& DeviceConfig.getInstance().getSecondGateOpenCount() > 0) {
-								TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0,
-										ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
-								DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
-								DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
+						if (Config.getInstance().getRebackReadCardMode() == 1 || Config.getInstance().getRebackReadCardMode() == 3) {
+							if (DeviceEventListener.getInstance().isStartThread()) {
+								if (DeviceConfig.getInstance().isFirstGateClosed() && DeviceConfig.getInstance().getSecondGateOpenCount() > 0) {
+									if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {
+										TicketVerifyScreen.getInstance()
+												.offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+									}
+									DeviceEventListener.getInstance().setDeviceReader(true); // 允许寻卡
+									DeviceEventListener.getInstance().setDealDeviceEvent(true); // 允许处理新的事件
 
-								if (!DeviceConfig.getInstance().isAllowOpenSecondDoor()) {
-									GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
-											.sendDoorCmd("PITEventTopic", DeviceConfig.Close_SECONDDOOR_Jms);
-									DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+									// if
+									// (!DeviceConfig.getInstance().isAllowOpenSecondDoor())
+									// {
+									// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT)
+									// .sendDoorCmd("PITEventTopic",
+									// DeviceConfig.Close_SECONDDOOR_Jms);
+									// DeviceConfig.getInstance().setAllowOpenSecondDoor(true);
+									// }
+									log.info("第1门超时关闭、第2门已打开，可以重新寻卡");
 								}
-								log.info("第1门超时关闭、第2门已打开，可以重新寻卡");
 							}
 						}
-
-					} else if (ss.indexOf("2A510123") != -1) {
+					}
+					if (ss.indexOf("2A510123") != -1) {
 						log.info("点亮入口绿色箭头");
-					} else if (ss.indexOf("2A510023") != -1) {
+					}
+					if (ss.indexOf("2A510023") != -1) {
 						log.info("点亮入口红色叉叉");
-					} else if (ss.indexOf("2A58") != -1) {
+					}
+					if (ss.indexOf("2A930123") != -1) { // 主机电机通信失败
+						MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "001", 1);
+						MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "001", "006");
+						MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
+					}
+					if (ss.indexOf("2A930023") != -1) { // 主机电机通信恢复
+						MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "001", 0);
+						MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "001", "000");
+						MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 0);
+					}
+					if (ss.indexOf("2A940123") != -1) { // 副机电机通信失败
+						MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "001", 1);
+						MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "001", "006");
+						MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
+					}
+					if (ss.indexOf("2A940023") != -1) { // 副机电机通信恢复
+						MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "001", 0);
+						MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "001", "000");
+						MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 0);
+					}
+					if (ss.indexOf("2A960123") != -1) { // 副机电机通信失败
+						MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "001", 1);
+						MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "001", "006");
+						MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
+					}
+					if (ss.indexOf("2A960023") != -1) { // 副机电机通信恢复
+						MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "001", 0);
+						MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "001", "000");
+						MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 0);
+					}
+					if (ss.indexOf("2A970123") != -1) { // 副机电机通信失败
+						MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "001", 1);
+						MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "001", "006");
+						MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 1);
+					}
+					if (ss.indexOf("2A970023") != -1) { // 副机电机通信恢复
+						MonitorXMLUtil.updateBaseInfoFonMonitor(Config.getInstance().getBaseInfoXMLPath(), "001", 0);
+						MonitorXMLUtil.updateDoorStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), "001", "001", "001", "000");
+						MonitorXMLUtil.updateEntirStatusForMonitor(Config.getInstance().getStatusInfoXMLPath(), 0);
+					}
+					if (ss.indexOf("2A600123") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "01";
+					}
+					if (ss.indexOf("2A600223") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "02";
+					}
+					if (ss.indexOf("2A600323") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "03";
+					}
+					if (ss.indexOf("2A600423") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "04";
+					}
+					if (ss.indexOf("2A600523") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "05";
+					}
+					if (ss.indexOf("2A600623") != -1) {
+						log.info("通道当前状态为：" + ss);
+						this.errcode = "06";
+					}
+					if (ss.indexOf("2A58") != -1) {
 						log.info("通道当前状态为：" + ss);
 					}
-					readBuffer.delete(0, readBuffer.length());
+
 				}
 
 			} catch (IOException ex) {

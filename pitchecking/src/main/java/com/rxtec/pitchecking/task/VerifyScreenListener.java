@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.rxtec.pitchecking.Config;
 import com.rxtec.pitchecking.TicketVerifyScreen;
 import com.rxtec.pitchecking.device.DeviceConfig;
+import com.rxtec.pitchecking.device.TKQRDevice;
 import com.rxtec.pitchecking.mbean.ProcessUtil;
 import com.rxtec.pitchecking.mqtt.GatCtrlSenderBroker;
 
@@ -39,27 +40,33 @@ public class VerifyScreenListener implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 		String pidStr = ProcessUtil.getCurrentProcessID();
-//		ProcessUtil.writeHeartbeat(pidStr,Config.getInstance().getTicketVerifyHeartFile()); // 写心跳日志
-		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendMessage(DeviceConfig.EventTopic,
-				DeviceConfig.getInstance().getHeartStr(pidStr, "V"));
-		
-		int frameX = TicketVerifyScreen.getInstance().getTicketFrame().getX();
-//		log.debug("frameX=="+frameX);
-		if (frameX == 0) {
-			for (int i = 0; i < 3; i++) {
-				try {
-//					log.debug("Start 重置VerifyScreen的位置，恢复至第" + this.screenNo + "块屏");
-					TicketVerifyScreen.getInstance().initUI(this.screenNo);
-					TicketVerifyScreen.getInstance().repainFaceFrame();
-				} catch (Exception ex) {
-					log.error("重置VerifyScreen的位置失败!再次重置...");
-					continue;
+		// ProcessUtil.writeHeartbeat(pidStr,Config.getInstance().getTicketVerifyHeartFile());
+		// // 写心跳日志
+		GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendMessage(DeviceConfig.EventTopic, DeviceConfig.getInstance().getHeartStr(pidStr, "V"));
+
+//		log.info("BAR_GetErrMessage==" + TKQRDevice.getInstance().BAR_GetErrMessage());
+
+		if (Config.getInstance().getDoorCountMode() == DeviceConfig.DOUBLEDOOR) {// 双门模式
+			if (Config.getInstance().getFrontScreenMode() == 1) {
+				int frameX = TicketVerifyScreen.getInstance().getTicketFrame().getX();
+				// log.debug("frameX=="+frameX);
+				if (frameX == 0) {
+					for (int i = 0; i < 3; i++) {
+						try {
+							// log.debug("Start 重置VerifyScreen的位置，恢复至第" +
+							// this.screenNo + "块屏");
+							TicketVerifyScreen.getInstance().initUI(this.screenNo);
+							TicketVerifyScreen.getInstance().repainFaceFrame();
+						} catch (Exception ex) {
+							log.error("重置VerifyScreen的位置失败!再次重置...");
+							continue;
+						}
+						// log.debug("重置VerifyScreen的位置成功!");
+						break;
+					}
 				}
-//				log.debug("重置VerifyScreen的位置成功!");
-				break;
 			}
 		}
-
 	}
 
 }

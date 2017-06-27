@@ -1,36 +1,20 @@
 package com.rxtec.pitchecking.mqtt.pitevent;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
-import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.mqtt.MqttClient;
 import com.ibm.mqtt.MqttException;
 import com.ibm.mqtt.MqttSimpleCallback;
 import com.rxtec.pitchecking.Config;
-import com.rxtec.pitchecking.FaceTrackingScreen;
-import com.rxtec.pitchecking.ScreenCmdEnum;
-import com.rxtec.pitchecking.SingleFaceTrackingScreen;
-import com.rxtec.pitchecking.device.AudioDevice;
 import com.rxtec.pitchecking.device.DeviceConfig;
-import com.rxtec.pitchecking.event.ScreenElementModifyEvent;
-import com.rxtec.pitchecking.mbean.ProcessUtil;
-import com.rxtec.pitchecking.net.event.CAMOpenBean;
-import com.rxtec.pitchecking.net.event.EventHandler;
-import com.rxtec.pitchecking.net.event.PIVerifyEventBean;
-import com.rxtec.pitchecking.net.event.PIVerifyRequestBean;
-import com.rxtec.pitchecking.net.event.ScreenDisplayBean;
 import com.rxtec.pitchecking.picheckingservice.FaceCheckingService;
 import com.rxtec.pitchecking.picheckingservice.PITVerifyData;
 import com.rxtec.pitchecking.utils.CommUtil;
-import com.rxtec.pitchecking.utils.JsonUtils;
-import com.rxtec.pitchecking.utils.CalUtils;
 
 /**
  * 本类由人脸比对进程使用，目的是从PTVerify主题接收待验证队列
@@ -186,6 +170,7 @@ public class PTVerifyReceiver {
 					/**
 					 * 收到第一个后置摄像头送来的人脸时，首先做一次清理
 					 */
+//					log.info("DeviceConfig.getInstance().isInTracking()=="+DeviceConfig.getInstance().isInTracking());
 					if (DeviceConfig.getInstance().isInTracking()) {
 						if (!FaceCheckingService.getInstance().isReceiveBehindCameraFace()
 								&& fd.getCameraPosition() == 2) {
@@ -193,12 +178,12 @@ public class PTVerifyReceiver {
 							FaceCheckingService.getInstance().resetFaceDataQueue();
 							// Log.debug("收到第一个后置摄像头送来的人脸时，首先做一次清理");
 						}
-
+//						log.info("检脸状态下，收到人脸,fd.CameraPosition=="+fd.getCameraPosition());
 						FaceCheckingService.getInstance().offerFaceVerifyData(fd); // 加入待验证队列
 						// Log.debug("Receive request message : " + fd);
 					} else {
 						if (FaceCheckingService.getInstance().isDealNoneTrackFace() && fd.getCameraFaceMode() == 2) {
-							log.info("非检脸状态下，再次收到人脸");
+//							log.info("非检脸状态下，再次收到人脸");
 							FaceCheckingService.getInstance().offerFaceVerifyData(fd); // 加入待验证队列
 						}
 					}
@@ -231,7 +216,6 @@ public class PTVerifyReceiver {
 	public static void main(String[] args) {
 		PTVerifyReceiver mqttBroker = PTVerifyReceiver
 				.getInstance(DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum());
-		// MqttSenderBroker.getInstance().sendMessage("pub_topic", "DoorCmd12");
 
 	}
 }
