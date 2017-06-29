@@ -33,14 +33,20 @@ public class CallOcxFaceApp {
 
 		FaceCheckingService.getInstance().noticeCameraStatus();
 
-//		CallOcxFaceFrame callOcxFaceFrame = new CallOcxFaceFrame();
-//		callOcxFaceFrame.setCameraNo(appConfig.getOcxUsbCameraNo());		
-//		SingleOcxFaceScreen.getInstance().setOcxFaceFrame(callOcxFaceFrame);
-		
-		appConfig.setUseFullScreenCamera(true);
-		OcxFaceFrameTwo callOcxFaceFrame = new OcxFaceFrameTwo();
+		/**
+		 * 铁路版本
+		 */
+		CallOcxFaceFrame callOcxFaceFrame = new CallOcxFaceFrame();
 		callOcxFaceFrame.setCameraNo(appConfig.getOcxUsbCameraNo());		
 		SingleOcxFaceScreen.getInstance().setOcxFaceFrame(callOcxFaceFrame);
+		
+		/**
+		 * 桂林全屏版本
+		 */
+//		appConfig.setUseFullScreenCamera(true);
+//		OcxFaceFrameTwo callOcxFaceFrame = new OcxFaceFrameTwo();
+//		callOcxFaceFrame.setCameraNo(appConfig.getOcxUsbCameraNo());		
+//		SingleOcxFaceScreen.getInstance().setOcxFaceFrame(callOcxFaceFrame);
 		
 		boolean initUIFlag = false;
 		try {

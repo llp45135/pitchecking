@@ -195,10 +195,7 @@ public class DeviceConfig {
 	public static String Audio_TakeCard_Jms = "{\"Event\": 203,\"Target\": \"127.0.0.1\",\"EventSource\":\"FaceAudio\"}";
 
 	public static String EventTopic = "PITEventTopic";
-	public static String Event_StartTracking = "{\"Event\": 10010,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸开始核验
-	public static String Event_VerifyFaceSucc = "{\"Event\": 10011,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验成功
-	public static String Event_VerifyFaceFailed = "{\"Event\": 10012,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验失败
-	public static String Event_VerifyOvertimeFailed = "{\"Event\": 10013,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验超时
+	
 	public static String Event_ReadIDCardFailed = "{\"Event\": 80004,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 读二代证失败
 	public static String Event_ReadTicketFailed = "{\"Event\": 80001,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 读二维码失败
 	public static String Event_InvalidCardAndTicket = "{\"Event\": 80002,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 票证不符
@@ -226,10 +223,18 @@ public class DeviceConfig {
 	public static String Event_StandaloneCheckStartupSucc = "{\"Event\": 10006,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 独立比对启动成功
 	public static String Event_LetSend_FrontCameraFace = "{\"Event\": 10007,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 允许送前置摄像头的人脸
 	public static String Event_SetIDPhotoSuccess = "{\"Event\": 10008,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 易胜版本身份证建模成功
-
-	public static String Event_PressOpenSecondDoorButton = "{\"Event\":10022,\"Eventsource\":\"Gate\",\"Target\":\"127.0.0.1\"}";
+	
+	public static String Event_StartTracking = "{\"Event\": 10010,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸开始核验
+	public static String Event_VerifyFaceSucc = "{\"Event\": 10011,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验成功
+	public static String Event_VerifyFaceFailed = "{\"Event\": 10012,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验失败
+	public static String Event_VerifyOvertimeFailed = "{\"Event\": 10013,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 人脸核验超时
+	public static String Event_PersonFaceUnderRed = "{\"Event\": 10014,\"Target\": \"127.0.0.1\",\"EventSource\":\"TK\"}"; // 检测到低于1.4m身高的人脸
+	
 	public static String Event_SecondDoor_NormalClosed = "{\"Event\":10020,\"Eventsource\":\"Gate\",\"Target\":\"127.0.0.1\"}";
 	public static String Event_SecondDoor_OvertimeClosed = "{\"Event\":10021,\"Eventsource\":\"Gate\",\"Target\":\"127.0.0.1\"}";
+	public static String Event_PressOpenSecondDoorButton = "{\"Event\":10022,\"Eventsource\":\"Gate\",\"Target\":\"127.0.0.1\"}";
+	
+	
 
 	public static String Clear_QrCode_Jms = "{\"EventSource\":\"QRDevice\",\"QRCode\":\"\",\"Target\":\"127.0.0.1\"}";
 

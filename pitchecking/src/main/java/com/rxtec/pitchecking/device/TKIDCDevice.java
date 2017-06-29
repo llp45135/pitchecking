@@ -81,6 +81,7 @@ public class TKIDCDevice {
 	 * 对二代居民身份证识读单元进行初始化设置
 	 */
 	public String IDC_Init() {
+		log.debug("start IDC_Init");
 		String retval = "";
 		Pointer pointerOut = null;
 
@@ -151,6 +152,7 @@ public class TKIDCDevice {
 	 * 读取二代居民身份证识读单元序列号
 	 */
 	public String IDC_GetSerial() {
+		log.debug("start IDC_GetSerial");
 		String retval = "";
 		String cSerialNoStr = "";
 		Pointer pointerOut = null;
@@ -193,6 +195,7 @@ public class TKIDCDevice {
 	 * @return
 	 */
 	public String IDC_FetchCard(int iTimeOut) {
+		log.debug("start IDC_FetchCard");
 		String retval = "-1";
 		Pointer pointerCardType = null;
 		Pointer pointerOut = null;
@@ -274,6 +277,7 @@ public class TKIDCDevice {
 	 * 停止二代居民身份证识读单元寻找是否有二代居民身份证进入部件读取有效范围
 	 */
 	public void IDC_StopFetchCard() {
+		log.debug("start IDC_StopFetchCard");
 		String retval = "";
 		Pointer pointerOut = null;
 
@@ -346,6 +350,8 @@ public class TKIDCDevice {
 	 * @return
 	 */
 	public IDCard IDC_ReadIDCardInfo(int iType) {
+		log.info("start IDC_ReadIDCardInfo");
+		
 		String retval = "-1";
 		Pointer pointerCardInfo = null;
 		Pointer pointerOut = null;
@@ -508,7 +514,7 @@ public class TKIDCDevice {
 				BufferedImage idCardImage = null;
 				idCardImage = ImageIO.read(idcardFile);
 				if (idCardImage != null) {
-					log.debug("完整读取二代证照片成功！");
+					log.info("完整读取二代证照片成功！");
 					synIDCard.setCardImage(idCardImage); // set cardImage
 					byte[] idCardImageBytes = null;
 					idCardImageBytes = CommUtil.getImageBytesFromImageBuffer(idCardImage);
@@ -556,6 +562,7 @@ public class TKIDCDevice {
 			}
 			pointerCardInfo.dispose();
 			pointerOut.dispose();
+			log.info("end IDC_ReadIDCardInfo");
 		} catch (NativeException e) {
 			// TODO Auto-generated catch block
 			log.error("TKIDCDevice IDC_ReadIDCardInfo:", e);

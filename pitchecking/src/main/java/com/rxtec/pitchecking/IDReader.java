@@ -202,7 +202,7 @@ public class IDReader implements Runnable {
 	}
 
 	/**
-	 * 鐵科新版讀卡器
+	 * 铁科新版读卡器
 	 * 
 	 * @param device
 	 */

@@ -1019,6 +1019,12 @@ public class TicketVerify {
 		// log.debug("ticket==" + ticket + "||idcard==" + idCard);
 		if (ticket == null || idCard == null) {
 			if (ticket != null) { // 有票
+				if(DeviceEventListener.getInstance().getTicketPassMap().get(ticket.getTicketNo())!=null){
+					log.info("重复刷票");
+					return Config.TicketVerifyRepeatCheck;
+				}
+				
+				
 				if (DeviceConfig.getInstance().getCheckTicketFlag() == 1) {// 需要核验票证
 					if (!ticket.getFromStationCode().equals(DeviceConfig.getInstance().getBelongStationCode())) {// 非本站乘车
 						log.info("TicketVerifyStationRuleFail==非本站乘车");
@@ -1161,6 +1167,11 @@ public class TicketVerify {
 					log.info("重复刷卡");
 					return Config.TicketVerifyRepeatCheck;
 				}
+				
+				if(DeviceEventListener.getInstance().getTicketPassMap().get(ticket.getTicketNo())!=null){
+					log.info("重复刷票");
+					return Config.TicketVerifyRepeatCheck;
+				}
 
 				if (DeviceConfig.getInstance().getSoftIdNo().indexOf(idCard.getIdNo()) != -1 && ticket.getCardNo().equals(idCard.getIdNo())) { // 白名单
 					return Config.TicketVerifySucc;
@@ -1279,6 +1290,7 @@ public class TicketVerify {
 
 	public void setIdCard(IDCard idCard) {
 		this.idCard = idCard;
+//		log.info("Set二代证");
 	}
 
 	public void reset() {

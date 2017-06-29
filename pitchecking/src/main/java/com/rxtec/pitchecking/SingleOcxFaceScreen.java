@@ -24,28 +24,28 @@ public class SingleOcxFaceScreen {
 	private Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	private static SingleOcxFaceScreen _instance = new SingleOcxFaceScreen();
 
-	// CallOcxFaceFrame ocxFaceFrame;
-	OcxFaceFrameTwo ocxFaceFrame;
+	 CallOcxFaceFrame ocxFaceFrame;
+//	OcxFaceFrameTwo ocxFaceFrame;
 
-	public OcxFaceFrameTwo getOcxFaceFrame() {
-		return ocxFaceFrame;
-	}
-
-	public void setOcxFaceFrame(OcxFaceFrameTwo ocxFaceFrame) {
-		this.ocxFaceFrame = ocxFaceFrame;
-	}
+//	public OcxFaceFrameTwo getOcxFaceFrame() {
+//		return ocxFaceFrame;
+//	}
+//
+//	public void setOcxFaceFrame(OcxFaceFrameTwo ocxFaceFrame) {
+//		this.ocxFaceFrame = ocxFaceFrame;
+//	}
 
 	private SingleOcxFaceScreen() {
 
 	}
 
-	// public CallOcxFaceFrame getOcxFaceFrame() {
-	// return ocxFaceFrame;
-	// }
-	//
-	// public void setOcxFaceFrame(CallOcxFaceFrame ocxFaceFrame) {
-	// this.ocxFaceFrame = ocxFaceFrame;
-	// }
+	 public CallOcxFaceFrame getOcxFaceFrame() {
+	 return ocxFaceFrame;
+	 }
+	
+	 public void setOcxFaceFrame(CallOcxFaceFrame ocxFaceFrame) {
+	 this.ocxFaceFrame = ocxFaceFrame;
+	 }
 
 	public void initUI(int screenNo) throws Exception {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();

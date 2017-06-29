@@ -4,16 +4,23 @@ import intel.rssdk.*;
 import java.lang.System.*;
 import java.util.*;
 import javax.swing.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.rxtec.pitchecking.utils.CommUtil;
+
 import java.awt.event.*;
 import java.awt.image.*;
 import java.awt.*;
 
 public class FaceTrackingNoneUI {
+	static Logger log = LoggerFactory.getLogger("DeviceEventListener");
 	public static void main(String s[]) throws java.io.IOException {
 		PXCMSenseManager senseMgr = PXCMSenseManager.CreateInstance();
 
 		if (senseMgr == null) {
-			System.out.println("Failed to create a sense manager instance.");
+			log.error("Failed to create a sense manager instance.");
 			return;
 		}
 
@@ -21,7 +28,7 @@ public class FaceTrackingNoneUI {
 		PXCMFaceModule faceModule = senseMgr.QueryFace();
 
 		if (sts.isError() || faceModule == null) {
-			System.out.println("Failed to initialize face module.");
+			log.error("Failed to initialize face module.");
 			return;
 		}
 
@@ -36,18 +43,19 @@ public class FaceTrackingNoneUI {
 		sts = senseMgr.Init();
 
 		if (sts.isError()) {
-			System.out.println("Init failed: " + sts);
+			log.error("Init failed: " + sts);
 			return;
 		}
 
 		PXCMCapture.Device dev = senseMgr.QueryCaptureManager().QueryDevice();
 		PXCMCapture.DeviceInfo info = new PXCMCapture.DeviceInfo();
 		dev.QueryDeviceInfo(info);
-		System.out.println("Using Camera: " + info.name);
+		log.error("Using Camera: " + info.name);
 
 		PXCMFaceData faceData = faceModule.CreateOutput();
 
 		while (senseMgr.AcquireFrame(true).isSuccessful()) {
+			CommUtil.sleep(1000);
 
 			PXCMCapture.Sample sample = senseMgr.QueryFaceSample();
 
@@ -65,19 +73,23 @@ public class FaceTrackingNoneUI {
 					PXCMRectI32 rect = new PXCMRectI32();
 					boolean ret = detectData.QueryBoundingRect(rect);
 					if (ret) {
-						System.out.println("");
-						System.out.println("Top Left corner: (" + rect.x + "," + rect.y + ")");
-						System.out.println("Height: " + rect.h + " Width: " + rect.w);
+						//System.out.println("Face ID:" + face.QueryUserID() +"..............................................");
+						//System.out.println("Top Left corner: (" + rect.x + "," + rect.y + ")");
+						//计算人脸平均距离
+						float[] depth = new float[1]; 
+						detectData.QueryFaceAverageDepth(depth);
+						
+						log.info("queryUserID=="+face.QueryUserID() + ",rect.y==" + rect.y +",depth==" + depth[0]);
 					}
 				} else
 					break;
 
-				PXCMFaceData.PoseData poseData = face.QueryPose();
-				if (poseData != null) {
-					PXCMFaceData.PoseEulerAngles pea = new PXCMFaceData.PoseEulerAngles();
-					poseData.QueryPoseAngles(pea);
-					System.out.println("(Roll, Yaw, Pitch) = (" + pea.roll + "," + pea.yaw + "," + pea.pitch + ")");
-				}
+//				PXCMFaceData.PoseData poseData = face.QueryPose();
+//				if (poseData != null) {
+//					PXCMFaceData.PoseEulerAngles pea = new PXCMFaceData.PoseEulerAngles();
+//					poseData.QueryPoseAngles(pea);
+//					System.out.println("(Roll, Yaw, Pitch) = (" + pea.roll + "," + pea.yaw + "," + pea.pitch + ")");
+//				}
 			}
 
 			// faceData.close();

@@ -643,9 +643,16 @@ public class GatCtrlReceiverBroker {
 								if (gatCrtlBean.getEvent() == 10010) {
 									DeviceConfig.getInstance().setInTracking(true);
 								} else if (gatCrtlBean.getEvent() == 10011 || gatCrtlBean.getEvent() == 10012) { // 检脸成功或失败
-									if (gatCrtlBean.getEvent() == 10011) {
+									if (gatCrtlBean.getEvent() == 10011) { // 检脸成功
 										IDCard succCard = FaceCheckingService.getInstance().getIdcard();
 										DeviceEventListener.getInstance().getPersonPassMap().put(succCard.getIdNo(), succCard);
+
+										Ticket succTicket = DeviceEventListener.getInstance().getTicketVerify().getTicket();
+										log.info("succTicket==" + succTicket);
+										if (succTicket != null) {
+											DeviceEventListener.getInstance().getTicketPassMap().put(succTicket.getTicketNo(), succTicket);
+											log.info("票号" + succTicket.getTicketNo() + "已经put进TicketPassMap");
+										}
 									}
 
 									DeviceConfig.getInstance().setInTracking(false);
@@ -654,6 +661,11 @@ public class GatCtrlReceiverBroker {
 									DeviceEventListener.getInstance().clearDeviceEvent();
 								} else if (gatCrtlBean.getEvent() == 10013) { // 核验超时
 									DeviceConfig.getInstance().setInTracking(false);
+								} else if (gatCrtlBean.getEvent() == 10014) { // 检测到低于1.4m身高的人脸
+									int cc = DeviceEventListener.getInstance().getChildCheckCount();
+									cc = cc + 1;
+									log.info("检测到低于1.4m身高的人脸,次数==" + cc);
+									DeviceEventListener.getInstance().setChildCheckCount(cc);
 								}
 
 							} else if (CLIENT_ID.equals("GCR" + localIP + DeviceConfig.GAT_MQ_Guide_CLIENT)) { // 由用户引导进程处理

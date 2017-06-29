@@ -64,6 +64,7 @@ public class DeviceEventListener implements Runnable {
 	private LinkedBlockingQueue<IDeviceEvent> deviceEventQueue = new LinkedBlockingQueue<IDeviceEvent>(1);
 
 	private Map<String, IDCard> personPassMap = new HashMap<String, IDCard>(); // 重复刷卡时使用
+	private Map<String, Ticket> ticketPassMap = new HashMap<String, Ticket>(); // 重复刷票时使用
 
 	//
 	private LinkedBlockingQueue<CAMOpenBean> camOpenDataQueue;
@@ -79,10 +80,28 @@ public class DeviceEventListener implements Runnable {
 
 	private Map<String, TrainInfomation> trainInfoMap = new HashMap<String, TrainInfomation>(); // 旅服数据-正晚点信息
 
+	private int childCheckCount = 0; // 根据身高判断是否为儿童
+
 	/********************************************************************************/
 
 	public int getFlapCount() {
 		return flapCount;
+	}
+
+	public Map<String, Ticket> getTicketPassMap() {
+		return ticketPassMap;
+	}
+
+	public void setTicketPassMap(Map<String, Ticket> ticketPassMap) {
+		this.ticketPassMap = ticketPassMap;
+	}
+
+	public int getChildCheckCount() {
+		return childCheckCount;
+	}
+
+	public void setChildCheckCount(int childCheckCount) {
+		this.childCheckCount = childCheckCount;
 	}
 
 	public Map<String, TrainInfomation> getTrainInfoMap() {
@@ -410,6 +429,14 @@ public class DeviceEventListener implements Runnable {
 		this.setDeviceReader(false);// 停止寻卡
 
 		/**
+		 * 已经是不同旅客的车票,则将当前车票map清空
+		 */
+		if (this.ticketVerify.getTicket() != null && this.ticketPassMap.get(this.ticketVerify.getTicket().getTicketNo()) == null) {
+			this.ticketPassMap.clear();
+			log.info("已经是不同旅客的车票,则将当前车票map清空");
+		}
+
+		/**
 		 * 20170529 开始核验票证前增加防尾随检测
 		 */
 		if (Config.getInstance().getIsUseTrail() == 1) { // 启用防尾随检测
@@ -456,6 +483,8 @@ public class DeviceEventListener implements Runnable {
 			// this.setDeviceReader(false);// 停止寻卡
 
 			// DeviceConfig.getInstance().setSecondGateOpenCount(0);
+
+			this.childCheckCount = 0; // 判断是否儿童次数值重置
 
 			GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd(DeviceConfig.Audio_TakeCard_Jms);
 
@@ -589,7 +618,7 @@ public class DeviceEventListener implements Runnable {
 									} else {
 										releaseCount = 0;
 									}
-									if (releaseCount >= 5) {
+									if (releaseCount >= 5 || this.childCheckCount >= Config.getInstance().getJudgeIsChildCount()) {
 										break;
 									}
 								}
@@ -667,6 +696,7 @@ public class DeviceEventListener implements Runnable {
 					// // 更新监控状态
 					flapCount = flapCount + 1;
 					MonitorXMLUtil.updateFlapTotalForMonitor(Config.getInstance().getMyStatusXML(), this.flapCount);
+
 
 					/**
 					 * 票证人核验通过，开门成功:上传回执照片

@@ -871,9 +871,9 @@ public class RSFaceTrackTask implements Runnable {
 				List<PITData> faceDatas = new ArrayList<PITData>();
 				for (SortedFace sf : sortFaces) {
 					PXCMFaceData.Face face = sf.face;
-					PXCMFaceData.DetectionData detection = face.QueryDetection();
+					PXCMFaceData.DetectionData detectionData = face.QueryDetection();
 
-					drawLocation(detection);// 画脸部框
+					drawLocation(detectionData);// 画脸部框
 					PXCMFaceData.PoseEulerAngles pae = checkFacePose(face.QueryPose());
 
 					boolean isRealFace = true;
@@ -884,15 +884,17 @@ public class RSFaceTrackTask implements Runnable {
 						}
 					}
 
-					// log.debug("detection==" + detection);
-					if (detection != null && isRealFace) {
+					// log.debug("detectionData==" + detectionData);
+					if (detectionData != null && isRealFace) {
 						drawLandmark(face);
-						PITData fd = createFaceData(frameImage, detection);
+						PITData fd = createFaceData(frameImage, detectionData);
 
 						fd.setFaceQuality(sf.getQuality());
 						if (fd != null) {
 							// log.info("isInTracking===" +
-							// DeviceConfig.getInstance().isInTracking());
+							// DeviceConfig.getInstance().isInTracking());					
+							
+							
 							if (DeviceConfig.getInstance().isInTracking()) {
 								if (fd.isDetectedFace() && currentIDCard != null && currentTicket != null) {
 									/**
@@ -911,6 +913,26 @@ public class RSFaceTrackTask implements Runnable {
 									fd.setCameraPosition(2); // 后置摄像头人脸
 									fd.setCameraFaceMode(1); // 检脸状态下的人脸
 									faceDatas.add(fd);
+									
+									/**
+									 * 新增通过人脸框的y值来大概判断旅客高度
+									 */
+									PXCMRectI32 rect = new PXCMRectI32();
+									boolean ret = detectionData.QueryBoundingRect(rect);
+									if (ret) {
+										//System.out.println("Face ID:" + face.QueryUserID() +"..............................................");
+										//System.out.println("Top Left corner: (" + rect.x + "," + rect.y + ")");
+										//计算人脸平均距离
+										float[] depth = new float[1]; 
+										detectionData.QueryFaceAverageDepth(depth);
+										
+										log.info("queryUserID=="+face.QueryUserID() + ",rect.y==" + rect.y +",depth==" + depth[0]);
+									}
+									
+									if(rect.y > Config.getInstance().getFaceRectY()){
+										String trackClientId = DeviceConfig.GAT_MQ_Track_CLIENT + Config.getInstance().getCameraNum();
+										GatCtrlSenderBroker.getInstance(trackClientId).sendMessage(DeviceConfig.EventTopic, DeviceConfig.Event_PersonFaceUnderRed);
+									}
 								}
 							} else { // 非正常检脸流程中
 								// log.info("非正常检脸流程中,lastIdCard==" +

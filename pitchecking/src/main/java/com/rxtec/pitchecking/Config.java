@@ -390,6 +390,9 @@ public class Config {
 	private String lvFuFtpAddress = "10.168.72.60";
 	private String lvFuFtpUser = "pitcheck";
 	private String lvFuFtpPwd = "pitcheck";
+	
+	private int faceRectY = 320;   //判断旅客身高的人脸框y值  大于这个值认定为低于1.4m
+	private int judgeIsChildCount = 10;  //连续判断为儿童的次数
 
 	/************************************************************
 	 * 人脸检测-比对任务 版本 人脸检测-比对任务有两个版本： RX=睿新版本用于睿新自有java版本闸机主控程序 TK=铁科版本主控程序
@@ -420,6 +423,22 @@ public class Config {
 	
 	public int getIsUseThirdMQ() {
 		return isUseThirdMQ;
+	}
+
+	public int getJudgeIsChildCount() {
+		return judgeIsChildCount;
+	}
+
+	public void setJudgeIsChildCount(int judgeIsChildCount) {
+		this.judgeIsChildCount = judgeIsChildCount;
+	}
+
+	public int getFaceRectY() {
+		return faceRectY;
+	}
+
+	public void setFaceRectY(int faceRectY) {
+		this.faceRectY = faceRectY;
 	}
 
 	public String getLvFuFtpAddress() {
@@ -2334,6 +2353,8 @@ public class Config {
 			this.lvFuFtpAddress = p.getProperty("lvFuFtpAddress", "10.168.72.60");
 			this.lvFuFtpUser = p.getProperty("lvFuFtpUser", "pitcheck");
 			this.lvFuFtpPwd = p.getProperty("lvFuFtpPwd", "pitcheck");
+			this.faceRectY = Integer.valueOf(p.getProperty("faceRectY", "320"));
+			this.judgeIsChildCount = Integer.valueOf(p.getProperty("judgeIsChildCount", "10"));
 			is.close(); // 关闭流
 		} catch (IOException e) {
 			e.printStackTrace();
