@@ -105,7 +105,9 @@ public class TicketVerifyScreen {
 		if (cmdType == ScreenCmdEnum.ShowTicketVerifyWaitInput.getValue()) {
 			if (ticket == null && idCard != null) {
 				// log.debug("等待旅客扫描车票！");
-				ticketFrame.showWaitInputContent(null, idCard, 1, 0);
+//				ticketFrame.showWaitInputContent(null, idCard, 1, 0);
+				String errCode = "";
+				ticketFrame.showTKInfo(errCode, "还需刷车票二维码", 1);
 			}
 			if (ticket != null && idCard == null) {
 				// log.debug("等待旅客刷身份证！");

@@ -397,9 +397,11 @@ public class DeviceEventListener implements Runnable {
 					CommUtil.sleep(120);
 				}
 			}
-			log.info("开发指令已发");
+			log.info("开门指令已发");
 			this.setDealDeviceEvent(true);// 允许处理新的事件
 			this.setDeviceReader(true);// 恢复寻卡
+			TicketVerifyScreen.getInstance().offerEvent(new ScreenElementModifyEvent(0, ScreenCmdEnum.ShowTicketDefault.getValue(), null, null, null)); // 恢复初始界面
+
 		} else if (ticketVerifyResult.equals(Config.TicketVerifyStationRuleFail)) { // 非本站出闸
 			// GatCtrlSenderBroker.getInstance(DeviceConfig.GAT_MQ_Verify_CLIENT).sendDoorCmd(DeviceConfig.Event_InvalidStation);
 
@@ -603,6 +605,7 @@ public class DeviceEventListener implements Runnable {
 					 * 20170430 增加防尾随检测
 					 */
 					if (Config.getInstance().getIsUseTrail() == 1) { // 启用防尾随检测
+						log.info("开始进入防尾随检测...");
 						for (int tc = 0; tc < 2; tc++) {
 							CommUtil.sleep(200);
 							log.info("防尾随状态==" + this.trailingStatus);
@@ -696,7 +699,6 @@ public class DeviceEventListener implements Runnable {
 					// // 更新监控状态
 					flapCount = flapCount + 1;
 					MonitorXMLUtil.updateFlapTotalForMonitor(Config.getInstance().getMyStatusXML(), this.flapCount);
-
 
 					/**
 					 * 票证人核验通过，开门成功:上传回执照片
